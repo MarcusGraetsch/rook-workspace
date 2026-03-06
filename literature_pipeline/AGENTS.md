@@ -123,3 +123,59 @@ Not all are needed — only install what the current step requires:
 - GROBID extraction silently falls back to LLM if the service isn't running. No error, just a log line.
 - `generate_embeddings.py` requires OpenAI API key even when using Claude for everything else — embeddings are OpenAI-only.
 - The orchestrator (`run_pipeline.py`) runs each step as a subprocess. Steps don't share DB connections or LLM clients across process boundaries.
+
+## Telegram Integration
+
+**Module**: `telegram_handler.py`
+
+**Purpose**: Ermöglicht das Senden von PDFs via Telegram direkt an die Pipeline.
+
+**Workflow**:
+1. PDF wird via Telegram empfangen
+2. `process_pdf_from_telegram()` wird von OpenClaw aufgerufen
+3. PDF wird in `inbox/` gespeichert
+4. Pipeline läuft: ingest → text → refs → knowledge
+5. Zusammenfassung wird generiert
+6. PDF wird nach `archive/` verschoben
+7. Antwort an Telegram-Chat
+
+**Key Functions**:
+- `save_pdf_from_telegram()` — Speichert PDF mit Timestamp
+- `run_pipeline_on_pdf()` — Führt Pipeline-Schritte aus
+- `generate_telegram_summary()` — Formatiert Output für Telegram
+- `archive_pdf()` — Verschiebt nach archive/ (für RAG)
+
+**Output Format**:
+```
+✅ Verarbeitung abgeschlossen
+
+📄 *Titel*
+👤 Autoren (Jahr)
+
+📝 *Zusammenfassung:*
+[Key Findings aus LLM]
+
+📚 *Beispiel-Referenzen:*
+1. Erste Referenz
+2. Zweite Referenz
+3. Dritte Referenz
+
+📖 *BibTeX (erste 3):*
+```bibtex
+[...]
+```
+```
+
+**Integration Points**:
+- Verwendet bestehende Pipeline-Schritte (keine Duplikation)
+- Nutzt absolute Pfade (`/root/.openclaw/workspace/...`)
+- Archiviert PDFs mit Source-ID (z.B. `source_123_20250306_filename.pdf`)
+- Formatiert für Telegram Markdown (max 4000 Zeichen)
+
+**Testing**:
+```bash
+# Manueller Test (nur für Entwicklung)
+python -m literature_pipeline.telegram_handler --test-file paper.pdf
+```
+
+**Note**: Das Modul wird von OpenClaw aufgerufen, nicht manuell gestartet.

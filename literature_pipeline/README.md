@@ -21,6 +21,10 @@ literature_pipeline/
 ├── generate_embeddings.py     # Step 7: RAG embeddings
 ├── run_pipeline.py            # Orchestrator
 │
+├── telegram_handler.py        # Telegram Integration (PDF via Chat)
+├── inbox/                     # Eingehende PDFs von Telegram
+├── archive/                   # Archivierte PDFs für RAG
+│
 ├── extracted_text/            # Markdown output per source
 ├── knowledge/                 # Structured JSON per source
 └── embeddings/                # Numpy vectors (gitignored)
@@ -213,6 +217,55 @@ python -m literature_pipeline.run_pipeline --steps ingest,build_graph  # Specifi
 python -m literature_pipeline.run_pipeline --stats                  # DB statistics
 python -m literature_pipeline.run_pipeline --limit 5                # Process max 5 sources per step
 ```
+
+## Telegram Integration
+
+Sende PDFs direkt via Telegram an die Pipeline. Rook (OpenClaw Agent) verarbeitet sie automatisch und sendet eine Zusammenfassung zurück.
+
+### Workflow
+
+```
+Du (Telegram) → PDF senden → Rook speichert in inbox/
+                                      ↓
+                    Pipeline: ingest → extract_text → extract_refs → extract_knowledge
+                                      ↓
+                    Zusammenfassung: Titel + Autoren + Key Findings
+                                      ↓
+                    + 3 Beispiel-Referenzen + 3 BibTeX-Einträge
+                                      ↓
+                    Antwort an Dich (Telegram)
+```
+
+### Ausgabe-Format
+
+Die Telegram-Antwort enthält:
+- 📄 **Titel** und 👤 **Autoren**
+- 📝 **Zusammenfassung** (Key Findings aus LLM)
+- 📚 **3 Beispiel-Referenzen** (erste gefundene)
+- 📖 **3 BibTeX-Einträge** (für direkte Zitation)
+- 💾 **Archiv-Info** (für späteres RAG)
+
+### Verzeichnisse
+
+- `inbox/` - Temporäre Speicherung eingehender PDFs
+- `archive/` - Langzeitarchivierung (für späteres RAG, nicht gelöscht)
+
+### Technische Details
+
+Das Modul `telegram_handler.py`:
+- Wird von OpenClaw aufgerufen (nicht manuell)
+- Nutzt bestehende Pipeline-Schritte (ingest → knowledge)
+- Archiviert PDFs mit Source-ID für RAG-Referenz
+- Formatiert Ausgabe Telegram-Markdown-kompatibel
+
+### Manuelle Tests (nur für Entwicklung)
+
+```bash
+# Test mit lokaler PDF-Datei
+python -m literature_pipeline.telegram_handler --test-file /path/to/paper.pdf
+```
+
+---
 
 ## Dependencies
 
