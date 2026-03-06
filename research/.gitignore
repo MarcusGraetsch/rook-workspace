@@ -24,8 +24,8 @@ fulltext/
 # Notification files
 notify_pending.json
 
-# Batch processing scripts (temporary)
-clean_all_articles.py
-clean_articles_stichprobe.py
-clean_with_llm.py
-process_llm_batches.py
+# Batch processing scripts (temporary) - now in experimental/
+# clean_all_articles.py
+# clean_articles_stichprobe.py
+# clean_with_llm.py
+# process_llm_batches.py
