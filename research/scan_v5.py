@@ -130,6 +130,12 @@ class EmailScanner:
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='articles'")
         if not cursor.fetchone():
             raise RuntimeError("Database does not have 'articles' table. Run schema creation first.")
+        # Ensure content_hash column exists (for deduplication)
+        cursor.execute("PRAGMA table_info(articles)")
+        columns = [row[1] for row in cursor.fetchall()]
+        if 'content_hash' not in columns:
+            cursor.execute('ALTER TABLE articles ADD COLUMN content_hash TEXT')
+            self.db.commit()
     
     def get_gmail_service(self, account_type):
         """Authenticate and return Gmail service using JSON token file"""
@@ -310,6 +316,44 @@ paywall: {content.get('paywall', False)}
         cursor = self.db.cursor()
         cursor.execute('SELECT id FROM articles WHERE url = ?', (url,))
         return cursor.fetchone() is not None
+
+    def _normalize_title(self, title):
+        """Normalize a title for comparison (lowercase, strip punctuation/whitespace)"""
+        title = title.lower().strip()
+        title = re.sub(r'[^\w\s]', '', title)  # remove punctuation
+        title = re.sub(r'\s+', ' ', title)      # collapse whitespace
+        return title
+
+    def _content_hash(self, text):
+        """Generate a hash from the first 500 words of content for dedup"""
+        words = text.split()[:500]
+        normalized = ' '.join(w.lower() for w in words)
+        return hashlib.md5(normalized.encode()).hexdigest()
+
+    def find_duplicate(self, title, text=''):
+        """Check if a similar article already exists (by title or content hash)"""
+        cursor = self.db.cursor()
+
+        # Check by normalized title similarity
+        norm_title = self._normalize_title(title)
+        if norm_title and len(norm_title) > 10:
+            cursor.execute('SELECT id, title, url FROM articles WHERE title IS NOT NULL')
+            for row in cursor.fetchall():
+                existing_norm = self._normalize_title(row[1] or '')
+                if existing_norm and existing_norm == norm_title:
+                    return row[2]  # return existing URL
+
+        # Check by content hash if we have substantial text
+        if text and len(text.split()) > 100:
+            content_hash = self._content_hash(text)
+            cursor.execute('''
+                SELECT url FROM articles WHERE content_hash = ?
+            ''', (content_hash,))
+            row = cursor.fetchone()
+            if row:
+                return row[0]
+
+        return None
     
     def insert_article(self, url, content, email_account, email_date, email_subject, category):
         """Insert article with existing schema"""
@@ -325,13 +369,18 @@ paywall: {content.get('paywall', False)}
         # Prepare abstract (first 500 chars)
         abstract = content.get('text', '')[:500] + '...' if len(content.get('text', '')) > 500 else content.get('text', '')
         
+        # Compute content hash for deduplication
+        text = content.get('text', '')
+        c_hash = self._content_hash(text) if text else None
+
         cursor.execute('''
             INSERT OR REPLACE INTO articles (
                 id, url, domain, title, author, publication_date, access_date,
                 email_account, email_date, email_subject, content_status,
                 fulltext_path, abstract, word_count, category, tags, paywall,
-                paywall_type, requires_manual_review, http_status, error_message
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                paywall_type, requires_manual_review, http_status, error_message,
+                content_hash
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             article_id,
             url,
@@ -353,7 +402,8 @@ paywall: {content.get('paywall', False)}
             content.get('paywall_type'),
             False,  # requires_manual_review
             content.get('http_status', 200),
-            None   # error_message
+            None,  # error_message
+            c_hash
         ))
         
         self.db.commit()
@@ -492,6 +542,11 @@ paywall: {content.get('paywall', False)}
                     logger.warning(f"   ❌ Failed: {content['error']}")
                     self.insert_error(url, content['error'], account_email, date, subject, category, content.get('http_status'))
                 else:
+                    # Check for duplicate content (same title or content at different URL)
+                    dup_url = self.find_duplicate(content.get('title', ''), content.get('text', ''))
+                    if dup_url:
+                        logger.info(f"   ♻️  Duplicate of {dup_url[:60]}... skipping")
+                        continue
                     self.insert_article(url, content, account_email, date, subject, category)
                     saved_count += 1
                     logger.info(f"   ✅ Saved: {content['title'][:60]}...")
