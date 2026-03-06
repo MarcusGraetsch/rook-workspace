@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 """
+⚠️  DEPRECATED - Dieses Script wird nicht mehr verwendet!
+
 Article Cleaner - LLM Batch Processing
 Processes articles in batches using LLM for cleaning
+
+STATUS: Experimental / Archiviert
+GRUND: Subagent-Aufrufe funktionierten nicht zuverlässig
+ERSATZ: ../clean_smart.py (Heuristiken statt LLM)
+
+Dieses Script bleibt als Referenz im Git, wird aber nicht ausgeführt.
+Für Produktion verwende clean_smart.py
 """
 
 import os

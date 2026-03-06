@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 """
+⚠️  DEPRECATED - Dieses Script wird nicht mehr verwendet!
+
 Article Cleaner - Batch Processing
 Cleans all articles using LLM in batches
 Updates database and deletes paywall-only files
+
+STATUS: Experimental / Archiviert
+GRUND: Würde Stunden dauern, zu teuer, instabil
+ERSATZ: ../clean_smart.py (Heuristiken statt LLM)
+
+Dieses Script bleibt als Referenz im Git, wird aber nicht ausgeführt.
+Für Produktion verwende clean_smart.py
 """
 
 import os

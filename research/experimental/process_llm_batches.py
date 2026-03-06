@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 """
+⚠️  DEPRECATED - Dieses Script wird nicht mehr verwendet!
+
 LLM Article Cleaner - Batch Processor
 Processes all batches in llm_queue/ with LLM cleaning
+
+STATUS: Experimental / Archiviert
+GRUND: War ein Workaround für clean_with_llm.py, nie produktiv genutzt
+ERSATZ: ../clean_smart.py (Heuristiken statt LLM)
+
+Dieses Script bleibt als Referenz im Git, wird aber nicht ausgeführt.
+Für Produktion verwende clean_smart.py
 """
 
 import os

@@ -1,8 +1,17 @@
 #!/usr/bin/env python3
 """
+⚠️  DEPRECATED - Dieses Script wird nicht mehr verwendet!
+
 Article Cleaner - Stichprobe
 Cleans scraped articles by removing navigation/paywall noise
 Uses LLM to detect if article has real content or just paywall
+
+STATUS: Experimental / Archiviert
+GRUND: Zu langsam, LLM-Rate-Limits, unzuverlässig
+ERSATZ: ../clean_smart.py (Heuristiken statt LLM)
+
+Dieses Script bleibt als Referenz im Git, wird aber nicht ausgeführt.
+Für Produktion verwende clean_smart.py
 """
 
 import os
