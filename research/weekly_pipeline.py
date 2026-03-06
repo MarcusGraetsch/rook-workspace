@@ -55,6 +55,22 @@ def run_scan():
         log(f"   ❌ Scan failed: {e}")
         return False
 
+def run_rss_scan():
+    """Run RSS feed scan"""
+    log("📡 Starting RSS feed scan...")
+    try:
+        result = subprocess.run(
+            ['python3', str(RESEARCH_DIR / 'scan_rss.py')],
+            capture_output=True,
+            text=True,
+            timeout=3600  # 1 hour max
+        )
+        log(f"   ✅ RSS scan complete")
+        return True
+    except Exception as e:
+        log(f"   ❌ RSS scan failed: {e}")
+        return False
+
 def run_clean():
     """Run article cleaning"""
     log("🧹 Starting article cleaning...")
@@ -149,11 +165,16 @@ def main():
     saved_before, needs_label_before = count_new_articles()
     log(f"\n📊 Before: {saved_before} articles to clean, {needs_label_before} to label")
     
-    # Step 1: Scan
+    # Step 1a: Email scan
     if not run_scan():
-        log("❌ Pipeline aborted at scan step")
+        log("❌ Pipeline aborted at email scan step")
         return
-    
+
+    # Step 1b: RSS feed scan
+    time.sleep(2)
+    if not run_rss_scan():
+        log("⚠️  RSS scan had issues, continuing...")
+
     # Step 2: Clean
     time.sleep(2)
     if not run_clean():
