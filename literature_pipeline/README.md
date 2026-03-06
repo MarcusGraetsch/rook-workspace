@@ -23,7 +23,15 @@ literature_pipeline/
 │
 ├── telegram_handler.py        # Telegram Integration (PDF via Chat)
 ├── inbox/                     # Eingehende PDFs von Telegram
+│   ├── monograph/
+│   ├── edited_volume/
+│   ├── journal_article/
+│   └── web_article/
 ├── archive/                   # Archivierte PDFs für RAG
+│   ├── monograph/
+│   ├── edited_volume/
+│   ├── journal_article/
+│   └── web_article/
 │
 ├── extracted_text/            # Markdown output per source
 ├── knowledge/                 # Structured JSON per source
@@ -33,174 +41,87 @@ literature_pipeline/
 ## Quick Start
 
 ```bash
-# 1. Initialize DB and import existing bibliography
-python -m literature_pipeline.ingest --from-bibtex literature/bibliography.bib
+# Initialize database
+python -m literature_pipeline.db
 
-# 2. Ingest a single new source
-python -m literature_pipeline.ingest \
-  --file /path/to/book.pdf \
-  --title "Platform Capitalism" \
-  --authors "Srnicek, Nick" \
-  --year 2017 \
-  --type book
-
-# 3. Run the full pipeline
+# Run full pipeline
 python -m literature_pipeline.run_pipeline
 
-# 4. Or run specific steps
-python -m literature_pipeline.run_pipeline --steps extract_text,extract_refs
-
-# 5. Check progress
-python -m literature_pipeline.run_pipeline --stats
+# Or step by step
+python -m literature_pipeline.ingest --file paper.pdf --title "Title"
+python -m literature_pipeline.extract_text --source-id 1
+python -m literature_pipeline.extract_refs --source-id 1
+python -m literature_pipeline.extract_knowledge --source-id 1
 ```
 
-## Pipeline Steps
+## Steps
 
-```
-External PDF/ePub/scan
-  → ingest.py            Register in sources table (status: ingested)
-  → extract_text.py      OCR/parse → extracted_text/{id}.md (status: text_extracted)
-  → extract_refs.py      GROBID or LLM → extracted_references table (status: refs_extracted)
-  → extract_knowledge.py LLM → knowledge_items + concepts tables,
-                          generates notes/readings/{author}_{title}.md
-                          (status: knowledge_extracted)
-  → build_graph.py       Resolve refs → citations table, export JSON/DOT
-  → export_bib.py        Append new entries to literature/bibliography.bib
-  → generate_embeddings.py  Chunk + embed → embeddings/*.npy (status: complete)
-```
-
-## Database Schema
-
-**7 tables** in `literature.db` (SQLite):
-
-| Table | Purpose |
-|---|---|
-| `sources` | Core metadata: title, authors, year, type, format, pipeline status, bibtex_key |
-| `extracted_references` | Bibliographic refs found in sources (raw text, parsed fields, confidence) |
-| `citations` | Graph edges: citing → cited, with context and type (supports/critiques/extends/mentions) |
-| `knowledge_items` | Extracted knowledge: theses, definitions, frameworks, empirical findings, critiques, quotes |
-| `concepts` | Global concept registry with definitions and categories |
-| `concept_sources` | Many-to-many: which sources introduce/use/critique/extend which concepts |
-| `embeddings` | RAG chunk metadata: chunk text, model, path to .npy vectors |
-
-## Configuration
-
-Edit `config.yaml` to set:
-
-- **paths**: Source library location (external PDFs), repo root
-- **llm.providers**: API keys (via env vars), models, base URLs for Claude, OpenAI, Kimi, Ollama
-- **llm.tasks**: Which provider to use for each pipeline task
-- **extraction**: PDF methods, GROBID URL, Tesseract language
-- **embeddings**: Model, chunk size, overlap
-
-Environment variables:
-- `ANTHROPIC_API_KEY` — for Claude
-- `OPENAI_API_KEY` — for OpenAI embeddings
-- `LITERATURE_SOURCE_DIR` — override default source library path
-- `RESEARCH_REPO` — override default repo root path
-
-## LLM Backend
-
-`llm_backend.py` provides a unified `LLMBackend` class with three methods:
-
-- `complete(prompt, system, provider, task)` — text completion
-- `complete_json(prompt, ...)` — completion expecting JSON response
-- `embed(texts, provider, task)` — embedding generation (OpenAI-compatible only)
-
-Supported providers:
-- **Claude** — via `anthropic` SDK
-- **OpenAI** — via `openai` SDK
-- **Kimi** (Moonshot) — OpenAI-compatible with custom base_url
-- **Ollama** — local models, OpenAI-compatible API
-
-## Ingestion
+### 1. Ingest — Register Sources
 
 ```bash
-# Single source
-python -m literature_pipeline.ingest --file paper.pdf --title "Title" --authors "Last, First" --year 2024
+# Single PDF
+python -m literature_pipeline.ingest --file path/to.pdf --title "Title" --authors "Author"
 
-# Bulk from BibTeX (idempotent — skips existing keys)
-python -m literature_pipeline.ingest --from-bibtex literature/bibliography.bib --source-dir /path/to/pdfs
+# From BibTeX
+python -m literature_pipeline.ingest --from-bibtex ../literature/bibliography.bib
 
-# Bulk from CSV (columns: title, authors, year, type, bibtex_key, file_path)
+# From CSV
 python -m literature_pipeline.ingest --from-csv sources.csv
-
-# Show stats
-python -m literature_pipeline.ingest --stats
 ```
 
-## Text Extraction
-
-Extraction methods (auto-selected by format):
-- **PyMuPDF** — fast, for digital PDFs with embedded text
-- **Tesseract OCR** — for scanned documents (auto-detected when PyMuPDF yields <100 chars/page)
-- **ebooklib** — for ePub files
+### 2. Extract Text
 
 ```bash
-python -m literature_pipeline.extract_text                     # All pending
-python -m literature_pipeline.extract_text --source-id 5       # Specific source
-python -m literature_pipeline.extract_text --method tesseract  # Force OCR
+python -m literature_pipeline.extract_text           # All pending sources
+python -m literature_pipeline.extract_text --source-id 1   # Single source
+python -m literature_pipeline.extract_text --ocr     # Force OCR (for scans)
 ```
 
-## Reference Extraction
+Supports:
+- PDF (text layer or OCR via Tesseract)
+- ePub (preserves structure)
+- Images (OCR)
 
-Tries methods in order:
-1. **GROBID** — if Docker service is running at configured URL
-2. **LLM** — sends bibliography section to Claude for structured parsing
-3. **Regex** — basic Author (Year) pattern matching as last resort
+### 3. Extract References
 
 ```bash
-python -m literature_pipeline.extract_refs
-python -m literature_pipeline.extract_refs --method llm  # Force LLM
+python -m literature_pipeline.extract_refs --source-id 1
 ```
 
-## Knowledge Extraction
+Uses GROBID service if available, falls back to LLM parsing.
 
-LLM extracts from each source:
-- Core argument summary
-- Theses with confidence scores
-- Key concepts with definitions
-- Empirical findings (data type, geography)
-- Critiques (target author/work)
-- Notable quotes
-- Evaluation scores (epistemic, empirical, political, synthetic)
-
-Outputs:
-- `knowledge/{source_id}.json` — raw structured extraction
-- `notes/readings/{author}_{title}.md` — reading note following the project template
+### 4. Extract Knowledge
 
 ```bash
-python -m literature_pipeline.extract_knowledge
-python -m literature_pipeline.extract_knowledge --source-id 12
+python -m literature_pipeline.extract_knowledge --source-id 1
 ```
 
-## Citation Graph
+LLM extracts:
+- Core arguments & claims
+- Key concepts
+- Empirical evidence
+- Critical assessments
+- Quotes with context
 
-Resolves extracted references against known sources using fuzzy matching (author names, title similarity, year, DOI). Classifies citation types using knowledge items (e.g., critiques).
+Outputs to `knowledge/{source_id}.json` and generates reading notes.
+
+### 5. Build Citation Graph
 
 ```bash
-python -m literature_pipeline.build_graph                 # Resolve + export
-python -m literature_pipeline.build_graph --export-only   # Just re-export
-python -m literature_pipeline.build_graph --format dot    # Graphviz only
+python -m literature_pipeline.build_graph --export-dot
+python -m literature_pipeline.build_graph --export-json
 ```
 
-Exports: `knowledge/citation_graph.json`, `knowledge/citation_graph.dot`
+Resolves references to known sources, exports graph formats.
 
-## Bibliography Sync
-
-Bidirectional sync with `literature/bibliography.bib`:
-- **Export**: appends new DB sources to a `% PIPELINE-ADDED ENTRIES` section (never modifies existing entries)
-- **Import**: reads .bib entries into the DB
+### 6. Export Bibliography
 
 ```bash
-python -m literature_pipeline.export_bib              # Export new entries
-python -m literature_pipeline.export_bib --import     # Import .bib → DB
-python -m literature_pipeline.export_bib --dry-run    # Preview
+python -m literature_pipeline.export_bib              # Export to bibliography.bib
+python -m literature_pipeline.export_bib --from-bibtex ../literature/bib.bib  # Sync back
 ```
 
-## RAG Embeddings
-
-Chunks extracted text and generates embeddings via OpenAI's `text-embedding-3-small`. Includes a built-in semantic search.
+### 7. RAG Embeddings
 
 ```bash
 python -m literature_pipeline.generate_embeddings
@@ -222,47 +143,114 @@ python -m literature_pipeline.run_pipeline --limit 5                # Process ma
 
 Sende PDFs direkt via Telegram an die Pipeline. Rook (OpenClaw Agent) verarbeitet sie automatisch und sendet eine Zusammenfassung zurück.
 
+### Publikationstypen
+
+Die Pipeline unterscheidet automatisch zwischen:
+
+| Typ | Emoji | Beschreibung | Archiv-Unterordner |
+|-----|-------|--------------|-------------------|
+| **monograph** | 📚 | Einzelwerk/Buch (ein Autor, ein Werk) | `archive/monograph/` |
+| **edited_volume** | 📖 | Sammelband (Herausgeber, mehrere Artikel) | `archive/edited_volume/` |
+| **journal_article** | 📄 | Zeitschriftenartikel (Journal, Issue, Pages) | `archive/journal_article/` |
+| **web_article** | 🌐 | Wissenschaftlicher Online-Artikel / Preprint | `archive/web_article/` |
+
+### Typ-Erkennung
+
+Der Typ wird automatisch erkannt aus:
+- **Filename**: Keywords wie "edited by", "journal", "vol.", "arxiv"
+- **Text-Sample**: Erste Seite wird nach typischen Mustern gescannt
+- **Manuell**: Optional als Parameter übergebbar
+
 ### Workflow
 
 ```
-Du (Telegram) → PDF senden → Rook speichert in inbox/
+Du (Telegram) → PDF senden → Typ-Erkennung → Rook speichert in inbox/{type}/
                                       ↓
-                    Pipeline: ingest → extract_text → extract_refs → extract_knowledge
+                    Typ-spezifische Pipeline:
+                    - monograph: alle Schritte + alle Referenzen
+                    - edited_volume: alle Schritte + Kapitel-Extraktion
+                    - journal_article: alle Schritte + Journal-Metadaten
+                    - web_article: KEINE Referenz-Extraktion (meist externe Links)
                                       ↓
-                    Zusammenfassung: Titel + Autoren + Key Findings
+                    Zusammenfassung: Titel + Typ-spezifische Metadaten + Key Findings
                                       ↓
-                    + 3 Beispiel-Referenzen + 3 BibTeX-Einträge
+                    + 3 Beispiel-Referenzen (nur Monograph/Edited Volume)
+                                      ↓
+                    + 3 BibTeX-Einträge
                                       ↓
                     Antwort an Dich (Telegram)
 ```
 
-### Ausgabe-Format
+### Ausgabe-Format (typ-spezifisch)
 
-Die Telegram-Antwort enthält:
-- 📄 **Titel** und 👤 **Autoren**
-- 📝 **Zusammenfassung** (Key Findings aus LLM)
-- 📚 **3 Beispiel-Referenzen** (erste gefundene)
-- 📖 **3 BibTeX-Einträge** (für direkte Zitation)
-- 💾 **Archiv-Info** (für späteres RAG)
+**Monograph:**
+```
+📚 *Titel*
+👤 Autor
+🏛 Verlag
+📅 Jahr
 
-### Verzeichnisse
+📝 *Key Findings:*
+...
 
-- `inbox/` - Temporäre Speicherung eingehender PDFs
-- `archive/` - Langzeitarchivierung (für späteres RAG, nicht gelöscht)
+📚 *Beispiel-Referenzen:*
+...
+```
+
+**Journal Article:**
+```
+📄 *Titel*
+👤 Autor
+📰 Journal, Vol. X, Issue Y, pp. Z, Jahr
+
+📝 *Abstract:*
+...
+```
+
+**Web Article:**
+```
+🌐 *Titel*
+👤 Autor
+📅 Jahr
+🔗 URL...
+
+📝 *Abstract:*
+...
+```
+
+### Verzeichnisstruktur
+
+```
+inbox/
+├── monograph/           # Eingehende Monographien
+├── edited_volume/       # Eingehende Sammelbände
+├── journal_article/     # Eingehende Zeitschriftenartikel
+└── web_article/         # Eingehende Online-Artikel
+
+archive/                 # Langzeitarchivierung (für RAG)
+├── monograph/
+├── edited_volume/
+├── journal_article/
+└── web_article/
+```
 
 ### Technische Details
 
 Das Modul `telegram_handler.py`:
 - Wird von OpenClaw aufgerufen (nicht manuell)
-- Nutzt bestehende Pipeline-Schritte (ingest → knowledge)
-- Archiviert PDFs mit Source-ID für RAG-Referenz
+- `detect_publication_type()`: Erkennt Typ aus Filename/Text
+- Typ-spezifische Verarbeitung (z.B. web_article ohne Ref-Extraktion)
+- Archiviert PDFs mit Präfix: `{type}_source_{id}_...`
 - Formatiert Ausgabe Telegram-Markdown-kompatibel
 
 ### Manuelle Tests (nur für Entwicklung)
 
 ```bash
-# Test mit lokaler PDF-Datei
-python -m literature_pipeline.telegram_handler --test-file /path/to/paper.pdf
+# Test mit lokaler PDF-Datei (Typ wird automatisch erkannt)
+python -m literature_pipeline.telegram_handler --test-file paper.pdf
+
+# Mit explizitem Typ
+python -m literature_pipeline.telegram_handler --test-file article.pdf --type journal_article
 ```
 
 ---

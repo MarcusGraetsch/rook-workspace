@@ -130,52 +130,65 @@ Not all are needed — only install what the current step requires:
 
 **Purpose**: Ermöglicht das Senden von PDFs via Telegram direkt an die Pipeline.
 
+**Publikationstypen**:
+- `monograph` (📚) — Einzelwerk/Buch
+- `edited_volume` (📖) — Sammelband mit Herausgeber
+- `journal_article` (📄) — Zeitschriftenartikel
+- `web_article` (🌐) — Online-Artikel/Preprint
+
+**Typ-Erkennung**: Automatisch aus Filename + Text-Sample, oder manuell als Parameter.
+
+**Archiv-Struktur**: `archive/{type}/` — typ-spezifische Unterordner für späteres RAG.
+
 **Workflow**:
 1. PDF wird via Telegram empfangen
-2. `process_pdf_from_telegram()` wird von OpenClaw aufgerufen
-3. PDF wird in `inbox/` gespeichert
-4. Pipeline läuft: ingest → text → refs → knowledge
-5. Zusammenfassung wird generiert
-6. PDF wird nach `archive/` verschoben
-7. Antwort an Telegram-Chat
+2. `detect_publication_type()` erkennt Typ
+3. `process_pdf_from_telegram()` wird von OpenClaw aufgerufen
+4. PDF wird in `inbox/{type}/` gespeichert
+5. Typ-spezifische Pipeline läuft:
+   - web_article: KEINE Referenz-Extraktion (externe Links)
+   - journal_article: Journal-Metadaten (Vol., Issue, Pages)
+   - edited_volume: Herausgeber + Kapitel-Extraktion
+   - monograph: Alle Schritte
+6. Zusammenfassung wird generiert (typ-spezifisches Format)
+7. PDF wird nach `archive/{type}/` verschoben
+8. Antwort an Telegram-Chat
 
 **Key Functions**:
-- `save_pdf_from_telegram()` — Speichert PDF mit Timestamp
-- `run_pipeline_on_pdf()` — Führt Pipeline-Schritte aus
-- `generate_telegram_summary()` — Formatiert Output für Telegram
-- `archive_pdf()` — Verschiebt nach archive/ (für RAG)
+- `detect_publication_type()` — Erkennt Typ aus Filename/Text
+- `save_pdf_from_telegram()` — Speichert PDF in typ-spezifischen inbox/
+- `run_pipeline_on_pdf()` — Führt typ-spezifische Pipeline aus
+- `generate_telegram_summary()` — Formatiert typ-spezifischen Output
+- `archive_pdf()` — Verschiebt nach archive/{type}/
 
-**Output Format**:
+**Output Format (typ-spezifisch)**:
 ```
-✅ Verarbeitung abgeschlossen
+📚/📄/🌐 *Titel*
+👤 Autor(en)
+[Typ-spezifische Metadaten: Verlag/Journal/URL]
 
-📄 *Titel*
-👤 Autoren (Jahr)
+📝 *Key Findings / Abstract:*
+...
 
-📝 *Zusammenfassung:*
-[Key Findings aus LLM]
+📚 *Beispiel-Referenzen:* (nur Monograph/Edited Volume)
+...
 
-📚 *Beispiel-Referenzen:*
-1. Erste Referenz
-2. Zweite Referenz
-3. Dritte Referenz
-
-📖 *BibTeX (erste 3):*
-```bibtex
-[...]
-```
+📖 *BibTeX:*
 ```
 
 **Integration Points**:
 - Verwendet bestehende Pipeline-Schritte (keine Duplikation)
 - Nutzt absolute Pfade (`/root/.openclaw/workspace/...`)
-- Archiviert PDFs mit Source-ID (z.B. `source_123_20250306_filename.pdf`)
+- Archiviert PDFs mit Typ-Präfix: `{type}_source_{id}_...`
 - Formatiert für Telegram Markdown (max 4000 Zeichen)
 
 **Testing**:
 ```bash
-# Manueller Test (nur für Entwicklung)
+# Test mit lokaler PDF-Datei (automatische Typ-Erkennung)
 python -m literature_pipeline.telegram_handler --test-file paper.pdf
+
+# Mit explizitem Typ
+python -m literature_pipeline.telegram_handler --test-file article.pdf --type journal_article
 ```
 
 **Note**: Das Modul wird von OpenClaw aufgerufen, nicht manuell gestartet.
