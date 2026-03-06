@@ -111,42 +111,45 @@ def process_article(article, analysis):
     """Process article based on analysis"""
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    
-    if analysis['action'] == 'paywall_preview':
-        # Mark as paywall preview - keep file but mark in DB
-        cursor.execute('''
-            UPDATE articles 
-            SET content_status = 'paywall_preview',
-                abstract = ?,
-                paywall = 1
-            WHERE id = ?
-        ''', (analysis['reason'], article['id']))
-        
-        print(f"   🔒 {analysis['reason']}: {article['title'][:50]}...")
-        return 'paywall'
-        
-    elif analysis['action'] == 'error':
-        cursor.execute('''
-            UPDATE articles 
-            SET content_status = 'error',
-                error_message = ?
-            WHERE id = ?
-        ''', (analysis['reason'], article['id']))
-        print(f"   ❌ {analysis['reason']}: {article['title'][:50]}...")
-        return 'error'
-    
-    else:
-        # Keep for LLM cleaning - mark as pending_clean
-        cursor.execute('''
-            UPDATE articles 
-            SET content_status = 'pending_clean'
-            WHERE id = ?
-        ''', (article['id'],))
-        print(f"   ⏳ {analysis['reason']}: {article['title'][:50]}...")
-        return 'pending'
-    
-    conn.commit()
-    conn.close()
+
+    try:
+        if analysis['action'] == 'paywall_preview':
+            # Mark as paywall preview - keep file but mark in DB
+            cursor.execute('''
+                UPDATE articles
+                SET content_status = 'paywall_preview',
+                    abstract = ?,
+                    paywall = 1
+                WHERE id = ?
+            ''', (analysis['reason'], article['id']))
+
+            print(f"   🔒 {analysis['reason']}: {article['title'][:50]}...")
+            result = 'paywall'
+
+        elif analysis['action'] == 'error':
+            cursor.execute('''
+                UPDATE articles
+                SET content_status = 'error',
+                    error_message = ?
+                WHERE id = ?
+            ''', (analysis['reason'], article['id']))
+            print(f"   ❌ {analysis['reason']}: {article['title'][:50]}...")
+            result = 'error'
+
+        else:
+            # Keep for LLM cleaning - mark as pending_clean
+            cursor.execute('''
+                UPDATE articles
+                SET content_status = 'pending_clean'
+                WHERE id = ?
+            ''', (article['id'],))
+            print(f"   ⏳ {analysis['reason']}: {article['title'][:50]}...")
+            result = 'pending'
+
+        conn.commit()
+        return result
+    finally:
+        conn.close()
 
 def create_llm_batches(articles, batch_size=5):
     """Create batch files for LLM processing"""
