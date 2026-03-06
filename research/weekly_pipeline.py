@@ -103,6 +103,22 @@ def run_label():
         log(f"   ❌ Labeling failed: {e}")
         return False
 
+def run_summarize():
+    """Run article summarization"""
+    log("📝 Starting article summarization...")
+    try:
+        result = subprocess.run(
+            ['python3', str(RESEARCH_DIR / 'summarize_articles.py')],
+            capture_output=True,
+            text=True,
+            timeout=3600  # 1 hour max (LLM calls are slow)
+        )
+        log(f"   ✅ Summarization complete")
+        return True
+    except Exception as e:
+        log(f"   ❌ Summarization failed: {e}")
+        return False
+
 def get_final_stats():
     """Get final statistics"""
     conn = sqlite3.connect(DB_FILE)
@@ -145,7 +161,12 @@ def main():
     time.sleep(2)
     if not run_label():
         log("⚠️  Labeling had issues, continuing...")
-    
+
+    # Step 4: Summarize
+    time.sleep(2)
+    if not run_summarize():
+        log("⚠️  Summarization had issues, continuing...")
+
     # Final stats
     total, labeled, stats = get_final_stats()
     
