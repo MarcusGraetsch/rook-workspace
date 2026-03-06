@@ -103,6 +103,24 @@ def run_summarize():
         log(f"   ❌ Summarization failed: {e}")
         return False
 
+def run_digest():
+    """Generate weekly digest"""
+    log("📰 Generating weekly digest...")
+    try:
+        result = subprocess.run(
+            ['python3', str(RESEARCH_DIR / 'generate_digest.py')],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 min max
+        )
+        log(f"   ✅ Digest generated")
+        if result.stdout:
+            log(f"   {result.stdout.strip()}")
+        return True
+    except Exception as e:
+        log(f"   ❌ Digest generation failed: {e}")
+        return False
+
 def get_final_stats():
     """Get final statistics"""
     conn = sqlite3.connect(DB_FILE)
@@ -150,6 +168,11 @@ def main():
     time.sleep(2)
     if not run_summarize():
         log("⚠️  Summarization had issues, continuing...")
+
+    # Step 5: Generate digest
+    time.sleep(2)
+    if not run_digest():
+        log("⚠️  Digest generation had issues, continuing...")
 
     # Final stats
     total, labeled, stats = get_final_stats()
