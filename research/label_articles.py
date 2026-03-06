@@ -27,29 +27,35 @@ def log(msg):
 def get_articles_to_label(limit=BATCH_SIZE):
     """Get cleaned articles that need labeling"""
     conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT id, url, domain, title, fulltext_path, abstract, category
-        FROM articles
-        WHERE content_status = 'cleaned' 
-        AND (tags IS NULL OR tags = '')
-        LIMIT ?
-    ''', (limit,))
-    
-    return [dict(row) for row in cursor.fetchall()]
+    try:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT id, url, domain, title, fulltext_path, abstract, category
+            FROM articles
+            WHERE content_status = 'cleaned'
+            AND (tags IS NULL OR tags = '')
+            LIMIT ?
+        ''', (limit,))
+
+        return [dict(row) for row in cursor.fetchall()]
+    finally:
+        conn.close()
 
 def count_remaining():
     """Count articles still needing labels"""
     conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT COUNT(*) FROM articles
-        WHERE content_status = 'cleaned' 
-        AND (tags IS NULL OR tags = '')
-    ''')
-    return cursor.fetchone()[0]
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT COUNT(*) FROM articles
+            WHERE content_status = 'cleaned'
+            AND (tags IS NULL OR tags = '')
+        ''')
+        return cursor.fetchone()[0]
+    finally:
+        conn.close()
 
 def read_article_content(fulltext_path):
     """Read article content"""
@@ -179,19 +185,21 @@ def process_with_heuristics(article, text):
 def update_article(article_id, labels):
     """Update article with labels"""
     conn = sqlite3.connect(DB_FILE)
-    cursor = conn.cursor()
-    
-    tags = ', '.join(labels.get('topics', []))
-    
-    cursor.execute('''
-        UPDATE articles 
-        SET tags = ?,
-            content_status = 'labeled'
-        WHERE id = ?
-    ''', (tags, article_id))
-    
-    conn.commit()
-    conn.close()
+    try:
+        cursor = conn.cursor()
+
+        tags = ', '.join(labels.get('topics', []))
+
+        cursor.execute('''
+            UPDATE articles
+            SET tags = ?,
+                content_status = 'labeled'
+            WHERE id = ?
+        ''', (tags, article_id))
+
+        conn.commit()
+    finally:
+        conn.close()
 
 def main():
     log("="*70)
