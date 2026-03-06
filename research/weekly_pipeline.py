@@ -14,25 +14,9 @@ from datetime import datetime
 import subprocess
 import time
 
-RESEARCH_DIR = Path('/root/.openclaw/workspace/research')
+RESEARCH_DIR = Path(os.environ.get('RESEARCH_DIR', '/root/.openclaw/workspace/research'))
 DB_FILE = RESEARCH_DIR / 'articles.db'
 LOG_FILE = RESEARCH_DIR / 'weekly_pipeline.log'
-
-# Gmail accounts
-ACCOUNTS = {
-    'bigtech': {
-        'email': 'b1gt3ch.5n5lysis@critical-theory.digital',
-        'token_file': Path('/root/.openclaw/.env.d/gmail-token-b1gt3ch.5n5lysis.json')
-    },
-    'newwork': {
-        'email': 'newworkculture.twentyone@critical-theory.digital',
-        'token_file': Path('/root/.openclaw/.env.d/gmail-token-newworkculture.twentyone.json')
-    },
-    'aigen': {
-        'email': 'aichitchatter@critical-theory.digital',
-        'token_file': Path('/root/.openclaw/.env.d/gmail-token-aichitchatter.json')
-    }
-}
 
 def log(msg):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

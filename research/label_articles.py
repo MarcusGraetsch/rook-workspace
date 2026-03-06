@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import datetime
 import time
 
-RESEARCH_DIR = Path('/root/.openclaw/workspace/research')
+RESEARCH_DIR = Path(os.environ.get('RESEARCH_DIR', '/root/.openclaw/workspace/research'))
 DB_FILE = RESEARCH_DIR / 'articles.db'
 LOG_FILE = RESEARCH_DIR / 'labeling.log'
 BATCH_SIZE = 10

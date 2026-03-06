@@ -10,7 +10,7 @@ import sqlite3
 from pathlib import Path
 from datetime import datetime
 
-RESEARCH_DIR = Path('/root/.openclaw/workspace/research')
+RESEARCH_DIR = Path(os.environ.get('RESEARCH_DIR', '/root/.openclaw/workspace/research'))
 DB_FILE = RESEARCH_DIR / 'articles.db'
 FULLTEXT_DIR = RESEARCH_DIR / 'fulltext'
 

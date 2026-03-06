@@ -32,9 +32,8 @@ from newsletter_parser import parse_newsletter, is_newsletter_email
 
 # Configuration
 SCOPES = ['https://mail.google.com/']
-WORKSPACE = Path('/root/.openclaw/workspace')
-RESEARCH_DIR = WORKSPACE / 'research'
-ENV_DIR = Path('/root/.openclaw/.env.d')
+RESEARCH_DIR = Path(os.environ.get('RESEARCH_DIR', '/root/.openclaw/workspace/research'))
+ENV_DIR = Path(os.environ.get('OPENCLAW_ENV_DIR', '/root/.openclaw/.env.d'))
 STATE_FILE = RESEARCH_DIR / 'scan_state_v5.json'
 STATUS_FILE = RESEARCH_DIR / 'scan_status.json'
 DB_FILE = RESEARCH_DIR / 'articles.db'
