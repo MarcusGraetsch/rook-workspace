@@ -283,7 +283,7 @@ def generate_briefing():
 
 
 def save_and_send_briefing():
-    """Generate, save, and optionally send the briefing."""
+    """Generate, save, and send the briefing via Telegram."""
     print("🔄 Generating weekly briefing...")
     
     briefing = generate_briefing()
@@ -303,6 +303,49 @@ def save_and_send_briefing():
     with open(latest_path, 'w', encoding='utf-8') as f:
         f.write(briefing)
     
+    # Send via Telegram
+    print("📤 Sending briefing via Telegram...")
+    try:
+        # Format for Telegram (truncate if too long)
+        telegram_msg = format_for_telegram(briefing)
+        
+        # Use OpenClaw's message tool or curl
+        import urllib.request
+        import urllib.parse
+        
+        # Get bot token from environment or config
+        bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+        chat_id = "549758481"  # Marcus' chat ID
+        
+        if bot_token:
+            url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+            data = urllib.parse.urlencode({
+                'chat_id': chat_id,
+                'text': telegram_msg,
+                'parse_mode': 'Markdown'
+            }).encode()
+            
+            req = urllib.request.Request(url, data=data, method='POST')
+            with urllib.request.urlopen(req, timeout=30) as response:
+                if response.status == 200:
+                    print("   ✅ Briefing sent via Telegram")
+                else:
+                    print(f"   ⚠️  Telegram API returned status {response.status}")
+        else:
+            # Fallback: save to file for manual sending
+            telegram_file = BRIEFING_FILE / f'telegram_{datetime.now().strftime("%Y%m%d")}.txt'
+            with open(telegram_file, 'w', encoding='utf-8') as f:
+                f.write(telegram_msg)
+            print(f"   📝 Telegram message saved to: {telegram_file}")
+            print("   💡 Set TELEGRAM_BOT_TOKEN environment variable for automatic sending")
+            
+    except Exception as e:
+        print(f"   ⚠️  Telegram sending failed: {e}")
+        # Save anyway for manual sending
+        telegram_file = BRIEFING_FILE / f'telegram_{datetime.now().strftime("%Y%m%d")}.txt'
+        with open(telegram_file, 'w', encoding='utf-8') as f:
+            f.write(format_for_telegram(briefing))
+    
     # Print summary
     print("\n" + "="*60)
     print("BRIEFING SUMMARY")
@@ -312,6 +355,68 @@ def save_and_send_briefing():
     print(f"\nFull briefing: {filepath}")
     
     return filepath
+
+
+def format_for_telegram(briefing):
+    """Format briefing for Telegram (max 4000 chars, proper markdown)."""
+    # Telegram has 4096 char limit, so we create a summary
+    lines = briefing.split('\n')
+    
+    telegram_lines = [
+        "📊 *Weekly Research Briefing*",
+        f"_{datetime.now().strftime('%Y-%m-%d')}_",
+        ""
+    ]
+    
+    # Extract key sections
+    in_summary = False
+    in_articles = False
+    article_count = 0
+    
+    for line in lines:
+        # Summary section
+        if "## 📈 This Week's Summary" in line:
+            in_summary = True
+            telegram_lines.append("📈 *This Week:*")
+            continue
+        elif line.startswith("## ") and in_summary:
+            in_summary = False
+            
+        if in_summary and line.strip() and not line.startswith('#'):
+            # Clean up markdown for Telegram
+            clean_line = line.replace('**', '*').replace('- **', '• ')
+            telegram_lines.append(clean_line)
+        
+        # First 3 articles only (to save space)
+        if "## 📚 New Articles" in line:
+            in_articles = True
+            telegram_lines.append("")
+            telegram_lines.append("📚 *Top Articles:*")
+            continue
+        elif line.startswith("## ") and in_articles:
+            in_articles = False
+            
+        if in_articles and line.strip().startswith(('1.', '2.', '3.')):
+            clean_line = line.replace('**', '*')
+            telegram_lines.append(clean_line)
+            article_count += 1
+            if article_count >= 3:
+                in_articles = False
+    
+    # Add link to full briefing
+    telegram_lines.extend([
+        "",
+        "📄 *Full briefing with all details:*",
+        f"GitHub: github.com/MarcusGraetsch/digital-capitalism-research/blob/master/briefings/latest.md"
+    ])
+    
+    result = '\n'.join(telegram_lines)
+    
+    # Truncate if still too long
+    if len(result) > 4000:
+        result = result[:3990] + "\n\n..."
+    
+    return result
 
 
 if __name__ == '__main__':
