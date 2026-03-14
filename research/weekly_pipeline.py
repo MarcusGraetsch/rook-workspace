@@ -225,6 +225,28 @@ def main():
     
     log("\n✅ Weekly pipeline complete!")
     log("="*70)
+    
+    # Step 7: Generate self-improvement report
+    log("\n🔄 Generating self-improvement report...")
+    try:
+        workspace = RESEARCH_DIR.parent  # Go up to workspace
+        result = subprocess.run(
+            ['python3', str(workspace / 'skills' / 'xiucheng-self-improving-agent' / 'self_improving.py'), '--report'],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        if result.returncode == 0:
+            log("   ✅ Self-improvement report generated")
+            # Save report to file
+            report_file = workspace / 'memory' / 'self_improvement_weekly_report.md'
+            with open(report_file, 'w') as f:
+                f.write(result.stdout)
+            log(f"   📝 Report saved: {report_file}")
+        else:
+            log(f"   ⚠️  Report generation warning: {result.stderr}")
+    except Exception as e:
+        log(f"   ⚠️  Self-improvement report failed: {e}")
 
 if __name__ == '__main__':
     main()
