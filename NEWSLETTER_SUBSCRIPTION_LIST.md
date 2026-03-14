@@ -2,42 +2,55 @@
 
 Alle Newsletter-URLs sortiert nach Priorität für deine Research-Accounts
 
+## Legende
+
+- ✅ **Abonniert / Verfügbar** - Funktioniert und wurde abonniert oder ist verfügbar
+- ❌ **Nicht kostenlos** - Paywall, nur Premium-Abonnement
+- ❌ **Kein Newsletter-Feld** - Website hat kein Anmeldeformular
+- ❌ **Kein Newsletter** - Nur Blog/Slack/andere Formate
+- ❌ **Site not reachable** - Website nicht erreichbar
+- ❌ **Error** - Technischer Fehler bei Anmeldung
+- ❌ **Nicht interessant** - Relevanz zu gering
+- ❌ **Outdated** - Eingestellt oder veraltet
+
+---
+
 ## TIER 1 - SOFORT ABONNIEREN (15 Newsletter)
 
 ### Big Tech & Platform Power
-1. **Platformer** - https://platformer.news (Casey Newton - Meta/Uber/Amazon insider)
-2. **Big Technology** - https://bigtechnology.substack.com (Alex Kantrowitz)
-3. **Matt Stoller (BIG)** - https://mattstoller.substack.com (Monopolmacht)
-4. **The Information** - https://theinformation.com (Hard tech business)
+1. **Platformer** - https://platformer.news (Casey Newton - Meta/Uber/Amazon insider) ✅
+2. ~~**Big Technology** - https://bigtechnology.substack.com (Alex Kantrowitz)~~ ❌ NICHT KOSTENLOS
+3. **Matt Stoller (BIG)** - https://mattstoller.substack.com (Monopolmacht) ✅
+4. ~~**The Information** - https://theinformation.com (Hard tech business)~~ ❌ NICHT KOSTENLOS
 
 ### KI & Überwachung
-5. **AI Now Institute** - https://ainowinstitute.org (NYU - KI & Arbeit)
-6. **Data & Society** - https://datasociety.net (Platform governance)
-7. **Surveillance Capitalism (CIGI)** - https://www.cigionline.org/newsletters/surveillance-capitalism/ (Zuboff)
+5. ~~**AI Now Institute** - https://ainowinstitute.org (NYU - KI & Arbeit)~~ ❌ KEIN NEWSLETTER-FELD
+6. **Data & Society** - https://datasociety.net (Platform governance) ✅
+7. **Surveillance Capitalism (CIGI)** - https://www.cigionline.org/newsletters/surveillance-capitalism/ (Zuboff) ✅
 
 ### Labor & Organizing
-8. **Labor Notes** - https://labornotes.org (Gewerkschaften, Tech worker)
-9. **Tech Workers Coalition** - https://news.techworkerscoalition.org/archive/
-10. **Teamsters Substack** - https://teamsters.substack.com (Union + KI)
+8. **Labor Notes** - https://labornotes.org (Gewerkschaften, Tech worker) ✅
+9. **Tech Workers Coalition** - https://techworkerscoalition.org ❌ KEIN NEWSLETTER (nur Slack + Blog)
+10. ~~**Teamsters Substack** - https://teamsters.substack.com (Union + KI)~~ ❌ KEIN NEWSLETTER-FELD
 
 ### Kritische Theorie
-11. **Logic Magazine** - https://logicmag.io (Marxist tech critique)
-12. **Woke Scientist** - https://wokescientist.substack.com (Intersektional)
+11. **Logic Magazine** - https://logicmag.io (Marxist tech critique) ❌ NICHT KOSTENLOS (Paywall)
+12. **Woke Scientist** - https://wokescientist.substack.com (Intersektional) ✅
 
 ### Global South
-13. **DataSyn** - https://datasyn.substack.com (Majority World perspective)
-14. **Rest of World** - https://restofworld.org (Global tech)
-15. **Al Jazeera Digital Colonialism** - https://institute.aljazeera.net/en/ajr/article/2962
+13. **DataSyn** - https://datasyn.substack.com (Majority World perspective) ✅
+14. **Rest of World** - https://restofworld.org (Global tech) ✅
+15. ~~**Al Jazeera Digital Colonialism** - https://institute.aljazeera.net/en/ajr/article/2962~~ ❌ KEIN NEWSLETTER-FELD
 
 ---
 
 ## TIER 2 - WICHTIG (30 Newsletter)
 
 ### Investigativ & Journalismus
-16. **The Markup** - https://themarkup.org (Data journalism)
-17. **Rest of World** - https://restofworld.org/newsletter/
-18. **Micah Lee** - https://micahflee.com (Whistleblowing)
-19. **Wired Ideas** - https://wired.com/story/ideas
+16. **The Markup** - https://themarkup.org (Data journalism) ✅
+17. **Rest of World** - https://restofworld.org/newsletter/ ✅
+18. **Micah Lee** - https://micahflee.com (Whistleblowing) ✅
+19. ~~**Wired Ideas** - https://wired.com/story/ideas~~ ❌ ERROR (Seite nicht erreichbar)
 
 ### EU & Deutschland
 20. **Netzpolitik.org** - https://netzpolitik.org/newsletter
@@ -46,32 +59,32 @@ Alle Newsletter-URLs sortiert nach Priorität für deine Research-Accounts
 23. **Rosa Luxemburg Stiftung** - https://www.rosalux.de/newsletter
 
 ### Academic & Think Tanks
-24. **LPE Blog** - https://lpeproject.org/blog/
-25. **The Maintainers** - https://themaintainers.org/newsletter
-26. **Science for the People** - https://magazine.scienceforthepeople.org
-27. **Institute for the Future of Work** - https://ifow.org/news
-28. **Policy Center for the New South** - https://www.policycenter.ma/newsletter
+24. **LPE Blog** - https://lpeproject.org/blog/ ✅
+25. ~~**The Maintainers** - https://themaintainers.org/newsletter~~ ❌ NICHT INTERESSANT
+26. ~~**Science for the People** - https://magazine.scienceforthepeople.org~~ ❌ KEIN NEWSLETTER-FELD
+27. **Institute for the Future of Work** - https://ifow.org/news ✅
+28. ~~**Policy Center for the New South** - https://www.policycenter.ma/newsletter~~ ❌ KEIN NEWSLETTER-FELD
 
 ### Platform Studies
-29. **Platform Cooperativism Consortium** - https://platform.coop/blog/
-30. **Catalyst Journal** - https://catalyst-journal.com
-31. **New Inquiry** - https://thenewinquiry.com
-32. **Real Life Magazine** - https://reallifemag.com
+29. **Platform Cooperativism Consortium** - https://platform.coop/blog/ ✅
+30. **Catalyst Journal** - https://catalyst-journal.com ✅
+31. **New Inquiry** - https://thenewinquiry.com ✅
+32. ~~**Real Life Magazine** - https://reallifemag.com~~ ❌ OUTDATED (eingestellt)
 
 ### Gig Economy Spezial
-33. **Gig Economy Project** - https://gigeconomyproject.eu
-34. **Fairwork Foundation** - https://fair.work/newsletter
-35. **Rideshare Guy** - https://therideshareguy.com/newsletter
+33. ~~**Gig Economy Project** - https://gigeconomyproject.eu~~ ❌ SITE NOT REACHABLE
+34. **Fairwork Foundation** - https://fair.work/newsletter ✅
+35. ~~**Rideshare Guy** - https://therideshareguy.com/newsletter~~ ❌ SITE NOT REACHABLE
 
 ### Alternative Models
-36. **Open Collective** - https://blog.opencollective.com
-37. **Sustain OSS** - https://sustainoss.org
-38. **Shareable** - https://shareable.net/newsletter
-39. **Every.to** - https://every.to
-40. **Passionfruit** - https://passionfru.it
-41. **The Publish Press** - https://thepublishpress.com
-42. **Cybernetic Communism** - https://cyberneticcommunism.com
-43. **Mutualism** - https://mutualism.co
+36. ~~**Open Collective** - https://blog.opencollective.com~~ ❌ NICHT INTERESSANT
+37. **Sustain OSS** - https://sustainoss.org ✅
+38. **Shareable** - https://shareable.net/newsletter ✅
+39. ~~**Every.to** - https://every.to~~ ❌ NICHT KOSTENLOS
+40. ~~**Passionfruit** - https://passionfru.it~~ ❌ NICHT KOSTENLOS
+41. ~~**The Publish Press** - https://thepublishpress.com~~ ❌ NICHT KOSTENLOS
+42. ~~**Cybernetic Communism** - https://cyberneticcommunism.com~~ ❌ SITE NOT REACHABLE
+43. ~~**Mutualism** - https://mutualism.co~~ ❌ SITE NOT REACHABLE
 
 ### Privacy & Rights
 44. **EFF** - https://eff.org/newsletter
