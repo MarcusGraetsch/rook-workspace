@@ -20,3 +20,12 @@ node_modules/
 # Literature pipeline
 literature_pipeline/embeddings/*.npy
 literature_pipeline/literature.db
+literature_pipeline/archive/
+literature_pipeline/extracted_text/
+literature_pipeline/inbox/
+literature_pipeline/knowledge/
+
+# Research generated files
+research/digests/
+research/rss_state.json
+research/articles.db
