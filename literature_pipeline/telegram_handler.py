@@ -182,8 +182,7 @@ def run_pipeline_on_pdf(pdf_path: Path, pub_type: str) -> dict:
     logger.info("Schritt 4/4: Knowledge Extraction...")
     subprocess.run([
         sys.executable, "-m", "literature_pipeline.extract_knowledge",
-        "--source-id", str(source_id),
-        "--template", type_config.get("note_template", "default")
+        "--source-id", str(source_id)
     ], check=True, cwd=PIPELINE_DIR.parent)
     
     logger.info("Pipeline abgeschlossen")
