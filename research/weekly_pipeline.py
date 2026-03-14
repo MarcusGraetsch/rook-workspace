@@ -247,6 +247,30 @@ def main():
             log(f"   ⚠️  Report generation warning: {result.stderr}")
     except Exception as e:
         log(f"   ⚠️  Self-improvement report failed: {e}")
+    
+    # Step 8: Generate weekly research briefing
+    log("\n📝 Generating weekly research briefing...")
+    try:
+        workspace = RESEARCH_DIR.parent
+        result = subprocess.run(
+            ['python3', str(workspace / 'generate_weekly_briefing.py')],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        if result.returncode == 0:
+            log("   ✅ Weekly briefing generated")
+            # Extract summary from output
+            output_lines = result.stdout.split('\n')
+            for line in output_lines:
+                if 'new articles' in line.lower():
+                    log(f"   📊 {line.strip()}")
+                    break
+            log(f"   📄 Briefing saved: briefings/briefing_{datetime.now().strftime('%Y%m%d')}.md")
+        else:
+            log(f"   ⚠️  Briefing generation warning: {result.stderr}")
+    except Exception as e:
+        log(f"   ⚠️  Weekly briefing failed: {e}")
 
 if __name__ == '__main__':
     main()
