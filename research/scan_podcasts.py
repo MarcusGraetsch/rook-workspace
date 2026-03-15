@@ -453,11 +453,15 @@ Episode title: {episode_title}
 Provide:
 1. A concise summary (3-5 paragraphs) covering the main arguments and key points
 2. A list of 5-10 keywords/topics relevant to: digital capitalism, platform economy, labor, surveillance, AI, monopoly power, political economy
+3. Notable quotes: 3-8 verbatim quotes from speakers that are especially quotable — sharp formulations, provocative claims, key definitions, or memorable lines. Include who said it if identifiable.
+4. Key excerpts: 2-5 paraphrased distillations of the most important ideas or arguments made (in your own words, not verbatim).
 
 Format your response as JSON:
 {{
   "summary": "...",
-  "keywords": ["keyword1", "keyword2", ...]
+  "keywords": ["keyword1", "keyword2", ...],
+  "quotes": [{{"text": "exact verbatim quote", "speaker": "name or Unknown", "quote_type": "core_concept|polemic|critique|definition|aphorism|empirical"}}],
+  "excerpts": [{{"content": "paraphrased idea summary", "concept": "which concept this relates to"}}]
 }}
 
 Transcript:
@@ -475,11 +479,83 @@ Transcript:
         response_text = re.sub(r'\s*```$', '', response_text)
 
         data = json.loads(response_text)
-        return data.get('summary', ''), data.get('keywords', [])
+        return (
+            data.get('summary', ''),
+            data.get('keywords', []),
+            data.get('quotes', []),
+            data.get('excerpts', []),
+        )
 
     except Exception as e:
         log(f"   Summarization error: {e}")
-        return None, None
+        return None, None, [], []
+
+
+# ---------------------------------------------------------------------------
+# Quote Storage (writes to literature_pipeline's quotes table)
+# ---------------------------------------------------------------------------
+
+def store_podcast_quotes(episode, quotes, excerpts, keywords):
+    """Store extracted quotes and excerpts in the shared quotes DB."""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from literature_pipeline.db import get_connection as get_lit_conn, init_db as init_lit_db
+        from literature_pipeline.db import insert_quote, quote_exists
+
+        init_lit_db()
+        conn = get_lit_conn()
+        stored = 0
+
+        for q in quotes:
+            text = q.get('text', '').strip()
+            if not text:
+                continue
+            speaker = q.get('speaker', 'Unknown')
+            if not quote_exists(conn, text, speaker):
+                insert_quote(
+                    conn,
+                    text=text,
+                    author=speaker,
+                    source_title=f"{episode.get('podcast_name', '')}: {episode.get('title', '')}",
+                    language='en',
+                    entry_type='quote',
+                    quote_type=q.get('quote_type', 'core_concept'),
+                    topics=keywords,
+                    context=episode.get('title', ''),
+                    found_via='podcast',
+                    episode_id=episode.get('id', ''),
+                )
+                stored += 1
+
+        for ex in excerpts:
+            content = ex.get('content', '').strip()
+            if not content:
+                continue
+            if not quote_exists(conn, content):
+                insert_quote(
+                    conn,
+                    text=content,
+                    author=episode.get('podcast_name', ''),
+                    source_title=episode.get('title', ''),
+                    language='en',
+                    entry_type='excerpt',
+                    quote_type='core_concept',
+                    topics=keywords,
+                    context=ex.get('concept', ''),
+                    found_via='podcast',
+                    episode_id=episode.get('id', ''),
+                )
+                stored += 1
+
+        conn.close()
+        if stored:
+            log(f"   Stored {stored} quotes/excerpts")
+
+    except ImportError:
+        log("   literature_pipeline not available, skipping quote storage")
+    except Exception as e:
+        log(f"   Quote storage error: {e}")
 
 
 # ---------------------------------------------------------------------------
@@ -678,11 +754,14 @@ def process_podcast(podcast, config, scan_only=False, transcribe_only=False):
                 word_count = len(transcript.split())
 
                 # Summarize
-                summary, keywords = None, None
+                summary, keywords, quotes_data, excerpts_data = None, None, [], []
                 if settings.get('summarize', True):
-                    summary, keywords = summarize_transcript(transcript, episode['title'], config)
+                    summary, keywords, quotes_data, excerpts_data = summarize_transcript(transcript, episode['title'], config)
                     if summary:
                         stats['summarized'] += 1
+                    # Store quotes/excerpts in shared DB
+                    if quotes_data or excerpts_data:
+                        store_podcast_quotes(episode, quotes_data, excerpts_data, keywords or [])
 
                 # Save research markdown
                 md_path = save_episode_markdown(

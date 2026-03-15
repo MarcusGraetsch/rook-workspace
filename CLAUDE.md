@@ -58,7 +58,8 @@ ingested → text_extracted → refs_extracted → knowledge_extracted → compl
 ```
 
 Key modules:
-- **`db.py`** — SQLite schema (7 tables), WAL mode, foreign keys. All DDL in `SCHEMA_SQL` using `CREATE TABLE IF NOT EXISTS`.
+- **`db.py`** — SQLite schema (8 tables including `quotes`), WAL mode, foreign keys. All DDL in `SCHEMA_SQL` using `CREATE TABLE IF NOT EXISTS`.
+- **`quotes.py`** — CLI for browsing, searching, curating, rating, and exporting quotes/excerpts. Run as `python -m literature_pipeline.quotes <command>`.
 - **`llm_backend.py`** — Multi-provider LLM abstraction (Claude, OpenAI, Kimi, Ollama). Provider selected per-task via `config.yaml` → `llm.tasks`.
 - **`utils.py`** — Config loading with `${ENV_VAR:-default}` expansion, logging setup.
 - **`config.yaml`** — Central config for paths, LLM providers/models, extraction settings, embedding params.
@@ -68,7 +69,22 @@ Key modules:
 Sequential subprocess pipeline orchestrated by `weekly_pipeline.py`. Articles flow through: `saved → cleaned → labeled` with summaries and digests generated at the end.
 
 - **`articles.db`** — Single `articles` table, keyed by URL hash.
-- **RSS config** — `news-digest-config-v2.json` (39 feeds, priority-weighted).
+- **`extract_article_quotes.py`** — Extracts quotes from news articles into the shared quotes table. Runs after summarization.
+- **`scan_podcasts.py`** — Podcast transcription pipeline (also extracts quotes during summarization).
+- **RSS config** — `news-digest-config-v2.json` (57 feeds, priority-weighted).
+
+### Quotes & Excerpts System
+
+Shared `quotes` table in `literature.db` collects quotable material from all pipelines:
+- **Quotes** (`entry_type='quote'`): Exact verbatim text passages
+- **Excerpts** (`entry_type='excerpt'`): Paraphrased idea distillations
+
+Populated automatically during existing LLM calls (zero extra API cost):
+- `extract_knowledge.py` → literature quotes + excerpts
+- `scan_podcasts.py` → podcast quotes during summarization
+- `extract_article_quotes.py` → news article quotes
+
+CLI: `python -m literature_pipeline.quotes {list,search,stats,rate,curate,tag,export-epigraphs,export-json,export-markdown}`
 
 ### Integration Points — Do Not Break
 

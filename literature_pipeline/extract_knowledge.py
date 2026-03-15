@@ -26,7 +26,7 @@ from pathlib import Path
 from .db import (
     get_connection, init_db, get_sources_by_status, get_source_by_id,
     update_source, insert_knowledge_item, get_or_create_concept,
-    link_concept_source,
+    link_concept_source, insert_quote, quote_exists,
 )
 from .llm_backend import LLMBackend
 from .utils import setup_logging, logger, PIPELINE_DIR, repo_root, sanitize_filename
@@ -52,9 +52,20 @@ Return a JSON object with these keys:
 5. "empirical_findings": Array of objects with {{content, data_type, geography, confidence}}
 6. "critiques": Array of objects with {{content, target_author, target_work, confidence}}
 7. "frameworks": Array of objects with {{name, description, components}}
-8. "quotes": Array of objects with {{text (exact quote), context, page_range}}
-9. "evaluation": Object with {{epistemic (1-5), empirical (1-5), political (1-5), synthetic (1-5), notes}}
-10. "tags": Array of relevant topic tags
+8. "quotes": Array of objects with {{text (exact verbatim quote), context (why it matters), page_range, quote_type}}
+   quote_type is one of: core_concept (nails down a key idea), polemic (provocative/combative), critique (sharp criticism),
+   definition (defines a concept precisely), aphorism (memorable/witty), empirical (striking data/fact),
+   frequently_cited (likely widely quoted by other scholars), programmatic (calls to action or political demands)
+   Select 5-15 of the most quotable, memorable, or intellectually significant passages. Prefer passages that are:
+   - Frequently cited by other scholars
+   - Core formulations that define the author's main concepts
+   - Polemical or provocative statements that spark debate
+   - Precise definitions that capture complex ideas in compact form
+9. "excerpts": Array of objects with {{content (paraphrased summary of an idea/argument in YOUR words), concept (which concept this relates to), topics (array of topic tags)}}
+   These are NOT verbatim quotes but concise distillations of the author's key ideas, arguments, or theoretical moves.
+   Write 3-8 excerpts capturing the most important intellectual contributions.
+10. "evaluation": Object with {{epistemic (1-5), empirical (1-5), political (1-5), synthetic (1-5), notes}}
+11. "tags": Array of relevant topic tags
 
 TEXT:
 {text}"""
@@ -171,15 +182,61 @@ def store_knowledge_in_db(conn, source, knowledge):
         )
         count += 1
 
-    # Quotes
+    # Quotes → knowledge_items + quotes table
+    authors = _parse_authors(source)
+    author_str = ", ".join(authors) if authors else "Unknown"
+
     for item in knowledge.get("quotes", []):
+        text = item.get("text", "").strip()
+        if not text:
+            continue
         insert_knowledge_item(
             conn, source_id=source_id, item_type="quote",
-            content=item.get("text", ""),
+            content=text,
             context=item.get("context"),
             page_range=item.get("page_range"),
         )
         count += 1
+        # Also store in quotes table with richer metadata
+        if not quote_exists(conn, text, author_str):
+            tags = knowledge.get("tags", [])
+            insert_quote(
+                conn,
+                text=text,
+                author=author_str,
+                source_title=source.get("title", ""),
+                source_year=source.get("year"),
+                page=item.get("page_range"),
+                language=source.get("language", "en"),
+                entry_type="quote",
+                quote_type=item.get("quote_type", "core_concept"),
+                topics=tags,
+                context=item.get("context"),
+                found_via="literature_pipeline",
+                pipeline_source_id=source_id,
+            )
+
+    # Excerpts → quotes table only (paraphrased, not verbatim)
+    for item in knowledge.get("excerpts", []):
+        content = item.get("content", "").strip()
+        if not content:
+            continue
+        if not quote_exists(conn, content, author_str):
+            topics = item.get("topics", knowledge.get("tags", []))
+            insert_quote(
+                conn,
+                text=content,
+                author=author_str,
+                source_title=source.get("title", ""),
+                source_year=source.get("year"),
+                language=source.get("language", "en"),
+                entry_type="excerpt",
+                quote_type="core_concept",
+                topics=topics,
+                context=item.get("concept"),
+                found_via="literature_pipeline",
+                pipeline_source_id=source_id,
+            )
 
     # Concepts → concepts table + concept_sources linking
     for item in knowledge.get("concepts", []):

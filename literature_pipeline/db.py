@@ -124,6 +124,38 @@ CREATE INDEX IF NOT EXISTS idx_concepts_name ON concepts(name);
 CREATE INDEX IF NOT EXISTS idx_concept_sources_concept ON concept_sources(concept_id);
 CREATE INDEX IF NOT EXISTS idx_concept_sources_source ON concept_sources(source_id);
 CREATE INDEX IF NOT EXISTS idx_embeddings_source ON embeddings(source_id);
+
+CREATE TABLE IF NOT EXISTS quotes (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    text            TEXT NOT NULL,           -- exact quote or paraphrased excerpt
+    author          TEXT,                    -- who said/wrote it
+    source_title    TEXT,                    -- book/article/podcast title
+    source_year     INTEGER,
+    page            TEXT,                    -- page number or range
+    language        TEXT DEFAULT 'en',
+    entry_type      TEXT NOT NULL,           -- 'quote' (verbatim) or 'excerpt' (paraphrase/summary)
+    quote_type      TEXT,                    -- core_concept, polemic, critique, definition,
+                                            --   aphorism, empirical, frequently_cited, programmatic
+    topics          TEXT,                    -- JSON array of topic tags
+    context         TEXT,                    -- why this matters, what debate it belongs to
+    use_for         TEXT,                    -- JSON array: website, article, epigraph, social_media
+    found_via       TEXT,                    -- literature_pipeline, news_article, podcast, manual
+    pipeline_source_id INTEGER,             -- FK to sources(id) if from literature pipeline
+    article_id      TEXT,                    -- ID from articles.db if from news pipeline
+    episode_id      TEXT,                    -- ID from podcasts.db if from podcast pipeline
+    rating          INTEGER DEFAULT 0,       -- 0-5, for manual curation
+    used_count      INTEGER DEFAULT 0,       -- how often it has been used/published
+    status          TEXT DEFAULT 'new',      -- new, curated, published, archived
+    created_at      TEXT DEFAULT (datetime('now')),
+    updated_at      TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_quotes_author ON quotes(author);
+CREATE INDEX IF NOT EXISTS idx_quotes_entry_type ON quotes(entry_type);
+CREATE INDEX IF NOT EXISTS idx_quotes_quote_type ON quotes(quote_type);
+CREATE INDEX IF NOT EXISTS idx_quotes_status ON quotes(status);
+CREATE INDEX IF NOT EXISTS idx_quotes_rating ON quotes(rating);
+CREATE INDEX IF NOT EXISTS idx_quotes_source ON quotes(pipeline_source_id);
 """
 
 
@@ -291,6 +323,82 @@ def search_sources(conn, query):
     ).fetchall()
 
 
+def insert_quote(conn, **kwargs):
+    """Insert a quote or excerpt."""
+    for field in ("topics", "use_for"):
+        if field in kwargs and isinstance(kwargs[field], (list, dict)):
+            kwargs[field] = json.dumps(kwargs[field])
+
+    kwargs["created_at"] = datetime.now().isoformat()
+    kwargs["updated_at"] = kwargs["created_at"]
+
+    cols = ", ".join(kwargs.keys())
+    placeholders = ", ".join(["?"] * len(kwargs))
+    vals = list(kwargs.values())
+    cursor = conn.execute(
+        f"INSERT INTO quotes ({cols}) VALUES ({placeholders})", vals
+    )
+    conn.commit()
+    return cursor.lastrowid
+
+
+def quote_exists(conn, text, author=None):
+    """Check if a similar quote already exists (exact text match)."""
+    if author:
+        row = conn.execute(
+            "SELECT id FROM quotes WHERE text = ? AND author = ?", (text, author)
+        ).fetchone()
+    else:
+        row = conn.execute(
+            "SELECT id FROM quotes WHERE text = ?", (text,)
+        ).fetchone()
+    return row is not None
+
+
+def get_quotes(conn, entry_type=None, quote_type=None, status=None,
+               min_rating=None, author=None, limit=50):
+    """Query quotes with optional filters."""
+    conditions = []
+    params = []
+
+    if entry_type:
+        conditions.append("entry_type = ?")
+        params.append(entry_type)
+    if quote_type:
+        conditions.append("quote_type = ?")
+        params.append(quote_type)
+    if status:
+        conditions.append("status = ?")
+        params.append(status)
+    if min_rating is not None:
+        conditions.append("rating >= ?")
+        params.append(min_rating)
+    if author:
+        conditions.append("author LIKE ?")
+        params.append(f"%{author}%")
+
+    where = " AND ".join(conditions) if conditions else "1=1"
+    params.append(limit)
+
+    return conn.execute(
+        f"SELECT * FROM quotes WHERE {where} ORDER BY rating DESC, created_at DESC LIMIT ?",
+        params,
+    ).fetchall()
+
+
+def update_quote(conn, quote_id, **kwargs):
+    """Update fields on a quote."""
+    for field in ("topics", "use_for"):
+        if field in kwargs and isinstance(kwargs[field], (list, dict)):
+            kwargs[field] = json.dumps(kwargs[field])
+
+    kwargs["updated_at"] = datetime.now().isoformat()
+    assignments = ", ".join(f"{k} = ?" for k in kwargs)
+    vals = list(kwargs.values()) + [quote_id]
+    conn.execute(f"UPDATE quotes SET {assignments} WHERE id = ?", vals)
+    conn.commit()
+
+
 def stats(conn):
     """Return pipeline statistics."""
     result = {}
@@ -303,6 +411,10 @@ def stats(conn):
     result["total_citations"] = conn.execute("SELECT COUNT(*) FROM citations").fetchone()[0]
     result["total_knowledge_items"] = conn.execute("SELECT COUNT(*) FROM knowledge_items").fetchone()[0]
     result["total_concepts"] = conn.execute("SELECT COUNT(*) FROM concepts").fetchone()[0]
+    result["total_quotes"] = conn.execute("SELECT COUNT(*) FROM quotes").fetchone()[0]
+    result["quotes_curated"] = conn.execute(
+        "SELECT COUNT(*) FROM quotes WHERE status = 'curated'"
+    ).fetchone()[0]
     return result
 
 
