@@ -4,6 +4,22 @@
     "summarize": {
       "version": "1.0.0",
       "installedAt": 1770829441747
+    },
+    "xiucheng-self-improving-agent": {
+      "version": "1.0.0",
+      "installedAt": 1773486723127
+    },
+    "ontology": {
+      "version": "1.0.4",
+      "installedAt": 1773486730598
+    },
+    "proactive-agent-lite": {
+      "version": "1.0.0",
+      "installedAt": 1773486784414
+    },
+    "multi-search-engine": {
+      "version": "2.0.1",
+      "installedAt": 1773486787414
     }
   }
 }

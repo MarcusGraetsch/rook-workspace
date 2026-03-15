@@ -1,0 +1,214 @@
+
+<!-- Graph Visualization Section - Add before closing </body> tag -->
+
+<div class="section">
+    <h2>🕸️ Knowledge Graph Visualization</h2>
+    <p>Interactive network showing relationships between articles, concepts, and tasks</p>
+    
+    <div id="graph-container" style="width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa;"></div>
+    
+    <div style="margin-top: 1rem; padding: 1rem; background: #f0f0f0; border-radius: 4px;">
+        <strong>Legend:</strong>
+        <span style="display: inline-block; margin-right: 1rem;">
+            <span style="display: inline-block; width: 12px; height: 12px; background: #3498db; border-radius: 50%; margin-right: 5px;"></span>Article
+        </span>
+        <span style="display: inline-block; margin-right: 1rem;">
+            <span style="display: inline-block; width: 12px; height: 12px; background: #e74c3c; border-radius: 50%; margin-right: 5px;"></span>Concept
+        </span>
+        <span style="display: inline-block; margin-right: 1rem;">
+            <span style="display: inline-block; width: 12px; height: 12px; background: #2ecc71; border-radius: 50%; margin-right: 5px;"></span>Task
+        </span>
+        <span style="display: inline-block; margin-right: 1rem;">
+            <span style="display: inline-block; width: 20px; height: 2px; background: #999; margin-right: 5px; vertical-align: middle;"></span>Relationship
+        </span>
+    </div>
+    
+    <div style="margin-top: 1rem;">
+        <button onclick="filterGraph('all')" style="padding: 0.5rem 1rem; margin-right: 0.5rem; cursor: pointer;">Show All</button>
+        <button onclick="filterGraph('concepts')" style="padding: 0.5rem 1rem; margin-right: 0.5rem; cursor: pointer;">Concepts Only</button>
+        <button onclick="filterGraph('articles')" style="padding: 0.5rem 1rem; margin-right: 0.5rem; cursor: pointer;">Sample Articles</button>
+    </div>
+</div>
+
+<!-- Load D3.js -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+// Sample graph data (in production, this would be loaded from graph.jsonl)
+const graphData = {
+    nodes: [
+        // Concepts (red)
+        { id: "concept_platform_capitalism", name: "Platform Capitalism", type: "concept", group: 1 },
+        { id: "concept_surveillance_capitalism", name: "Surveillance Capitalism", type: "concept", group: 1 },
+        { id: "concept_gig_economy", name: "Gig Economy", type: "concept", group: 1 },
+        { id: "concept_data_extractivism", name: "Data Extractivism", type: "concept", group: 1 },
+        { id: "concept_precarious_work", name: "Precarious Work", type: "concept", group: 1 },
+        { id: "concept_labor_organizing", name: "Labor Organizing", type: "concept", group: 1 },
+        
+        // Tasks (green)
+        { id: "task_chapter_platform_capitalism", name: "Platform Capitalism Theory", type: "task", group: 2 },
+        { id: "task_gig_economy_empirics", name: "Gig Economy Empirics", type: "task", group: 2 },
+        { id: "task_labor_organizing", name: "Labor Organizing Cases", type: "task", group: 2 },
+        { id: "task_ki_labor_impact", name: "AI Labor Impact", type: "task", group: 2 },
+        
+        // Sample Articles (blue)
+        { id: "article_1", name: "Uber Labor Rights Article", type: "article", group: 3 },
+        { id: "article_2", name: "Amazon Union News", type: "article", group: 3 },
+        { id: "article_3", name: "Platform Coop Study", type: "article", group: 3 },
+        { id: "article_4", name: "AI Worker Surveillance", type: "article", group: 3 },
+        { id: "article_5", name: "Gig Economy Precarity", type: "article", group: 3 },
+        { id: "article_6", name: "Tech Workers Coalition", type: "article", group: 3 },
+        { id: "article_7", name: "Data Colonialism Study", type: "article", group: 3 },
+        { id: "article_8", name: "EU DMA Regulation", type: "article", group: 3 },
+    ],
+    links: [
+        // Concept relations
+        { source: "article_1", target: "concept_gig_economy", type: "discusses" },
+        { source: "article_1", target: "concept_precarious_work", type: "discusses" },
+        { source: "article_2", target: "concept_labor_organizing", type: "discusses" },
+        { source: "article_3", target: "concept_platform_capitalism", type: "discusses" },
+        { source: "article_4", target: "concept_surveillance_capitalism", type: "discusses" },
+        { source: "article_5", target: "concept_gig_economy", type: "discusses" },
+        { source: "article_5", target: "concept_precarious_work", type: "discusses" },
+        { source: "article_6", target: "concept_labor_organizing", type: "discusses" },
+        { source: "article_7", target: "concept_data_extractivism", type: "discusses" },
+        { source: "article_8", target: "concept_platform_capitalism", type: "discusses" },
+        
+        // Task relations
+        { source: "task_chapter_platform_capitalism", target: "concept_platform_capitalism", type: "covers" },
+        { source: "task_gig_economy_empirics", target: "concept_gig_economy", type: "covers" },
+        { source: "task_gig_economy_empirics", target: "concept_precarious_work", type: "covers" },
+        { source: "task_labor_organizing", target: "concept_labor_organizing", type: "covers" },
+        { source: "task_ki_labor_impact", target: "concept_surveillance_capitalism", type: "covers" },
+        
+        // Related articles (sample)
+        { source: "article_1", target: "article_5", type: "related" },
+        { source: "article_2", target: "article_6", type: "related" },
+        { source: "article_3", target: "article_8", type: "related" },
+    ]
+};
+
+let simulation;
+let svg;
+let link, node;
+
+function initGraph() {
+    const container = document.getElementById('graph-container');
+    const width = container.clientWidth;
+    const height = 600;
+    
+    // Clear previous
+    container.innerHTML = '';
+    
+    svg = d3.select('#graph-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('viewBox', [0, 0, width, height]);
+    
+    // Add zoom
+    const g = svg.append('g');
+    svg.call(d3.zoom()
+        .extent([[0, 0], [width, height]])
+        .scaleExtent([0.5, 4])
+        .on('zoom', (event) => g.attr('transform', event.transform)));
+    
+    // Color scale
+    const color = d3.scaleOrdinal()
+        .domain([1, 2, 3])
+        .range(['#e74c3c', '#2ecc71', '#3498db']);
+    
+    // Simulation
+    simulation = d3.forceSimulation(graphData.nodes)
+        .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(100))
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(40));
+    
+    // Draw links
+    link = g.append('g')
+        .attr('stroke', '#999')
+        .attr('stroke-opacity', 0.6)
+        .selectAll('line')
+        .data(graphData.links)
+        .join('line')
+        .attr('stroke-width', d => d.type === 'related' ? 1 : 2)
+        .attr('stroke-dasharray', d => d.type === 'related' ? '5,5' : null);
+    
+    // Draw nodes
+    node = g.append('g')
+        .selectAll('g')
+        .data(graphData.nodes)
+        .join('g')
+        .call(d3.drag()
+            .on('start', dragstarted)
+            .on('drag', dragged)
+            .on('end', dragended));
+    
+    // Node circles
+    node.append('circle')
+        .attr('r', d => d.type === 'concept' ? 25 : d.type === 'task' ? 20 : 15)
+        .attr('fill', d => color(d.group))
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2);
+    
+    // Node labels
+    node.append('text')
+        .text(d => d.name)
+        .attr('x', 0)
+        .attr('y', d => d.type === 'concept' ? 35 : d.type === 'task' ? 30 : 25)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '10px')
+        .attr('fill', '#333')
+        .style('pointer-events', 'none');
+    
+    // Tooltips
+    node.append('title')
+        .text(d => `${d.name} (${d.type})`);
+    
+    // Update positions
+    simulation.on('tick', () => {
+        link
+            .attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+        
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+}
+
+function dragstarted(event, d) {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+}
+
+function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+}
+
+function dragended(event, d) {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+}
+
+function filterGraph(type) {
+    if (type === 'all') {
+        node.style('opacity', 1);
+        link.style('opacity', 1);
+    } else if (type === 'concepts') {
+        node.style('opacity', d => d.type === 'concept' ? 1 : 0.2);
+        link.style('opacity', 0.2);
+    } else if (type === 'articles') {
+        node.style('opacity', d => d.type === 'article' ? 1 : 0.2);
+        link.style('opacity', d => d.source.type === 'article' && d.target.type === 'article' ? 1 : 0.2);
+    }
+}
+
+// Initialize on load
+window.addEventListener('load', initGraph);
+window.addEventListener('resize', initGraph);
+</script>
