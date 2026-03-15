@@ -311,6 +311,150 @@
       "priority": "medium",
       "dimension": "geography-eu",
       "description": "EU-Gesetzgebung"
+    },
+    {
+      "name": "Kuketz IT-Security Blog",
+      "url": "https://www.kuketz-blog.de/feed/",
+      "category": "privacy-security",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "Datenschutz, Big-Tech-Alternativen, Überwachungskritik"
+    },
+    {
+      "name": "chaos.social #digitalisierung",
+      "url": "https://chaos.social/tags/digitalisierung.rss",
+      "category": "tech-discourse",
+      "priority": "low",
+      "dimension": "geography-de",
+      "description": "CCC-nahes Fediverse, Digitalisierungsdebatte DE"
+    },
+    {
+      "name": "chaos.social #Überwachung",
+      "url": "https://chaos.social/tags/Überwachung.rss",
+      "category": "surveillance",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "Überwachungskritik, Polizeigesetze, digitale Rechte"
+    },
+    {
+      "name": "chaos.social #datenschutz",
+      "url": "https://chaos.social/tags/datenschutz.rss",
+      "category": "privacy-security",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "DSGVO, Datenpraktiken, EU-Digitalpolitik"
+    },
+    {
+      "name": "chaos.social #bigtech",
+      "url": "https://chaos.social/tags/bigtech.rss",
+      "category": "tech-criticism",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "Big-Tech-Kritik, Rechenzentren, KI-Konsolidierung"
+    },
+    {
+      "name": "chaos.social #ki",
+      "url": "https://chaos.social/tags/ki.rss",
+      "category": "ai-policy",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "KI-Kritik, Überwachungskapitalismus, Open Source"
+    },
+    {
+      "name": "chaos.social #gewerkschaft",
+      "url": "https://chaos.social/tags/gewerkschaft.rss",
+      "category": "labor-de",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "Gewerkschaftsarbeit, Betriebsräte, Streiks"
+    },
+    {
+      "name": "chaos.social #digitaleSouveränität",
+      "url": "https://chaos.social/tags/digitaleSouveränität.rss",
+      "category": "tech-policy",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "Digitale Souveränität, US-Tech-Abhängigkeit, DeutschlandStack"
+    },
+    {
+      "name": "chaos.social #kapitalismus",
+      "url": "https://chaos.social/tags/kapitalismus.rss",
+      "category": "critical-theory",
+      "priority": "low",
+      "dimension": "geography-de",
+      "description": "Kapitalismuskritik, Eigentumsdebatte, Ökologie"
+    },
+    {
+      "name": "chaos.social #algorithmen",
+      "url": "https://chaos.social/tags/algorithmen.rss",
+      "category": "tech-policy",
+      "priority": "low",
+      "dimension": "geography-de",
+      "description": "Algorithmische Systeme, KI-Bias, Plattformdesign"
+    },
+    {
+      "name": "chaos.social #arbeit",
+      "url": "https://chaos.social/tags/arbeit.rss",
+      "category": "labor-de",
+      "priority": "low",
+      "dimension": "geography-de",
+      "description": "Arbeitspolitik, Arbeitskritik, Teilzeitdebatte"
+    },
+    {
+      "name": "Platformer (Casey Newton)",
+      "url": "https://www.platformer.news/rss/",
+      "category": "tech-labor",
+      "priority": "high",
+      "dimension": "geography-us",
+      "description": "Meta/Uber/Amazon Insider, Plattform-Governance"
+    },
+    {
+      "name": "Big Technology (Alex Kantrowitz)",
+      "url": "https://www.bigtechnology.com/feed",
+      "category": "tech-labor",
+      "priority": "high",
+      "dimension": "geography-us",
+      "description": "KI und Arbeit, Tech-Industrie-Analyse"
+    },
+    {
+      "name": "BIG by Matt Stoller",
+      "url": "https://www.thebignewsletter.com/feed",
+      "category": "finance-economics",
+      "priority": "high",
+      "dimension": "geography-us",
+      "description": "Monopolmacht, Kartellrecht, politische Ökonomie"
+    },
+    {
+      "name": "HEATED (Emily Atkin)",
+      "url": "https://heated.world/feed",
+      "category": "climate-tech",
+      "priority": "medium",
+      "dimension": "geography-us",
+      "description": "Klimakrise, fossile Industrie, Big-Tech-Ökologie"
+    },
+    {
+      "name": "Welcome to Hell World (Luke O'Neil)",
+      "url": "https://welcometohellworld.com/feed",
+      "category": "labor-us",
+      "priority": "medium",
+      "dimension": "geography-us",
+      "description": "Prekarität, Arbeiterperspektive USA"
+    },
+    {
+      "name": "Discourse Blog",
+      "url": "http://www.discourseblog.com/feed/",
+      "category": "left-analysis",
+      "priority": "low",
+      "dimension": "geography-us",
+      "description": "Linke Politik, Arbeit und Kultur (Worker-Owned)"
+    },
+    {
+      "name": "Digitale Gesellschaft DE",
+      "url": "https://digitalegesellschaft.de/feed/",
+      "category": "digital-rights",
+      "priority": "medium",
+      "dimension": "geography-de",
+      "description": "Chatkontrolle, Netzpolitik, digitale Grundrechte"
     }
   ],
   "schedule": "08:00",

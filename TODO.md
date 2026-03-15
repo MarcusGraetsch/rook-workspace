@@ -8,12 +8,13 @@
 ## 🔴 HIGH PRIORITY — Repository Setup
 
 ### rook-agent Repo (Disaster Recovery)
-- [ ] **Create GitHub repo:** `MarcusGraetsch/rook-agent`
+- [x] **Create GitHub repo:** `MarcusGraetsch/rook-agent` ✅ DONE
   - Contents: SOUL.md, USER.md, AGENTS.md, TOOLS.md, HEARTBEAT.md, MEMORY.md
   - Skills: Custom skills (not the installed ones from /usr/lib/node_modules/)
   - NO credentials, NO .env files
+  - Local clone: `/mnt/d/Develop/myWebsite/rook-agent`
 
-- [ ] **Document recovery process**
+- [x] **Document recovery process** ✅ DONE (in rook-agent README.md)
   - How to restore agent after VPS crash?
   - Dependencies: Which skills need reinstall?
 
@@ -24,82 +25,96 @@
 ### RSS Feed Optimization
 - [x] **Complete RSS restructure with priority weighting** ✅ DONE (v2.0, 39 feeds)
 - [x] **Add Fefes Blog** ✅ DONE (high priority, DE tech-politics)
-- [ ] **Evaluate additional German sources:**
-  - [ ] Kuketz-Blog (privacy/security focus) — medium priority
-  - [ ] Mastodon feeds (specific instances: chaos.social, techpolitik.social) — optional
-  - [ ] Nitter (Twitter/X proxy) for specific accounts — low priority, unstable
+- [x] **Evaluate additional German sources:** ✅ DONE
+  - [x] Kuketz-Blog — added to RSS config (medium priority, active feed)
+  - [x] chaos.social #digitalisierung — added to RSS config (low priority, 21 items, active)
+  - [x] chaos.social #plattformkapitalismus — skipped (0 items, tag too niche)
+  - [x] chaos.social #ueberwachung — skipped (12 items over 2 years, too low volume)
+  - [x] techpolitik.social — skipped (instance dead, ECONNREFUSED)
+  - [x] Nitter — skipped (project archived since 2024, no public instances)
 
 ### Newsletter Monitoring (High-Quality Sources)
-- [ ] **Set up newsletter aggregation workflow**
+- [x] **Set up newsletter aggregation workflow** ✅ DONE (native RSS, no RSS-Bridge needed)
   - **Tech/Labor intersections:**
-    - [ ] Platformer (Casey Newton) — Meta/Uber/Amazon insider
-    - [ ] Big Technology (Alex Kantrowitz)
-    - [ ] Garbage Day (Ryan Broderick) — internet culture + politics
+    - [x] Platformer (Casey Newton) — added, high priority
+    - [x] Big Technology (Alex Kantrowitz) — added, high priority
+    - [x] Garbage Day (Ryan Broderick) — skipped (feed stale since Jan 2024)
   - **US Labor:**
-    - [ ] Luke O'Neil (Welcome to Hell World) — service worker perspective
-    - [ ] Discourse Blog ( labor + culture)
+    - [x] Luke O'Neil (Welcome to Hell World) — added, medium priority
+    - [x] Discourse Blog — added, low priority
   - **Climate + Tech:**
-    - [ ] Heated (Emily Atkin) — fossil fuel industry + big tech
+    - [x] Heated (Emily Atkin) — added, medium priority
   - **EU/Germany:**
-    - [ ] Netzpolitik-Newsletter
-    - [ ] Algorithm Watch Newsletter
-    - [ ] Digitale Gesellschaft Newsletter
+    - [x] Netzpolitik-Newsletter — already covered by netzpolitik.org/feed/
+    - [x] Algorithm Watch Newsletter — already covered by algorithmwatch.org/en/feed/
+    - [x] Digitale Gesellschaft DE — added, medium priority
   - **Finance/Economics:**
-    - [ ] Matt Stoller (BIG) — monopoly power
-    - [ ] Naked Capitalism Links
-  - **Implementation:** RSS-Bridge, Kill the Newsletter, or IMAP forwarding
+    - [x] Matt Stoller (BIG) — added, high priority
+    - [x] Naked Capitalism — already in config (high priority)
 
 ### Podcast Transcription Pipeline
-- [ ] **Set up automated podcast transcription workflow**
-  - Target podcasts for platform capitalism research:
-    - [ ] Trashfuture (UK tech + capitalism)
-    - [ ] Tech Won't Save Us (Paris Marx)
-    - [ ] Upstream (Doughnut Economics)
-    - [ ] It Could Happen Here (labor organizing)
-    - [ ] The Dig (Jacobin — deep interviews)
-  - Workflow:
-    - [ ] RSS monitoring for new episodes
-    - [ ] Download audio (youtube-dl/yt-dlp for YT, direct for RSS)
-    - [ ] Whisper transcription (openai-whisper skill)
-    - [ ] Summarization + keyword extraction
-    - [ ] Archive to research directory with metadata
-  - Storage: `~/research/podcasts/YYYY-MM/`
+- [x] **Set up automated podcast transcription workflow** ✅ DONE
+  - Target podcasts (all feeds verified active):
+    - [x] Trashfuture (Podbean feed)
+    - [x] Tech Won't Save Us (Megaphone feed)
+    - [x] Upstream (Libsyn feed)
+    - [x] It Could Happen Here (Omny feed)
+    - [x] The Dig (Blubrry feed)
+  - Workflow implemented in `research/scan_podcasts.py`:
+    - [x] RSS monitoring for new episodes
+    - [x] Direct MP3 download from enclosures
+    - [x] OpenAI Whisper API transcription (with chunking for large files)
+    - [x] Claude summarization + keyword extraction
+    - [x] Archive to `research/podcasts/YYYY-MM/` with frontmatter
+  - Config: `research/podcast_config.json`
+  - Run: `python3 research/scan_podcasts.py` (or `--scan-only`, `--transcribe-only`, `--podcast "name"`)
 
 ### Academic Alerting System
-- [ ] **Set up proactive academic paper monitoring**
-  - Platforms:
-    - [ ] Zotero Saved Searches → RSS ("platform capitalism", "gig economy", "algorithmic management")
-    - [ ] Google Scholar Alerts → RSS forwarding
-    - [ ] ResearchGate alerts for specific authors (Pasquinelli, Srnicek, Zuboff, etc.)
-    - [ ] Semantic Scholar API (free, up to 100 req/min)
-  - Key authors to track:
-    - [ ] Matteo Pasquinelli (AI + labor theory)
-    - [ ] Nick Srnicek (platform capitalism)
-    - [ ] Shoshana Zuboff (surveillance capitalism)
-    - [ ] Mary Gray & Siddharth Suri (ghost work)
-    - [ ] Julie Cohen (platform governance)
-  - Workflow:
-    - [ ] Weekly digest of new papers
-    - [ ] Priority flagging for highly relevant titles
-    - [ ] Direct download to `~/research/papers/YYYY-MM/`
+- [x] **Set up proactive academic paper monitoring** ✅ DONE (OpenAlex API)
+  - Platform: OpenAlex API (free, no auth, 100k req/day)
+    - Chose over Semantic Scholar (better coverage, no auth needed)
+    - Google Scholar has no native RSS export
+  - Tracked authors (OpenAlex IDs resolved):
+    - [x] Matteo Pasquinelli (A5085389494)
+    - [x] Nick Srnicek (A5091178311)
+    - [x] Shoshana Zuboff (A5073480907)
+    - [x] Mary L. Gray (A5055422172)
+    - [x] Siddharth Suri (A5051257652)
+    - [x] Julie E. Cohen (A5087973237)
+  - Keyword searches: platform capitalism, gig economy, algorithmic management,
+    surveillance capitalism, digital labor, data extraction, platform cooperativism
+  - Config: `research/academic_config.json`
+  - Run: `python3 research/scan_academic.py` (or `--authors-only`, `--keywords-only`, `--digest-only`, `--stats`)
+  - Output: `academic_papers.db` + monthly digest in `news/YYYY-MM-academic-digest.md`
 
 ### Email Link Aggregation
-- [ ] **Set up email scanning for forwarded article links**
-  - **Three email addresses to monitor:**
-    - [ ] **AI-relevant:** AI developments, ML research, automation news
-    - [ ] **New Work/Tech:** Changes in work through technology, workplace transformation
-    - [ ] **Big Tech Power:** Power structures, monopolies, platform governance
-  - Implementation options:
-    - **A) IMAP polling:** Direct mailbox access (requires credentials)
-    - **B) Forwarding rules:** Auto-forward to dedicated processing address
-    - **C) API integration:** Gmail/Outlook API with filtering
-  - Workflow:
-    - [ ] Parse incoming emails for URLs
-    - [ ] Fetch article content (web fetch + readability)
-    - [ ] Categorize by topic (AI / New Work / Big Tech)
-    - [ ] Deduplicate against existing research
-    - [ ] Add to daily digest or weekly review
-  - Security: OAuth2 preferred, app passwords if necessary, store in `.env`
+- [x] **Set up email scanning for forwarded article links** ✅ DONE (already implemented in scan_v5.py)
+  - **Three Gmail accounts active** (Gmail API, OAuth2):
+    - [x] **AI-relevant:** aichitchatter@critical-theory.digital
+    - [x] **New Work/Tech:** newworkculture.twentyone@critical-theory.digital
+    - [x] **Big Tech Power:** b1gt3ch.5n5lysis@critical-theory.digital
+  - Implementation: Gmail API (option C) via `research/scan_v5.py`
+  - Workflow fully implemented:
+    - [x] Parse emails for URLs + newsletter detection
+    - [x] Fetch article content (requests + BeautifulSoup)
+    - [x] Categorize by account (aigen / newwork / bigtech)
+    - [x] Deduplicate against articles.db
+    - [x] Feeds into weekly pipeline (clean → label → summarize → digest)
+
+### Academic Alerting — Author Expansion
+- [ ] **Expand tracked authors beyond contemporary platform capitalism scholars**
+  - [ ] **Recurring citation authors**: Authors frequently cited across the literature pipeline
+    sources (extract from `knowledge_items` / `extracted_references` in literature.db).
+    These are often central to specific debates and should be monitored.
+  - [ ] **Cybernetics / systems theory pioneers**: Norbert Wiener, Heinz von Foerster,
+    Stafford Beer, Gregory Bateson — foundational for understanding computation and control
+  - [ ] **German critical theory / philosophy**: Frankfurt School (Adorno, Horkheimer, Habermas),
+    Marx/Engels, Rosa Luxemburg, Wolfgang Fritz Haug (Argument), Robert Kurz (Krisis/Exit),
+    and contemporary German-language scholars on technology and capitalism
+  - [ ] **Classical political economy**: Authors relevant to bourgeois society, capitalism,
+    and technology debates (value theory, labor process, machinery)
+  - [ ] **Automated discovery**: Consider a pipeline step that extracts frequently-cited
+    authors from literature.db and auto-suggests additions to academic_config.json
 
 ---
 
