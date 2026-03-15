@@ -174,6 +174,14 @@ CREATE TABLE IF NOT EXISTS persons (
     notes           TEXT,
     is_seed         INTEGER DEFAULT 0,      -- 1 = manually verified canonical entry
     merged_into_id  INTEGER REFERENCES persons(id),  -- soft-merge for dedup
+    -- Citation metrics (fetched from OpenAlex / Semantic Scholar)
+    works_count     INTEGER,
+    cited_by_count  INTEGER,
+    h_index         INTEGER,
+    i10_index       INTEGER,
+    mean_citedness_2yr REAL,
+    metrics_source  TEXT,                   -- openalex, semantic_scholar
+    metrics_updated_at TEXT,
     created_at      TEXT DEFAULT (datetime('now')),
     updated_at      TEXT DEFAULT (datetime('now'))
 );
@@ -215,6 +223,13 @@ CREATE TABLE IF NOT EXISTS works (
     notes           TEXT,
     source_id       INTEGER REFERENCES sources(id),  -- FK if we have the actual source
     merged_into_id  INTEGER REFERENCES works(id),     -- soft-merge for dedup
+    -- Citation metrics (fetched from OpenAlex / Semantic Scholar)
+    cited_by_count  INTEGER,
+    influential_citations INTEGER,
+    citation_percentile REAL,
+    fwci            REAL,                   -- field-weighted citation impact
+    metrics_source  TEXT,                   -- openalex, semantic_scholar
+    metrics_updated_at TEXT,
     created_at      TEXT DEFAULT (datetime('now')),
     updated_at      TEXT DEFAULT (datetime('now'))
 );
@@ -318,6 +333,32 @@ END;
 """
 
 
+def _migrate_add_columns(conn):
+    """Add new columns to existing tables (idempotent)."""
+    migrations = [
+        # Citation metrics on persons
+        ("persons", "works_count", "INTEGER"),
+        ("persons", "cited_by_count", "INTEGER"),
+        ("persons", "h_index", "INTEGER"),
+        ("persons", "i10_index", "INTEGER"),
+        ("persons", "mean_citedness_2yr", "REAL"),
+        ("persons", "metrics_source", "TEXT"),
+        ("persons", "metrics_updated_at", "TEXT"),
+        # Citation metrics on works
+        ("works", "cited_by_count", "INTEGER"),
+        ("works", "influential_citations", "INTEGER"),
+        ("works", "citation_percentile", "REAL"),
+        ("works", "fwci", "REAL"),
+        ("works", "metrics_source", "TEXT"),
+        ("works", "metrics_updated_at", "TEXT"),
+    ]
+    for table, column, col_type in migrations:
+        cols = [row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+        if column not in cols:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {col_type}")
+    conn.commit()
+
+
 def init_db(db_path=None):
     """Create all tables if they don't exist."""
     conn = get_connection(db_path)
@@ -328,6 +369,8 @@ def init_db(db_path=None):
         conn.executescript(FTS_TRIGGERS_SQL)
     except Exception:
         pass  # FTS5 may not be available in all SQLite builds
+    # Run column migrations for existing databases
+    _migrate_add_columns(conn)
     conn.commit()
     logger.info(f"Database initialized: {db_path or DB_FILE}")
     return conn
@@ -687,6 +730,15 @@ def get_or_create_person(conn, name, **kwargs):
             pass
 
     conn.commit()
+
+    # Fetch citation metrics inline (non-blocking)
+    if kwargs.get("fetch_metrics", True):
+        try:
+            from .fetch_metrics import fetch_metrics_for_new_person
+            fetch_metrics_for_new_person(conn, person_id)
+        except Exception:
+            pass  # Network errors shouldn't break person creation
+
     return person_id
 
 
@@ -769,6 +821,15 @@ def get_or_create_work(conn, title, authors=None, year=None, **kwargs):
                 pass
 
     conn.commit()
+
+    # Fetch citation metrics inline (non-blocking)
+    if kwargs.get("fetch_metrics", True):
+        try:
+            from .fetch_metrics import fetch_metrics_for_new_work
+            fetch_metrics_for_new_work(conn, work_id)
+        except Exception:
+            pass  # Network errors shouldn't break work creation
+
     return work_id
 
 
@@ -899,6 +960,12 @@ def stats(conn):
     result["seed_persons"] = conn.execute("SELECT COUNT(*) FROM persons WHERE is_seed = 1").fetchone()[0]
     result["total_works"] = conn.execute("SELECT COUNT(*) FROM works WHERE merged_into_id IS NULL").fetchone()[0]
     result["total_mentions"] = conn.execute("SELECT COUNT(*) FROM mentions").fetchone()[0]
+    result["persons_with_metrics"] = conn.execute(
+        "SELECT COUNT(*) FROM persons WHERE cited_by_count IS NOT NULL AND merged_into_id IS NULL"
+    ).fetchone()[0]
+    result["works_with_metrics"] = conn.execute(
+        "SELECT COUNT(*) FROM works WHERE cited_by_count IS NOT NULL AND merged_into_id IS NULL"
+    ).fetchone()[0]
     return result
 
 

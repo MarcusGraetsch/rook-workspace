@@ -124,7 +124,7 @@ def cmd_backfill(args):
                 (_normalize_person_name(author_name),),
             ).fetchone()
             if not existing:
-                get_or_create_person(conn, author_name)
+                get_or_create_person(conn, author_name, fetch_metrics=False)
                 created_persons += 1
 
     print(f"  Created {created_persons} persons from source authors")
@@ -149,6 +149,7 @@ def cmd_backfill(args):
             conn, title,
             authors=ref_authors or None,
             year=ref["parsed_year"],
+            fetch_metrics=False,
         )
         created_works += 1
 
@@ -176,6 +177,7 @@ def cmd_backfill(args):
                 conn, cited_title,
                 authors=authors or None,
                 source_id=cit["cited_source_id"],
+                fetch_metrics=False,
             )
 
             # Check if mention already exists
@@ -208,7 +210,7 @@ def cmd_backfill(args):
         for author_name in (authors or []):
             if not author_name or not author_name.strip():
                 continue
-            person_id = get_or_create_person(conn, author_name)
+            person_id = get_or_create_person(conn, author_name, fetch_metrics=False)
             existing = conn.execute(
                 """SELECT id FROM mentions
                    WHERE source_id = ? AND mentioned_person_id = ?""",
@@ -237,7 +239,7 @@ def cmd_backfill(args):
         target = crit["target_author"].strip()
         if not target:
             continue
-        person_id = get_or_create_person(conn, target)
+        person_id = get_or_create_person(conn, target, fetch_metrics=False)
         existing = conn.execute(
             """SELECT id FROM mentions
                WHERE source_id = ? AND mentioned_person_id = ? AND mention_type = 'critique'""",
@@ -275,6 +277,7 @@ def cmd_backfill(args):
             authors=authors or None,
             year=source["year"],
             source_id=source["id"],
+            fetch_metrics=False,
         )
         linked += 1
 
@@ -291,6 +294,53 @@ def cmd_backfill(args):
     print(f"  Persons:  {final_persons}")
     print(f"  Works:    {final_works}")
     print(f"  Mentions: {final_mentions}")
+    print(f"\nRun 'python -m literature_pipeline.discourse fetch-metrics' to pull citation data.")
+
+
+def cmd_fetch_metrics(args):
+    """Fetch citation metrics from OpenAlex / Semantic Scholar."""
+    from .fetch_metrics import update_all_persons, update_all_works
+
+    conn = init_db()
+    print("Fetching citation metrics from OpenAlex / Semantic Scholar...")
+    print("(This may take a few minutes due to API rate limits)\n")
+
+    if not args.works_only:
+        print("=== Persons ===")
+        update_all_persons(conn, force=args.full, dry_run=args.dry_run)
+
+    if not args.persons_only:
+        print("\n=== Works ===")
+        update_all_works(conn, force=args.full, dry_run=args.dry_run)
+
+    # Summary
+    p_with = conn.execute(
+        "SELECT COUNT(*) FROM persons WHERE cited_by_count IS NOT NULL AND merged_into_id IS NULL"
+    ).fetchone()[0]
+    p_total = conn.execute(
+        "SELECT COUNT(*) FROM persons WHERE merged_into_id IS NULL"
+    ).fetchone()[0]
+    w_with = conn.execute(
+        "SELECT COUNT(*) FROM works WHERE cited_by_count IS NOT NULL AND merged_into_id IS NULL"
+    ).fetchone()[0]
+    w_total = conn.execute(
+        "SELECT COUNT(*) FROM works WHERE merged_into_id IS NULL"
+    ).fetchone()[0]
+
+    print(f"\nMetrics coverage: {p_with}/{p_total} persons, {w_with}/{w_total} works")
+
+    # Show top cited persons
+    if p_with > 0:
+        print("\nTop 10 most-cited persons:")
+        for row in conn.execute(
+            """SELECT display_name, cited_by_count, h_index, metrics_source
+               FROM persons
+               WHERE cited_by_count IS NOT NULL AND merged_into_id IS NULL
+               ORDER BY cited_by_count DESC LIMIT 10"""
+        ):
+            print(f"  {row['display_name']:<35} cited={row['cited_by_count']:>8}  h={row['h_index'] or '?':>4}  [{row['metrics_source']}]")
+
+    conn.close()
 
 
 def cmd_seed_persons(args):
@@ -317,6 +367,7 @@ def cmd_seed_persons(args):
             is_seed=1,
             birth_year=entry.get("birth_year"),
             death_year=entry.get("death_year"),
+            fetch_metrics=False,  # batch-fetch later via fetch-metrics
         )
 
         # Store OpenAlex ID if present
@@ -416,6 +467,20 @@ def cmd_persons_show(args):
             lifespan += f"-{person['death_year']}"
         print(f"  Lifespan: {lifespan}")
     print(f"  Seed: {'Yes' if person.get('is_seed') else 'No'}")
+
+    if person.get("cited_by_count") is not None:
+        print(f"\n  Citation Metrics [{person.get('metrics_source', '?')}]:")
+        print(f"    Citations:  {person['cited_by_count']:,}")
+        if person.get("h_index") is not None:
+            print(f"    h-index:    {person['h_index']}")
+        if person.get("i10_index") is not None:
+            print(f"    i10-index:  {person['i10_index']}")
+        if person.get("works_count") is not None:
+            print(f"    Works:      {person['works_count']:,}")
+        if person.get("mean_citedness_2yr") is not None:
+            print(f"    2yr mean:   {person['mean_citedness_2yr']:.2f}")
+        if person.get("metrics_updated_at"):
+            print(f"    Updated:    {person['metrics_updated_at'][:10]}")
 
     # Aliases
     aliases = conn.execute(
@@ -776,6 +841,13 @@ def main():
     # backfill
     sub.add_parser("backfill", help="Backfill discourse tables from existing pipeline data (zero LLM cost)")
 
+    # fetch-metrics
+    p_fm = sub.add_parser("fetch-metrics", help="Fetch citation metrics from OpenAlex / Semantic Scholar")
+    p_fm.add_argument("--full", action="store_true", help="Force-refresh all, ignore staleness")
+    p_fm.add_argument("--persons-only", action="store_true")
+    p_fm.add_argument("--works-only", action="store_true")
+    p_fm.add_argument("--dry-run", action="store_true", help="Preview without writing")
+
     # persons
     p_persons = sub.add_parser("persons", help="Person commands")
     persons_sub = p_persons.add_subparsers(dest="persons_cmd")
@@ -833,6 +905,8 @@ def main():
         cmd_seed_persons(args)
     elif args.command == "backfill":
         cmd_backfill(args)
+    elif args.command == "fetch-metrics":
+        cmd_fetch_metrics(args)
     elif args.command == "persons":
         if not hasattr(args, "persons_cmd") or not args.persons_cmd:
             p_persons.print_help()
