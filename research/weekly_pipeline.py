@@ -239,6 +239,15 @@ def main():
             timeout=60
         )
         log("   ✅ Discourse dashboard updated")
+        # Copy to website repo
+        website_dest = Path(os.environ.get('WEBSITE_REPO', '/mnt/d/Develop/myWebsite/marcus-cyborg'))
+        dest_file = website_dest / 'src' / 'graph' / 'discourse-dashboard.html'
+        if dest_file.parent.exists():
+            import shutil
+            shutil.copy2('discourse-dashboard.html', dest_file)
+            log(f"   ✅ Copied to website: {dest_file}")
+        else:
+            log(f"   ⚠️  Website repo not found at {website_dest}")
     except Exception as e:
         log(f"   ⚠️  Discourse dashboard failed: {e}")
 
