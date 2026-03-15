@@ -251,6 +251,18 @@ def main():
     except Exception as e:
         log(f"   ⚠️  Discourse dashboard failed: {e}")
 
+    # Step 7c: Literature discovery
+    log("🔍 Running literature discovery...")
+    try:
+        subprocess.run(
+            ['python3', 'discover_literature.py', '--limit', '20'],
+            check=True,
+            timeout=600
+        )
+        log("   ✅ Literature discovery complete")
+    except Exception as e:
+        log(f"   ⚠️  Literature discovery failed: {e}")
+
     # Final stats
     total, labeled, stats = get_final_stats()
     

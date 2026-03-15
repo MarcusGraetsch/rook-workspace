@@ -21,6 +21,7 @@ llm:
   tasks:
     extract_refs: "kimi"
     extract_knowledge: "kimi"
+    score_relevance: "kimi"
     generate_embeddings: "openai"
 
 extraction:

@@ -296,6 +296,42 @@ CREATE TABLE IF NOT EXISTS mention_concepts (
 );
 CREATE INDEX IF NOT EXISTS idx_mentionconcepts_mention ON mention_concepts(mention_id);
 CREATE INDEX IF NOT EXISTS idx_mentionconcepts_concept ON mention_concepts(concept_id);
+
+CREATE TABLE IF NOT EXISTS discovery_queue (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    title           TEXT NOT NULL,
+    authors         TEXT,              -- JSON array
+    year            INTEGER,
+    abstract        TEXT,
+    doi             TEXT,
+    openalex_id     TEXT,
+    s2_id           TEXT,
+    open_access_url TEXT,
+    journal         TEXT,
+    cited_by_count  INTEGER,
+    -- Discovery metadata
+    discovered_via  TEXT NOT NULL,      -- refs_of:W123, cites:W456, author:A789, web:query, s2rec:W123
+    discovered_from_work_id  INTEGER REFERENCES works(id),
+    discovered_from_person_id INTEGER REFERENCES persons(id),
+    -- LLM scoring
+    relevance_score INTEGER,           -- 0-10
+    novelty_score   INTEGER,           -- 0-10
+    llm_verdict     TEXT,              -- accept, maybe, reject
+    llm_reasoning   TEXT,              -- one-line explanation
+    -- Status workflow
+    status          TEXT DEFAULT 'pending_review',
+                                       -- pending_review → accepted → ingested
+                                       -- pending_review → rejected
+                                       -- pending_review → deferred
+    reviewed_at     TEXT,
+    reviewer_notes  TEXT,
+    -- Dedup
+    title_hash      TEXT,              -- normalized title hash for dedup
+    created_at      TEXT DEFAULT (datetime('now'))
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_discovery_title_hash ON discovery_queue(title_hash);
+CREATE INDEX IF NOT EXISTS idx_discovery_status ON discovery_queue(status);
+CREATE INDEX IF NOT EXISTS idx_discovery_relevance ON discovery_queue(relevance_score);
 """
 
 
@@ -966,6 +1002,19 @@ def stats(conn):
     result["works_with_metrics"] = conn.execute(
         "SELECT COUNT(*) FROM works WHERE cited_by_count IS NOT NULL AND merged_into_id IS NULL"
     ).fetchone()[0]
+    # Discovery queue stats
+    try:
+        result["discovery_pending"] = conn.execute(
+            "SELECT COUNT(*) FROM discovery_queue WHERE status = 'pending_review'"
+        ).fetchone()[0]
+        result["discovery_accepted"] = conn.execute(
+            "SELECT COUNT(*) FROM discovery_queue WHERE status = 'accepted'"
+        ).fetchone()[0]
+        result["discovery_total"] = conn.execute(
+            "SELECT COUNT(*) FROM discovery_queue"
+        ).fetchone()[0]
+    except Exception:
+        pass  # Table may not exist yet
     return result
 
 
