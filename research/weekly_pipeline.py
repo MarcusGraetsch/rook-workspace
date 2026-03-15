@@ -230,6 +230,18 @@ def main():
     except Exception as e:
         log(f"   ⚠️  Dashboard update failed: {e}")
 
+    # Step 7b: Discourse dashboard
+    log("🕸️  Updating discourse dashboard...")
+    try:
+        subprocess.run(
+            ['python3', 'generate_discourse_dashboard.py'],
+            check=True,
+            timeout=60
+        )
+        log("   ✅ Discourse dashboard updated")
+    except Exception as e:
+        log(f"   ⚠️  Discourse dashboard failed: {e}")
+
     # Final stats
     total, labeled, stats = get_final_stats()
     
