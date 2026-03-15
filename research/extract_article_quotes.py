@@ -124,13 +124,19 @@ Extract:
    (core_concept, polemic, critique, definition, aphorism, empirical, frequently_cited)
 2. "excerpts": 1-4 paraphrased key ideas or arguments (in your own words).
    Each with: content (the distilled idea), concept (what concept it relates to)
+3. "mentioned_persons": Array of scholars, thinkers, executives, or other named individuals discussed in the article.
+   Each with: name (full name), mention_type (discussion/critique/agreement/name_drop), significance (major/moderate/minor)
+4. "mentioned_works": Array of books, reports, or studies explicitly referenced.
+   Each with: title, authors (array), year (if mentioned), mention_type (citation/discussion/data_source), significance (major/moderate/minor)
 
 Only extract if genuinely notable. It's fine to return empty arrays for short or uninsightful articles.
 
 Return JSON:
 {{
   "quotes": [{{"text": "...", "speaker": "...", "quote_type": "..."}}],
-  "excerpts": [{{"content": "...", "concept": "..."}}]
+  "excerpts": [{{"content": "...", "concept": "..."}}],
+  "mentioned_persons": [{{"name": "...", "mention_type": "...", "significance": "..."}}],
+  "mentioned_works": [{{"title": "...", "authors": [...], "year": null, "mention_type": "...", "significance": "..."}}]
 }}
 
 Article:
@@ -151,6 +157,67 @@ Article:
 
     except Exception as e:
         return None, str(e)
+
+
+def store_mentions(article, data):
+    """Store extracted person/work mentions in literature_pipeline's discourse tables."""
+    try:
+        from literature_pipeline.db import (
+            get_connection as get_lit_conn, init_db as init_lit_db,
+            get_or_create_person, get_or_create_work, insert_mention,
+        )
+
+        init_lit_db()
+        conn = get_lit_conn()
+        stored = 0
+
+        for item in data.get('mentioned_persons', []):
+            name = item.get('name', '').strip()
+            if not name:
+                continue
+            try:
+                person_id = get_or_create_person(conn, name)
+                insert_mention(
+                    conn,
+                    article_id=article.get('id', ''),
+                    mentioned_person_id=person_id,
+                    mention_type=item.get('mention_type', 'discussion'),
+                    significance=item.get('significance', 'minor'),
+                    extraction_method='llm',
+                    confidence=0.6,
+                )
+                stored += 1
+            except Exception:
+                pass
+
+        for item in data.get('mentioned_works', []):
+            title = item.get('title', '').strip()
+            if not title:
+                continue
+            try:
+                work_id = get_or_create_work(
+                    conn, title,
+                    authors=item.get('authors'),
+                    year=item.get('year'),
+                )
+                insert_mention(
+                    conn,
+                    article_id=article.get('id', ''),
+                    mentioned_work_id=work_id,
+                    mention_type=item.get('mention_type', 'citation'),
+                    significance=item.get('significance', 'minor'),
+                    extraction_method='llm',
+                    confidence=0.6,
+                )
+                stored += 1
+            except Exception:
+                pass
+
+        conn.close()
+        return stored
+
+    except ImportError:
+        return 0
 
 
 def store_quotes(article, data):
@@ -278,9 +345,14 @@ def main():
             n_quotes = len(data.get('quotes', []))
             n_excerpts = len(data.get('excerpts', []))
             stored = store_quotes(article, data)
+            mention_stored = store_mentions(article, data)
             stats['quotes_stored'] += stored
             stats['processed'] += 1
+            n_persons = len(data.get('mentioned_persons', []))
+            n_works = len(data.get('mentioned_works', []))
             log(f"   Found {n_quotes} quotes, {n_excerpts} excerpts, stored {stored}")
+            if mention_stored:
+                log(f"   Mentions: {n_persons} persons, {n_works} works, stored {mention_stored}")
 
         mark_extracted(article['id'])
         time.sleep(REQUEST_DELAY)

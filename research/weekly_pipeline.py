@@ -119,6 +119,23 @@ def run_summarize():
         log(f"   ❌ Summarization failed: {e}")
         return False
 
+def run_extract_quotes():
+    """Run quote & discourse mention extraction from articles"""
+    log("💬 Starting quote & mention extraction...")
+    try:
+        result = subprocess.run(
+            ['python3', str(RESEARCH_DIR / 'extract_article_quotes.py')],
+            capture_output=True,
+            text=True,
+            timeout=3600  # 1 hour max (LLM calls)
+        )
+        log(f"   ✅ Quote/mention extraction complete")
+        return True
+    except Exception as e:
+        log(f"   ❌ Quote extraction failed: {e}")
+        return False
+
+
 def run_digest():
     """Generate weekly digest"""
     log("📰 Generating weekly digest...")
@@ -190,12 +207,17 @@ def main():
     if not run_summarize():
         log("⚠️  Summarization had issues, continuing...")
 
-    # Step 5: Generate digest
+    # Step 5: Extract quotes & discourse mentions from articles
+    time.sleep(2)
+    if not run_extract_quotes():
+        log("⚠️  Quote/mention extraction had issues, continuing...")
+
+    # Step 6: Generate digest
     time.sleep(2)
     if not run_digest():
         log("⚠️  Digest generation had issues, continuing...")
 
-    # Step 6: Update dashboard
+    # Step 7: Update dashboard
     time.sleep(2)
     log("📊 Updating ontology dashboard...")
     try:

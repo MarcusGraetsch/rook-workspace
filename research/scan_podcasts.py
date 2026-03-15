@@ -455,13 +455,17 @@ Provide:
 2. A list of 5-10 keywords/topics relevant to: digital capitalism, platform economy, labor, surveillance, AI, monopoly power, political economy
 3. Notable quotes: 3-8 verbatim quotes from speakers that are especially quotable — sharp formulations, provocative claims, key definitions, or memorable lines. Include who said it if identifiable.
 4. Key excerpts: 2-5 paraphrased distillations of the most important ideas or arguments made (in your own words, not verbatim).
+5. Mentioned persons: scholars, thinkers, executives, politicians, or other named individuals discussed during the episode. Include name, how they're mentioned (discussion/critique/agreement/name_drop), and significance (major/moderate/minor).
+6. Mentioned works: books, articles, reports, or studies explicitly referenced during the episode. Include title, authors if mentioned, and significance.
 
 Format your response as JSON:
 {{
   "summary": "...",
   "keywords": ["keyword1", "keyword2", ...],
   "quotes": [{{"text": "exact verbatim quote", "speaker": "name or Unknown", "quote_type": "core_concept|polemic|critique|definition|aphorism|empirical"}}],
-  "excerpts": [{{"content": "paraphrased idea summary", "concept": "which concept this relates to"}}]
+  "excerpts": [{{"content": "paraphrased idea summary", "concept": "which concept this relates to"}}],
+  "mentioned_persons": [{{"name": "full name", "mention_type": "discussion|critique|agreement|name_drop", "significance": "major|moderate|minor"}}],
+  "mentioned_works": [{{"title": "...", "authors": [...], "year": null, "mention_type": "citation|discussion|data_source", "significance": "major|moderate|minor"}}]
 }}
 
 Transcript:
@@ -484,16 +488,84 @@ Transcript:
             data.get('keywords', []),
             data.get('quotes', []),
             data.get('excerpts', []),
+            data.get('mentioned_persons', []),
+            data.get('mentioned_works', []),
         )
 
     except Exception as e:
         log(f"   Summarization error: {e}")
-        return None, None, [], []
+        return None, None, [], [], [], []
 
 
 # ---------------------------------------------------------------------------
 # Quote Storage (writes to literature_pipeline's quotes table)
 # ---------------------------------------------------------------------------
+
+def store_podcast_mentions(episode, mentioned_persons, mentioned_works):
+    """Store extracted person/work mentions from podcast in discourse tables."""
+    try:
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+        from literature_pipeline.db import (
+            get_connection as get_lit_conn, init_db as init_lit_db,
+            get_or_create_person, get_or_create_work, insert_mention,
+        )
+
+        init_lit_db()
+        conn = get_lit_conn()
+        stored = 0
+
+        for item in mentioned_persons:
+            name = item.get('name', '').strip()
+            if not name:
+                continue
+            try:
+                person_id = get_or_create_person(conn, name)
+                insert_mention(
+                    conn,
+                    episode_id=episode.get('id', ''),
+                    mentioned_person_id=person_id,
+                    mention_type=item.get('mention_type', 'discussion'),
+                    significance=item.get('significance', 'minor'),
+                    extraction_method='llm',
+                    confidence=0.6,
+                )
+                stored += 1
+            except Exception:
+                pass
+
+        for item in mentioned_works:
+            title = item.get('title', '').strip()
+            if not title:
+                continue
+            try:
+                work_id = get_or_create_work(
+                    conn, title,
+                    authors=item.get('authors'),
+                    year=item.get('year'),
+                )
+                insert_mention(
+                    conn,
+                    episode_id=episode.get('id', ''),
+                    mentioned_work_id=work_id,
+                    mention_type=item.get('mention_type', 'citation'),
+                    significance=item.get('significance', 'minor'),
+                    extraction_method='llm',
+                    confidence=0.6,
+                )
+                stored += 1
+            except Exception:
+                pass
+
+        conn.close()
+        if stored:
+            log(f"   Stored {stored} discourse mentions")
+
+    except ImportError:
+        log("   literature_pipeline not available, skipping mention storage")
+    except Exception as e:
+        log(f"   Mention storage error: {e}")
+
 
 def store_podcast_quotes(episode, quotes, excerpts, keywords):
     """Store extracted quotes and excerpts in the shared quotes DB."""
@@ -755,13 +827,17 @@ def process_podcast(podcast, config, scan_only=False, transcribe_only=False):
 
                 # Summarize
                 summary, keywords, quotes_data, excerpts_data = None, None, [], []
+                persons_data, works_data = [], []
                 if settings.get('summarize', True):
-                    summary, keywords, quotes_data, excerpts_data = summarize_transcript(transcript, episode['title'], config)
+                    summary, keywords, quotes_data, excerpts_data, persons_data, works_data = summarize_transcript(transcript, episode['title'], config)
                     if summary:
                         stats['summarized'] += 1
                     # Store quotes/excerpts in shared DB
                     if quotes_data or excerpts_data:
                         store_podcast_quotes(episode, quotes_data, excerpts_data, keywords or [])
+                    # Store discourse mentions
+                    if persons_data or works_data:
+                        store_podcast_mentions(episode, persons_data, works_data)
 
                 # Save research markdown
                 md_path = save_episode_markdown(

@@ -27,6 +27,7 @@ from .db import (
     get_connection, init_db, get_sources_by_status, get_source_by_id,
     update_source, insert_knowledge_item, get_or_create_concept,
     link_concept_source, insert_quote, quote_exists,
+    get_or_create_person, get_or_create_work, insert_mention,
 )
 from .llm_backend import LLMBackend
 from .utils import setup_logging, logger, PIPELINE_DIR, repo_root, sanitize_filename
@@ -66,6 +67,13 @@ Return a JSON object with these keys:
    Write 3-8 excerpts capturing the most important intellectual contributions.
 10. "evaluation": Object with {{epistemic (1-5), empirical (1-5), political (1-5), synthetic (1-5), notes}}
 11. "tags": Array of relevant topic tags
+12. "mentioned_persons": Array of objects — scholars, thinkers, journalists, or other named individuals discussed or cited in the text.
+    Each with: {{name (full name as appears in text), mention_type (citation/discussion/critique/agreement/extension/application/name_drop),
+    sentiment (positive/negative/neutral/mixed), significance (major/moderate/minor), context (brief note on how they're discussed)}}
+    Only include persons who are substantively referenced, not just listed in a bibliography.
+13. "mentioned_works": Array of objects — books, articles, reports, or other works explicitly named or discussed.
+    Each with: {{title, authors (array of author names), year (if mentioned), mention_type (citation/discussion/critique/agreement/extension/data_source),
+    significance (major/moderate/minor), context (brief note on how the work is used)}}
 
 TEXT:
 {text}"""
@@ -251,6 +259,51 @@ def store_knowledge_in_db(conn, source, knowledge):
         )
         usage_type = item.get("usage_type", "uses")
         link_concept_source(conn, concept_id, source_id, usage_type)
+
+    # Mentioned persons → persons + mentions tables
+    for item in knowledge.get("mentioned_persons", []):
+        person_name = item.get("name", "").strip()
+        if not person_name:
+            continue
+        try:
+            person_id = get_or_create_person(conn, person_name)
+            insert_mention(
+                conn,
+                source_id=source_id,
+                mentioned_person_id=person_id,
+                mention_type=item.get("mention_type", "citation"),
+                sentiment=item.get("sentiment"),
+                significance=item.get("significance", "minor"),
+                context_text=item.get("context"),
+                extraction_method="llm",
+                confidence=0.7,
+            )
+        except Exception as e:
+            logger.debug(f"[{source_id}] Person mention error for '{person_name}': {e}")
+
+    # Mentioned works → works + mentions tables
+    for item in knowledge.get("mentioned_works", []):
+        work_title = item.get("title", "").strip()
+        if not work_title:
+            continue
+        try:
+            work_authors = item.get("authors", [])
+            work_year = item.get("year")
+            work_id = get_or_create_work(
+                conn, work_title, authors=work_authors, year=work_year,
+            )
+            insert_mention(
+                conn,
+                source_id=source_id,
+                mentioned_work_id=work_id,
+                mention_type=item.get("mention_type", "citation"),
+                significance=item.get("significance", "minor"),
+                context_text=item.get("context"),
+                extraction_method="llm",
+                confidence=0.7,
+            )
+        except Exception as e:
+            logger.debug(f"[{source_id}] Work mention error for '{work_title}': {e}")
 
     return count
 
