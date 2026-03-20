@@ -29,3 +29,11 @@ literature_pipeline/knowledge/
 research/digests/
 research/rss_state.json
 research/articles.db
+
+# Podcasts - too large
+research/podcasts/**/*.mp3
+research/podcasts/**/audio/
+research/podcasts/**/transcripts/
+*.log
+nohup.out
+
