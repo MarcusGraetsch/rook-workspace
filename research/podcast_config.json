@@ -47,7 +47,7 @@
     "max_episodes_per_feed": 3,
     "whisper_model": "base",
     "whisper_language": "en",
-    "transcription_backend": "openai-api",
+    "transcription_backend": "local",
     "summarize": true
   }
 }
