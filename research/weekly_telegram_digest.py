@@ -48,7 +48,10 @@ def generate_weekly_digest():
     message += "=" * 40 + "\n\n"
     message += f"📈 Diese Woche: {new_count} neue Artikel\n"
     message += f"📦 Gesamt: ~1800 Artikel in DB\n\n"
-    message += "🔥 TOP 5 HIGHLIGHTS:\n\n"
+    message += "⚠️ ALGORITHMISCHE VORAUSWAHL\n"
+    message += "   Kriterien: Domain-Reputation, Autor, Themen-Match\n"
+    message += "   Qualität erst nach Lesen bewertbar!\n\n"
+    message += "🔥 TOP 5 VORSCHLÄGE:\n\n"
     
     for i, (id_, title, author, domain, category, word_count, tags, abstract) in enumerate(top5, 1):
         # Detailed reasoning for Digital Capitalism research
