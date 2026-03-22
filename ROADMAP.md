@@ -15,10 +15,10 @@ Ein vollautomatisiertes Forschungssystem für Digital Capitalism, das:
 **Status:** 70% Setup, 30% Content
 **Ziel:** Laufendes Forschungssystem
 **Nächste Schritte:**
-- [ ] Deep Reading: Ghost Work (Gray & Suri) - 1 Woche
-- [ ] Deep Reading: Platform Capitalism (Srnicek) - 1 Woche  
+- [ ] **Automatischer Telegram Digest** (Top 5 + Begründungen) - Jeden Sonntag
+- [ ] Deep Reading: Artikel aus Weekly Digest auswählen
 - [ ] Erstes Kapitel outline: "Platform Capitalism Theory"
-**Metrik:** 1 Buch/Kapitel pro Monat lesen & verarbeiten
+**Metrik:** 1 Artikel/Kapitel pro Woche lesen & verarbeiten
 
 ### P2: Noctiluca Experiment (SIDE QUEST) 🤖
 **Status:** Warten auf Antwort
@@ -86,11 +86,12 @@ Diese Projekte sind **interessant, aber Ablenkung**:
 
 | Metrik | Ziel | Aktuell |
 |--------|------|---------|
-| Artikel in DB | 2.000 | 1.626 |
-| Gelesene Bücher | 1/Monat | 0 (Ghost Work angefangen) |
+| Artikel in DB | 2.000 | 1.760 |
+| Weekly Telegram Digest | ✅ Automatisch | ✅ Implementiert |
+| Gelesene Artikel | 5/Woche | 0 (startet diese Woche) |
 | Ontologie-Konzepte | 15 | 12 |
 | KI-Kollaborationen | 1 | 0 (warten) |
-| Kosten/Monat | < €50 | ~€30 |
+| Kosten/Monat | < €50 | ~€20 (fest) |
 
 ---
 
