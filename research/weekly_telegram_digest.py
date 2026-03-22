@@ -69,17 +69,37 @@ def generate_weekly_digest():
         elif category == 'labor-de':
             reasons.append("🎯 ARBEIT: Platform Economy DE")
         
-        # 2. Depth of analysis (why this is substantial)
-        if word_count > 3000:
-            reasons.append(f"📊 TIEFGÄNGIG: {word_count} Wörter")
-        elif word_count > 2000:
-            reasons.append(f"📊 Anspruchsvoll: {word_count} Wörter")
+        # 2. Content quality indicators (NOT word count!)
+        quality_score = 0
         
-        # 3. Source quality (why this is trustworthy)
-        high_quality = ['pluralistic.net', 'verfassungsblog.de', 'netzpolitik.org', 
-                       'jacobin.com', 'platformer.news', 'theintercept.com']
-        if any(src in str(domain).lower() for src in high_quality):
-            reasons.append(f"✅ PREMIUM: {domain}")
+        # Has abstract = structured content
+        if abstract and len(str(abstract)) > 100:
+            quality_score += 1
+            reasons.append("📄 Abstract vorhanden")
+        
+        # Rich tagging = well categorized
+        if tags and len(str(tags).split(',')) >= 2:
+            quality_score += 1
+            reasons.append(f"🏷️ {len(str(tags).split(','))} Themen")
+        
+        # Concepts from our ontology present
+        ontology_concepts = ['platform', 'surveillance', 'labor', 'gig', 'capitalism', 'ai', 'automation']
+        if tags:
+            matched_concepts = [c for c in ontology_concepts if c in str(tags).lower()]
+            if matched_concepts:
+                reasons.append(f"🎯 Konzepte: {', '.join(matched_concepts[:2])}")
+        
+        # 3. Source quality (authoritative voices)
+        top_scholars = ['doctorow', 'zuboff', 'srnicek', 'harvey', 'fraser', 'marcuse', 'habermas']
+        top_sources = ['pluralistic.net', 'verfassungsblog.de', 'netzpolitik.org', 
+                      'jacobin.com', 'newleftreview.org', 'platformer.news', 
+                      'techwontsave.us', 'thedigradio.com']
+        
+        if any(scholar in str(author).lower() for scholar in top_scholars):
+            reasons.append("⭐ TOP-AUTOR")
+        
+        if any(src in str(domain).lower() for src in top_sources):
+            reasons.append(f"✅ PREMIUM-QUELLE")
         
         # 4. Research tags (specific focus areas)
         if tags:
