@@ -278,7 +278,29 @@ def main():
     for status, count in sorted(stats, key=lambda x: x[1], reverse=True):
         log(f"  {status}: {count}")
     
-    log("\n✅ Weekly pipeline complete!")
+        
+    # Step 9: Generate Telegram Digest (NEW)
+    log("\n📱 Generating Telegram weekly digest...")
+    try:
+        result = subprocess.run(
+            ['python3', str(RESEARCH_DIR / 'weekly_telegram_digest.py')],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+        if result.returncode == 0:
+            log("   ✅ Telegram digest generated")
+            # Save output to file
+            digest_file = RESEARCH_DIR / 'briefings' / f'telegram_{datetime.now().strftime("%Y%m%d")}.txt'
+            digest_file.parent.mkdir(exist_ok=True)
+            with open(digest_file, 'w') as f:
+                f.write(result.stdout)
+            log(f"   📝 Digest saved: {digest_file}")
+        else:
+            log(f"   ⚠️  Telegram digest warning: {result.stderr}")
+    except Exception as e:
+        log(f"   ⚠️  Telegram digest failed: {e}")
+log("\n✅ Weekly pipeline complete!")
     log("="*70)
     
     # Step 7: Generate self-improvement report

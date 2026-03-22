@@ -51,31 +51,50 @@ def generate_weekly_digest():
     message += "🔥 TOP 5 HIGHLIGHTS:\n\n"
     
     for i, (id_, title, author, domain, category, word_count, tags, abstract) in enumerate(top5, 1):
-        # Reasoning based on category and tags
+        # Detailed reasoning for Digital Capitalism research
         reasons = []
-        if category == 'ai-policy':
-            reasons.append("KI-Regulierung/Policy")
-        elif category == 'surveillance':
-            reasons.append("Überwachungskapitalismus")
+        
+        # 1. Thematic relevance (why this matters)
+        if category == 'surveillance':
+            reasons.append("🎯 ZENTRAL: Überwachungskapitalismus (Zuboff)")
         elif category == 'tech-criticism':
-            reasons.append("Tech-Kritik (Cory Doctorow)")
+            if 'doctorow' in str(author).lower() or 'pluralistic' in str(domain).lower():
+                reasons.append("🎯 AUTORITÄT: Cory Doctorow")
+            else:
+                reasons.append("🎯 Fundamentale Tech-Kritik")
+        elif category == 'tech-policy':
+            reasons.append("🎯 POLICY: Big Tech Regulierung")
+        elif category == 'ai-policy':
+            reasons.append("🎯 AKTUELL: KI & Arbeitswelt")
         elif category == 'labor-de':
-            reasons.append("Deutsche Arbeitswelt")
+            reasons.append("🎯 ARBEIT: Platform Economy DE")
         
-        if tags and 'KI' in str(tags):
-            reasons.append("KI-Bezug")
-        if tags and 'platform' in str(tags):
-            reasons.append("Plattformökonomie")
-        
+        # 2. Depth of analysis (why this is substantial)
         if word_count > 3000:
-            reasons.append("Tiefgehende Analyse")
+            reasons.append(f"📊 TIEFGÄNGIG: {word_count} Wörter")
+        elif word_count > 2000:
+            reasons.append(f"📊 Anspruchsvoll: {word_count} Wörter")
         
-        reason_text = " + ".join(reasons) if reasons else "Relevant für Forschung"
+        # 3. Source quality (why this is trustworthy)
+        high_quality = ['pluralistic.net', 'verfassungsblog.de', 'netzpolitik.org', 
+                       'jacobin.com', 'platformer.news', 'theintercept.com']
+        if any(src in str(domain).lower() for src in high_quality):
+            reasons.append(f"✅ PREMIUM: {domain}")
+        
+        # 4. Research tags (specific focus areas)
+        if tags:
+            if 'platform' in str(tags).lower():
+                reasons.append("🏷️ Plattformökonomie")
+            if 'labor' in str(tags).lower() or 'arbeit' in str(tags).lower():
+                reasons.append("🏷️ Gig Economy")
+            if 'surveillance' in str(tags).lower():
+                reasons.append("🏷️ Überwachung")
+        
+        reason_text = "\n   ".join(reasons) if reasons else "Relevant für Forschung"
         
         message += f"{i}. {title[:55]}...\n"
-        message += f"   📝 {reason_text}\n"
-        message += f"   👤 {author or 'N/A'} ({domain})\n"
-        message += f"   📊 {word_count} Wörter\n\n"
+        message += f"   👤 {author or 'N/A'}\n"
+        message += f"   {reason_text}\n\n"
     
     message += "=" * 40 + "\n"
     message += "💡 Tipp: Antworte mit der Nummer (1-5)\n"
