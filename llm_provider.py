@@ -25,17 +25,21 @@ class LLMProvider:
         'kimi': {
             'name': 'Kimi',
             'check': ['kimi', '--version'],
-            'cmd': ['kimi']  # Without --quiet, just pipe
+            'cmd': ['kimi'],
+            'status': '✅ Bereit'
         },
         'codex': {
             'name': 'OpenAI Codex',
             'check': ['codex', '--version'],
-            'cmd': ['codex']  # Simple invocation
+            'cmd': ['codex'],
+            'status': '⚠️  Terminal-Modus (experimentell)',
+            'note': 'Codex CLI braucht interaktiven Modus. Nutze stattdessen: OPENAI_API_KEY mit API.'
         },
         'claude': {
             'name': 'Anthropic Claude',
             'check': ['claude', '--version'],
-            'cmd': ['claude']  # Simple invocation
+            'cmd': ['claude'],
+            'status': '✅ Bereit'
         }
     }
     
