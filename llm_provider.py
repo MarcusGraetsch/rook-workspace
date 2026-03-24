@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Multi-Provider LLM Interface
-Supports: Kimi, OpenAI (Codex), Anthropic (Claude)
+Multi-Provider LLM Interface - CLI Version
+Supports: Kimi (CLI), OpenAI Codex (CLI), Anthropic Claude (CLI)
 """
 
 import os
+import subprocess
 from pathlib import Path
 
 # Load .env file if exists
@@ -18,121 +19,112 @@ if env_file.exists():
                 os.environ.setdefault(key, value)
 
 class LLMProvider:
-    """Unified interface for multiple LLM providers"""
+    """Unified CLI interface for multiple LLM providers"""
+    
+    PROVIDERS = {
+        'kimi': {
+            'name': 'Kimi',
+            'check': ['kimi', '--version'],
+            'cmd': ['kimi']  # Without --quiet, just pipe
+        },
+        'codex': {
+            'name': 'OpenAI Codex',
+            'check': ['codex', '--version'],
+            'cmd': ['codex']  # Simple invocation
+        },
+        'claude': {
+            'name': 'Anthropic Claude',
+            'check': ['claude', '--version'],
+            'cmd': ['claude']  # Simple invocation
+        }
+    }
     
     def __init__(self, provider="kimi"):
         self.provider = provider
-        self.setup_provider(provider)
+        self.check_provider(provider)
     
-    def setup_provider(self, provider):
-        """Setup the selected provider"""
-        if provider == "kimi":
-            # Kimi is already configured via kimi-cli
-            self.client = None
-            print("✅ Using Kimi (via kimi-cli)")
-            
-        elif provider == "openai":
-            try:
-                from openai import OpenAI
-                api_key = os.getenv("OPENAI_API_KEY")
-                if not api_key:
-                    raise ValueError("OPENAI_API_KEY not set")
-                self.client = OpenAI(api_key=api_key)
-                print("✅ Using OpenAI")
-            except Exception as e:
-                print(f"❌ OpenAI setup failed: {e}")
-                self.client = None
-                
-        elif provider == "anthropic":
-            try:
-                import anthropic
-                api_key = os.getenv("ANTHROPIC_API_KEY")
-                if not api_key:
-                    raise ValueError("ANTHROPIC_API_KEY not set")
-                self.client = anthropic.Anthropic(api_key=api_key)
-                print("✅ Using Anthropic (Claude)")
-            except Exception as e:
-                print(f"❌ Anthropic setup failed: {e}")
-                self.client = None
-        else:
+    def check_provider(self, provider):
+        """Check if provider CLI is available"""
+        if provider not in self.PROVIDERS:
             raise ValueError(f"Unknown provider: {provider}")
-    
-    def generate(self, prompt, model=None, max_tokens=1000):
-        """Generate text using the configured provider"""
         
-        if self.provider == "kimi":
-            # Use kimi CLI
-            import subprocess
+        config = self.PROVIDERS[provider]
+        try:
             result = subprocess.run(
-                ["kimi", "--print", "--quiet"],
+                config['check'],
+                capture_output=True,
+                timeout=5
+            )
+            if result.returncode == 0:
+                print(f"✅ {config['name']} CLI verfügbar")
+                return True
+        except:
+            pass
+        
+        print(f"❌ {config['name']} CLI nicht gefunden")
+        return False
+    
+    def generate(self, prompt, timeout=60):
+        """Generate text using CLI"""
+        config = self.PROVIDERS[self.provider]
+        
+        try:
+            result = subprocess.run(
+                config['cmd'],
                 input=prompt,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=timeout
             )
-            return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
-        
-        elif self.provider == "openai":
-            if not self.client:
-                return "Error: OpenAI not configured"
             
-            model = model or "gpt-4o"
-            response = self.client.chat.completions.create(
-                model=model,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=max_tokens
-            )
-            return response.choices[0].message.content
-        
-        elif self.provider == "anthropic":
-            if not self.client:
-                return "Error: Anthropic not configured"
-            
-            model = model or "claude-3-5-sonnet-20241022"
-            response = self.client.messages.create(
-                model=model,
-                max_tokens=max_tokens,
-                messages=[{"role": "user", "content": prompt}]
-            )
-            return response.content[0].text
+            if result.returncode == 0:
+                return result.stdout
+            else:
+                return f"Error: {result.stderr}"
+                
+        except subprocess.TimeoutExpired:
+            return "Error: Timeout"
+        except Exception as e:
+            return f"Error: {str(e)}"
     
     def switch(self, provider):
-        """Switch to a different provider"""
-        self.provider = provider
-        self.setup_provider(provider)
+        """Switch to different provider"""
+        if self.check_provider(provider):
+            self.provider = provider
+            print(f"🔄 Gewechselt zu: {self.PROVIDERS[provider]['name']}")
+        else:
+            print(f"⚠️  Kann nicht zu {provider} wechseln")
 
-# Configuration helper
 def setup_api_keys():
-    """Interactive setup for API keys"""
-    config_dir = Path.home() / ".llm_config"
-    config_dir.mkdir(exist_ok=True)
-    
-    print("🔑 LLM Provider Setup")
+    """Setup help for API keys"""
+    print("🔑 LLM CLI Setup")
     print("=" * 50)
     print()
     
-    # Check existing keys
-    openai_key = os.getenv("OPENAI_API_KEY")
-    anthropic_key = os.getenv("ANTHROPIC_API_KEY")
-    
-    if openai_key:
-        print("✅ OPENAI_API_KEY: bereits gesetzt")
-    else:
-        print("❌ OPENAI_API_KEY: nicht gesetzt")
-        print("   Hol dir einen Key unter: https://platform.openai.com/api-keys")
-    
-    if anthropic_key:
-        print("✅ ANTHROPIC_API_KEY: bereits gesetzt")
-    else:
-        print("❌ ANTHROPIC_API_KEY: nicht gesetzt")
-        print("   Hol dir einen Key unter: https://console.anthropic.com/")
+    # Check installed CLIs
+    providers = ['kimi', 'codex', 'claude']
+    for provider in providers:
+        try:
+            result = subprocess.run(
+                [provider, '--version'],
+                capture_output=True,
+                timeout=5
+            )
+            status = "✅ Installiert" if result.returncode == 0 else "❌ Nicht verfügbar"
+        except:
+            status = "❌ Nicht installiert"
+        
+        print(f"{provider}: {status}")
     
     print()
-    print("💡 Um Keys zu setzen:")
-    print("   export OPENAI_API_KEY='sk-...'")
-    print("   export ANTHROPIC_API_KEY='sk-ant-...'")
+    print("💡 API Keys konfigurieren:")
+    print("   1. OpenAI: https://platform.openai.com/api-keys → export OPENAI_API_KEY='sk-...'")
+    print("   2. Anthropic: https://console.anthropic.com/ → export ANTHROPIC_API_KEY='sk-ant-...'")
+    print("   3. Kimi: Bereits via kimi login konfiguriert")
     print()
-    print("   Oder erstelle ~/.env mit den Keys")
+    print("   Oder in ~/.env speichern:")
+    print("   OPENAI_API_KEY=sk-...")
+    print("   ANTHROPIC_API_KEY=sk-ant-...")
 
 if __name__ == "__main__":
     import sys
@@ -140,30 +132,17 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "setup":
         setup_api_keys()
     else:
-        # Test all configured providers
-        print("🧪 Testing LLM Providers...")
+        print("🧪 Teste verfügbare LLM CLIs...")
         print()
         
-        # Test Kimi (always available)
-        print("1. Testing Kimi...")
-        kimi = LLMProvider("kimi")
-        print()
-        
-        # Test OpenAI if key exists
-        if os.getenv("OPENAI_API_KEY"):
-            print("2. Testing OpenAI...")
-            openai = LLMProvider("openai")
-            print()
-        else:
-            print("2. ⏭️  OpenAI skipped (no API key)")
-        
-        # Test Anthropic if key exists
-        if os.getenv("ANTHROPIC_API_KEY"):
-            print("3. Testing Anthropic...")
-            anthropic = LLMProvider("anthropic")
-            print()
-        else:
-            print("3. ⏭️  Anthropic skipped (no API key)")
+        for provider in ['kimi', 'codex', 'claude']:
+            print(f"\n{'='*40}")
+            print(f"Test: {provider.upper()}")
+            print('='*40)
+            
+            llm = LLMProvider(provider)
+            result = llm.generate("Say hello in one word", timeout=10)
+            print(f"Result: {result[:100]}...")
         
         print()
         print("💡 Run 'python3 llm_provider.py setup' for configuration help")
