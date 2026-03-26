@@ -1,0 +1,6 @@
+Backup Date: 20260324_142945
+Source: /root/.openclaw/workspace
+Files:
+-rw-r--r-- 1 root root   70 Mar 24 14:29 /root/.openclaw/workspace/backups/backup_20260324_142945.manifest
+-rw-r--r-- 1 root root 7.4K Mar 24 14:29 /root/.openclaw/workspace/backups/configs_20260324_142945.tar.gz
+-rw-r--r-- 1 root root 389K Mar 24 14:29 /root/.openclaw/workspace/backups/ontology_20260324_142945.tar.gz
