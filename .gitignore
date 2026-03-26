@@ -37,3 +37,6 @@ research/podcasts/**/transcripts/
 *.log
 nohup.out
 
+# Podcasts - too large for Git
+projects/digital-research/data/podcasts/
+*.mp3
