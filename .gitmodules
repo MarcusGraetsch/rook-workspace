@@ -4,3 +4,6 @@
 [submodule "projects/working-notes"]
 	path = projects/working-notes
 	url = git@github.com:MarcusGraetsch/working-notes.git
+[submodule "projects/digital-research"]
+	path = projects/digital-research
+	url = git@github.com:MarcusGraetsch/digital-capitalism-research.git
