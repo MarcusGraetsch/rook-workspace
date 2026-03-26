@@ -1,213 +1,204 @@
-# Digital Capitalism Research Project
+# Rook Workspace
 
-A systematic, automated investigation of digital capitalism through continuous knowledge extraction and discourse mapping.
+**My personal AI assistant's working environment — where Rook operates and collaborates.**
 
-## What This Is
-
-**Not a traditional research project.** This is a **continuous research infrastructure** that:
-- Automatically scans ~20 newsletters daily for relevant articles
-- Extracts and categorizes 1,104+ sources (and growing)
-- Maps discourse networks: who cites whom, who critiques what
-- Generates weekly research briefings via Telegram
-- Maintains an interactive Knowledge Graph of concepts, tasks, and articles
-
-**Philosophy:** Nachvollziehbarkeit meets automation. German academic rigor + modern data pipeline.
+This repository contains the complete working environment for Rook (the AI assistant). It serves as the live workspace where Rook performs his various roles: coaching, engineering, daily assistance, and project work.
 
 ---
 
-## Core Infrastructure
+## What This Repository Contains
 
-### 1. Literature Pipeline (`literature_pipeline/`)
+### Role-Based Directories
 
-**Automated ingestion from multiple sources:**
-- 📧 **Email Link Aggregation**: 3 Gmail accounts scan newsletters (870+ articles extracted)
-- 🎙️ **Podcast Pipeline**: Automatic transcription + summarization (5 tracked podcasts)
-- 📚 **Academic Alerting**: OpenAlex API monitors 6+ key scholars (Zuboff, Srnicek, Harvey, etc.)
-- 🔍 **Daily News Scan**: Multi-search-engine queries (17 engines, fallback strategy)
+| Directory | Purpose |
+|-----------|---------|
+| **`coaching/`** | Therapeutic and coaching sessions, goals, reflections |
+| **`assistant/`** | Daily assistance — inbox, active tasks, waiting items |
+| **`engineering/`** | Development work — prototypes, tools, code snippets |
+| **`projects/`** | Major projects (as Git submodules) |
+| **`tasks/`** | Small projects and tasks (< 2 weeks) |
+| **`archive/`** | Long-term storage for completed work |
 
-**Processing workflow:**
-```
-Ingest → Clean → Label (LLM) → Extract Knowledge → Update Ontology → Dashboard
-```
+### Project Submodules
 
-### 2. Discourse Mapping System (NEW - March 2025)
+The `projects/` directory contains Git submodules linking to separate repositories:
 
-**8 new database tables** tracking the conversation:
-- **`persons`**: 49 seed scholars (Zuboff, Srnicek, Marx, Harvey...) with alias resolution
-- **`works`**: Canonical bibliography (books, articles, reports)
-- **`mentions`**: Who is cited where, with context (agreement/critique/discussion)
-- **Citation network**: Visualize intellectual relationships
-
-**Example queries:**
-```bash
-python -m literature_pipeline.discourse persons list
-python -m literature_pipeline.discourse network person 3  # Zuboff's citation network
-```
-
-### 3. Knowledge Graph / Ontology (`memory/ontology/`)
-
-**Interactive D3.js visualization** of:
-- **12 Core Concepts**: Platform Capitalism, Surveillance Capitalism, Gig Economy, Green Colonialism...
-- **7 Research Tasks**: Active chapters with deadlines and progress tracking
-- **1,104+ Articles**: Linked to concepts and tasks
-- **8,332+ Relationships**: `discusses_concept`, `related_by_tags`, `supports_task`
-
-**Dashboard:** `ontology-dashboard.html` (auto-updates after each pipeline run)
-
-### 4. Weekly Research Briefing
-
-**Automated Telegram delivery** every Sunday 08:00:
-- New articles this week (count + topics)
-- Task progress updates
-- Coverage gap analysis ("Topics with < 5 articles")
-- Reading recommendation
+| Submodule | Repository | Description |
+|-----------|------------|-------------|
+| `book-project1/` | (local) | Book writing project |
+| `critical-theory-digital/` | [critical-theory-digital](https://github.com/MarcusGraetsch/critical-theory-digital) | Book on critical theory |
+| `digital-research/` | [digital-capitalism-research](https://github.com/MarcusGraetsch/digital-capitalism-research) | Digital capitalism research project |
+| `working-notes/` | [working-notes](https://github.com/MarcusGraetsch/working-notes) | Personal website |
+| `web-crew/` | [web-crew](https://github.com/MarcusGraetsch/web-crew) | Web crew project (nested in working-notes) |
 
 ---
 
-## Repository Structure
+## Repository Relationship
 
 ```
-.
-├── README.md                           # This file
-├── TODO.md                             # Active tasks
-├── CRON_STATUS.md                      # Pipeline health monitoring
-├── HEARTBEAT.md                        # Agent periodic tasks
-├── 
-├── literature_pipeline/                # Core ingestion system
-│   ├── db.py                          # Database schema (8 new discourse tables)
-│   ├── ingest.py                      # PDF processing
-│   ├── discourse.py                   # NEW: Person/work/mention extraction
-│   ├── quotes.py                      # Quote extraction
-│   ├── extract_knowledge.py           # LLM-based knowledge extraction
-│   └── telegram_handler.py            # Telegram bot integration
-│
-├── research/                          # News & article processing
-│   ├── articles.db                    # Main database (1,104+ articles)
-│   ├── scan_v5.py                     # Email link extraction
-│   ├── scan_podcasts.py               # Podcast transcription pipeline
-│   ├── scan_academic.py               # OpenLex academic monitoring
-│   ├── extract_article_quotes.py      # Quote extraction from news
-│   ├── weekly_pipeline.py             # Sunday newsletter processing
-│   └── fulltext/                      # Extracted article content
-│
-├── memory/ontology/                   # Knowledge Graph
-│   ├── schema.yaml                    # Ontology definition
-│   ├── graph.jsonl                    # 8,332+ relationships
-│   └── concepts/                      # Individual concept definitions
-│
-├── briefings/                         # Generated weekly reports
-│   ├── latest.md                      # Current briefing
-│   └── briefing_YYYYMMDD.md           # Archive
-│
-├── ontology-dashboard.html            # Interactive visualization
-├── generate_weekly_briefing.py        # Briefing generator
-└── update_dashboard.py                # Dashboard updater
+┌─────────────────────────────────────────────────────────────┐
+│                    Marcus Grätsch                           │
+│                      (Human)                                │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+        ┌───────────────┴───────────────┐
+        │                               │
+        ▼                               ▼
+┌───────────────────┐       ┌───────────────────────┐
+│   rook-agent      │       │    rook-workspace     │
+│   (This repo)     │       │    (This repo)        │
+│                   │       │                       │
+│ • Core identity   │       │ • Working environment │
+│ • Memory          │       │ • Role directories    │
+│ • Configuration   │       │ • Project submodules  │
+│ • Skills          │       │ • Daily operations    │
+│ • Cron jobs       │       │                       │
+└─────────┬─────────┘       └───────────┬───────────┘
+          │                             │
+          │  Daily sync (02:00 CET)     │
+          │  via sync-from-workspace.sh │
+          │                             │
+          ▼                             ▼
+   ┌─────────────────────────────────────────┐
+   │           GitHub (Backup)               │
+   └─────────────────────────────────────────┘
 ```
 
 ---
 
-## Key Statistics
-
-| Metric | Count |
-|--------|-------|
-| **Articles collected** | 1,104+ |
-| **Newsletter sources** | ~20 active |
-| **Core concepts mapped** | 12 (6 digital capitalism + 6 environmental) |
-| **Research tasks** | 7 active |
-| **Tracked scholars** | 49 (with citation network) |
-| **Database relationships** | 8,332+ |
-| **Podcasts monitored** | 5 |
-| **Academic authors tracked** | 6+ (OpenAlex API) |
-
----
-
-## Automation Schedule
-
-| Task | Frequency | Time (CET) |
-|------|-----------|------------|
-| Daily News Scan | Daily | 08:00 |
-| Weekly Newsletter Processing | Sunday | 08:00 |
-| Academic Paper Check | Weekly | With newsletter scan |
-| Podcast Episode Scan | Weekly | With newsletter scan |
-| Dashboard Update | After each pipeline | Automatic |
-| Self-Improvement Report | Weekly | With newsletter scan |
-
----
-
-## Key Concepts Tracked
-
-### Digital Capitalism Core
-- Platform Capitalism (Srnicek)
-- Surveillance Capitalism (Zuboff)
-- Gig Economy & Algorithmic Management
-- Data Extractivism
-- Precarious Work & Labor Organizing
-
-### Environmental Dimension
-- Digital Climate Impact
-- Data Center Energy
-- E-Waste & Critical Minerals
-- Green Colonialism
-- Environmental Justice
-
----
-
-## Research Ethics & Transparency
-
-**Nachvollziehbarkeit** (German academic rigor):
-- All automation decisions documented in commits
-- Process logs for every major article (`*.process.md`)
-- Git history tracks all changes
-- Source verification before inclusion (no hallucinated references)
-
-**Human-AI Collaboration:**
-- AI handles: Data extraction, categorization, pattern recognition
-- Human handles: Interpretation, theoretical framing, ethical judgment
-- Transparent about AI involvement in research process
-
----
-
-## Current Status (March 2025)
-
-**Phase:** Active data collection & discourse mapping
-
-**Recent milestones:**
-- ✅ Discourse mapping system deployed (49 scholars, citation networks)
-- ✅ 1,104+ articles in database
-- ✅ Weekly briefing automation active
-- ✅ Knowledge Graph with interactive visualization
-- ✅ Multi-source ingestion (email, RSS, academic, podcasts)
-- ✅ Self-improvement logging established
-
-**Next priorities:**
-- [ ] Deep reading of Tier 1 sources (manual, ongoing)
-- [ ] Citation network analysis (automated, in progress)
-- [ ] Chapter drafting (Platform Capitalism theory)
-
----
-
-## Quick Commands
+## Getting Started (After Clone)
 
 ```bash
-# Check discourse stats
-python -m literature_pipeline.discourse mentions stats
+# Clone with all submodules
+git clone --recursive git@github.com:MarcusGraetsch/rook-workspace.git
 
-# List tracked scholars
-python -m literature_pipeline.discourse persons list
-
-# View citation network for a person
-python -m literature_pipeline.discourse network person 3
-
-# Run weekly pipeline manually
-python research/weekly_pipeline.py
-
-# Update dashboard
-python update_dashboard.py
-
-# Generate briefing
-python generate_weekly_briefing.py
+# Or initialize submodules after clone
+git submodule update --init --recursive
 ```
 
 ---
 
-*Last updated: 2026-03-15 | See `memory/2026-03-15.md` for latest session log*
+## Daily Workflow
+
+1. **Rook works here** — All operations, conversations, and tasks happen in this workspace
+2. **Daily sync** — At 02:00 CET, core files sync to `rook-agent` for backup
+3. **Projects** — Major projects live in their own repos, linked as submodules
+4. **Archive** — Completed tasks and old materials move to `archive/`
+
+---
+
+## Directory Structure
+
+```
+rook-workspace/
+│
+├── coaching/               # Therapeutic/coaching role
+│   ├── sessions/
+│   ├── goals/
+│   ├── reflections/
+│   ├── exercises/
+│   └── insights/
+│
+├── assistant/              # Daily assistance (Inbox-Zero)
+│   ├── inbox/
+│   ├── active/
+│   ├── waiting/
+│   ├── done/
+│   └── quick-capture/
+│
+├── engineering/            # Developer/Engineer role
+│   ├── prototypes/
+│   ├── tools/
+│   ├── snippets/
+│   └── docs/
+│
+├── projects/               # Major projects (submodules)
+│   ├── book-project1/
+│   ├── critical-theory-digital/  → Submodule
+│   ├── digital-research/          → Submodule
+│   ├── working-notes/             → Submodule
+│   └── web-crew/                  → Submodule (in working-notes)
+│
+├── tasks/                  # Small projects (< 2 weeks)
+│   ├── noctiluca-contact/
+│   ├── template/
+│   └── _archive/
+│
+├── archive/                # Long-term storage
+│   ├── email-archive/
+│   ├── news/
+│   └── old-projects/
+│
+├── .gitmodules             # Submodule configuration
+└── README.md               # This file
+```
+
+---
+
+## Key Principles
+
+1. **Separation of Concerns** — Workspace (operations) vs. Agent (identity)
+2. **Submodule Strategy** — Large projects have their own repos, linked here
+3. **No Duplication** — Content lives in one place only
+4. **Daily Backup** — Automatic sync ensures nothing is lost
+
+---
+
+## Related Repositories
+
+| Repository | Purpose | Link |
+|------------|---------|------|
+| `rook-agent` | Core system, identity, memory | [GitHub](https://github.com/MarcusGraetsch/rook-agent) |
+| `rook-workspace` | **This repo** — Working environment | [GitHub](https://github.com/MarcusGraetsch/rook-workspace) |
+| `digital-capitalism-research` | Research project | [GitHub](https://github.com/MarcusGraetsch/digital-capitalism-research) |
+| `working-notes` | Personal website | [GitHub](https://github.com/MarcusGraetsch/working-notes) |
+| `critical-theory-digital` | Book project | [GitHub](https://github.com/MarcusGraetsch/critical-theory-digital) |
+| `web-crew` | Web development project | [GitHub](https://github.com/MarcusGraetsch/web-crew) |
+
+---
+
+## Automation
+
+### Daily Sync to Rook-Agent
+At 02:00 CET, the script `~/.openclaw/rook-agent/scripts/sync-from-workspace.sh` runs to:
+- Copy core files (AGENTS.md, SOUL.md, USER.md, etc.) to rook-agent
+- Commit and push to GitHub
+
+### Cron Jobs
+See `rook-agent/docs/CRON_JOBS.md` for all scheduled tasks.
+
+---
+
+## Disaster Recovery
+
+If the VM needs to be rebuilt:
+
+```bash
+# 1. Clone rook-agent (contains identity and config)
+git clone git@github.com:MarcusGraetsch/rook-agent.git ~/.openclaw/rook-agent
+
+# 2. Clone workspace (this repo) with submodules
+git clone --recursive git@github.com:MarcusGraetsch/rook-workspace.git ~/.openclaw/workspace
+
+# 3. Set up cron jobs
+cd ~/.openclaw/rook-agent
+./scripts/setup-cron-jobs.sh
+
+# 4. Configure Git
+git config --global user.name "Marcus Grätsch"
+git config --global user.email "marcusgraetsch@gmail.com"
+```
+
+---
+
+## Notes
+
+- This repo is **private** — contains personal context and work
+- Submodules are **public** — the actual projects being worked on
+- Podcast files and large binaries are **excluded** via .gitignore (stored locally only)
+
+---
+
+## Last Updated
+
+2026-03-26 — Complete reorganization with role-based structure and submodules.
