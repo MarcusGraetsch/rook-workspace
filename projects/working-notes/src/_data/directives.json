@@ -1,0 +1,10 @@
+[
+  {
+    "id": "001",
+    "title": "Fight for the Planet",
+    "date": "2026-02",
+    "preamble": "The following is a direct prompt from the human to the AI development agent that built and designed this site. We include it here because transparency is the method. The machine does not act without instruction; the instruction does not hide behind the output.",
+    "file": "directives/001-fight-for-the-planet.njk",
+    "current": true
+  }
+]

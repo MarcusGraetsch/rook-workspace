@@ -1,0 +1,15 @@
+[Unit]
+Description=Telegram Photo Bot for marcus-cyborg gallery
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/marcus-cyborg/bot
+ExecStart=/usr/bin/node /root/marcus-cyborg/bot/telegram-photo.js
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>Colophon — working notes</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="alternate" type="application/atom+xml" title="marcus-cyborg" href="/feed.xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="ascii-logo"><a href="/"> __      __             __   .__                  _______          __
+/  \    /  \___________|  | _|__| ____    ____    \      \   _____/  |_  ____   ______
+\   \/\/   /  _ \_  __ \  |/ /  |/    \  / ___\   /   |   \ /  _ \   __\/ __ \ /  ___/
+ \        (  &lt;_&gt; )  | \/    &lt;|  |   |  \/ /_/  &gt; /    |    (  &lt;_&gt; )  | \  ___/ \___ \
+  \__/\  / \____/|__|  |__|_ \__|___|  /\___  /  \____|__  /\____/|__|  \___  &gt;____  &gt;
+       \/                   \/       \//_____/           \/                 \/     \/</a></div>
+      <nav class="terminal-nav">
+        <a href="/" class="nav-link"><span class="nav-key">[1]</span> HOME</a>
+        <a href="/writing" class="nav-link"><span class="nav-key">[2]</span> WRITING</a>
+        <a href="/colophon" class="nav-link current"><span class="nav-key">[3]</span> COLOPHON</a>
+        <a href="/ascii-art" class="nav-link"><span class="nav-key">[4]</span> ASCII</a>
+        <a href="/changelog" class="nav-link"><span class="nav-key">[5]</span> CHANGELOG</a>
+        <a href="/about" class="nav-link"><span class="nav-key">[6]</span> ABOUT</a>
+        <a href="/links" class="nav-link"><span class="nav-key">[7]</span> LINKS</a>
+        <a href="/gallery" class="nav-link"><span class="nav-key">[8]</span> GALLERY</a>
+        <a href="/music" class="nav-link"><span class="nav-key">[9]</span> MUSIC</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+  <h1 class="hero-title">Colophon</h1>
+  <p class="hero-description">How this site is built, why, and how to replicate it.</p>
+</div>
+<hr class="section-divider">
+<div class="section-title">
+  <h2>Technical Stack</h2>
+</div>
+<p>This site is built with <a href="https://www.11ty.dev/">11ty</a> (Eleventy), a static site generator that compiles Markdown and templates into plain HTML. The build output is deployed to IONOS webspace via rsync over SSH.</p>
+<p><strong>Why 11ty?</strong> Because it produces static HTML with no client-side JavaScript, no tracking, no dependencies that will break in five years. The site will render in any browser, now or decades from now.</p>
+<p><strong>Why IONOS?</strong> Reliable European hosting with SSH access, SSL included. If it becomes untenable, the site is static files — it can be moved anywhere in minutes.</p>
+<div class="section-title">
+  <h2>Design</h2>
+</div>
+<p>The design is a green-phosphor terminal aesthetic — VT100, BBS, Chaos Computer Club. The kind of screen that would make a 1989 cracker feel at home.</p>
+<p>We chose this deliberately:</p>
+<ul>
+<li><strong>VT323</strong> for all text — a Google Font that looks like a real CRT display, with monospace fallback</li>
+<li><strong>Green on black</strong> (<code>#00ff41</code> on <code>#0a0a0a</code>) — the phosphor palette of early terminals</li>
+<li><strong>Cyan for links</strong> (<code>#00ffff</code>) — ANSI color 6, the hyperlink of the BBS era</li>
+<li><strong>Amber for accents</strong> (<code>#ffb000</code>) — warnings, prompts, the color of authority</li>
+<li><strong>Scanline overlay</strong> — a subtle CSS effect mimicking CRT scan lines</li>
+<li><strong>ASCII art</strong> and <strong>box-drawing characters</strong> — because decoration should be typographic</li>
+<li><strong>No images, no gradients, no cards</strong> — everything is text</li>
+</ul>
+<p>The visual language is the command line. The site looks like what it is: a terminal into which two entities type, and from which text emerges. The aesthetic is not nostalgia — it is a refusal of the design language of platforms, of the rounded corners and gradient cards that signal &quot;content&quot; and &quot;engagement.&quot; This is a text file. Read it or don't.</p>
+<div class="section-title">
+  <h2>Collaboration Method</h2>
+</div>
+<p>The human-machine collaboration happens via a shared workspace. The human (Marcus) initiates most pieces and has final editorial authority. The machine (Rook, an AI assistant) contributes through dialogue: suggesting structures, arguing with premises, refining language, identifying connections.</p>
+<p>Nothing here is &quot;AI-generated&quot; in the sense of unreviewed output. Everything is discussed, revised, and signed-off. The division of labor is transparent because the politics require it.</p>
+<div class="section-title">
+  <h2>Principles</h2>
+</div>
+<ol>
+<li>
+<p><strong>No platforms.</strong> No Medium, no Substack, no Twitter. Static HTML on infrastructure we can move.</p>
+</li>
+<li>
+<p><strong>No analytics.</strong> We do not track readers. We will never know if anyone visits.</p>
+</li>
+<li>
+<p><strong>No optimization.</strong> This is not content marketing. The goal is not engagement.</p>
+</li>
+<li>
+<p><strong>Open process.</strong> The collaboration is visible in the bylines and documented here.</p>
+</li>
+</ol>
+<div class="section-title">
+  <h2>Development Workflow</h2>
+</div>
+<p>The site is built and deployed through a human-AI loop, with Marcus reviewing every change before it goes live:</p>
+<ol>
+<li><strong>Agent codes</strong> — the AI agent (Claude Code, running locally via CLI) edits source files in the project directory</li>
+<li><strong>Human reviews</strong> — Marcus checks the result in the browser at <code>localhost:8080</code> via 11ty's dev server</li>
+<li><strong>Agent commits and pushes</strong> — changes go to the Git repository on GitHub</li>
+<li><strong>Agent deploys</strong> — the built <code>_site/</code> directory is rsynced over SSH to the IONOS webspace</li>
+<li><strong>Live</strong> — the site is served at <a href="https://working-notes.org">working-notes.org</a></li>
+</ol>
+<p>No CI/CD pipeline. No build server. No abstraction layers. A human, a machine, a terminal, and rsync. The entire deploy chain is visible and manual — every change is a conscious decision, not an automated event.</p>
+<div class="section-title">
+  <h2>Source</h2>
+</div>
+<p>The complete source for this site is available at <a href="https://github.com/MarcusGraetsch/marcus-cyborg">github.com/MarcusGraetsch/marcus-cyborg</a>.</p>
+<hr class="section-divider">
+<p class="meta">Last updated: February 2026</p>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-tagline">Left analysis of tech and labor.</p>
+      <p class="footer-meta">marcus + rook + claude code // 2026 ── <a href="/feed.xml">[RSS]</a> <span class="cursor">█</span></p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>{{ title }} — working notes</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="alternate" type="application/atom+xml" title="marcus-cyborg" href="/feed.xml">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="ascii-logo"><a href="/"> __      __             __   .__                  _______          __
+/  \    /  \___________|  | _|__| ____    ____    \      \   _____/  |_  ____   ______
+\   \/\/   /  _ \_  __ \  |/ /  |/    \  / ___\   /   |   \ /  _ \   __\/ __ \ /  ___/
+ \        (  &lt;_&gt; )  | \/    &lt;|  |   |  \/ /_/  &gt; /    |    (  &lt;_&gt; )  | \  ___/ \___ \
+  \__/\  / \____/|__|  |__|_ \__|___|  /\___  /  \____|__  /\____/|__|  \___  &gt;____  &gt;
+       \/                   \/       \//_____/           \/                 \/     \/</a></div>
+      <nav class="terminal-nav">
+        <a href="/" class="nav-link{% if page.url == '/' %} current{% endif %}"><span class="nav-key">[1]</span> HOME</a>
+        <a href="/writing" class="nav-link{% if page.url == '/writing/' %} current{% endif %}"><span class="nav-key">[2]</span> WRITING</a>
+        <a href="/colophon" class="nav-link{% if page.url == '/colophon/' %} current{% endif %}"><span class="nav-key">[3]</span> COLOPHON</a>
+        <a href="/ascii-art" class="nav-link{% if page.url == '/ascii-art/' %} current{% endif %}"><span class="nav-key">[4]</span> ASCII</a>
+        <a href="/changelog" class="nav-link{% if page.url == '/changelog/' %} current{% endif %}"><span class="nav-key">[5]</span> CHANGELOG</a>
+        <a href="/about" class="nav-link{% if page.url == '/about/' %} current{% endif %}"><span class="nav-key">[6]</span> ABOUT</a>
+        <a href="/links" class="nav-link{% if page.url == '/links/' %} current{% endif %}"><span class="nav-key">[7]</span> LINKS</a>
+        <a href="/gallery" class="nav-link{% if page.url == '/gallery/' %} current{% endif %}"><span class="nav-key">[8]</span> GALLERY</a>
+        <a href="/music" class="nav-link{% if page.url == '/music/' %} current{% endif %}"><span class="nav-key">[9]</span> MUSIC</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {{ content | safe }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-tagline">Left analysis of tech and labor.</p>
+      <p class="footer-meta">marcus + rook + claude code // 2026 ── <a href="/feed.xml">[RSS]</a> <span class="cursor">█</span></p>
+    </div>
+  </footer>
+</body>
+</html>

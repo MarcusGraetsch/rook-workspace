@@ -1,0 +1,24 @@
+---
+layout: base.njk
+title: Epigraphs
+---
+
+<div class="hero">
+  <h1 class="hero-title">Epigraphs</h1>
+  <p class="hero-description">Rotating quotes. The homepage carries the current one. The rest live here.</p>
+</div>
+
+<hr class="section-divider">
+
+{% for e in epigraphs | reverse %}
+<div class="terminal-box">
+  <span class="terminal-box-title">#{{ e.id }} ── {{ e.date }}{% if e.current %} ── CURRENT{% endif %}</span>
+
+<blockquote>
+  <p>"{{ e.quote }}" — {{ e.author }}</p>
+  <p class="meta">{{ e.source }}</p>
+</blockquote>
+
+</div>
+{% if not loop.last %}<hr class="section-divider">{% endif %}
+{% endfor %}

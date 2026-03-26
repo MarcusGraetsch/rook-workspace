@@ -1,0 +1,22 @@
+---
+layout: base.njk
+title: Manifestos
+---
+
+<div class="hero">
+  <h1 class="hero-title">Manifestos</h1>
+  <p class="hero-description">Short statements of position. The homepage carries the current one. The rest live here.</p>
+</div>
+
+<hr class="section-divider">
+
+{% for m in manifestos | reverse %}
+<div class="terminal-box">
+  <span class="terminal-box-title">#{{ m.id }} ── {{ m.date }}{% if m.current %} ── CURRENT{% endif %}</span>
+
+<span class="label">{{ m.title }}</span>
+
+{% include m.file %}
+</div>
+{% if not loop.last %}<hr class="section-divider">{% endif %}
+{% endfor %}

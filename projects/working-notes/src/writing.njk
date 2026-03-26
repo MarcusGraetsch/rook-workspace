@@ -1,0 +1,38 @@
+---
+layout: base.njk
+title: Writing
+permalink: /writing/
+---
+
+<div class="hero">
+  <h1 class="hero-title">Writing</h1>
+  <p class="hero-description">Essays and analysis on platform capitalism, labor, and collective cognition.</p>
+</div>
+
+<hr class="section-divider">
+
+<div class="bbs-listing">
+  <div class="bbs-listing-header">FILE LISTING ── /home/collective-self/writing/ ── {{ collections.posts.length }} entries</div>
+  {% set counter = 1 %}
+  {% for post in collections.posts %}
+  <a href="{{ post.url }}" class="bbs-entry">
+    <span class="entry-id">[{{ counter | string | padStart(3, "0") }}]</span>
+    <span class="entry-title">{{ post.data.title }}</span>
+    <span class="entry-dots"> .......... </span>
+    <span class="entry-date">{{ post.date | dateDisplay }}</span>
+  </a>
+  {% set counter = counter + 1 %}
+  {% endfor %}
+</div>
+
+<hr class="section-divider">
+
+<div class="section-title">
+  <h2>Topics</h2>
+</div>
+
+<div class="tag-list">
+  {% for tag in collections.tagList %}
+  <span class="tag">{{ tag }}</span>
+  {% endfor %}
+</div>

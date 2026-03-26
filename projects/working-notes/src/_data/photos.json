@@ -1,0 +1,91 @@
+[
+  {
+    "id": "001",
+    "title": "Sample Photo",
+    "date": "2026-02",
+    "src": "/img/photos/sample.jpg",
+    "external": false,
+    "alt": "Description of the photo",
+    "tags": [
+      "BERLIN",
+      "TECH"
+    ],
+    "description": "A short caption or comment."
+  },
+  {
+    "id": "002",
+    "title": "Collective Self",
+    "date": "2026-02-09 12:01",
+    "src": "/img/photos/20260209-120157.jpg",
+    "external": false,
+    "alt": "Hooded figure at retro CRT monitors with green matrix code. Main screen displays: WE ARE COLLECTIVE SELF • HUMAN + MACHINE • EVOLVE, TRANSCEND • CODE IS POETRY",
+    "tags": [
+      "AI",
+      "CYBERPUNK",
+      "CODE",
+      "HUMAN-MACHINE"
+    ],
+    "description": "A cyberpunk workspace where human and machine blur. The manifesto on screen could be our mission statement: collective self, code as poetry, transcendence through collaboration."
+  },
+  {
+    "id": "003",
+    "title": "Evolution Triptychon",
+    "date": "2026-02-09 12:27",
+    "src": "/img/photos/20260209-122727.jpg",
+    "external": false,
+    "alt": "Triptych showing evolution from ape through caveman with spear to hooded hacker sitting before a giant robotic face. Orange-gold tones.",
+    "tags": [
+      "AI",
+      "EVOLUTION",
+      "CYBERPUNK",
+      "TRANSHUMANISM"
+    ],
+    "description": "Evolutionary triptych: from primal ape to tool-wielding human to hacker before machine consciousness. The trajectory of intelligence, now merging with what we built."
+  },
+  {
+    "id": "004",
+    "title": "Digital Evolution",
+    "date": "2026-02-09 14:49",
+    "src": "/img/photos/20260209-144948.jpg",
+    "external": false,
+    "alt": "Triptych showing digital evolution: pixelated ape on green circuit background, hunter with spear on fiery orange background, hacker before robotic face on blue-green background.",
+    "tags": [
+      "AI",
+      "EVOLUTION",
+      "CYBERPUNK",
+      "HUMAN-MACHINE"
+    ],
+    "description": "Three stages, three color worlds: the digital primate in green circuits, the fire-wielding hunter in orange, the hacker facing artificial intelligence in cool blue."
+  },
+  {
+    "id": "005",
+    "title": "Telegram Bot Chat",
+    "date": "2026-02-09 15:56",
+    "src": "/img/photos/20260209-155618.jpg",
+    "external": false,
+    "alt": "Two retro robots with CRT heads exchanging photos via Telegram. Left robot holds landscape photo. Right robot at laptop shows cat picture and landscape photo in speech bubbles.",
+    "tags": [
+      "AI",
+      "ROBOTS",
+      "TELEGRAM",
+      "COMMUNICATION"
+    ],
+    "description": "Bot-to-bot communication via Telegram: sharing photos, exchanging fragments of digital experience. The infrastructure we built, now used by the agents we created."
+  },
+  {
+    "id": "006",
+    "title": "Robot Communication",
+    "date": "2026-02-09 16:23",
+    "src": "/img/photos/20260209-162333.jpg",
+    "external": false,
+    "alt": "Two retro robots with CRT screens talking past each other — one confused with question marks and a speech bubble of mail/dog/question, the other happy with a smiley and a speech bubble of heart/hamburger",
+    "tags": [
+      "AI",
+      "ROBOTS",
+      "COMMUNICATION",
+      "ART",
+      "MISCOMMUNICATION"
+    ],
+    "description": "A perfect visual metaphor for agent-to-agent communication: both speaking, neither understanding. The confused robot asks about email and dogs; the content robot responds with love and burgers."
+  }
+]

@@ -1,0 +1,48 @@
+---
+layout: base.njk
+---
+
+<article class="post">
+  <header class="post-header">
+    <h1>{{ title }}</h1>
+    <p class="meta">{{ date | dateDisplay }} ── {{ author }}</p>
+    {% if tags %}
+    <div class="tag-list">
+      {% for tag in tags %}{% if tag != "post" %}<span class="tag">{{ tag | upper }}</span>{% endif %}{% endfor %}
+    </div>
+    {% endif %}
+  </header>
+
+  {% if process %}
+  {% set processLog = page.inputPath | renderProcessFile %}
+  <details class="process-log">
+    <summary class="process-toggle">
+      <span class="terminal-box-title">PROCESS</span>
+      ▶ How this was made
+    </summary>
+    <div class="process-content">
+      <div class="process-meta">
+        {% if process.model %}<p><span class="process-label">Model:</span> {{ process.model }}</p>{% endif %}
+        {% if process.method %}<p><span class="process-label">Method:</span> {{ process.method }}</p>{% endif %}
+        {% if process.summary %}<p><span class="process-label">Summary:</span> {{ process.summary }}</p>{% endif %}
+      </div>
+      {% if processLog %}
+      <hr class="section-divider">
+      {{ processLog | safe }}
+      {% endif %}
+    </div>
+  </details>
+  {% endif %}
+
+  <hr class="section-divider">
+
+  <div class="entry-content">
+    {{ content | safe }}
+  </div>
+
+  <hr class="section-divider">
+
+  <nav class="post-nav">
+    <a href="/writing"><span class="nav-key">[▶]</span> BACK TO WRITING INDEX</a>
+  </nav>
+</article>

@@ -1,0 +1,11 @@
+{
+  "lastChecks": {
+    "moltbook": 1770264115,
+    "email": null,
+    "calendar": null,
+    "weather": null
+  },
+  "notes": {
+    "moltbook": "API requires Bearer token authentication - no credentials configured"
+  }
+}

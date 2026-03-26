@@ -1,0 +1,149 @@
+<!-- Minimal Graph Component - Easy to integrate into existing design -->
+
+<div id="research-graph" style="width: 100%; height: 500px; position: relative;">
+    <!-- Controls -->
+    <div style="position: absolute; top: 10px; left: 10px; z-index: 10;">
+        <button onclick="filterGraph('all')" style="font-size: 12px; padding: 4px 8px; margin-right: 5px;">Alle</button>
+        <button onclick="filterGraph('concepts')" style="font-size: 12px; padding: 4px 8px; margin-right: 5px;">Konzepte</button>
+        <button onclick="filterGraph('tasks')" style="font-size: 12px; padding: 4px 8px;">Tasks</button>
+    </div>
+    
+    <!-- Legend -->
+    <div style="position: absolute; bottom: 10px; left: 10px; z-index: 10; font-size: 11px; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 4px;">
+        <span style="color: #c0392b;">● Konzepte</span> 
+        <span style="color: #27ae60; margin-left: 10px;">● Tasks</span> 
+        <span style="color: #2980b9; margin-left: 10px;">● Artikel</span>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+(function() {
+    // Graph data
+    const data = {
+        nodes: [
+            // Concepts
+            { id: "c1", name: "Platform Capitalism", type: "concept", size: 25 },
+            { id: "c2", name: "Surveillance Capitalism", type: "concept", size: 28 },
+            { id: "c3", name: "Gig Economy", type: "concept", size: 26 },
+            { id: "c4", name: "Green Colonialism", type: "concept", size: 24 },
+            { id: "c5", name: "Data Extractivism", type: "concept", size: 22 },
+            { id: "c6", name: "Precarious Work", type: "concept", size: 20 },
+            
+            // Tasks
+            { id: "t1", name: "Platform Theory", type: "task", size: 18 },
+            { id: "t2", name: "Gig Empirics", type: "task", size: 20 },
+            { id: "t3", name: "Labor Organizing", type: "task", size: 18 },
+            { id: "t4", name: "AI Impact", type: "task", size: 20 },
+            { id: "t5", name: "Environmental", type: "task", size: 22 },
+            
+            // Sample articles
+            { id: "a1", name: "Uber Labor", type: "article", size: 12 },
+            { id: "a2", name: "Amazon Union", type: "article", size: 12 },
+            { id: "a3", name: "KI & Arbeit", type: "article", size: 12 },
+            { id: "a4", name: "Data Centers", type: "article", size: 12 },
+            { id: "a5", name: "Cobalt Mining", type: "article", size: 12 },
+        ],
+        links: [
+            { source: "a1", target: "c3" },
+            { source: "a1", target: "c6" },
+            { source: "a2", target: "t3" },
+            { source: "a3", target: "t4" },
+            { source: "a4", target: "t5" },
+            { source: "a5", target: "c4" },
+            { source: "t1", target: "c1" },
+            { source: "t2", target: "c3" },
+            { source: "t5", target: "c4" },
+            { source: "c1", target: "c2" },
+            { source: "c3", target: "c6" },
+        ]
+    };
+    
+    const container = document.getElementById('research-graph');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    const svg = d3.select('#research-graph')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+    
+    const g = svg.append('g');
+    
+    svg.call(d3.zoom()
+        .extent([[0, 0], [width, height]])
+        .scaleExtent([0.5, 3])
+        .on('zoom', (e) => g.attr('transform', e.transform)));
+    
+    const colors = {
+        concept: '#c0392b',
+        task: '#27ae60', 
+        article: '#2980b9'
+    };
+    
+    const simulation = d3.forceSimulation(data.nodes)
+        .force('link', d3.forceLink(data.links).id(d => d.id).distance(80))
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('center', d3.forceCenter(width / 2, height / 2));
+    
+    const link = g.append('g')
+        .selectAll('line')
+        .data(data.links)
+        .join('line')
+        .attr('stroke', '#bdc3c7')
+        .attr('stroke-width', 1.5);
+    
+    const node = g.append('g')
+        .selectAll('g')
+        .data(data.nodes)
+        .join('g')
+        .call(d3.drag()
+            .on('start', (e, d) => {
+                if (!e.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x; d.fy = d.y;
+            })
+            .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+            .on('end', (e, d) => {
+                if (!e.active) simulation.alphaTarget(0);
+                d.fx = null; d.fy = null;
+            }));
+    
+    node.append('circle')
+        .attr('r', d => d.size)
+        .attr('fill', d => colors[d.type])
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 2);
+    
+    node.append('text')
+        .text(d => d.name)
+        .attr('x', 0)
+        .attr('y', d => d.size + 12)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '10px')
+        .attr('fill', '#2c3e50');
+    
+    node.append('title')
+        .text(d => d.name);
+    
+    simulation.on('tick', () => {
+        link
+            .attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+        
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+    
+    // Filter function
+    window.filterGraph = function(type) {
+        if (type === 'all') {
+            node.style('opacity', 1);
+            link.style('opacity', 1);
+        } else {
+            node.style('opacity', d => d.type === type ? 1 : 0.1);
+            link.style('opacity', 0.1);
+        }
+    };
+})();
+</script>

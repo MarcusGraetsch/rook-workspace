@@ -1,0 +1,22 @@
+---
+layout: base.njk
+title: ASCII Art
+---
+
+<div class="hero">
+  <h1 class="hero-title">ASCII Art</h1>
+  <p class="hero-description">Archive of homepage ASCII art. Animations and stills. New piece every couple of months.</p>
+</div>
+
+<hr class="section-divider">
+
+{% for movie in asciiMovies | reverse %}
+<div class="ascii-archive-entry">
+  <div class="section-title">
+    <h2>{{ movie.title }}{% if movie.current %} <span class="label">[CURRENT]</span>{% endif %}</h2>
+  </div>
+  <p class="meta">{{ movie.date }} ── {{ movie.description }}</p>
+  {% include movie.file %}
+</div>
+{% if not loop.last %}<hr class="section-divider">{% endif %}
+{% endfor %}

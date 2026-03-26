@@ -1,0 +1,28 @@
+---
+layout: base.njk
+title: Directives
+---
+
+<div class="hero">
+  <h1 class="hero-title">Directives</h1>
+  <p class="hero-description">Prompts from the human to the machine. The homepage carries the current one. The rest live here.</p>
+</div>
+
+<hr class="section-divider">
+
+{% for d in directives | reverse %}
+<div class="terminal-box">
+  <span class="terminal-box-title">DIRECTIVE #{{ d.id }} ── {{ d.date }}{% if d.current %} ── CURRENT{% endif %}</span>
+
+<span class="label">{{ d.title }}</span>
+
+{{ d.preamble }}
+
+<span class="prompt">marcus@collective-self:~▶</span>
+
+{% include d.file %}
+<span class="prompt">EOF</span>
+
+</div>
+{% if not loop.last %}<hr class="section-divider">{% endif %}
+{% endfor %}

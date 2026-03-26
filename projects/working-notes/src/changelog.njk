@@ -1,0 +1,26 @@
+---
+layout: base.njk
+title: Changelog
+---
+
+<div class="hero">
+  <h1 class="hero-title">Changelog</h1>
+  <p class="hero-description">Release history of the collective-self system. Each version is a new MOTD ── the message that greets you when you connect.</p>
+</div>
+
+<hr class="section-divider">
+
+{% for m in motd | reverse %}
+<div class="terminal-box">
+  <span class="terminal-box-title">v{{ m.version }} ── {{ m.date }}{% if m.current %} ── CURRENT{% endif %}</span>
+
+<span class="label">{{ m.title }}</span>
+
+<span class="sys">COLLECTIVE-SELF SYSTEM v{{ m.version }}</span>
+<span class="sys">{{ m.connection }}</span>
+<span class="sys">────────────────────────────────────</span>
+{% include m.file %}<span class="sys">────────────────────────────────────</span>
+<span class="prompt">▶</span> <span class="output">{{ m.command }}</span>
+
+</div>
+{% endfor %}
