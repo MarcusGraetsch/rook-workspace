@@ -1,0 +1,6 @@
+[submodule "projects/critical-theory-digital"]
+	path = projects/critical-theory-digital
+	url = git@github.com:MarcusGraetsch/critical-theory-digital.git
+[submodule "projects/working-notes"]
+	path = projects/working-notes
+	url = git@github.com:MarcusGraetsch/working-notes.git
