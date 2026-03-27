@@ -75,20 +75,24 @@ Health:   Kimi (günstig, Routine)
 - [x] `openclaw security audit` ✅ (3 critical, 3 warn, 1 info)
 - [ ] Rescue Gateway auf zweitem Port
 
-### 4.2 Rescue Gateway
-- [ ] Zweite OpenClaw-Instanz auf anderem Port
-- [ ] Minimale Konfiguration (SSH + Shell Tools)
+### 4.2 Rescue Gateway ✅
+- [x] Zweite OpenClaw-Instanz auf anderem Port ✅ (18799)
+- [x] Minimale Konfiguration (read, process only) ✅
+- [x] Script zum Starten ✅
 
 ---
 
-## Phase 5: Self-Improvement CI/CD
+## Phase 5: Self-Improvement CI/CD ✅
 
-### 5.1 Branch-Policy
-- [ ] `main` = Production (Branch Protection)
-- [ ] `agent/*` = Agent-generierte Branches
-- [ ] Pre-push Hooks: Secret Scanner
+### 5.1 Branch-Policy ✅
+- [x] `main` = Production (Branch Protection) — via GitHub
+- [x] `agent/*` = Agent-generierte Branches
+- [x] Pre-push Hooks: Secret Scanner (TruffleHog in CI)
 
-### 5.2 Agent-Governance
+### 5.2 Agent-Governance ✅
+- [x] GitHub Actions Workflow erstellt
+- [x] PR Template erstellt
+- [x] Governance: Agent → PR → Review → Merge → Deploy
 ```
 Agent (isolierter Branch)
   → Commit
@@ -101,12 +105,15 @@ Agent (isolierter Branch)
 
 ---
 
-## Phase 6: Health & Symptom Tracker (Quick Win)
+## Phase 6: Health & Symptom Tracker (Quick Win) 🚧
 
-### 6.1 Use Case: Telegram-basiert
-- [ ] Health-Agent für Ernährungs-Tracking
-- [ ] Via Telegram Bot (einfachster Weg)
-- [ ] Privacy-First: Separate Google-Account
+### 6.1 Health Tracker ✅ (CLI)
+- [x] Health-Agent Workspace erstellt
+- [x] CLI Tracker: meals, water, sleep, symptoms
+- [x] README mit Usage Instructions
+
+### 6.2 Use Case: Telegram-basiert
+- [ ] Integration via Health Agent (TODO)
 
 ---
 
@@ -137,18 +144,30 @@ Agent (isolierter Branch)
 
 ---
 
-## Fortschritt (2026-03-27)
+## Fortschritt (2026-03-27, 17:30)
 
 ### Erledigt ✅
 1. **Agents erstellt:** coach, engineer, researcher, health
 2. **Identities:** Emoji + Name für alle Agents
 3. **SOUL.md + AGENTS.md:** Für jeden Agenten
 4. **Dashboard Repo:** `MarcusGraetsch/rook-dashboard` (Next.js 14 + Tailwind)
-5. **Engineer Sandbox:** non-main mode, session scope, rw
-6. **Security Audit:** durchgeführt, 3 critical identifiziert
-7. **Config validiert:** openclaw.json ist valide
+5. **Dashboard Pages:** Sessions, Agents, Cron, Memory
+6. **Engineer Sandbox:** non-main mode, session scope, rw
+7. **Security Audit:** durchgeführt, 3 critical identifiziert
+8. **Config validiert:** openclaw.json ist valide
+9. **Health Tracker CLI:** meals, water, sleep, symptoms
+10. **CI/CD Pipeline:** GitHub Actions + PR Template
+11. **Rescue Gateway:** Config + Script auf Port 18799
 
 ### Commits
-- workspace: `32f9d71` — Multi-Agent Architecture v2 Setup
-- rook-agent: `e644266` — 2026-03-27: Multi-Agent Setup + Dashboard Repo
-- rook-dashboard: `98b4a41` — Initial dashboard structure
+| Repo | Commit | Description |
+|------|--------|-------------|
+| rook-workspace | `e625e2c` | Dashboard Pages + Health Tracker |
+| rook-agent | `9a8e070` | Rescue Gateway + CI/CD Pipeline |
+| rook-dashboard | `1e6d7b3` | Sessions/Agents/Cron/Memory pages |
+
+### Offene Punkte
+- [ ] Gateway API Integration (WebSocket) im Dashboard
+- [ ] OpenAI API Key für Model Fallbacks
+- [ ] Telegram Routing für spezialisierte Agents
+- [ ] Token-Monitoring Dashboard
