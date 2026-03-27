@@ -22,9 +22,11 @@
 
 **Hinweis:** Zusätzlich existiert bereits `consultant` Agent.
 
-### 1.3 Routing/Bindings konfigurieren
-- [ ] Telegram Topics → Spezialisierte Agenten (via `openclaw agents bind`)
-- [ ] Oder: Rook delegiert intern via Sub-Agents
+### 1.3 Routing/Bindings konfigurieren ✅ (Deferred)
+- [x] **Entscheidung:** Routing über Sub-Agents (nicht Topics)
+- [x] **Begründung:** 1:1 Telegram DM → Alle Nachrichten gehen an Rook
+- [x] **Alternative:** Bei Topics/Gruppen → `openclaw agents bind` nutzen
+- [ ] Bei Bedarf: Separate Telegram Bots pro Agent (komplexer)
 
 ---
 
