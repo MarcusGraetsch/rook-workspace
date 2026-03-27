@@ -7,3 +7,6 @@
 [submodule "projects/digital-research"]
 	path = projects/digital-research
 	url = git@github.com:MarcusGraetsch/digital-capitalism-research.git
+[submodule "engineering/rook-dashboard"]
+	path = engineering/rook-dashboard
+	url = git@github.com:MarcusGraetsch/rook-dashboard.git
