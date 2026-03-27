@@ -24,8 +24,18 @@ Features:
 - Session-Übersicht
 - Agent-Status
 - Token-Nutzung + Kosten
+- 📋 Kanban Board (Project Management)
 - Cron-Job Verwaltung
 - Memory Browser
+
+### 📋 Kanban Board
+
+- Multiple Boards (Research, Consulting, Buch, etc.)
+- Drag&Drop Tasks zwischen Spalten
+- Priority (low/medium/high/urgent)
+- Labels
+- Due Dates
+- Lokal gespeichert (SQLite)
 
 ### 3. Health Tracker CLI
 
