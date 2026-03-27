@@ -55,35 +55,12 @@
 
 ---
 
-## Aktive Projekte
-
-### 1. OpenClaw Fork + Dashboard
-- Status: Planung
-- Ziel: OpenClaw forken, TenacitOS-Features einbauen
-- Frage: Plugin-Architektur oder Core-Modifikation?
-
-### 2. Digital Capitalism Research
-- Status: Laufend
-- Repo: MarcusGraetsch/digital-capitalism-research
-- AutoResearchClaw Pipeline, Literature Analysis
-
-### 3. working-notes Website
-- Status: Laufend
-- Repo: MarcusGraetsch/working-notes
-- Submodule: web-crew
-
-### 4. Gesundheits-Coaching
-- Status: Idee (nach Aaron's Vorschlag)
-- Ernährungs-Tracking, Bewegungs-Tracking, Google API
-- Privacy-First (separate Accounts)
-
-### 5. Event Organizer
-- Status: Idee
-- WhatsApp/Telegram-Integration für Gruppen-Events
-
-### 6. ChatGPT-Daten Analyse
-- Status: Export beantragt
-- Ziel: 2+ Jahre Konversationen analysieren und nach Rollen sortieren
+### 4. Gesundheits-Coaching 🚧
+- Status: **In Umsetzung** (2026-03-27)
+- Health Agent Workspace erstellt
+- CLI Tracker: meals, water, sleep, symptoms
+- Privacy-First: Lokale Speicherung, keine Cloud
+- Repo: `~/.openclaw/workspace-health` (lokal)
 
 ---
 
