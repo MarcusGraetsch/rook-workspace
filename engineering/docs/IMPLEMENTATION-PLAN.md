@@ -144,32 +144,36 @@ Agent (isolierter Branch)
 
 ---
 
-*Letzte Aktualisierung: 2026-03-27 (Phase 1 + 2 + 4.1 gestartet)*
+*Letzte Aktualisierung: 2026-03-27 (18:00) — Phase 1-6 weitgehend abgeschlossen*
 
 ---
 
-## Fortschritt (2026-03-27, 17:30)
+## Fortschritt (2026-03-27, 18:00)
 
 ### Erledigt ✅
 1. **Agents erstellt:** coach, engineer, researcher, health
 2. **Identities:** Emoji + Name für alle Agents
 3. **SOUL.md + AGENTS.md:** Für jeden Agenten
 4. **Dashboard Repo:** `MarcusGraetsch/rook-dashboard` (Next.js 14 + Tailwind)
-5. **Dashboard Pages:** Sessions, Agents, Cron, Memory
-6. **Engineer Sandbox:** non-main mode, session scope, rw
-7. **Security Audit:** durchgeführt, 3 critical identifiziert
-8. **Config validiert:** openclaw.json ist valide
-9. **Health Tracker CLI:** meals, water, sleep, symptoms
-10. **CI/CD Pipeline:** GitHub Actions + PR Template
-11. **Rescue Gateway:** Config + Script auf Port 18799
+5. **Dashboard Pages:** Sessions, Agents, Cron, Memory, Tokens
+6. **Gateway API Integration:** Next.js API Routes mit echten Daten
+7. **Token-Monitoring:** Token-Zählen + Kosten-Schätzung
+8. **Engineer Sandbox:** non-main mode, session scope, rw
+9. **Security Audit:** durchgeführt
+10. **Config validiert:** openclaw.json ist valide
+11. **Health Tracker CLI:** meals, water, sleep, symptoms + Skill
+12. **CI/CD Pipeline:** GitHub Actions + PR Template
+13. **Rescue Gateway:** Config + Script auf Port 18799
+14. **Nutzungs-Guide:** ROOK-NUTZUNG.md erstellt
 
 ### Commits
-| Repo | Commit | Description |
+| Repo | Commit | Beschreibung |
 |------|--------|-------------|
-| rook-workspace | `e625e2c` | Dashboard Pages + Health Tracker |
-| rook-agent | `9a8e070` | Rescue Gateway + CI/CD Pipeline |
-| rook-dashboard | `1e6d7b3` | Sessions/Agents/Cron/Memory pages |
+| rook-workspace | `093803f` | IMPLEMENTATION-PLAN Updates |
+| rook-agent | `17eff78` | Multi-Agent Setup + MEMORY |
+| rook-dashboard | `4db42e2` | Build fix + API Integration |
+| workspace-health | `ddd4502` | Health Tracker Skill + CLI |
 
-### Offene Punkte
-- [ ] OpenAI API Key für Model Fallbacks (Marcus muss bereitstellen)
-- [ ] WebSocket für Echtzeit-Updates im Dashboard
+### Verbleibend
+- [ ] OpenAI API Key (Marcus muss bereitstellen)
+- [ ] Dashboard Deployment (optional, für externen Zugriff)
