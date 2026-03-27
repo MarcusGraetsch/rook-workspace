@@ -1,40 +1,91 @@
-# TOOLS.md - Local Notes
+# TOOLS.md - Lokale Konfiguration & Notizen
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+## VM / Server
 
-## What Goes Here
+- **Host:** vmd151897
+- **OS:** Linux 5.15.0-173-generic (x64)
+- **Node:** v22.22.1
+- **Disk:** 1.2TB gesamt, ~32GB verwendet
+- **Shell:** sh (bash/zsh verfügbar)
 
-Things like:
+## Git
 
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
+- **User:** Marcus Grätsch
+- **Email:** marcusgraetsch@gmail.com
+- **Auth:** SSH Keys konfiguriert
+- **Repos:** Siehe MEMORY.md → Infrastruktur
 
-## Examples
+## OpenClaw
 
-```markdown
-### Cameras
+- **Version:** Aktuell (regelmäßige Updates via `openclaw update`)
+- **Workspace:** `~/.openclaw/workspace/`
+- **Rook-Agent:** `~/.openclaw/rook-agent/`
+- **Default Model:** Kimi K2.5 (`kimi-coding/k2p5`)
+- **Channel:** Telegram (Hauptkanal mit Marcus)
+- **Gateway:** Läuft auf der VM
 
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
+## Cron-Jobs
 
-### SSH
+| Schedule | Job | Log |
+|----------|-----|-----|
+| Täglich 02:00 | `sync-from-workspace.sh` → rook-agent sync | `/var/log/rook-sync.log` |
+| Sonntags 08:00 | Weekly Research Pipeline | `workspace/research/cron.log` |
+| Sonntags 02:00 | Google Drive Backup | `/var/log/weekly_backup.log` |
 
-- home-server → 192.168.1.100, user: admin
+Scripts: `~/.openclaw/rook-agent/scripts/`
 
-### TTS
+## Telegram
 
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
+- **Chat-Type:** Direct (1:1 mit Marcus)
+- **Chat-ID:** telegram:549758481
+- **Capabilities:** Inline Buttons, Reactions (MINIMAL mode)
+
+## Google Services (gog CLI)
+
+- **Status:** ⚠️ Noch nicht installiert
+- **Plan:** `brew install steipete/tap/gogcli` oder manuell
+- **Services:** Gmail, Calendar, Drive, Contacts, Sheets, Docs
+- **Auth:** OAuth2 Setup nötig
+
+## Skills
+
+- **Installiert:** Diverse (in `~/.openclaw/workspace/skills/`)
+  - summarize
+  - multi-search-engine
+  - ontology
+  - proactive-agent-lite
+  - self-improving-agent
+- **Geplant:** Eigene Skills bauen (nach Aaron's Tipp)
+- **Referenz:** https://clawskills.sh/ (5.400+ Skills)
+
+## Bekannte Probleme
+
+- **Git index.lock:** Tritt gelegentlich auf bei parallelen Git-Operationen → `rm -f .git/index.lock`
+- **Kimi Rate Limits:** Bei intensiver Nutzung (lange Sessions) → Fallback auf OpenAI planen
+- **Core-Dateien:** OpenClaw schreibt AGENTS.md, SOUL.md, etc. immer wieder ins Workspace → Sync-Cron löst das
+- **Podcast-Dateien:** >100MB, in .gitignore, nur lokal vorhanden
+- **web_fetch:** Funktioniert manchmal nicht (Timeout/DNS) → web_search als Alternative
+- **Reddit:** Blockiert direkten Fetch (403) → Web-Suche oder User kopiert Inhalt
+
+## Nützliche Befehle
+
+```bash
+# OpenClaw Status
+openclaw status
+
+# Git Sync manuell
+~/.openclaw/rook-agent/scripts/sync-from-workspace.sh
+
+# Cron-Jobs anzeigen
+crontab -l
+
+# Disk Usage
+df -h /
+
+# Prozesse checken
+ps aux | grep openclaw
 ```
-
-## Why Separate?
-
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
 
 ---
 
-Add whatever helps you do your job. This is your cheat sheet.
+*Letzte Aktualisierung: 2026-03-27*
