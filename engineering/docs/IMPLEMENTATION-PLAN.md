@@ -36,18 +36,20 @@
 - [x] `MarcusGraetsch/rook-dashboard` Repo angelegt
 - [x] Tech-Stack: Next.js 14 + Tailwind
 - [x] Basis-Layout mit Sidebar
-- [ ] WebSocket + HTTP Client für Gateway-API
-- [ ] Token-Monitoring (Clawmetry-konzept)
-- [ ] Cron-Manager
-- [ ] Memory Browser
-- [ ] Session-Übersicht
+- [x] Gateway API Integration (HTTP + REST)
+- [x] Token-Monitoring (Clawmetry-konzept)
+- [x] Cron-Manager
+- [x] Memory Browser
+- [x] Session-Übersicht
+- [ ] System Health (CPU/RAM)
+- [ ] WebSocket für Echtzeit-Updates
 
 ### 2.2 Dashboard Features (Priorität)
-1. ~~Token-Monitoring~~ → Clawmetry-konzept
-2. ~~Cron-Manager~~ → Basis gelegt
-3. ~~Memory Browser~~
-4. ~~System Health (CPU/RAM)~~ → Basis gelegt
-5. ~~Session-Übersicht~~ → Basis gelegt
+1. ~~Token-Monitoring~~ → ✅ Token Monitoring Seite
+2. ~~Cron-Manager~~ → ✅ Cron Seite
+3. ~~Memory Browser~~ → ✅ Memory Seite
+4. ~~System Health (CPU/RAM)~~ → ✅ Stats in Dashboard
+5. ~~Session-Übersicht~~ → ✅ Sessions Seite
 
 ---
 
@@ -169,7 +171,5 @@ Agent (isolierter Branch)
 | rook-dashboard | `1e6d7b3` | Sessions/Agents/Cron/Memory pages |
 
 ### Offene Punkte
-- [ ] Gateway API Integration (WebSocket) im Dashboard
-- [ ] OpenAI API Key für Model Fallbacks
-- [ ] Telegram Routing für spezialisierte Agents
-- [ ] Token-Monitoring Dashboard
+- [ ] OpenAI API Key für Model Fallbacks (Marcus muss bereitstellen)
+- [ ] WebSocket für Echtzeit-Updates im Dashboard
