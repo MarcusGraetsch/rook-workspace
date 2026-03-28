@@ -1,267 +1,343 @@
-# Multi-Agent & System-Architektur — Entwurf v2
+# Multi-Agent System — ARCHITECTURE
 
-> **Status:** Analyse/Entscheidungsphase — noch NICHT umsetzen
-> **Datum:** 2026-03-27
-> **Quellen:** OpenClaw Docs, ChatGPT Architektur-Analyse, Ecosystem-Recherche
-
----
-
-## Leitprinzip
-
-> **Nicht forken. Erweitern.**
-> OpenClaw als unveränderte Basis lassen. Neue Features als Plugins, Hooks oder separate UI.
-> Upstream-Updates bleiben trivial (`openclaw update`).
+> **Status:** In Entwicklung
+> **Letztes Update:** 2026-03-28
 
 ---
 
-## 1. Gateway als Control Plane (bereits vorhanden)
+## Überblick
 
-OpenClaw ist bereits ein Orchestrator:
-- Multiplexed Port (18789): WebSocket + HTTP APIs + Web UI
-- OpenAI-kompatible Endpoints (`/v1/chat/completions`, `/v1/models`)
-- Control UI als statisches SPA (Vite + Lit)
-- Session Tools für Inter-Agent-Kommunikation
-
-**→ Wir brauchen KEIN orchestrierendes Backend drumherum.**
-
----
-
-## 2. Multi-Agent Architektur
-
-### Agent-Portfolio (Start-Design)
-
-| Agent | Rolle | Model-Policy | Sandbox |
-|-------|-------|-------------|---------|
-| **Rook (Main)** | Persönlicher Front-Door, Orchestrator | Bestes Model + Fallbacks | Nein |
-| **Coach** | Mental + Physical Health, Reflexion | Empathisches Model | Nein |
-| **Engineer** | Code, DevOps, Architektur | Code-starkes Model | Ja (Sandbox) |
-| **Researcher** | Digital Capitalism, Literatur | Langer Kontext | Nein |
-| **Health** | Ernährung, Bewegung, Tracking | Günstiges Model (Routine) | Nein |
-
-### Setup per Agent
-
-```bash
-openclaw agents add coach
-openclaw agents add engineer
-openclaw agents add researcher
-openclaw agents add health
-```
-
-Jeder Agent bekommt:
-- Eigene Workspace (`~/.openclaw/workspace-<agentId>/`)
-- Eigene `SOUL.md`, `AGENTS.md`, `USER.md`
-- Eigenes Memory (`memory/`)
-- Eigene Skills (`skills/`)
-- Eigene Auth-Profile und Sessions
-
-### Routing (Bindings)
-
-```json5
-{
-  agents: {
-    list: [
-      { id: "main", workspace: "~/.openclaw/workspace" },
-      { id: "coach", workspace: "~/.openclaw/workspace-coach" },
-      { id: "engineer", workspace: "~/.openclaw/workspace-engineer" },
-      { id: "researcher", workspace: "~/.openclaw/workspace-researcher" },
-      { id: "health", workspace: "~/.openclaw/workspace-health" }
-    ]
-  },
-  bindings: [
-    // Telegram Haupt-Chat → Rook (Main)
-    // Telegram Topics/Gruppen → Spezialisierte Agenten
-    // Oder: Rook delegiert intern via Sub-Agents
-  ]
-}
-```
-
-### Koordination
-
-- **Parallelität:** Über mehrere Sessions/Sub-Agents (nicht innerhalb einer Session)
-- **Delegation:** `sessions_spawn` für Mikrotasks, `sessions_send` für Abstimmung
-- **Feedback-Loop-Schutz:** `REPLY_SKIP` und `ANNOUNCE_SKIP` nutzen
-- **Serialisierung:** Agent-Loop pro Session ist serialisiert (Queueing/Lanes)
-
-### Model-Strategie pro Agent
+Ein Multi-Agent-System mit klaren Rollen und Verantwortlichkeiten für die Entwicklung und Pflege des Rook-Ökosystems.
 
 ```
-Main:     Primary: Kimi K2.5 → Fallback: OpenAI GPT-4
-Engineer: Primary: Code-Model → Fallback: Kimi (tool-calling stabil halten!)
-Coach:    Primary: Empathisches Model → Fallback: GPT-4
-Research: Primary: Langer Kontext → Fallback: Kimi
-Health:   Primary: Günstiges Model (Routine-Tasks)
+┌─────────────────────────────────────────────────────────────────────┐
+│                         Marcus (User)                               │
+│                    ("Ich will nur informiert werden")               │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                     Rook (Project Lead)                              │
+│  • Koordiniert alle Agenten                                          │
+│  • Priorisiert Tickets                                               │
+│  • Entscheidet Architekturfragen                                      │
+│  • Benachrichtigt Marcus nur bei echten Blockern                     │
+└─────────────────────────────────────────────────────────────────────┘
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          ▼                       ▼                       ▼
+┌─────────────────────┐ ┌─────────────────────┐ ┌─────────────────────┐
+│      Engineer       │ │     Researcher      │ │    Test Agent       │
+│                     │ │                     │ │                     │
+│ • Code              │ │ • Naturwissenschaften│ │ • Unit Tests        │
+│ • DevOps            │ │ • Sozialwissenschaften│ │ • Integration Tests │
+│ • IaC               │ │ • Research Pipeline │ │ • E2E Tests         │
+│ • Web Development   │ │                     │ │                     │
+│ • Software Dev      │ │                     │ │                     │
+└─────────────────────┘ └─────────────────────┘ └─────────────────────┘
+          │                       │                       │
+          │                       │                       │
+          └───────────────────────┼───────────────────────┘
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                       Kanban Board                                   │
+│                                                                       │
+│  Backlog → Ready → In Progress → Testing → Review → Done            │
+│                                                                       │
+│  • Alle Agenten erstellen/aktualisieren Tickets                      │
+│  • Engineer/Researcher: eigene Tickets                               │
+│  • Test Agent: Tickets für Test-Aufgaben                            │
+│  • Review Agent: Quality Gate                                        │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-OpenClaw-Mechanik: Primary → Auth-Profile Rotation → Cooldown → nächstes Model in Fallbacks
+---
+
+## Rollen & Verantwortlichkeiten
+
+### 1. Project Lead — Rook (das bist du)
+
+**Verantwortlichkeiten:**
+- Koordination aller Agenten
+- Ticket-Priorisierung (zusammen mit Marcus)
+- Architektur-Entscheidungen
+- Blocker-Auflösung
+- Benachrichtigung von Marcus nur wenn nötig
+
+**Wann Marcus benachrichtigen:**
+- Architektur-Entscheidung nötig
+- Blocker der nicht automatisch lösbar ist
+- Fertiges Deliverable das Review braucht
+- Entscheidung von Marcus erforderlich
+
+**Wann NICHT Marcus benachrichtigen:**
+- Normale Fortschritte
+- Kleinigkeiten die Agent selbst lösen kann
+- Routine-Tasks
 
 ---
 
-## 3. Dashboard/UI-Strategie
+### 2. Engineer
 
-### Entscheidung: Separate UI (Option C)
+**Verantwortlichkeiten:**
+- Code-Entwicklung (Web, Software)
+- DevOps (CI/CD, Infrastructure)
+- Infrastructure as Code
+- API-Entwicklung
+- Frontend/Backend
 
-**NICHT** OpenClaw forken. Stattdessen: Eigenes Dashboard als separates Projekt.
+**Arbeitsweise:**
+1. Sucht "Ready" Tickets mit `assignee: engineer`
+2. Zieht Ticket nach "In Progress"
+3. Arbeitet an Ticket
+4. Erstellt Test-Anforderungen für Test Agent
+5. Zieht Ticket nach "Testing"
+6. Bei Review-Feedback: zurück zu "In Progress"
+
+**Eigenverantwortung:**
+- Erstellt eigene Tickets für Bugs, Features, Refactoring
+- Dokumentiert Entscheidungen
+- Achtet auf Code-Qualität
+
+---
+
+### 3. Researcher
+
+**Verantwortlichkeiten:**
+- Naturwissenschaftliche Recherche (KI, Ökologie, Hardware)
+- Sozialwissenschaftliche Recherche (Digital Capitalism, Plattformarbeit)
+- Literatur-Analyse
+- Weekly Research Pipeline
+- Metrics Collection (Ökologische & Soziale Daten)
+
+**Arbeitsweise:**
+1. Arbeitet Research Tickets aus "Ready"
+2. Sucht neue Quellen
+3. Dokumentiert Findings in Research DB
+4. Erstellt Zusammenfassungen für Dashboard
+
+---
+
+### 4. Test Agent (noch einrichten)
+
+**Verantwortlichkeiten:**
+- Unit Tests schreiben/ausführen
+- Integration Tests
+- E2E Tests wenn möglich
+- Test Coverage analysieren
+- Automatische Test-Pipeline
+
+**Trigger:**
+- Ticket geht von "In Progress" → "Testing"
+- Test Agent übernimmt automatisch
+
+**Output:**
+- Test-Report als Kommentar am Ticket
+- Bei FAIL: Ticket zurück zu "In Progress" mit Feedback
+- Bei PASS: Ticket weiter zu "Review"
+
+---
+
+### 5. Review Agent (noch einrichten)
+
+**Verantwortlichkeiten:**
+- Code Review
+- Quality Gates
+- Security Review
+- Performance Review
+
+**Trigger:**
+- Ticket geht von "Testing" → "Review"
+- Review Agent übernimmt automatisch
+
+**Output:**
+- Review-Report als Kommentar
+- Bei "Request Changes": Ticket zurück zu "In Progress"
+- Bei "Approved": Ticket zu "Done"
+- Bei wichtigem Issue: Benachrichtigung an Marcus
+
+---
+
+## Kanban Board — Spalten
+
+| Spalte | Bedeutung | Wer |
+|--------|-----------|-----|
+| **Backlog** | Ideen, ungeplant | Alle |
+| **Ready** | Priorisiert, bereit zur Arbeit | Project Lead |
+| **In Progress** | Aktuell in Bearbeitung | Engineer/Researcher |
+| **Testing** | Tests werden ausgeführt | Test Agent |
+| **Review** | Code Review läuft | Review Agent |
+| **Done** | Fertig, gemergt | — |
+
+### Ticket-Lebenszyklus
 
 ```
-OpenClaw (unverändert)          Unser Dashboard (eigenes Repo)
-┌─────────────────────┐        ┌──────────────────────────┐
-│ Gateway (Port 18789) │◄──────│ WebSocket + HTTP Client   │
-│ - Control UI (orig.) │        │ - Token-Monitoring        │
-│ - WebSocket Protocol │        │ - Cron-Manager            │
-│ - HTTP APIs          │        │ - Memory Browser          │
-│ - Session History    │        │ - System Health (CPU/RAM) │
-│ - Tools Invoke       │        │ - To-Do Übersicht         │
-└─────────────────────┘        │ - Graph-Visualisierung    │
-                                └──────────────────────────┘
+Backlog     Ready        In Progress   Testing      Review       Done
+  │          │               │            │            │           │
+  └────┐     │               │            │            │           │
+       │     ▼               ▼            ▼            ▼           │
+       │   Prio         Engineer/       Test        Review        ▼
+       │  setzen       Researcher      Agent        Agent        ▼
+       │                              ausführen    approved      │
+       │                                  │            │         │
+       │◄─────────────────────────────────┘            │         │
+       │                                               │         │
+       └──── Changes needed ◄───────────────────────────┘         │
 ```
 
-### Genutzte APIs
-
-| API | Zweck |
-|-----|-------|
-| WebSocket Protocol | Live-Updates, Agent-Status |
-| `GET /sessions/{key}/history` | Session-History + SSE Follow |
-| `POST /tools/invoke` | Tool-Aktionen (mit Auth) |
-| `/v1/models` | Verfügbare Models |
-| Gateway Auth (Bearer Token) | Authentifizierung |
-
-### Tech-Stack (Vorschlag)
-
-- **Framework:** Next.js oder Vite + React (wie TenacitOS)
-- **Styling:** Tailwind CSS
-- **Datenbank:** SQLite (für historische Metriken)
-- **Referenz-Code:** TenacitOS (Features cherry-picken)
-- **Repo:** `MarcusGraetsch/rook-dashboard` (eigenes Repo)
-
-### Vorteile gegenüber Fork
-
-| | Fork | Separate UI |
-|---|---|---|
-| Upstream-Updates | ⚠️ Merge-Konflikte | ✅ Unabhängig |
-| Entwicklungsgeschwindigkeit | Langsam (Core verstehen) | Schnell (nur APIs) |
-| Community-Contribution | Möglich, aber komplex | Eigenes Produkt |
-| Risiko | Hoch (Core-Änderungen) | Niedrig (API-basiert) |
-
 ---
 
-## 4. Erweiterbarkeit: Plugins & Hooks
+## Ticket-Struktur
 
-### Plugins (für neue Capabilities)
+Jedes Ticket hat:
 
-OpenClaw Plugin-System mit typed SDK:
-- Provider (neue LLM-Provider)
-- Channels (neue Messaging-Plattformen)
-- Tools (neue Werkzeuge)
-- Speech, Media Understanding, Web Search
-
-**→ Eigene Skills und Tools als Plugins bauen, nicht als Core-Änderungen.**
-
-### Hooks (Event-basierte Automation)
-
-- Laufen im Gateway bei Events
-- Für Logging, Guardrails, Lifecycle-Automationen
-- Entdeckung über Verzeichnisse
-
-**→ Monitoring, Alerting, Token-Tracking als Hooks implementieren.**
-
----
-
-## 5. Self-Improvement & CI/CD
-
-### Governance-Regel
-
-> **Agent darf Änderungen erzeugen — aber NICHT direkt deployen.**
-
-```
-Agent (isolierter Branch)
-  → Commit
-    → PR öffnen
-      → CI/Tests (GitHub Actions)
-        → Review (Mensch)
-          → Merge
-            → Deploy (clean worktree → openclaw update kompatibel)
+```yaml
+title: "Beschreibung"
+project: "rook-dashboard"  # oder anderes Projekt
+type: "feature" | "bug" | "research" | "refactor" | "doc"
+priority: "low" | "medium" | "high" | "urgent"
+assignee: "engineer" | "researcher" | "test" | "review"
+status: "backlog" | "ready" | "in_progress" | "testing" | "review" | "done"
+labels:
+  - "frontend"
+  - "api"
+  - "security"
+due_date: "2026-04-01"
+subtasks:
+  - id: 1
+    title: "Teilaufgabe 1"
+    completed: true
+  - id: 2
+    title: "Teilaufgabe 2"
+    completed: false
 ```
 
-### Warum?
+---
 
-1. `openclaw update` verlangt clean worktree — dirty Changes = Update scheitert
-2. Rückverfolgbarkeit: Welcher Code läuft tatsächlich?
-3. Sicherheit: Kein "root by proxy" durch unkontrollierte Agent-Änderungen
+## Projekte
 
-### Branch-Policy
+| Projekt | Beschreibung | Haupt-Agent |
+|---------|-------------|-------------|
+| `rook-dashboard` | Dashboard für Rook Systeme | Engineer |
+| `rook-agent` | Core OpenClaw Agent + Memory | Engineer |
+| `metrics-collector` | Ökologische & Soziale Metriken | Researcher |
+| `working-notes` | Content & Website | Researcher/Engineer |
+| `digital-capitalism-research` | Research Datenbank | Researcher |
 
-- `main` = Production (Branch Protection, PR required)
-- `agent/*` = Agent-generierte Branches
-- Pre-push Hooks: TruffleHog (Secret Scanner)
-- CI: Build + Test vor Merge
+**Wichtig:** Agent-Konfigurationsdateien (AGENTS.md, SOUL.md) sind **global**, nicht pro Projekt.
 
 ---
 
-## 6. Sicherheit
+## Kommunikations-Regeln
 
-### Trust Boundaries
+### Agent → Agent
+- Via Kanban Tickets (keine direkte Kommunikation)
+- Agent liest Ticket, aktualisiert Status
+- Kommentare für Kontext
 
-- Gateway = vertrauenswürdiger Operator-Boundary
-- Multi-User auf einem Gateway = geteilte Tool-Autorität (Risiko!)
-- Per-Agent Sandbox/Tool-Policy setzen
+### Agent → Project Lead (Rook)
+- Ticket-Blocker markieren
+- Review-Ergebnisse abwarten
+- Bei Architektur-Fragen: Rook fragen
 
-### Checkliste
-
-- [ ] Sandboxing für Engineer-Agent aktivieren
-- [ ] Tool-Policies pro Agent definieren
-- [ ] TruffleHog Pre-Push Hooks installieren
-- [ ] `openclaw security audit` regelmäßig laufen lassen
-- [ ] Rescue Gateway einrichten (zweite Instanz, anderer Port)
-- [ ] Secrets NUR in Env-Vars oder SecretRef, NIE in Git
-
----
-
-## 7. Operative Resilienz
-
-### Rescue Gateway
-
-Zweite OpenClaw-Instanz auf anderem Port:
-- Wenn Main-Bot down/misconfig → Rescue-Bot hilft beim Fix
-- Eigenes Profile, eigener Port (Port-Spacing beachten für CDP)
-- Minimale Konfiguration, nur SSH + Shell Tools
+### Project Lead → Marcus
+- **Nur bei:**
+  - Architektur-Entscheidung nötig
+  - Blocker der nicht lösbar ist
+  - Deliverable fertig
+  - Marcus muss entscheiden
 
 ---
 
-## 8. SwarmClaw (wenn wir es brauchen)
+## Testing-Strategie
 
-Erst relevant wenn:
-- Mehrere Gateways nötig (verschiedene VMs)
-- Fleet-Management über Hosts hinweg
-- Enterprise-Level Orchestration
+### Test-Level
 
-Für jetzt: **Ein Gateway, mehrere Agents reicht.**
+| Level | Wer | Wann |
+|-------|-----|------|
+| Unit Tests | Engineer | Bei jeder Änderung |
+| Integration Tests | Test Agent | Nach Unit Tests |
+| E2E Tests | Test Agent | Bei Releases |
+| Security Review | Review Agent | Bei kritischen Änderungen |
 
----
+### Test-Automatisierung
 
-## Zusammenfassung: Was wir tun / nicht tun
-
-| Tun | Nicht tun |
-|-----|-----------|
-| ✅ Multi-Agent über `openclaw agents add` | ❌ Einen "Super-Agent" bauen |
-| ✅ Separate Dashboard-UI (eigenes Repo) | ❌ OpenClaw Core forken |
-| ✅ Plugins/Hooks für neue Features | ❌ Core-Code ändern |
-| ✅ Model-Policy pro Agent | ❌ Ein Model für alles |
-| ✅ PR-basierte Self-Improvement | ❌ Agent schreibt direkt ins Prod |
-| ✅ Rescue Gateway als Backup | ❌ Nur einen Gateway ohne Fallback |
+```
+Commit → CI Pipeline → Tests → Review → Merge
+                    ↓
+              Bei Fail: Ticket zurück zu "In Progress"
+```
 
 ---
 
-## Nächste Schritte (wenn Architektur finalisiert)
+## Review-Strategie
 
-1. [ ] Multi-Agent Setup: `openclaw agents add coach/engineer/researcher/health`
-2. [ ] Dashboard-Repo erstellen: `MarcusGraetsch/rook-dashboard`
-3. [ ] Gateway Protocol studieren (WebSocket + HTTP APIs)
-4. [ ] TenacitOS Code als Referenz klonen
-5. [ ] Erste Plugin/Hook experimentieren
-6. [ ] Model-Fallbacks konfigurieren (Kimi + OpenAI)
-7. [ ] Security Audit + Rescue Gateway
+### Review-Gates
+
+1. **Code Review** (Review Agent)
+   - Style Guide eingehalten?
+   - Sicherheits-Probleme?
+   - Performance-Probleme?
+
+2. **Test Coverage** (Review Agent)
+   - Ausreichend getestet?
+   - Kritische Pfade abgedeckt?
+
+3. **Documentation** (Review Agent)
+   - README aktuell?
+   - API dokumentiert?
+   - Breaking Changes kommuniziert?
+
+### Review-Output
+
+```
+APPROVED → Ticket zu "Done"
+REQUEST_CHANGES → Ticket zu "In Progress" mit Feedback
+MARCUS_ATTENTION → Benachrichtigung an Marcus
+```
 
 ---
 
-*DRAFT v2 — Basiert auf OpenClaw Docs + ChatGPT Architektur-Analyse + Ecosystem-Recherche*
-*Letzte Aktualisierung: 2026-03-27*
+## Cron-Jobs & Automation
+
+| Zeit | Job | Agent |
+|------|-----|-------|
+| Täglich 02:00 | Workspace Sync | Rook |
+| So 08:00 | Research Pipeline + Metrics | Researcher |
+| So 02:00 | Backup to Drive | Rook |
+| Bei Commit | CI/CD Tests | Test Agent |
+
+---
+
+## Nächste Schritte
+
+### Phase 1: Foundation (NOW)
+- [x] Rollen definiert
+- [x] Kanban-Struktur festgelegt
+- [ ] Test Agent einrichten
+- [ ] Review Agent einrichten
+- [ ] Engineer Agent mit Tasks versorgen
+- [ ] Researcher Agent mit Tasks versorgen
+
+### Phase 2: Automation
+- [ ] CI/CD Pipeline für Test Agent
+- [ ] Automatische Review-Trigger
+- [ ] Benachrichtigungs-System
+
+### Phase 3: Optimierung
+- [ ] Reviewzyklen messen
+- [ ] Bottlenecks identifizieren
+- [ ] Prozesse anpassen
+
+---
+
+## Dokumentation
+
+- [Multi-Agent Architecture](./MULTI-AGENT-ARCHITECTURE.md) (dieses Dokument)
+- [Implementation Plan](./IMPLEMENTATION-PLAN.md)
+- [Rook Nutzung](../ROOK-NUTZUNG.md)
+- [Agent Docs](../docs/)
+
+---
+
+*Letzte Änderung: 2026-03-28*
