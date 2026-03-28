@@ -177,3 +177,13 @@ Agent (isolierter Branch)
 ### Verbleibend
 - [ ] OpenAI API Key (Marcus muss bereitstellen)
 - [ ] Dashboard Deployment (optional, für externen Zugriff)
+
+---
+## DEPRECATED — Ab 2026-03-28
+
+**Alle offenen TODOs wurden ins zentrale Kanban migriert.**
+
+Neue Todos nur noch hier:
+- Dashboard: http://localhost:3001/kanban
+- oder: Agent ansprechen (Rook)
+
