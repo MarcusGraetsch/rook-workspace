@@ -1,0 +1,44 @@
+{
+  "task_id": "ops-0015",
+  "project_id": "rook-workspace",
+  "title": "Ecology API: Echte Daten von Quellen fetchen",
+  "description": "Research Agent implementieren der wirklich Daten von RMI, Z2Data, WEF etc. fetched statt nur Fallback.",
+  "status": "in_progress",
+  "assigned_agent": "researcher",
+  "priority": "medium",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/researcher/ops-0015-ecology-api-echte-daten-von-quellen-fetchen",
+  "commits": [],
+  "labels": [
+    "ecology",
+    "research"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "42070f20-3f2e-4b31-bfd2-62b8e820cce0",
+    "column_name": "In Progress",
+    "task_db_id": "a1969738-3774-4c37-85f2-60ff94612751",
+    "position": 2,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 14,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/14",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-30T15:42:21.397Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-30T15:42:20.024Z",
+    "updated_at": "2026-03-30T15:42:21.397Z",
+    "started_at": "2026-03-30T15:42:20.024Z",
+    "completed_at": null
+  }
+}

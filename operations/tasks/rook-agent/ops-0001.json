@@ -1,0 +1,38 @@
+{
+  "task_id": "ops-0001",
+  "project_id": "rook-agent",
+  "title": "Replace prompt heartbeats with structured health snapshots",
+  "description": "Define and implement one machine-readable health file per agent, replacing the current heartbeat pattern of scheduled natural-language prompts against dashboard endpoints.",
+  "status": "ready",
+  "assigned_agent": "rook",
+  "priority": "urgent",
+  "dependencies": [
+    "dashboard-0042"
+  ],
+  "related_repo": "MarcusGraetsch/rook-agent",
+  "branch": "agent/rook/ops-0001-health-snapshots",
+  "commits": [],
+  "labels": [
+    "orchestration",
+    "health",
+    "reliability"
+  ],
+  "workflow_stage": "design",
+  "blocked_reason": null,
+  "handoff_notes": "Use this task to drive the removal of engineer-owned fake subagent heartbeats and move to structured agent status records under workspace/operations/health.",
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-agent",
+    "number": 1,
+    "url": "https://github.com/MarcusGraetsch/rook-agent/issues/1",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-30T15:42:03.794Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-30T10:31:00Z",
+    "updated_at": "2026-03-30T15:42:03.794Z",
+    "started_at": null,
+    "completed_at": null
+  }
+}

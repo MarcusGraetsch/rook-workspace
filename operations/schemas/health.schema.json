@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook.local/schemas/health.schema.json",
+  "title": "Rook Agent Health Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "agent_id",
+    "status",
+    "current_task_id",
+    "last_seen_at",
+    "workspace",
+    "queue_depth",
+    "last_error",
+    "last_completed_task",
+    "repo_heads",
+    "runtime"
+  ],
+  "properties": {
+    "agent_id": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["idle", "ready", "in_progress", "blocked", "error", "offline"]
+    },
+    "current_task_id": { "type": ["string", "null"] },
+    "last_seen_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "workspace": { "type": "string" },
+    "queue_depth": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "last_error": { "type": ["string", "null"] },
+    "last_completed_task": { "type": ["string", "null"] },
+    "repo_heads": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_count", "latest_session_update_at"],
+      "properties": {
+        "session_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "latest_session_update_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

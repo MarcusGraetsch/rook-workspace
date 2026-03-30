@@ -1,0 +1,55 @@
+{
+  "task_id": "ops-0004",
+  "project_id": "rook-workspace",
+  "title": "Labor: Methodology & Sources Pages",
+  "description": "Implementiere /api/labor/methodology + /labor/methodology und /api/labor/sources + /labor/sources. Methodology-Page erklärt alle Labor-Metriken (Formel, Inputs, Annahmen, Limitations, Version, Quellen). Sources-Page zeigt die Source Registry (HRW, Stanford FMTI, AlgorithmWatch, Fairwork etc.).",
+  "status": "backlog",
+  "assigned_agent": "researcher",
+  "priority": "medium",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/researcher/ops-0004-labor-methodology-sources-pages",
+  "commits": [],
+  "labels": [
+    "labor",
+    "methodology",
+    "sources",
+    "rook-dashboard"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "column_name": "Backlog",
+    "task_db_id": "42a4e06e-d638-4dab-bb77-f40b3059e946",
+    "position": 1,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 3,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/3",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-30T15:42:02.145Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-30T15:38:58.537Z",
+    "updated_at": "2026-03-30T17:21:22.311Z",
+    "started_at": null,
+    "completed_at": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/researcher/ops-0004-labor-methodology-sources-pages -f per_page=5\ngh: Not Found (HTTP 404)\n"
+  }
+}

@@ -199,6 +199,27 @@ git config --global user.email "marcusgraetsch@gmail.com"
 
 ---
 
+## Current Operating Model
+
+The repository has evolved beyond the original role-directory layout above.
+
+Current operational source of truth:
+
+- Kanban in `rook-dashboard` is the main human task UI
+- canonical task files live in `operations/tasks/`
+- archived tasks live in `operations/archive/tasks/`
+- agent health snapshots live in `operations/health/`
+
+Reference docs:
+
+- [docs/SYSTEM-MAP.md](/root/.openclaw/workspace/docs/SYSTEM-MAP.md)
+- [docs/TARGET-ARCHITECTURE.md](/root/.openclaw/workspace/docs/TARGET-ARCHITECTURE.md)
+- [docs/ROADMAP.md](/root/.openclaw/workspace/docs/ROADMAP.md)
+- [docs/DISCORD-POLICY.md](/root/.openclaw/workspace/docs/DISCORD-POLICY.md)
+- [docs/DISASTER-RECOVERY.md](/root/.openclaw/workspace/docs/DISASTER-RECOVERY.md)
+
+---
+
 ## Last Updated
 
 2026-03-26 — Complete reorganization with role-based structure and submodules.

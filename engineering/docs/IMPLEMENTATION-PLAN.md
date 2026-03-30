@@ -1,189 +1,70 @@
-# Implementation Plan — Multi-Agent Architecture v2
+# Implementation Plan
 
-> **Start:** 2026-03-27
-> **Status:** In Progress
-> **Basierend auf:** MULTI-AGENT-ARCHITECTURE.md v2
+> Status: Rebased to current system state on 2026-03-30
 
----
+## Completed Stabilization Work
 
-## Phase 1: Multi-Agent Setup ✅
+### Task Backbone
 
-### 1.1 Agent Workspaces erstellen ✅
-- [x] `openclaw agents add coach` — Mental + Physical Health
-- [x] `openclaw agents add engineer` — Code, DevOps (mit Sandbox)
-- [x] `openclaw agents add researcher` — Digital Capitalism Research
-- [x] `openclaw agents add health` — Ernährung, Bewegung, Tracking
+- [x] Kanban remains the main working UI
+- [x] canonical task files created under `workspace/operations/tasks/`
+- [x] repo-linked tasks sync to GitHub Issues
+- [x] bulk backfill completed for active board tasks
+- [x] archive and restore workflow implemented
 
-### 1.2 Agent Identity setzen ✅
-- [x] Coach: Emoji 🧠, Name "Coach"
-- [x] Engineer: Emoji 🛠️, Name "Engineer"
-- [x] Researcher: Emoji 📚, Name "Researcher"
-- [x] Health: Emoji 💪, Name "Health"
+### Reliability
 
-**Hinweis:** Zusätzlich existiert bereits `consultant` Agent.
+- [x] structured health snapshots added under `workspace/operations/health/`
+- [x] old fake heartbeat cron jobs disabled
+- [x] dashboard agent stats moved off the old broken gateway stats path
+- [x] Discord fake subagent spawning disabled
 
-### 1.3 Routing/Bindings konfigurieren ✅ (Deferred)
-- [x] **Entscheidung:** Routing über Sub-Agents (nicht Topics)
-- [x] **Begründung:** 1:1 Telegram DM → Alle Nachrichten gehen an Rook
-- [x] **Alternative:** Bei Topics/Gruppen → `openclaw agents bind` nutzen
-- [ ] Bei Bedarf: Separate Telegram Bots pro Agent (komplexer)
+### Documentation
 
----
+- [x] system map written to `workspace/docs/SYSTEM-MAP.md`
+- [x] target architecture written to `workspace/docs/TARGET-ARCHITECTURE.md`
+- [x] roadmap written to `workspace/docs/ROADMAP.md`
 
-## Phase 2: Dashboard / UI 🚧
+## Active Workstreams
 
-### 2.1 Dashboard Repo erstellen 🚧
-- [x] `MarcusGraetsch/rook-dashboard` Repo angelegt
-- [x] Tech-Stack: Next.js 14 + Tailwind
-- [x] Basis-Layout mit Sidebar
-- [x] Gateway API Integration (HTTP + REST)
-- [x] Token-Monitoring (Clawmetry-konzept)
-- [x] Cron-Manager
-- [x] Memory Browser
-- [x] Session-Übersicht
-- [ ] System Health (CPU/RAM)
-- [ ] WebSocket für Echtzeit-Updates
+### 1. Documentation Cleanup
 
-### 2.2 Dashboard Features (Priorität)
-1. ~~Token-Monitoring~~ → ✅ Token Monitoring Seite
-2. ~~Cron-Manager~~ → ✅ Cron Seite
-3. ~~Memory Browser~~ → ✅ Memory Seite
-4. ~~System Health (CPU/RAM)~~ → ✅ Stats in Dashboard
-5. ~~Session-Übersicht~~ → ✅ Sessions Seite
+- [x] rebase engineering architecture docs
+- [x] document Discord operating policy
+- [x] write disaster recovery runbook
 
----
+### 2. Dashboard Control-Plane Maturity
 
-## Phase 3: Model-Fallbacks konfigurieren
+- [x] GitHub issue diagnostics
+- [x] health snapshot UI
+- [x] branch/commit/PR visibility
+- [ ] blocked/dependency views
+- [ ] clearer retry/error surfaces
 
-### 3.1 Auth-Profile einrichten
-- [ ] Kimi K2.5 (Primary)
-- [ ] OpenAI GPT-4 (Fallback)
-- [ ] gog CLI für Gmail/Calendar
+### 3. Runtime Cleanup
 
-### 3.2 Model-Policy pro Agent
-```
-Main:     Kimi K2.5 → OpenAI
-Engineer: Code-Model → Kimi
-Coach:    GPT-4 → Kimi
-Research: Kimi (langer Kontext)
-Health:   Kimi (günstig, Routine)
-```
+- [ ] fully deprecate old heartbeat docs/scripts
+- [ ] normalize role workspaces
+- [ ] clean up remaining legacy dashboard routes
 
----
+### 4. Security and Recovery
 
-## Phase 4: Sicherheit & Resilienz 🚧
+- [ ] move secrets out of tracked config
+- [x] document full rebuild and restore path
 
-### 4.1 Security Checklist 🚧
-- [x] Sandboxing für Engineer-Agent ✅ (non-main, session, rw)
-- [ ] Tool-Policies pro Agent
-- [x] `openclaw security audit` ✅ (3 critical, 3 warn, 1 info)
-- [ ] Rescue Gateway auf zweitem Port
+## Recommended Next Order
 
-### 4.2 Rescue Gateway ✅
-- [x] Zweite OpenClaw-Instanz auf anderem Port ✅ (18799)
-- [x] Minimale Konfiguration (read, process only) ✅
-- [x] Script zum Starten ✅
+1. Finish doc drift cleanup.
+2. Expose Git execution metadata in the dashboard.
+3. Normalize runtime/workspace layout.
+4. Harden secrets and recovery procedures.
 
----
+## Superseded Notes
 
-## Phase 5: Self-Improvement CI/CD ✅
+This file replaces the earlier phase checklist that assumed:
 
-### 5.1 Branch-Policy ✅
-- [x] `main` = Production (Branch Protection) — via GitHub
-- [x] `agent/*` = Agent-generierte Branches
-- [x] Pre-push Hooks: Secret Scanner (TruffleHog in CI)
+- subagent-first routing
+- permanent test/review agents
+- dashboard pages that were already complete but later proved unreliable
 
-### 5.2 Agent-Governance ✅
-- [x] GitHub Actions Workflow erstellt
-- [x] PR Template erstellt
-- [x] Governance: Agent → PR → Review → Merge → Deploy
-```
-Agent (isolierter Branch)
-  → Commit
-    → PR öffnen
-      → CI/Tests
-        → Review (Mensch)
-          → Merge
-            → Deploy
-```
-
----
-
-## Phase 6: Health & Symptom Tracker (Quick Win) 🚧
-
-### 6.1 Health Tracker ✅ (CLI)
-- [x] Health-Agent Workspace erstellt
-- [x] CLI Tracker: meals, water, sleep, symptoms
-- [x] README mit Usage Instructions
-
-### 6.2 Use Case: Telegram-basiert
-- [ ] Integration via Health Agent (TODO)
-
----
-
-## Offene Fragen / Entscheidungspunkte
-
-| Frage | Status | Notiz |
-|-------|--------|-------|
-| Routing: Topics vs. Sub-Agents? | Offen | Erst Sub-Agents testen |
-| Dashboard: Next.js vs. Vite+React? | Offen | TenacitOS Reference |
-| gog CLI installiert? | Nein | Noch nicht |
-
----
-
-## Timeline (geschätzt)
-
-| Phase | Aufwand | Priorität |
-|-------|---------|-----------|
-| Phase 1: Multi-Agent | 2-3h | 🔴 Hoch |
-| Phase 2: Dashboard | 1-2 Tage | 🟡 Mittel |
-| Phase 3: Model-Fallbacks | 1h | 🔴 Hoch |
-| Phase 4: Security | 2h | 🔴 Hoch |
-| Phase 5: CI/CD | 3h | 🟡 Mittel |
-| Phase 6: Health Tracker | 1h | 🟡 Mittel |
-
----
-
-*Letzte Aktualisierung: 2026-03-27 (18:00) — Phase 1-6 weitgehend abgeschlossen*
-
----
-
-## Fortschritt (2026-03-27, 18:00)
-
-### Erledigt ✅
-1. **Agents erstellt:** coach, engineer, researcher, health
-2. **Identities:** Emoji + Name für alle Agents
-3. **SOUL.md + AGENTS.md:** Für jeden Agenten
-4. **Dashboard Repo:** `MarcusGraetsch/rook-dashboard` (Next.js 14 + Tailwind)
-5. **Dashboard Pages:** Sessions, Agents, Cron, Memory, Tokens
-6. **Gateway API Integration:** Next.js API Routes mit echten Daten
-7. **Token-Monitoring:** Token-Zählen + Kosten-Schätzung
-8. **Engineer Sandbox:** non-main mode, session scope, rw
-9. **Security Audit:** durchgeführt
-10. **Config validiert:** openclaw.json ist valide
-11. **Health Tracker CLI:** meals, water, sleep, symptoms + Skill
-12. **CI/CD Pipeline:** GitHub Actions + PR Template
-13. **Rescue Gateway:** Config + Script auf Port 18799
-14. **Nutzungs-Guide:** ROOK-NUTZUNG.md erstellt
-
-### Commits
-| Repo | Commit | Beschreibung |
-|------|--------|-------------|
-| rook-workspace | `093803f` | IMPLEMENTATION-PLAN Updates |
-| rook-agent | `17eff78` | Multi-Agent Setup + MEMORY |
-| rook-dashboard | `4db42e2` | Build fix + API Integration |
-| workspace-health | `ddd4502` | Health Tracker Skill + CLI |
-
-### Verbleibend
-- [ ] OpenAI API Key (Marcus muss bereitstellen)
-- [ ] Dashboard Deployment (optional, für externen Zugriff)
-
----
-## DEPRECATED — Ab 2026-03-28
-
-**Alle offenen TODOs wurden ins zentrale Kanban migriert.**
-
-Neue Todos nur noch hier:
-- Dashboard: http://localhost:3001/kanban
-- oder: Agent ansprechen (Rook)
-
+Those notes should not be used as the current operating reference.

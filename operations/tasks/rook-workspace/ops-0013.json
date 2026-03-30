@@ -1,0 +1,44 @@
+{
+  "task_id": "ops-0013",
+  "project_id": "rook-workspace",
+  "title": "Review Agent einrichten",
+  "description": "Code Review, Quality Gates, Security Review. Soll bei Pull Requests automatisch starten.",
+  "status": "in_progress",
+  "assigned_agent": "rook",
+  "priority": "high",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/rook/ops-0013-review-agent-einrichten",
+  "commits": [],
+  "labels": [
+    "agent",
+    "review"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "42070f20-3f2e-4b31-bfd2-62b8e820cce0",
+    "column_name": "In Progress",
+    "task_db_id": "a8c0a4d9-52c0-4563-985b-d8ec9999fe80",
+    "position": 7,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 12,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/12",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-30T15:48:13.602Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-30T15:42:17.144Z",
+    "updated_at": "2026-03-30T15:48:13.602Z",
+    "started_at": "2026-03-30T15:48:11.841Z",
+    "completed_at": null
+  }
+}
