@@ -43,7 +43,7 @@
 
 ### 3. Runtime Cleanup
 
-- [ ] fully deprecate old heartbeat docs/scripts
+- [x] fully deprecate old heartbeat docs/scripts
 - [ ] normalize role workspaces
 - [ ] clean up remaining legacy dashboard routes
 
