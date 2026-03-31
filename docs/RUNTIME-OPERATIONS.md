@@ -52,7 +52,12 @@ node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 - Dispatcher logs are written under `workspace/operations/logs/dispatcher/`.
 - Dispatcher alert snapshots are written under `workspace/operations/health/dispatcher-alerts.json`, even if Discord notification fails.
 - Runtime smoke checks are written under `workspace/operations/health/runtime-smoke.json` and should be treated as stronger evidence than heartbeat files.
+- Local-mode specialist execution depends on provider env vars being available. Keep these current:
+  - `/root/.openclaw/.env.d/minimax-api-key.txt`
+  - `/root/.openclaw/.env.d/kimi-api-key.txt`
+- The dispatcher and runtime smoke checker now load those env files explicitly before spawning `openclaw agent --local`.
 - Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/repos/*` links instead of trying to clone GitHub repos on demand.
 - Dispatcher handoffs currently use local mode with bounded retries because the gateway return path has been observed hanging while local mode can return cleanly.
+- Stage fallback is enabled by default for `testing` and `review`: if the dedicated `test` or `review` runtime is unstable, the dispatcher can execute that bounded work through `engineer` while keeping the canonical task in `testing` or `review`.
 - Discord notification is best-effort only. If `openclaw message send` or upstream network fetch fails, the canonical task should still land in `blocked` with a durable dispatcher alert record.
 - Keep `rook-dispatcher.timer` disabled until the smoke test above succeeds and the target specialist workspace can reach the repo/task files it was assigned to handle.

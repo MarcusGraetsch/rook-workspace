@@ -5,12 +5,14 @@ After=openclaw-gateway.service
 [Service]
 Type=oneshot
 WorkingDirectory=/root/.openclaw/workspace
-Environment=ROOK_DISPATCH_TIMEOUT_SECONDS=60
+EnvironmentFile=-/root/.openclaw/.env.d/minimax-api-key.txt
+EnvironmentFile=-/root/.openclaw/.env.d/kimi-api-key.txt
+Environment=ROOK_DISPATCH_TIMEOUT_SECONDS=180
 Environment=ROOK_STALE_CLAIM_MINUTES=20
 Environment=ROOK_DISPATCH_MAX_ATTEMPTS=3
 Environment=ROOK_DISPATCH_RETRY_DELAY_MS=5000
 Environment=ROOK_NOTIFY_MAX_ATTEMPTS=3
 Environment=ROOK_NOTIFY_RETRY_DELAY_MS=3000
-TimeoutStartSec=120
+TimeoutStartSec=240
 KillMode=control-group
 ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --limit 5 --source-channel system:dispatcher --dispatch-mode local

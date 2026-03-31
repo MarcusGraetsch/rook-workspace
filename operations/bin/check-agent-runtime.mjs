@@ -3,9 +3,15 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
+import { randomUUID } from 'crypto';
 
 const ROOT_DIR = '/root/.openclaw';
 const HEALTH_FILE = path.join(ROOT_DIR, 'workspace', 'operations', 'health', 'runtime-smoke.json');
+const ENV_DIR = path.join(ROOT_DIR, '.env.d');
+const PROVIDER_ENV_FILES = [
+  path.join(ENV_DIR, 'minimax-api-key.txt'),
+  path.join(ENV_DIR, 'kimi-api-key.txt'),
+];
 const TIMEOUT_SECONDS = Number(process.env.ROOK_RUNTIME_SMOKE_TIMEOUT_SECONDS || '20');
 const GRACE_MS = 5_000;
 const AGENTS = ['engineer', 'researcher', 'test', 'review'];
@@ -14,25 +20,55 @@ async function ensureDir(dirPath) {
   await fs.mkdir(dirPath, { recursive: true });
 }
 
-function runProbe(agentId) {
+async function loadProviderEnv() {
+  const loaded = {};
+  for (const filePath of PROVIDER_ENV_FILES) {
+    try {
+      const raw = await fs.readFile(filePath, 'utf8');
+      for (const line of raw.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const index = trimmed.indexOf('=');
+        if (index <= 0) continue;
+        const key = trimmed.slice(0, index).trim();
+        const value = trimmed.slice(index + 1).trim();
+        if (key && value) {
+          loaded[key] = value;
+        }
+      }
+    } catch {
+      // Missing env files should not crash the smoke check.
+    }
+  }
+  return loaded;
+}
+
+async function runProbe(agentId) {
+  const providerEnv = await loadProviderEnv();
   const token = `${agentId.toUpperCase()}_OK`;
-  const args = [
-    'agent',
-    '--local',
-    '--agent',
-    agentId,
-    '--message',
-    `Reply with exactly ${token} and nothing else.`,
-    '--timeout',
-    String(TIMEOUT_SECONDS),
+  const sessionId = randomUUID();
+  const childEnv = {
+    ...process.env,
+    ...providerEnv,
+    ROOK_AGENT_ID: agentId,
+    ROOK_AGENT_SESSION_ID: sessionId,
+    ROOK_AGENT_MESSAGE: `Reply with exactly ${token} and nothing else.`,
+    ROOK_AGENT_TIMEOUT: String(TIMEOUT_SECONDS),
+  };
+  const command = [
+    'exec openclaw agent --local',
+    '--agent "$ROOK_AGENT_ID"',
+    '--session-id "$ROOK_AGENT_SESSION_ID"',
+    '--message "$ROOK_AGENT_MESSAGE"',
+    '--timeout "$ROOK_AGENT_TIMEOUT"',
     '--json',
-  ];
+  ].join(' ');
 
   return new Promise((resolve) => {
     const startedAt = Date.now();
-    const child = spawn('openclaw', args, {
+    const child = spawn('bash', ['-lc', command], {
       cwd: ROOT_DIR,
-      env: process.env,
+      env: childEnv,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 

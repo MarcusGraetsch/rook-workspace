@@ -3,12 +3,18 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
+import { randomUUID } from 'crypto';
 
 const OPERATIONS_DIR = process.env.ROOK_OPERATIONS_DIR || '/root/.openclaw/workspace/operations';
 const TASKS_DIR = path.join(OPERATIONS_DIR, 'tasks');
 const LOG_DIR = path.join(OPERATIONS_DIR, 'logs', 'dispatcher');
 const HEALTH_DIR = path.join(OPERATIONS_DIR, 'health');
 const ALERTS_FILE = path.join(HEALTH_DIR, 'dispatcher-alerts.json');
+const ENV_DIR = '/root/.openclaw/.env.d';
+const PROVIDER_ENV_FILES = [
+  path.join(ENV_DIR, 'minimax-api-key.txt'),
+  path.join(ENV_DIR, 'kimi-api-key.txt'),
+];
 const DEFAULT_TIMEOUT_SECONDS = Number(process.env.ROOK_DISPATCH_TIMEOUT_SECONDS || '60');
 const DEFAULT_STALE_CLAIM_MINUTES = Number(process.env.ROOK_STALE_CLAIM_MINUTES || '20');
 const DEFAULT_MAX_ATTEMPTS = Number(process.env.ROOK_DISPATCH_MAX_ATTEMPTS || '3');
@@ -19,6 +25,7 @@ const NOTIFY_RETRY_DELAY_MS = Number(process.env.ROOK_NOTIFY_RETRY_DELAY_MS || '
 const NOTIFY_CHANNEL = process.env.ROOK_NOTIFY_CHANNEL || 'discord';
 const NOTIFY_TARGET = process.env.ROOK_NOTIFY_TARGET || 'channel:1487786269542056071';
 const NOTIFY_ENABLED = process.env.ROOK_NOTIFY_ENABLED !== '0';
+const STAGE_FALLBACK_ENABLED = process.env.ROOK_STAGE_FALLBACK_ENABLED !== '0';
 const MAX_LOG_BYTES = 4000;
 const CHILD_GRACE_MS = 30_000;
 const READY_STATUSES = new Set(['ready']);
@@ -61,6 +68,29 @@ function truncate(value, limit = MAX_LOG_BYTES) {
   return String(value || '').trim().slice(0, limit);
 }
 
+async function loadProviderEnv() {
+  const loaded = {};
+  for (const filePath of PROVIDER_ENV_FILES) {
+    try {
+      const raw = await fs.readFile(filePath, 'utf8');
+      for (const line of raw.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const index = trimmed.indexOf('=');
+        if (index <= 0) continue;
+        const key = trimmed.slice(0, index).trim();
+        const value = trimmed.slice(index + 1).trim();
+        if (key && value) {
+          loaded[key] = value;
+        }
+      }
+    } catch {
+      // Missing env files should not crash dispatch.
+    }
+  }
+  return loaded;
+}
+
 async function loadTasks() {
   const tasks = [];
   let projectDirs = [];
@@ -101,6 +131,22 @@ function statusForExecutor(agentId) {
 }
 
 function pickExecutor(task) {
+  if (
+    STAGE_FALLBACK_ENABLED
+    && task.status === 'testing'
+    && task.assigned_agent === 'test'
+  ) {
+    return 'engineer';
+  }
+
+  if (
+    STAGE_FALLBACK_ENABLED
+    && task.status === 'review'
+    && task.assigned_agent === 'review'
+  ) {
+    return 'engineer';
+  }
+
   if (task.assigned_agent !== 'rook') {
     return task.assigned_agent;
   }
@@ -117,6 +163,18 @@ function pickExecutor(task) {
   }
 
   return null;
+}
+
+function statusForDispatch(task, executor) {
+  if (task.status === 'testing' && task.assigned_agent === 'test') {
+    return 'testing';
+  }
+
+  if (task.status === 'review' && task.assigned_agent === 'review') {
+    return 'review';
+  }
+
+  return statusForExecutor(executor);
 }
 
 function isDispatchable(task) {
@@ -146,40 +204,55 @@ function summarizeTask(task, executor) {
   const canonicalTaskFile = path.join(TASKS_DIR, task.project_id, `${task.task_id}.json`);
   const repoTail = String(task.related_repo || '').split('/').at(-1) || task.project_id;
   const localRepoView = `/root/.openclaw/workspace-${executor}/workspace/repos/${repoTail}`;
+  const stageOwner = task.assigned_agent || executor;
+  const fallbackNote = executor !== stageOwner
+    ? `Execution mode: fallback executor ${executor} is handling ${task.status} on behalf of ${stageOwner} because the dedicated specialist path is currently unstable.`
+    : null;
   return [
     `Task ${task.task_id} for ${executor}.`,
     `Canonical file: ${canonicalTaskFile}`,
     `Repo view: ${localRepoView}`,
     `Stage: ${task.status}`,
+    `Stage owner: ${stageOwner}`,
     `Branch: ${task.branch}`,
     `Title: ${task.title}`,
+    fallbackNote,
     task.handoff_notes ? `Notes: ${task.handoff_notes}` : null,
     task.description ? `Goal: ${task.description}` : null,
     `Required: work only on this task, use commit prefix [agent:${executor}][task:${task.task_id}], record artifacts in the canonical file, and if blocked update failure_reason/blocked_by in the canonical file.`,
+    executor !== stageOwner
+      ? `Do not change the stage owner. Keep the canonical task in ${task.status} until the testing/review work is complete, then advance it normally.`
+      : null,
   ].filter(Boolean).join('\n');
 }
 
-function runAgent(agentId, task, dispatchMode) {
-  const args = [
-    'agent',
-    '--agent',
-    agentId,
-    '--message',
-    summarizeTask(task, agentId),
-    '--timeout',
-    String(DEFAULT_TIMEOUT_SECONDS),
+async function runAgent(agentId, task, dispatchMode) {
+  const providerEnv = await loadProviderEnv();
+  const sessionId = randomUUID();
+  const childEnv = {
+    ...process.env,
+    ...providerEnv,
+    ROOK_AGENT_ID: agentId,
+    ROOK_AGENT_SESSION_ID: sessionId,
+    ROOK_AGENT_MESSAGE: summarizeTask(task, agentId),
+    ROOK_AGENT_TIMEOUT: String(DEFAULT_TIMEOUT_SECONDS),
+    ROOK_AGENT_LOCAL_FLAG: dispatchMode === 'local' ? '--local' : '',
+  };
+  const command = [
+    'exec openclaw agent',
+    '$ROOK_AGENT_LOCAL_FLAG',
+    '--agent "$ROOK_AGENT_ID"',
+    '--session-id "$ROOK_AGENT_SESSION_ID"',
+    '--message "$ROOK_AGENT_MESSAGE"',
+    '--timeout "$ROOK_AGENT_TIMEOUT"',
     '--json',
-  ];
-
-  if (dispatchMode === 'local') {
-    args.push('--local');
-  }
+  ].join(' ');
 
   return new Promise((resolve) => {
     let settled = false;
-    const child = spawn('openclaw', args, {
+    const child = spawn('bash', ['-lc', command], {
       cwd: '/root/.openclaw',
-      env: process.env,
+      env: childEnv,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
 
@@ -210,10 +283,10 @@ function runAgent(agentId, task, dispatchMode) {
     });
     child.on('error', (error) => {
       stderr += `\nSpawn error: ${error.message}`;
-      settle({ code: 1, stdout, stderr });
+      settle({ code: 1, stdout, stderr, sessionId });
     });
     child.on('close', (code) => {
-      settle({ code: code ?? 1, stdout, stderr });
+      settle({ code: code ?? 1, stdout, stderr, sessionId });
     });
   });
 }
@@ -249,8 +322,18 @@ function evaluateResult(result) {
 
   const payloads = Array.isArray(parsed.data?.payloads) ? parsed.data.payloads : [];
   const stopReason = parsed.data?.meta?.stopReason || null;
-  if (payloads.length === 0 && stopReason !== 'stop') {
-    return { ok: false, reason: 'openclaw agent returned no payloads and no successful stop reason.' };
+  const aborted = parsed.data?.meta?.aborted === true;
+
+  if (aborted) {
+    return { ok: false, reason: `openclaw agent aborted before completion (stopReason=${stopReason || 'unknown'}).` };
+  }
+
+  if (stopReason !== 'stop') {
+    return { ok: false, reason: `openclaw agent did not reach a final stop state (stopReason=${stopReason || 'unknown'}).` };
+  }
+
+  if (payloads.length === 0) {
+    return { ok: false, reason: 'openclaw agent finished without any payloads.' };
   }
 
   return { ok: true, reason: null };
@@ -368,6 +451,7 @@ function classifyBlockedBy(reason) {
   if (text.includes('executor mapping')) return ['dispatcher:executor-mapping'];
   if (text.includes('timeout')) return ['runtime:timeout'];
   if (text.includes('connection error') || text.includes('fetch failed')) return ['runtime:provider-connection'];
+  if (text.includes('aborted') || text.includes('final stop state')) return ['runtime:agent-aborted'];
   if (text.includes('no stdout') || text.includes('non-json stdout') || text.includes('no payloads')) {
     return ['runtime:agent-no-output'];
   }
@@ -522,7 +606,7 @@ async function main() {
       continue;
     }
 
-    task.status = statusForExecutor(executor);
+    task.status = statusForDispatch(task, executor);
     task.claimed_by = `dispatcher:${executor}`;
     task.blocked_by = [];
     task.failure_reason = null;
