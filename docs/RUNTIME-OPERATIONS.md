@@ -36,13 +36,26 @@ systemctl --user enable --now rook-dispatcher.timer
 ## Verification
 
 ```bash
+# Gateway health
+systemctl --user status openclaw-gateway.service --no-pager
+curl -fsS http://127.0.0.1:3001/health | jq
+
+# Dashboard and timers
 systemctl --user status rook-dashboard.service --no-pager
 systemctl --user status rook-dashboard-watchdog.timer --no-pager
 systemctl --user status rook-dispatcher.timer --no-pager
+
+# Kanban accessible
 curl -fsS http://127.0.0.1:3001/kanban >/dev/null
+
+# Dispatcher dry run
 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --dry-run --limit 3
+
+# Runtime smoke checks
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
+
+# Hook dispatch test (replace <task-id>)
 ROOK_DISPATCH_TIMEOUT_SECONDS=35 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --task <task-id> --limit 1 --dispatch-mode hook
 ```
 
