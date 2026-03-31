@@ -36,12 +36,18 @@ archive/
 - `rook`
 - `engineer`
 - `researcher`
+- `test`
+- `review`
 - `consultant`
 - `coach`
 - `health`
 - `dashboard-sync`
 
-Temporary execution roles like review or test should be tracked in `workflow_stage`, `handoff_notes`, or child tasks rather than treated as permanent owners.
+`test` and `review` are conditional execution agents in the default delivery pipeline:
+
+- `research if needed -> engineer -> test -> review -> done`
+
+Coordinator-owned tasks may still stay on `rook`, but specialist execution should be explicit and durable in the canonical task file rather than implied only in chat.
 
 ## Hybrid Workflow
 

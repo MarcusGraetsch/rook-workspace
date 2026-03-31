@@ -19,10 +19,11 @@ The goal is to replace prompt-based heartbeats with machine-readable state:
 - `last_error`
 - `queue_depth`
 - `repo_heads`
+- `runtime.latest_session_update_at`
 
 ## Current Workflow
 
-- Health snapshots are generated from local runtime/session/task state.
+- Health snapshots are generated from canonical task files plus local runtime/session state.
 - The dashboard can refresh them through `/api/control/health`.
 - These files are now the canonical health record.
 - Legacy cron-based natural-language "heartbeat" prompts should be treated as deprecated.

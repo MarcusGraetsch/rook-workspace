@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook Canonical Task Dispatcher
+After=openclaw-gateway.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/.openclaw/workspace
+Environment=ROOK_DISPATCH_TIMEOUT_SECONDS=60
+Environment=ROOK_STALE_CLAIM_MINUTES=20
+TimeoutStartSec=120
+KillMode=control-group
+ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --limit 5 --source-channel system:dispatcher --dispatch-mode gateway

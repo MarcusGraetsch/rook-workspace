@@ -53,11 +53,25 @@
         "rook",
         "engineer",
         "researcher",
+        "test",
+        "review",
         "consultant",
         "coach",
         "health",
         "dashboard-sync"
       ]
+    },
+    "claimed_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "blocked_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "priority": {
       "type": "string",
@@ -88,6 +102,12 @@
         "type": "string"
       }
     },
+    "commit_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "labels": {
       "type": "array",
       "items": {
@@ -105,6 +125,31 @@
     },
     "handoff_notes": {
       "type": "string"
+    },
+    "last_heartbeat": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "failure_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_channel": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "kanban": {
       "type": "object",
@@ -282,6 +327,13 @@
           "format": "date-time"
         },
         "started_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "claimed_at": {
           "type": [
             "string",
             "null"

@@ -30,6 +30,8 @@ operations/
 4. Every task must reference exactly one primary `related_repo`.
 5. Branches should follow `agent/<agent_id>/<task_id>-<slug>`.
 6. Commits should follow `[agent:<agent_id>][task:<task_id>] summary`.
+7. `claimed_by`, `last_heartbeat`, and `failure_reason` should reflect real execution state, not conversational intent.
+8. Dashboard uptime and dispatcher runs must be supervised outside chat.
 
 ## Current Scope
 

@@ -3,7 +3,7 @@
   "project_id": "rook-workspace",
   "title": "Review Agent einrichten",
   "description": "Code Review, Quality Gates, Security Review. Soll bei Pull Requests automatisch starten.",
-  "status": "in_progress",
+  "status": "blocked",
   "assigned_agent": "rook",
   "priority": "high",
   "dependencies": [],
@@ -20,10 +20,10 @@
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "42070f20-3f2e-4b31-bfd2-62b8e820cce0",
-    "column_name": "In Progress",
+    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
+    "column_name": "Ready",
     "task_db_id": "a8c0a4d9-52c0-4563-985b-d8ec9999fe80",
-    "position": 7,
+    "position": 1,
     "sync_origin": "dashboard-kanban"
   },
   "github_issue": {
@@ -32,13 +32,28 @@
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/12",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-03-30T15:48:13.602Z",
+    "last_synced_at": "2026-03-30T17:58:44.084Z",
     "last_error": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:17.144Z",
-    "updated_at": "2026-03-30T15:48:13.602Z",
+    "updated_at": "2026-03-31T08:58:23Z",
     "started_at": "2026-03-30T15:48:11.841Z",
-    "completed_at": null
-  }
+    "completed_at": null,
+    "claimed_at": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/rook/ops-0013-review-agent-einrichten -f per_page=5\ngh: Not Found (HTTP 404)\n"
+  },
+  "claimed_by": null,
+  "blocked_by": [],
+  "failure_reason": "Dispatcher containment reset: prior claim by dispatcher:rook was invalidated after the coordinator dispatch path hung and no verified execution or status handoff completed.",
+  "last_heartbeat": "2026-03-31T08:58:23Z",
+  "source_channel": "system:dispatcher"
 }

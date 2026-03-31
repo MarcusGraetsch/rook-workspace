@@ -1,0 +1,7 @@
+[Unit]
+Description=Rook Dashboard Watchdog
+After=rook-dashboard.service
+
+[Service]
+Type=oneshot
+ExecStart=/root/.openclaw/workspace/operations/bin/dashboard-watchdog.sh

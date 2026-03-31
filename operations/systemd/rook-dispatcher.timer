@@ -1,0 +1,10 @@
+[Unit]
+Description=Dispatch ready canonical tasks every 5 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+Unit=rook-dispatcher.service
+
+[Install]
+WantedBy=timers.target

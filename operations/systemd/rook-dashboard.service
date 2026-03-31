@@ -1,0 +1,16 @@
+[Unit]
+Description=Rook Dashboard
+After=network-online.target openclaw-gateway.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/.openclaw/workspace/engineering/rook-dashboard
+ExecStart=/root/.openclaw/workspace/operations/bin/start-dashboard.sh
+Restart=always
+RestartSec=5
+Environment=ROOK_DASHBOARD_HOST=127.0.0.1
+Environment=ROOK_DASHBOARD_PORT=3001
+
+[Install]
+WantedBy=default.target
