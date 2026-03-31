@@ -30,3 +30,5 @@ link_repo_views() {
 
 link_repo_views "${ROOT_DIR}/workspace-engineer"
 link_repo_views "${ROOT_DIR}/workspace-researcher"
+link_repo_views "${ROOT_DIR}/workspace-test"
+link_repo_views "${ROOT_DIR}/workspace-review"

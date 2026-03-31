@@ -48,5 +48,8 @@ timeout 25s openclaw agent --local --agent engineer --message 'Reply with exactl
 - The dashboard is the human control plane.
 - Discord is intake and notification, not durable execution state.
 - Dispatcher logs are written under `workspace/operations/logs/dispatcher/`.
+- Dispatcher alert snapshots are written under `workspace/operations/health/dispatcher-alerts.json`, even if Discord notification fails.
 - Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/repos/*` links instead of trying to clone GitHub repos on demand.
+- Dispatcher handoffs currently use local mode with bounded retries because the gateway return path has been observed hanging while local mode can return cleanly.
+- Discord notification is best-effort only. If `openclaw message send` or upstream network fetch fails, the canonical task should still land in `blocked` with a durable dispatcher alert record.
 - Keep `rook-dispatcher.timer` disabled until the smoke test above succeeds and the target specialist workspace can reach the repo/task files it was assigned to handle.

@@ -7,9 +7,15 @@ import { spawn } from 'child_process';
 const OPERATIONS_DIR = process.env.ROOK_OPERATIONS_DIR || '/root/.openclaw/workspace/operations';
 const TASKS_DIR = path.join(OPERATIONS_DIR, 'tasks');
 const LOG_DIR = path.join(OPERATIONS_DIR, 'logs', 'dispatcher');
+const HEALTH_DIR = path.join(OPERATIONS_DIR, 'health');
+const ALERTS_FILE = path.join(HEALTH_DIR, 'dispatcher-alerts.json');
 const DEFAULT_TIMEOUT_SECONDS = Number(process.env.ROOK_DISPATCH_TIMEOUT_SECONDS || '60');
 const DEFAULT_STALE_CLAIM_MINUTES = Number(process.env.ROOK_STALE_CLAIM_MINUTES || '20');
+const DEFAULT_MAX_ATTEMPTS = Number(process.env.ROOK_DISPATCH_MAX_ATTEMPTS || '3');
+const DEFAULT_RETRY_DELAY_MS = Number(process.env.ROOK_DISPATCH_RETRY_DELAY_MS || '5000');
 const NOTIFY_TIMEOUT_SECONDS = Number(process.env.ROOK_NOTIFY_TIMEOUT_SECONDS || '15');
+const NOTIFY_MAX_ATTEMPTS = Number(process.env.ROOK_NOTIFY_MAX_ATTEMPTS || '3');
+const NOTIFY_RETRY_DELAY_MS = Number(process.env.ROOK_NOTIFY_RETRY_DELAY_MS || '3000');
 const NOTIFY_CHANNEL = process.env.ROOK_NOTIFY_CHANNEL || 'discord';
 const NOTIFY_TARGET = process.env.ROOK_NOTIFY_TARGET || 'channel:1487786269542056071';
 const NOTIFY_ENABLED = process.env.ROOK_NOTIFY_ENABLED !== '0';
@@ -49,6 +55,10 @@ async function readJson(filePath) {
 
 async function writeJson(filePath, data) {
   await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+}
+
+function truncate(value, limit = MAX_LOG_BYTES) {
+  return String(value || '').trim().slice(0, limit);
 }
 
 async function loadTasks() {
@@ -109,6 +119,22 @@ function pickExecutor(task) {
   return null;
 }
 
+function isDispatchable(task) {
+  if (task.status === 'ready') {
+    return true;
+  }
+
+  if (task.status === 'testing' && task.assigned_agent === 'test') {
+    return true;
+  }
+
+  if (task.status === 'review' && task.assigned_agent === 'review') {
+    return true;
+  }
+
+  return false;
+}
+
 function unresolvedDependencies(task, taskMap) {
   return (task.dependencies || []).filter((dependencyId) => {
     const dependency = taskMap.get(dependencyId);
@@ -121,26 +147,15 @@ function summarizeTask(task, executor) {
   const repoTail = String(task.related_repo || '').split('/').at(-1) || task.project_id;
   const localRepoView = `/root/.openclaw/workspace-${executor}/workspace/repos/${repoTail}`;
   return [
-    `Canonical task: ${task.task_id}`,
-    `Canonical task file: ${canonicalTaskFile}`,
-    'Primary workspace root: /root/.openclaw/workspace',
-    `Preferred local repo view: ${localRepoView}`,
-    `Title: ${task.title}`,
-    `Project: ${task.project_id}`,
-    `Repo: ${task.related_repo}`,
-    `Priority: ${task.priority}`,
+    `Task ${task.task_id} for ${executor}.`,
+    `Canonical file: ${canonicalTaskFile}`,
+    `Repo view: ${localRepoView}`,
+    `Stage: ${task.status}`,
     `Branch: ${task.branch}`,
-    `Status has already been moved to ${task.status} by the dispatcher.`,
-    task.description ? `Description:\n${task.description}` : null,
-    (task.dependencies || []).length > 0 ? `Dependencies: ${(task.dependencies || []).join(', ')}` : null,
-    task.handoff_notes ? `Handoff notes:\n${task.handoff_notes}` : null,
-    '',
-    'Required behavior:',
-    `- Work only on this bounded task for repo ${task.related_repo}.`,
-    `- Use commit messages like [agent:${executor}][task:${task.task_id}] summary.`,
-    '- If you create artifacts, record their paths in the canonical task file.',
-    '- If blocked, update failure_reason and blocked_by in the canonical task file.',
-    '- If work finishes, advance the task to testing, review, or done as appropriate.',
+    `Title: ${task.title}`,
+    task.handoff_notes ? `Notes: ${task.handoff_notes}` : null,
+    task.description ? `Goal: ${task.description}` : null,
+    `Required: work only on this task, use commit prefix [agent:${executor}][task:${task.task_id}], record artifacts in the canonical file, and if blocked update failure_reason/blocked_by in the canonical file.`,
   ].filter(Boolean).join('\n');
 }
 
@@ -326,6 +341,87 @@ async function appendLog(entry) {
   await fs.appendFile(filePath, `${JSON.stringify(entry)}\n`, 'utf8');
 }
 
+async function appendAlert(entry) {
+  await ensureDir(HEALTH_DIR);
+  let existing = { updated_at: null, alerts: [] };
+  try {
+    existing = JSON.parse(await fs.readFile(ALERTS_FILE, 'utf8'));
+  } catch {
+    // Start a new alert file if it does not exist or is malformed.
+  }
+
+  const alerts = Array.isArray(existing.alerts) ? existing.alerts : [];
+  alerts.push(entry);
+  while (alerts.length > 50) {
+    alerts.shift();
+  }
+
+  existing.updated_at = new Date().toISOString();
+  existing.alerts = alerts;
+  await writeJson(ALERTS_FILE, existing);
+}
+
+function classifyBlockedBy(reason) {
+  const text = String(reason || '').toLowerCase();
+  if (!text) return ['runtime:unknown'];
+  if (text.includes('dependencies')) return ['dispatcher:dependency-block'];
+  if (text.includes('executor mapping')) return ['dispatcher:executor-mapping'];
+  if (text.includes('timeout')) return ['runtime:timeout'];
+  if (text.includes('connection error') || text.includes('fetch failed')) return ['runtime:provider-connection'];
+  if (text.includes('no stdout') || text.includes('non-json stdout') || text.includes('no payloads')) {
+    return ['runtime:agent-no-output'];
+  }
+  return ['runtime:dispatch-failure'];
+}
+
+async function sleep(ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function notifyAndRecord(task, event, message) {
+  let lastNotification = { ok: true, skipped: true, attempts: 0, stdout: '', stderr: '', code: 0 };
+
+  if (NOTIFY_ENABLED && message.trim()) {
+    for (let attempt = 1; attempt <= NOTIFY_MAX_ATTEMPTS; attempt += 1) {
+      const result = await sendNotification(message);
+      lastNotification = {
+        ...result,
+        attempts: attempt,
+        ok: result.code === 0 || result.skipped === true,
+      };
+      if (lastNotification.ok) {
+        break;
+      }
+      if (attempt < NOTIFY_MAX_ATTEMPTS) {
+        await sleep(NOTIFY_RETRY_DELAY_MS);
+      }
+    }
+  }
+
+  const alert = {
+    ts: new Date().toISOString(),
+    task_id: task.task_id,
+    event,
+    assigned_agent: task.assigned_agent,
+    claimed_by: task.claimed_by,
+    status: task.status,
+    message: truncate(message),
+    notify_ok: lastNotification.ok,
+    notify_attempts: lastNotification.attempts,
+    notify_code: lastNotification.code ?? 0,
+    notify_stdout: truncate(lastNotification.stdout),
+    notify_stderr: truncate(lastNotification.stderr),
+  };
+
+  await appendAlert(alert);
+  await appendLog({
+    ...alert,
+    action: 'dispatch_notification',
+  });
+
+  return lastNotification;
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const nowIso = new Date().toISOString();
@@ -358,7 +454,7 @@ async function main() {
   }
 
   const readyTasks = loadedTasks
-    .filter(({ task }) => READY_STATUSES.has(task.status))
+    .filter(({ task }) => isDispatchable(task))
     .filter(({ task }) => !task.claimed_by)
     .filter(({ task }) => !options.taskId || task.task_id === options.taskId)
     .sort((left, right) => {
@@ -378,7 +474,9 @@ async function main() {
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
       await writeJson(filePath, task);
-      const notification = await sendNotification(
+      await notifyAndRecord(
+        task,
+        'dependency_block',
         `[dispatcher] blocked ${task.task_id}: waiting for dependencies ${blockers.join(', ')}`
       );
       await appendLog({
@@ -386,7 +484,6 @@ async function main() {
         task_id: task.task_id,
         action: 'dependency_block',
         blocked_by: blockers,
-        notify_ok: notification.code === 0 || notification.skipped === true,
       });
       continue;
     }
@@ -395,11 +492,14 @@ async function main() {
 
     if (!executor) {
       task.status = 'blocked';
+      task.blocked_by = ['dispatcher:executor-mapping'];
       task.failure_reason = 'Coordinator-owned task requires explicit executor mapping before dispatch.';
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
       await writeJson(filePath, task);
-      const notification = await sendNotification(
+      await notifyAndRecord(
+        task,
+        'no_executor',
         `[dispatcher] blocked ${task.task_id}: no executor mapping for coordinator-owned task`
       );
       await appendLog({
@@ -407,7 +507,6 @@ async function main() {
         task_id: task.task_id,
         action: 'no_executor',
         assigned_agent: task.assigned_agent,
-        notify_ok: notification.code === 0 || notification.skipped === true,
       });
       continue;
     }
@@ -437,33 +536,54 @@ async function main() {
 
     await writeJson(filePath, task);
 
-    const result = await runAgent(executor, task, options.dispatchMode);
-    const evaluation = evaluateResult(result);
+    let result = { code: 1, stdout: '', stderr: '' };
+    let evaluation = { ok: false, reason: 'dispatch not attempted' };
+    let attempt = 0;
+
+    for (attempt = 1; attempt <= DEFAULT_MAX_ATTEMPTS; attempt += 1) {
+      result = await runAgent(executor, task, options.dispatchMode);
+      evaluation = evaluateResult(result);
+
+      await appendLog({
+        ts: new Date().toISOString(),
+        task_id: task.task_id,
+        action: 'dispatch_attempt',
+        executor,
+        attempt,
+        ok: evaluation.ok,
+        code: result.code,
+        stdout: result.stdout.slice(-MAX_LOG_BYTES),
+        stderr: result.stderr.slice(-MAX_LOG_BYTES),
+        reason: evaluation.reason,
+      });
+
+      if (evaluation.ok) {
+        break;
+      }
+
+      if (attempt < DEFAULT_MAX_ATTEMPTS) {
+        await sleep(DEFAULT_RETRY_DELAY_MS);
+      }
+    }
+
     const ok = evaluation.ok;
 
     if (!ok) {
       task.status = 'blocked';
       task.claimed_by = null;
-      task.failure_reason = (evaluation.reason || result.stderr || result.stdout || `openclaw agent exited with ${result.code}`)
-        .trim()
-        .slice(0, MAX_LOG_BYTES);
+      task.failure_reason = truncate(
+        evaluation.reason || result.stderr || result.stdout || `openclaw agent exited with ${result.code}`
+      );
+      task.blocked_by = classifyBlockedBy(task.failure_reason);
       task.last_heartbeat = new Date().toISOString();
       task.timestamps.updated_at = task.last_heartbeat;
       task.timestamps.claimed_at = null;
       await writeJson(filePath, task);
-      const notification = await sendNotification(
+      await notifyAndRecord(
+        task,
+        'dispatch_blocked',
         `[dispatcher] blocked ${task.task_id}: ${task.failure_reason}`
       );
-      await appendLog({
-        ts: new Date().toISOString(),
-        task_id: task.task_id,
-        action: 'dispatch_notification',
-        executor,
-        notify_ok: notification.code === 0 || notification.skipped === true,
-        notify_code: notification.code ?? 0,
-        notify_stdout: (notification.stdout || '').slice(-MAX_LOG_BYTES),
-        notify_stderr: (notification.stderr || '').slice(-MAX_LOG_BYTES),
-      });
     }
 
     await appendLog({
@@ -471,6 +591,7 @@ async function main() {
       task_id: task.task_id,
       action: 'dispatch',
       executor,
+      attempts: attempt,
       ok,
       code: result.code,
       stdout: result.stdout.slice(-MAX_LOG_BYTES),
