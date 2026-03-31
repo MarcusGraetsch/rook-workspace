@@ -41,7 +41,6 @@ systemctl --user status rook-dashboard-watchdog.timer --no-pager
 systemctl --user status rook-dispatcher.timer --no-pager
 curl -fsS http://127.0.0.1:3001/kanban >/dev/null
 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --dry-run --limit 3
-timeout 25s openclaw agent --local --agent engineer --message 'Reply with exactly OK and nothing else.' --json
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 ROOK_DISPATCH_TIMEOUT_SECONDS=35 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --task <task-id> --limit 1 --dispatch-mode hook
@@ -62,8 +61,11 @@ ROOK_DISPATCH_TIMEOUT_SECONDS=35 node /root/.openclaw/workspace/operations/bin/t
 - Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/repos/*` links instead of trying to clone GitHub repos on demand.
 - Dispatcher handoffs should use hook mode against the local OpenClaw gateway. That path supports explicit isolated `sessionKey` values and avoids reusing poisoned `agent:<id>:main` sessions.
 - Dispatcher-launched workers should prefer `minimax-portal/MiniMax-M2.5` unless there is a verified reason to override it. The `kimi-coding/k2p5` path has shown mid-task aborts and malformed tool-call behavior during longer tool-heavy runs.
+- The live OpenClaw contract should keep `agents.defaults.timeoutSeconds` at `180` and the core worker agents (`engineer`, `researcher`, `test`, `review`) on `minimax-portal/MiniMax-M2.5`.
 - Hook dispatch success means the isolated worker session actually starts and produces assistant activity. Full task completion still belongs to the worker/task lifecycle, not the dispatcher launch step.
 - Dispatcher claims now store explicit hook metadata in the canonical task file under `dispatch`. That metadata is also used to detect worker aborts from the transcript before the old stale-claim timeout expires.
+- Runtime smoke checks should use isolated hook sessions, not persistent `agent:<id>:main` sessions. Persistent-session smoke results are weaker and can be poisoned by unrelated session history.
 - Stage fallback is enabled by default for `testing` and `review`: if the dedicated `test` or `review` runtime is unstable, the dispatcher can execute that bounded work through `engineer` while keeping the canonical task in `testing` or `review`.
+- Ready-stage bootstrap tasks for `test` and `review` should also execute through `engineer` when the ticket is about setting up the specialist itself.
 - Discord notification is best-effort only. If `openclaw message send` or upstream network fetch fails, the canonical task should still land in `blocked` with a durable dispatcher alert record.
 - Keep `rook-dispatcher.timer` disabled until the hook-based smoke test above succeeds on the live gateway and the target specialist workspace can reach the repo/task files it was assigned to handle.

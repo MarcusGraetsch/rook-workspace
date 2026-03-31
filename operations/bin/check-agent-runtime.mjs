@@ -2,127 +2,209 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
 
 const ROOT_DIR = '/root/.openclaw';
+const OPENCLAW_CONFIG_PATH = path.join(ROOT_DIR, 'openclaw.json');
 const HEALTH_FILE = path.join(ROOT_DIR, 'workspace', 'operations', 'health', 'runtime-smoke.json');
-const ENV_DIR = path.join(ROOT_DIR, '.env.d');
-const PROVIDER_ENV_FILES = [
-  path.join(ENV_DIR, 'minimax-api-key.txt'),
-  path.join(ENV_DIR, 'kimi-api-key.txt'),
-];
+const GATEWAY_BASE_URL = process.env.ROOK_GATEWAY_BASE_URL || 'http://127.0.0.1:18789';
+const HOOK_POLL_INTERVAL_MS = Number(process.env.ROOK_HOOK_POLL_INTERVAL_MS || '1000');
+const HOOK_MODEL = process.env.ROOK_HOOK_MODEL || 'minimax-portal/MiniMax-M2.5';
+const HOOK_THINKING = process.env.ROOK_HOOK_THINKING || 'low';
 const TIMEOUT_SECONDS = Number(process.env.ROOK_RUNTIME_SMOKE_TIMEOUT_SECONDS || '20');
-const GRACE_MS = 5_000;
 const AGENTS = ['engineer', 'researcher', 'test', 'review'];
+let hookConfigPromise = null;
 
 async function ensureDir(dirPath) {
   await fs.mkdir(dirPath, { recursive: true });
 }
 
-async function loadProviderEnv() {
-  const loaded = {};
-  for (const filePath of PROVIDER_ENV_FILES) {
-    try {
-      const raw = await fs.readFile(filePath, 'utf8');
-      for (const line of raw.split(/\r?\n/)) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) continue;
-        const index = trimmed.indexOf('=');
-        if (index <= 0) continue;
-        const key = trimmed.slice(0, index).trim();
-        const value = trimmed.slice(index + 1).trim();
-        if (key && value) {
-          loaded[key] = value;
-        }
+async function readJson(filePath) {
+  return JSON.parse(await fs.readFile(filePath, 'utf8'));
+}
+
+async function loadHookConfig() {
+  if (!hookConfigPromise) {
+    hookConfigPromise = (async () => {
+      const config = await readJson(OPENCLAW_CONFIG_PATH);
+      const hooks = config?.hooks;
+      if (!hooks?.enabled || !hooks?.token) {
+        throw new Error('OpenClaw hooks are not fully configured.');
       }
+      const hookPath = String(hooks.path || '/hooks').replace(/\/+$/, '');
+      return {
+        token: String(hooks.token),
+        agentUrl: `${GATEWAY_BASE_URL}${hookPath}/agent`,
+      };
+    })();
+  }
+
+  return hookConfigPromise;
+}
+
+async function readHookTranscriptState(agentId, sessionKey) {
+  const sessionsDir = path.join(ROOT_DIR, 'agents', agentId, 'sessions');
+  const indexPath = path.join(sessionsDir, 'sessions.json');
+  let index = null;
+  try {
+    index = await readJson(indexPath);
+  } catch {
+    return null;
+  }
+
+  const entry = index?.[`agent:${agentId}:${sessionKey}`];
+  const sessionId = entry?.sessionId;
+  if (!sessionId) {
+    return null;
+  }
+
+  const transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`);
+  let raw = '';
+  try {
+    raw = await fs.readFile(transcriptPath, 'utf8');
+  } catch {
+    return { sessionId, events: [] };
+  }
+
+  const events = [];
+  for (const line of raw.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      events.push(JSON.parse(trimmed));
     } catch {
-      // Missing env files should not crash the smoke check.
+      // Ignore partial trailing writes.
     }
   }
-  return loaded;
+
+  return { sessionId, events };
+}
+
+function flattenAssistantText(event) {
+  const content = Array.isArray(event?.message?.content) ? event.message.content : [];
+  return content
+    .filter((entry) => entry?.type === 'text')
+    .map((entry) => entry.text)
+    .join('\n')
+    .trim();
+}
+
+function findTerminalState(state) {
+  const events = Array.isArray(state?.events) ? state.events : [];
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index];
+    if (event?.type === 'custom' && event?.customType === 'openclaw:prompt-error') {
+      return {
+        ok: false,
+        reason: event?.data?.error || 'prompt-error',
+        sessionId: state?.sessionId || null,
+        assistantText: '',
+      };
+    }
+    if (event?.type === 'message' && event?.message?.role === 'assistant') {
+      const stopReason = event?.message?.stopReason || null;
+      const assistantText = flattenAssistantText(event);
+      if (stopReason === 'stop') {
+        return {
+          ok: true,
+          reason: null,
+          sessionId: state?.sessionId || null,
+          assistantText,
+        };
+      }
+      if (stopReason === 'aborted' || stopReason === 'error') {
+        return {
+          ok: false,
+          reason: event?.message?.errorMessage || `assistant ${stopReason}`,
+          sessionId: state?.sessionId || null,
+          assistantText,
+        };
+      }
+    }
+  }
+
+  return null;
 }
 
 async function runProbe(agentId) {
-  const providerEnv = await loadProviderEnv();
   const token = `${agentId.toUpperCase()}_OK`;
-  const sessionId = randomUUID();
-  const childEnv = {
-    ...process.env,
-    ...providerEnv,
-    ROOK_AGENT_ID: agentId,
-    ROOK_AGENT_SESSION_ID: sessionId,
-    ROOK_AGENT_MESSAGE: `Reply with exactly ${token} and nothing else.`,
-    ROOK_AGENT_TIMEOUT: String(TIMEOUT_SECONDS),
-  };
-  const command = [
-    'exec openclaw agent --local',
-    '--agent "$ROOK_AGENT_ID"',
-    '--session-id "$ROOK_AGENT_SESSION_ID"',
-    '--message "$ROOK_AGENT_MESSAGE"',
-    '--timeout "$ROOK_AGENT_TIMEOUT"',
-    '--json',
-  ].join(' ');
+  const hookConfig = await loadHookConfig();
+  const startedAt = Date.now();
+  const sessionKey = `hook:smoke:${agentId}:${randomUUID().slice(0, 8)}`;
 
-  return new Promise((resolve) => {
-    const startedAt = Date.now();
-    const child = spawn('bash', ['-lc', command], {
-      cwd: ROOT_DIR,
-      env: childEnv,
-      stdio: ['ignore', 'pipe', 'pipe'],
+  let response;
+  try {
+    response = await fetch(hookConfig.agentUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${hookConfig.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `Reply with exactly ${token} and nothing else.`,
+        name: 'Runtime Smoke',
+        agentId,
+        sessionKey,
+        wakeMode: 'now',
+        deliver: false,
+        model: HOOK_MODEL,
+        thinking: HOOK_THINKING,
+        timeoutSeconds: TIMEOUT_SECONDS,
+      }),
     });
-
-    let stdout = '';
-    let stderr = '';
-    let settled = false;
-    let hardKill = null;
-    const settle = (payload) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(killer);
-      if (hardKill) clearTimeout(hardKill);
-      resolve(payload);
+  } catch (error) {
+    return {
+      agent_id: agentId,
+      ok: false,
+      reason: `hook request failed: ${error instanceof Error ? error.message : String(error)}`,
+      code: 1,
+      duration_ms: Date.now() - startedAt,
+      stdout: '',
+      stderr: '',
     };
-    const killer = setTimeout(() => {
-      stderr += `\nRuntime smoke timeout after ${TIMEOUT_SECONDS}s; sent SIGTERM.`;
-      child.kill('SIGTERM');
-      hardKill = setTimeout(() => {
-        stderr += `\nRuntime smoke hard-killed child after ${GRACE_MS}ms grace period.`;
-        child.kill('SIGKILL');
-      }, GRACE_MS);
-    }, TIMEOUT_SECONDS * 1000);
+  }
 
-    child.stdout.on('data', (chunk) => {
-      stdout += String(chunk);
-    });
-    child.stderr.on('data', (chunk) => {
-      stderr += String(chunk);
-    });
-    child.on('error', (error) => {
-      settle({
-        agent_id: agentId,
-        ok: false,
-        reason: `spawn error: ${error.message}`,
-        code: 1,
-        duration_ms: Date.now() - startedAt,
-        stdout: stdout.trim().slice(-1000),
-        stderr: stderr.trim().slice(-1000),
-      });
-    });
-    child.on('close', (code) => {
-      const trimmed = stdout.trim();
-      const ok = code === 0 && trimmed.includes(token);
-      settle({
+  const bodyText = await response.text();
+  if (!response.ok) {
+    return {
+      agent_id: agentId,
+      ok: false,
+      reason: `hook request returned HTTP ${response.status}`,
+      code: response.status,
+      duration_ms: Date.now() - startedAt,
+      stdout: bodyText.slice(-1000),
+      stderr: '',
+    };
+  }
+
+  const deadline = Date.now() + TIMEOUT_SECONDS * 1000;
+  while (Date.now() <= deadline) {
+    const state = await readHookTranscriptState(agentId, sessionKey);
+    const terminal = findTerminalState(state);
+    if (terminal) {
+      const ok = terminal.ok && terminal.assistantText.includes(token);
+      return {
         agent_id: agentId,
         ok,
-        reason: ok ? null : (stderr.trim() || trimmed || `openclaw exited with ${code ?? 1}`).slice(-1000),
-        code: code ?? 1,
+        reason: ok ? null : (terminal.reason || 'unexpected hook response'),
+        code: ok ? 0 : 1,
         duration_ms: Date.now() - startedAt,
-        stdout: trimmed.slice(-1000),
-        stderr: stderr.trim().slice(-1000),
-      });
-    });
-  });
+        stdout: terminal.assistantText.slice(-1000),
+        stderr: bodyText.slice(-1000),
+      };
+    }
+    await new Promise((resolve) => setTimeout(resolve, HOOK_POLL_INTERVAL_MS));
+  }
+
+  return {
+    agent_id: agentId,
+    ok: false,
+    reason: `hook smoke timed out after ${TIMEOUT_SECONDS}s`,
+    code: 124,
+    duration_ms: Date.now() - startedAt,
+    stdout: '',
+    stderr: bodyText.slice(-1000),
+  };
 }
 
 async function main() {

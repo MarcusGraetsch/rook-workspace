@@ -8,6 +8,8 @@ const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const USER_SYSTEMD_DIR = '/root/.config/systemd/user';
 const REQUIRED_AGENT_IDS = ['rook', 'engineer', 'researcher', 'test', 'review'];
 const REQUIRED_HOOK_PREFIX = 'hook:';
+const REQUIRED_TIMEOUT_SECONDS = 180;
+const REQUIRED_PRIMARY_MODEL = 'minimax-portal/MiniMax-M2.5';
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -34,6 +36,7 @@ async function main() {
 
   const config = await readJson(OPENCLAW_CONFIG_PATH);
   const hooks = config?.hooks || {};
+  const defaults = config?.agents?.defaults || {};
   const agentList = Array.isArray(config?.agents?.list) ? config.agents.list : [];
   const agentIds = new Set(agentList.map((agent) => agent?.id).filter(Boolean));
 
@@ -50,9 +53,28 @@ async function main() {
     Array.isArray(hooks.allowedSessionKeyPrefixes) && hooks.allowedSessionKeyPrefixes.includes(REQUIRED_HOOK_PREFIX),
     JSON.stringify(hooks.allowedSessionKeyPrefixes || [])
   );
+  record(
+    'agents.defaults.timeoutSeconds',
+    Number(defaults?.timeoutSeconds || 0) >= REQUIRED_TIMEOUT_SECONDS,
+    String(defaults?.timeoutSeconds ?? 'missing')
+  );
+  record(
+    'agents.defaults.model.primary',
+    defaults?.model?.primary === REQUIRED_PRIMARY_MODEL,
+    String(defaults?.model?.primary || 'missing')
+  );
 
   for (const agentId of REQUIRED_AGENT_IDS) {
     record(`agent:${agentId}`, agentIds.has(agentId), agentIds.has(agentId) ? 'present' : 'missing');
+  }
+
+  for (const agent of agentList) {
+    if (!REQUIRED_AGENT_IDS.includes(agent?.id) || agent.id === 'rook') continue;
+    record(
+      `agent:${agent.id}:model.primary`,
+      agent?.model?.primary === REQUIRED_PRIMARY_MODEL,
+      String(agent?.model?.primary || 'missing')
+    );
   }
 
   const allowedHookAgents = new Set(Array.isArray(hooks.allowedAgentIds) ? hooks.allowedAgentIds : []);

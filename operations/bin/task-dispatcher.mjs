@@ -36,6 +36,9 @@ const MAX_LOG_BYTES = 4000;
 const CHILD_GRACE_MS = 30_000;
 const READY_STATUSES = new Set(['ready']);
 const ACTIVE_STATUSES = new Set(['in_progress', 'testing', 'review']);
+const TERMINAL_STATUS_ALIASES = new Map([['completed', 'done']]);
+const TERMINAL_STATUSES = new Set(['done']);
+const BOOTSTRAP_SPECIALISTS = new Set(['test', 'review']);
 let hookConfigPromise = null;
 
 function parseArgs(argv) {
@@ -164,6 +167,25 @@ function statusForExecutor(agentId) {
 }
 
 function pickExecutor(task) {
+  const labels = new Set(task.labels || []);
+  const title = String(task.title || '').toLowerCase();
+  const description = String(task.description || '').toLowerCase();
+
+  if (
+    task.status === 'ready'
+    && BOOTSTRAP_SPECIALISTS.has(task.assigned_agent)
+    && labels.has('agent')
+    && (
+      title.includes('einrichten')
+      || title.includes('setup')
+      || title.includes('set up')
+      || description.includes('automatisch starten')
+      || description.includes('automatically start')
+    )
+  ) {
+    return 'engineer';
+  }
+
   if (
     STAGE_FALLBACK_ENABLED
     && task.status === 'testing'
@@ -183,9 +205,6 @@ function pickExecutor(task) {
   if (task.assigned_agent !== 'rook') {
     return task.assigned_agent;
   }
-
-  const labels = new Set(task.labels || []);
-  const title = String(task.title || '').toLowerCase();
 
   if (labels.has('review') || title.includes('review')) {
     return 'engineer';
@@ -224,6 +243,75 @@ function isDispatchable(task) {
   }
 
   return false;
+}
+
+function normalizeTaskStatus(status) {
+  return TERMINAL_STATUS_ALIASES.get(status) || status;
+}
+
+async function normalizeTerminalTasks(loadedTasks, nowIso) {
+  for (const entry of loadedTasks) {
+    const { task, filePath } = entry;
+    const normalizedStatus = normalizeTaskStatus(task.status);
+    const terminal = TERMINAL_STATUSES.has(normalizedStatus);
+    let changed = false;
+
+    if (normalizedStatus !== task.status) {
+      task.status = normalizedStatus;
+      changed = true;
+    }
+
+    if (!terminal) {
+      if (changed) {
+        task.timestamps.updated_at = nowIso;
+        await writeJson(filePath, task);
+      }
+      continue;
+    }
+
+    if (task.claimed_by) {
+      task.claimed_by = null;
+      changed = true;
+    }
+
+    if (task.timestamps?.claimed_at) {
+      task.timestamps.claimed_at = null;
+      changed = true;
+    }
+
+    if (!task.timestamps?.completed_at) {
+      task.timestamps.completed_at = nowIso;
+      changed = true;
+    }
+
+    if (task.dispatch && typeof task.dispatch === 'object') {
+      const nextDispatch = {
+        ...task.dispatch,
+        last_checked_at: nowIso,
+      };
+
+      if (nextDispatch.last_result === 'running' || nextDispatch.last_result === 'launching') {
+        nextDispatch.last_result = 'completed';
+        nextDispatch.last_error = null;
+      }
+
+      if (!deepEqualJson(task.dispatch, nextDispatch)) {
+        task.dispatch = nextDispatch;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      task.timestamps.updated_at = nowIso;
+      await writeJson(filePath, task);
+      await appendLog({
+        ts: nowIso,
+        task_id: task.task_id,
+        action: 'terminal_state_normalized',
+        status: task.status,
+      });
+    }
+  }
 }
 
 function unresolvedDependencies(task, taskMap) {
@@ -954,6 +1042,7 @@ async function main() {
   const loadedTasks = await loadTasks();
   const taskMap = new Map(loadedTasks.map((entry) => [entry.task.task_id, entry]));
 
+  await normalizeTerminalTasks(loadedTasks, nowIso);
   await inspectActiveHookClaims(loadedTasks, nowIso);
 
   for (const entry of loadedTasks) {

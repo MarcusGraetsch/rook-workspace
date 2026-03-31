@@ -41,8 +41,11 @@ The contract check must confirm:
 - hooks are enabled
 - `allowRequestSessionKey` is enabled
 - `hook:` session keys are allowed
+- `agents.defaults.timeoutSeconds` is still at least `180`
+- `agents.defaults.model.primary` is still `minimax-portal/MiniMax-M2.5`
 - `rook`, `engineer`, `researcher`, `test`, and `review` are still defined
 - those agents are still allowed through hooks
+- `engineer`, `researcher`, `test`, and `review` still default to `minimax-portal/MiniMax-M2.5`
 - `rook-dispatcher.service` still runs in hook mode
 - `rook-dispatcher.service` still points at `minimax-portal/MiniMax-M2.5`
 
@@ -70,6 +73,9 @@ The live `/root/.openclaw/openclaw.json` must continue to support:
 - hook path enabled for the local gateway
 - explicit requested `sessionKey` values
 - `hook:` session key prefix
+- `agents.defaults.timeoutSeconds >= 180`
+- `agents.defaults.model.primary = minimax-portal/MiniMax-M2.5`
+- core worker agents defaulting to `minimax-portal/MiniMax-M2.5`
 - allowed hook agents including `engineer`, `researcher`, `test`, `review`, and `rook`
 
 If an upgrade rewrites `openclaw.json`, inspect those fields immediately.

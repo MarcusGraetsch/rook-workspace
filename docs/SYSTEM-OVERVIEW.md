@@ -72,6 +72,7 @@ The intended live control loop is:
 
 - Intended owner of review-stage work
 - Can currently fall back to `engineer` when runtime stability requires it
+- Bootstrap/setup work for the `review` stage should still be executed by `engineer` until the specialist path is proven stable
 
 ## Dashboard Role
 
@@ -158,7 +159,7 @@ The system should be recoverable from:
 The remaining weak spots are narrower than before:
 
 - long-running worker stability is still provider/runtime-sensitive
-- some agent defaults in live `openclaw.json` still point at `kimi-coding/k2p5`
+- official OpenClaw updates can still rewrite live model or timeout defaults if they are not re-checked
 - runtime and docs can drift after official OpenClaw updates unless checked explicitly
 
 That means the system is no longer imaginary, but it is not yet “fire and forget.”
