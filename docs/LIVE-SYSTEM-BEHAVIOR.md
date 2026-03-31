@@ -153,6 +153,10 @@ Discord is not:
 - a reliable worker runtime
 - proof that orchestration completed
 
+## Lifecycle Events
+
+Important lifecycle events (dispatch started, handoff, blocked, failure, completion) must appear in Discord, but Discord is not the source of truth.
+
 ## Git And GitHub Behavior
 
 Git remains the durable memory for work products.
