@@ -104,7 +104,7 @@ It prevents recursive setup tasks from depending on a specialist that does not y
 
 Examples:
 
-- `ops-0014` set up the testing stage, then moved into `review`
+- `ops-0014` established the testing stage with a real `.github/workflows/tests.yml` pipeline and was merged to `main` after green `Tests` and `Review Agent` runs
 - `ops-0013` set up the review stage through `engineer`, produced a real workflow artifact, and was normalized to `done`
 
 ## Health Signals
@@ -202,7 +202,7 @@ The remaining limits are:
 
 - long worker runs can still abort mid-cleanup
 - specialist stages exist, but `engineer` is still the safe fallback for setup tasks
-- canonical task finalization still benefits from dispatcher-side normalization
+- canonical task finalization still benefits from dispatcher-side normalization when a task spans multiple follow-up PRs
 
 That is acceptable for now.
 The execution core is now real, observable, and recoverable.
