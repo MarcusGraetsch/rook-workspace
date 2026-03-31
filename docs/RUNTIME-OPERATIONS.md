@@ -20,6 +20,11 @@ cp /root/.openclaw/workspace/operations/systemd/rook-dashboard-watchdog.service 
 cp /root/.openclaw/workspace/operations/systemd/rook-dashboard-watchdog.timer ~/.config/systemd/user/
 cp /root/.openclaw/workspace/operations/systemd/rook-dispatcher.service ~/.config/systemd/user/
 cp /root/.openclaw/workspace/operations/systemd/rook-dispatcher.timer ~/.config/systemd/user/
+chmod +x /root/.openclaw/workspace/operations/bin/bootstrap-specialist-workspaces.sh
+chmod +x /root/.openclaw/workspace/operations/bin/start-dashboard.sh
+chmod +x /root/.openclaw/workspace/operations/bin/dashboard-watchdog.sh
+chmod +x /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs
+/root/.openclaw/workspace/operations/bin/bootstrap-specialist-workspaces.sh
 systemctl --user daemon-reload
 systemctl --user enable --now rook-dashboard.service
 systemctl --user enable --now rook-dashboard-watchdog.timer
@@ -43,4 +48,5 @@ timeout 25s openclaw agent --agent engineer --message 'Reply with exactly OK and
 - The dashboard is the human control plane.
 - Discord is intake and notification, not durable execution state.
 - Dispatcher logs are written under `workspace/operations/logs/dispatcher/`.
+- Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/*` links instead of trying to clone GitHub repos on demand.
 - Keep `rook-dispatcher.timer` disabled until the smoke test above succeeds and the target specialist workspace can reach the repo/task files it was assigned to handle.
