@@ -8,7 +8,7 @@
   "priority": "high",
   "dependencies": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
-  "branch": "agent/rook/ops-0014-review-complete",
+  "branch": "agent/rook/ops-0014-ci-followup",
   "commits": [
     {
       "sha": "4c542fe",
@@ -27,6 +27,12 @@
       "message": "[agent:engineer][task:ops-0014] fix CI submodule checkout for test and review workflows",
       "author": "engineer",
       "timestamp": "2026-03-31T12:40:00Z"
+    },
+    {
+      "sha": "58f1fae",
+      "message": "[agent:engineer][task:ops-0014] fix follow-up CI check failures",
+      "author": "engineer",
+      "timestamp": "2026-03-31T12:48:00Z"
     }
   ],
   "artifacts": [
@@ -39,7 +45,7 @@
   ],
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
-  "handoff_notes": "Review found that the test/review workflows were not safe in a clean clone because submodules were not checked out recursively and metrics-collector was missing from .gitmodules. Commit e610a39 fixes both issues. Awaiting GitHub Actions validation on the review-complete branch before closing the task.",
+  "handoff_notes": "Review found multiple clean-clone CI defects. Commit e610a39 fixed recursive submodule checkout and the missing metrics-collector .gitmodules entry. Commit 58f1fae switched submodule URLs to HTTPS and corrected the Python package install path. Commit 231b96c narrowed submodule fetches per job and fixed broken review-agent YAML. Commit 886df71 fixed the remaining Tests failures. The final red path was Review Agent workflow configuration: its PR comment steps were still failing under GitHub integration restrictions, and CodeQL upload was invalid because code scanning is not enabled for this repository. The current follow-up branch makes comment publication best-effort and aligns Review Agent with the repository's real GitHub capabilities. Awaiting GitHub Actions validation before closing the task.",
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
@@ -60,7 +66,7 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:18.500Z",
-    "updated_at": "2026-03-31T12:40:30.000Z",
+    "updated_at": "2026-03-31T13:47:00.000Z",
     "started_at": "2026-03-30T15:42:18.500Z",
     "completed_at": null,
     "claimed_at": null
@@ -68,8 +74,8 @@
   "claimed_by": null,
   "blocked_by": [],
   "failure_reason": null,
-  "last_heartbeat": "2026-03-31T12:40:30.000Z",
-  "review_notes": "Review on the merged clean checkout found a real CI defect: submodule-backed paths were empty in a clean clone, but tests.yml and review-agent.yml used plain checkout without recursive submodules. metrics-collector also lacked a .gitmodules entry. Commit e610a39 fixes the clean-clone CI path. Task should remain in review until the triggered GitHub Actions run on branch agent/rook/ops-0014-review-complete is confirmed.",
+  "last_heartbeat": "2026-03-31T13:47:00.000Z",
+  "review_notes": "Review on the merged clean checkout found real CI defects. First pass: submodule-backed paths were empty in a clean clone, and metrics-collector was missing from .gitmodules. Second pass: .gitmodules still used SSH-only GitHub URLs, which commonly break Actions submodule checkout, and the Python workflow installed from repo root even though the package root is projects/digital-research/src. Third pass: even with those fixes, recursive checkout remained wrong because it forces GitHub Actions to fetch private cross-repo working-notes. Fourth pass: after targeted checkout, the remaining failures were project-local dependency issues: missing numpy during digital-research test collection and no package-lock.json for metrics-collector. Fifth pass: Tests turned green, but Review Agent still failed because the workflow assumed unavailable repository features. The follow-up branch now disables CodeQL upload until code scanning is enabled and treats PR comments as best-effort instead of a blocking requirement.",
   "source_channel": "system:dispatcher",
   "dispatch": {
     "mode": "hook",
