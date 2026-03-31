@@ -75,6 +75,10 @@ function truncate(value, limit = MAX_LOG_BYTES) {
   return String(value || '').trim().slice(0, limit);
 }
 
+function deepEqualJson(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
 async function loadProviderEnv() {
   const loaded = {};
   for (const filePath of PROVIDER_ENV_FILES) {
@@ -376,6 +380,56 @@ async function readHookTranscriptState(agentId, sessionKey) {
   return { sessionId, transcriptPath, events, lastMessage, lastAssistantMessage };
 }
 
+function latestEventTimestamp(state) {
+  if (!Array.isArray(state?.events) || state.events.length === 0) {
+    return null;
+  }
+
+  for (let index = state.events.length - 1; index >= 0; index -= 1) {
+    const timestamp = state.events[index]?.timestamp;
+    if (typeof timestamp === 'string' && timestamp) {
+      return timestamp;
+    }
+  }
+
+  return null;
+}
+
+function findHookAbort(state) {
+  if (!Array.isArray(state?.events)) {
+    return null;
+  }
+
+  for (let index = state.events.length - 1; index >= 0; index -= 1) {
+    const event = state.events[index];
+
+    if (
+      event?.type === 'custom'
+      && event?.customType === 'openclaw:prompt-error'
+    ) {
+      return {
+        reason: truncate(event?.data?.error || 'worker prompt aborted'),
+        timestamp: event?.timestamp || null,
+        source: 'custom:openclaw:prompt-error',
+      };
+    }
+
+    if (
+      event?.type === 'message'
+      && event?.message?.role === 'assistant'
+      && event?.message?.stopReason === 'aborted'
+    ) {
+      return {
+        reason: truncate(event?.message?.errorMessage || 'worker assistant message aborted'),
+        timestamp: event?.timestamp || null,
+        source: 'assistant:aborted',
+      };
+    }
+  }
+
+  return null;
+}
+
 function evaluateHookTranscriptState(state) {
   if (!state?.lastMessage) {
     return { done: false, ok: false, reason: 'hook session has no messages yet.' };
@@ -527,6 +581,13 @@ async function runAgentViaHook(agentId, task) {
   result.stdout = result.stdout
     ? `${bodyText}\n${result.stdout}`
     : bodyText;
+  result.meta = {
+    ...(result.meta || {}),
+    mode: 'hook',
+    sessionKey,
+    model: HOOK_MODEL,
+    thinking: HOOK_THINKING,
+  };
   return result;
 }
 
@@ -756,12 +817,144 @@ async function notifyAndRecord(task, event, message) {
   return lastNotification;
 }
 
+function buildDispatchState(task, executor, result, attempt, dispatchMode, nowIso) {
+  const previous = task.dispatch && typeof task.dispatch === 'object' ? task.dispatch : {};
+  const mode = dispatchMode === 'hook' ? 'hook' : dispatchMode;
+  const next = {
+    ...previous,
+    mode,
+    executor,
+    attempts: attempt,
+    launched_at: previous.launched_at || nowIso,
+    last_checked_at: nowIso,
+    model: mode === 'hook' ? (result.meta?.model || previous.model || HOOK_MODEL) : (previous.model || null),
+    thinking: mode === 'hook' ? (result.meta?.thinking || previous.thinking || HOOK_THINKING) : (previous.thinking || null),
+    session_key: result.meta?.sessionKey || previous.session_key || null,
+    session_id: result.sessionId || previous.session_id || null,
+    last_result: result.code === 0 ? 'running' : 'failed',
+    last_error: result.code === 0 ? null : truncate(result.meta?.reason || result.stderr || result.stdout || `dispatch failed with code ${result.code}`),
+  };
+  return next;
+}
+
+async function inspectActiveHookClaims(loadedTasks, nowIso) {
+  for (const entry of loadedTasks) {
+    const { task, filePath } = entry;
+    const dispatch = task.dispatch && typeof task.dispatch === 'object' ? task.dispatch : null;
+
+    if (!task.claimed_by || !ACTIVE_STATUSES.has(task.status)) {
+      continue;
+    }
+
+    if (dispatch?.mode !== 'hook' || !dispatch?.session_key) {
+      continue;
+    }
+
+    const executor = String(dispatch.executor || task.claimed_by.replace(/^dispatcher:/, '') || '');
+    if (!executor) {
+      continue;
+    }
+
+    const state = await readHookTranscriptState(executor, dispatch.session_key);
+    if (!state) {
+      continue;
+    }
+
+    let changed = false;
+    const nextDispatch = { ...dispatch };
+
+    if (state.sessionId && state.sessionId !== nextDispatch.session_id) {
+      nextDispatch.session_id = state.sessionId;
+      changed = true;
+    }
+
+    const seenAt = latestEventTimestamp(state);
+    if (seenAt && seenAt !== task.last_heartbeat) {
+      task.last_heartbeat = seenAt;
+      changed = true;
+    }
+
+    nextDispatch.last_checked_at = nowIso;
+
+    const abort = findHookAbort(state);
+    if (abort) {
+      task.status = 'blocked';
+      task.claimed_by = null;
+      task.failure_reason = `Hook worker aborted (${abort.source}): ${abort.reason}`;
+      task.blocked_by = ['runtime:agent-aborted'];
+      task.last_heartbeat = abort.timestamp || seenAt || nowIso;
+      task.timestamps.updated_at = nowIso;
+      task.timestamps.claimed_at = null;
+      task.dispatch = {
+        ...nextDispatch,
+        last_result: 'aborted',
+        last_error: task.failure_reason,
+        last_checked_at: nowIso,
+      };
+      await writeJson(filePath, task);
+      await notifyAndRecord(
+        task,
+        'worker_aborted',
+        `[dispatcher] blocked ${task.task_id}: ${task.failure_reason}`
+      );
+      await appendLog({
+        ts: nowIso,
+        task_id: task.task_id,
+        action: 'hook_worker_aborted',
+        executor,
+        session_key: nextDispatch.session_key,
+        session_id: nextDispatch.session_id,
+        reason: task.failure_reason,
+      });
+      continue;
+    }
+
+    const evaluation = evaluateHookTranscriptState(state);
+    if (evaluation.done && evaluation.ok && evaluation.stopReason === 'stop') {
+      task.claimed_by = null;
+      task.timestamps.updated_at = nowIso;
+      task.timestamps.claimed_at = null;
+      task.last_heartbeat = latestEventTimestamp(state) || task.last_heartbeat || nowIso;
+      task.dispatch = {
+        ...nextDispatch,
+        last_result: 'completed',
+        last_error: null,
+        last_checked_at: nowIso,
+      };
+      await writeJson(filePath, task);
+      await appendLog({
+        ts: nowIso,
+        task_id: task.task_id,
+        action: 'hook_worker_completed',
+        executor,
+        session_key: nextDispatch.session_key,
+        session_id: nextDispatch.session_id,
+        status: task.status,
+        assigned_agent: task.assigned_agent,
+      });
+      continue;
+    }
+
+    if (!deepEqualJson(task.dispatch, nextDispatch)) {
+      task.dispatch = nextDispatch;
+      changed = true;
+    }
+
+    if (changed) {
+      task.timestamps.updated_at = nowIso;
+      await writeJson(filePath, task);
+    }
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const nowIso = new Date().toISOString();
   const nowMs = Date.parse(nowIso);
   const loadedTasks = await loadTasks();
   const taskMap = new Map(loadedTasks.map((entry) => [entry.task.task_id, entry]));
+
+  await inspectActiveHookClaims(loadedTasks, nowIso);
 
   for (const entry of loadedTasks) {
     const { task, filePath } = entry;
@@ -864,6 +1057,19 @@ async function main() {
     task.source_channel = task.source_channel || options.sourceChannel;
     task.timestamps.updated_at = nowIso;
     task.timestamps.claimed_at = nowIso;
+    task.dispatch = {
+      mode: options.dispatchMode,
+      executor,
+      attempts: 0,
+      launched_at: nowIso,
+      last_checked_at: nowIso,
+      model: options.dispatchMode === 'hook' ? HOOK_MODEL : null,
+      thinking: options.dispatchMode === 'hook' ? HOOK_THINKING : null,
+      session_key: null,
+      session_id: null,
+      last_result: 'launching',
+      last_error: null,
+    };
     if (!task.timestamps.started_at) {
       task.timestamps.started_at = nowIso;
     }
@@ -877,6 +1083,8 @@ async function main() {
     for (attempt = 1; attempt <= DEFAULT_MAX_ATTEMPTS; attempt += 1) {
       result = await runAgent(executor, task, options.dispatchMode);
       evaluation = evaluateResult(result);
+      task.dispatch = buildDispatchState(task, executor, result, attempt, options.dispatchMode, new Date().toISOString());
+      await writeJson(filePath, task);
 
       await appendLog({
         ts: new Date().toISOString(),
@@ -912,6 +1120,12 @@ async function main() {
       task.last_heartbeat = new Date().toISOString();
       task.timestamps.updated_at = task.last_heartbeat;
       task.timestamps.claimed_at = null;
+      task.dispatch = {
+        ...(task.dispatch || {}),
+        last_result: 'failed',
+        last_error: task.failure_reason,
+        last_checked_at: task.last_heartbeat,
+      };
       await writeJson(filePath, task);
       await notifyAndRecord(
         task,

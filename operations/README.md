@@ -32,6 +32,7 @@ operations/
 6. Commits should follow `[agent:<agent_id>][task:<task_id>] summary`.
 7. `claimed_by`, `last_heartbeat`, and `failure_reason` should reflect real execution state, not conversational intent.
 8. Dashboard uptime and dispatcher runs must be supervised outside chat.
+9. Hook-dispatched tasks should record `dispatch` metadata so worker session identity survives restart and postmortem analysis.
 
 ## Current Scope
 
