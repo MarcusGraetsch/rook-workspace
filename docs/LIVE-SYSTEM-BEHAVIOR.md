@@ -163,9 +163,10 @@ Expected pattern:
 - worker produces commits with `[agent:...][task:...]`
 - task records relevant commits/artifacts
 - branch is pushed to GitHub
-- GitHub workflows that touch project or engineering repos must check out submodules recursively in clean clones
+- GitHub workflows in `rook-workspace` should fetch only the specific submodule each job needs
 - `.gitmodules` should use GitHub Actions-compatible HTTPS URLs, not SSH-only URLs that require extra runner keys
 - workflow steps must run inside the actual package roots, not assume the repository root is the build root
+- `working-notes` is treated as an external project CI concern here: this repository validates the pinned gitlink, while the site build itself belongs in the `working-notes` repository
 
 That is how task execution stays recoverable after a crash or OpenClaw update.
 

@@ -8,7 +8,7 @@
   "priority": "high",
   "dependencies": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
-  "branch": "agent/rook/ops-0014-review-complete",
+  "branch": "agent/rook/ops-0014-ci-followup",
   "commits": [
     {
       "sha": "4c542fe",
@@ -29,8 +29,8 @@
       "timestamp": "2026-03-31T12:40:00Z"
     },
     {
-      "sha": "pending",
-      "message": "[agent:engineer][task:ops-0014] fix GitHub Actions submodule URLs and Python install path",
+      "sha": "58f1fae",
+      "message": "[agent:engineer][task:ops-0014] fix follow-up CI check failures",
       "author": "engineer",
       "timestamp": "2026-03-31T12:48:00Z"
     }
@@ -45,7 +45,7 @@
   ],
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
-  "handoff_notes": "Review found multiple clean-clone CI defects. Commit e610a39 fixed recursive submodule checkout and the missing metrics-collector .gitmodules entry. A second review pass found two more likely causes for failed GitHub checks: SSH-only submodule URLs in .gitmodules and the Python install step running at repo root instead of projects/digital-research/src. A follow-up fix branch now addresses both. Awaiting GitHub Actions validation before closing the task.",
+  "handoff_notes": "Review found multiple clean-clone CI defects. Commit e610a39 fixed recursive submodule checkout and the missing metrics-collector .gitmodules entry. Commit 58f1fae switched submodule URLs to HTTPS and corrected the Python package install path. A third review pass showed recursive checkout itself is the wrong model for this repo because working-notes is managed as a private external project. The current follow-up branch narrows submodule fetches per job and validates only the working-notes gitlink here. Awaiting GitHub Actions validation before closing the task.",
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
@@ -66,7 +66,7 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:18.500Z",
-    "updated_at": "2026-03-31T12:48:30.000Z",
+    "updated_at": "2026-03-31T13:20:00.000Z",
     "started_at": "2026-03-30T15:42:18.500Z",
     "completed_at": null,
     "claimed_at": null
@@ -74,8 +74,8 @@
   "claimed_by": null,
   "blocked_by": [],
   "failure_reason": null,
-  "last_heartbeat": "2026-03-31T12:48:30.000Z",
-  "review_notes": "Review on the merged clean checkout found real CI defects. First pass: submodule-backed paths were empty in a clean clone, and metrics-collector was missing from .gitmodules. Second pass: .gitmodules still used SSH-only GitHub URLs, which commonly break Actions submodule checkout, and the Python workflow installed from repo root even though the package root is projects/digital-research/src. A follow-up fix branch addresses those issues. Keep task in review until GitHub checks are green.",
+  "last_heartbeat": "2026-03-31T13:20:00.000Z",
+  "review_notes": "Review on the merged clean checkout found real CI defects. First pass: submodule-backed paths were empty in a clean clone, and metrics-collector was missing from .gitmodules. Second pass: .gitmodules still used SSH-only GitHub URLs, which commonly break Actions submodule checkout, and the Python workflow installed from repo root even though the package root is projects/digital-research/src. Third pass: even with those fixes, recursive checkout remained wrong because it forces GitHub Actions to fetch private cross-repo working-notes. The follow-up branch now fetches only the submodule each job needs and treats working-notes as externally built CI.",
   "source_channel": "system:dispatcher",
   "dispatch": {
     "mode": "hook",
