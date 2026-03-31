@@ -30,6 +30,8 @@ const NOTIFY_ENABLED = process.env.ROOK_NOTIFY_ENABLED !== '0';
 const STAGE_FALLBACK_ENABLED = process.env.ROOK_STAGE_FALLBACK_ENABLED !== '0';
 const GATEWAY_BASE_URL = process.env.ROOK_GATEWAY_BASE_URL || 'http://127.0.0.1:18789';
 const HOOK_POLL_INTERVAL_MS = Number(process.env.ROOK_HOOK_POLL_INTERVAL_MS || '2000');
+const HOOK_MODEL = process.env.ROOK_HOOK_MODEL || 'minimax-portal/MiniMax-M2.5';
+const HOOK_THINKING = process.env.ROOK_HOOK_THINKING || 'low';
 const MAX_LOG_BYTES = 4000;
 const CHILD_GRACE_MS = 30_000;
 const READY_STATUSES = new Set(['ready']);
@@ -485,6 +487,8 @@ async function runAgentViaHook(agentId, task) {
     sessionKey,
     wakeMode: 'now',
     deliver: false,
+    model: HOOK_MODEL,
+    thinking: HOOK_THINKING,
     timeoutSeconds: DEFAULT_TIMEOUT_SECONDS,
   };
 
