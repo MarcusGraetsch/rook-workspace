@@ -73,6 +73,36 @@ Direct merge is acceptable only for narrow, obvious, low-risk changes such as:
 - isolated non-runtime markdown updates
 - trivial comments
 
+## Branch Lifetime Policy
+
+Agent branches should be short-lived.
+
+Default rule:
+
+1. open a focused branch for one coherent change
+2. open the PR quickly
+3. merge as soon as the diff is intentional and checks are acceptable
+4. delete the remote branch immediately after merge
+
+Do not keep absorbed branches around once `main` contains the work.
+
+If a branch is:
+
+- already fully contained in `main`
+- no longer ahead of `main`
+- not needed for active review
+
+then it should be deleted instead of preserved.
+
+The goal is to prevent:
+
+- stale agent branches that look unresolved
+- confusion about what is actually still pending
+- accidental work on an already-absorbed branch
+- human uncertainty about whether a ticket is really complete
+
+The repository should show active work, not archaeological layers of already-merged agent branches.
+
 ## Current Branch Situation
 
 The current stabilization branch is broad.
