@@ -45,7 +45,7 @@
   ],
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
-  "handoff_notes": "Review found multiple clean-clone CI defects. Commit e610a39 fixed recursive submodule checkout and the missing metrics-collector .gitmodules entry. Commit 58f1fae switched submodule URLs to HTTPS and corrected the Python package install path. Commit 231b96c narrowed submodule fetches per job and fixed broken review-agent YAML. Commit 886df71 fixed the remaining Tests failures. The final red path was Review Agent workflow configuration: its PR comment steps lacked explicit GitHub token permissions, and CodeQL upload was invalid because code scanning is not enabled for this repository. The current follow-up branch aligns Review Agent with the repository's real GitHub capabilities. Awaiting GitHub Actions validation before closing the task.",
+  "handoff_notes": "Review found multiple clean-clone CI defects. Commit e610a39 fixed recursive submodule checkout and the missing metrics-collector .gitmodules entry. Commit 58f1fae switched submodule URLs to HTTPS and corrected the Python package install path. Commit 231b96c narrowed submodule fetches per job and fixed broken review-agent YAML. Commit 886df71 fixed the remaining Tests failures. The final red path was Review Agent workflow configuration: its PR comment steps were still failing under GitHub integration restrictions, and CodeQL upload was invalid because code scanning is not enabled for this repository. The current follow-up branch makes comment publication best-effort and aligns Review Agent with the repository's real GitHub capabilities. Awaiting GitHub Actions validation before closing the task.",
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
@@ -66,7 +66,7 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:18.500Z",
-    "updated_at": "2026-03-31T13:40:00.000Z",
+    "updated_at": "2026-03-31T13:47:00.000Z",
     "started_at": "2026-03-30T15:42:18.500Z",
     "completed_at": null,
     "claimed_at": null
@@ -74,8 +74,8 @@
   "claimed_by": null,
   "blocked_by": [],
   "failure_reason": null,
-  "last_heartbeat": "2026-03-31T13:40:00.000Z",
-  "review_notes": "Review on the merged clean checkout found real CI defects. First pass: submodule-backed paths were empty in a clean clone, and metrics-collector was missing from .gitmodules. Second pass: .gitmodules still used SSH-only GitHub URLs, which commonly break Actions submodule checkout, and the Python workflow installed from repo root even though the package root is projects/digital-research/src. Third pass: even with those fixes, recursive checkout remained wrong because it forces GitHub Actions to fetch private cross-repo working-notes. Fourth pass: after targeted checkout, the remaining failures were project-local dependency issues: missing numpy during digital-research test collection and no package-lock.json for metrics-collector. Fifth pass: Tests turned green, but Review Agent still failed because the workflow assumed unavailable repository features. The follow-up branch now grants the PR comment steps the permissions they actually need and disables CodeQL upload until code scanning is enabled.",
+  "last_heartbeat": "2026-03-31T13:47:00.000Z",
+  "review_notes": "Review on the merged clean checkout found real CI defects. First pass: submodule-backed paths were empty in a clean clone, and metrics-collector was missing from .gitmodules. Second pass: .gitmodules still used SSH-only GitHub URLs, which commonly break Actions submodule checkout, and the Python workflow installed from repo root even though the package root is projects/digital-research/src. Third pass: even with those fixes, recursive checkout remained wrong because it forces GitHub Actions to fetch private cross-repo working-notes. Fourth pass: after targeted checkout, the remaining failures were project-local dependency issues: missing numpy during digital-research test collection and no package-lock.json for metrics-collector. Fifth pass: Tests turned green, but Review Agent still failed because the workflow assumed unavailable repository features. The follow-up branch now disables CodeQL upload until code scanning is enabled and treats PR comments as best-effort instead of a blocking requirement.",
   "source_channel": "system:dispatcher",
   "dispatch": {
     "mode": "hook",
