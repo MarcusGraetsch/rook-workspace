@@ -9,6 +9,10 @@ const TASKS_DIR = path.join(OPERATIONS_DIR, 'tasks');
 const LOG_DIR = path.join(OPERATIONS_DIR, 'logs', 'dispatcher');
 const DEFAULT_TIMEOUT_SECONDS = Number(process.env.ROOK_DISPATCH_TIMEOUT_SECONDS || '60');
 const DEFAULT_STALE_CLAIM_MINUTES = Number(process.env.ROOK_STALE_CLAIM_MINUTES || '20');
+const NOTIFY_TIMEOUT_SECONDS = Number(process.env.ROOK_NOTIFY_TIMEOUT_SECONDS || '15');
+const NOTIFY_CHANNEL = process.env.ROOK_NOTIFY_CHANNEL || 'discord';
+const NOTIFY_TARGET = process.env.ROOK_NOTIFY_TARGET || 'channel:1487786269542056071';
+const NOTIFY_ENABLED = process.env.ROOK_NOTIFY_ENABLED !== '0';
 const MAX_LOG_BYTES = 4000;
 const CHILD_GRACE_MS = 30_000;
 const READY_STATUSES = new Set(['ready']);
@@ -237,6 +241,63 @@ function evaluateResult(result) {
   return { ok: true, reason: null };
 }
 
+async function sendNotification(message) {
+  if (!NOTIFY_ENABLED || !message.trim()) {
+    return { ok: true, skipped: true };
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const child = spawn('openclaw', [
+      'message',
+      'send',
+      '--channel',
+      NOTIFY_CHANNEL,
+      '--target',
+      NOTIFY_TARGET,
+      '--message',
+      message,
+    ], {
+      cwd: '/root/.openclaw',
+      env: process.env,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+    const timeoutMs = NOTIFY_TIMEOUT_SECONDS * 1000;
+    let hardKill = null;
+    const settle = (payload) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(killer);
+      if (hardKill) clearTimeout(hardKill);
+      resolve(payload);
+    };
+    const killer = setTimeout(() => {
+      stderr += `\nnotification timeout after ${timeoutMs}ms. Sent SIGTERM to openclaw child.`;
+      child.kill('SIGTERM');
+      hardKill = setTimeout(() => {
+        stderr += `\nnotification hard-killed child after additional ${CHILD_GRACE_MS}ms grace period.`;
+        child.kill('SIGKILL');
+      }, CHILD_GRACE_MS);
+    }, timeoutMs);
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on('error', (error) => {
+      stderr += `\nNotification spawn error: ${error.message}`;
+      settle({ code: 1, stdout, stderr });
+    });
+    child.on('close', (code) => {
+      settle({ code: code ?? 1, stdout, stderr });
+    });
+  });
+}
+
 function taskHeartbeatIso(task) {
   return task.last_heartbeat
     || task.timestamps?.claimed_at
@@ -317,11 +378,15 @@ async function main() {
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
       await writeJson(filePath, task);
+      const notification = await sendNotification(
+        `[dispatcher] blocked ${task.task_id}: waiting for dependencies ${blockers.join(', ')}`
+      );
       await appendLog({
         ts: nowIso,
         task_id: task.task_id,
         action: 'dependency_block',
         blocked_by: blockers,
+        notify_ok: notification.code === 0 || notification.skipped === true,
       });
       continue;
     }
@@ -334,11 +399,15 @@ async function main() {
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
       await writeJson(filePath, task);
+      const notification = await sendNotification(
+        `[dispatcher] blocked ${task.task_id}: no executor mapping for coordinator-owned task`
+      );
       await appendLog({
         ts: nowIso,
         task_id: task.task_id,
         action: 'no_executor',
         assigned_agent: task.assigned_agent,
+        notify_ok: notification.code === 0 || notification.skipped === true,
       });
       continue;
     }
@@ -382,6 +451,19 @@ async function main() {
       task.timestamps.updated_at = task.last_heartbeat;
       task.timestamps.claimed_at = null;
       await writeJson(filePath, task);
+      const notification = await sendNotification(
+        `[dispatcher] blocked ${task.task_id}: ${task.failure_reason}`
+      );
+      await appendLog({
+        ts: new Date().toISOString(),
+        task_id: task.task_id,
+        action: 'dispatch_notification',
+        executor,
+        notify_ok: notification.code === 0 || notification.skipped === true,
+        notify_code: notification.code ?? 0,
+        notify_stdout: (notification.stdout || '').slice(-MAX_LOG_BYTES),
+        notify_stderr: (notification.stderr || '').slice(-MAX_LOG_BYTES),
+      });
     }
 
     await appendLog({
