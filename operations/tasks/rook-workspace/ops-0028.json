@@ -3,14 +3,12 @@
   "project_id": "rook-workspace",
   "title": "Full pipeline smoke test: engineer to test to review",
   "description": "Goal: verify that the repaired multi-agent pipeline performs a real multi-stage task and that the \ndashboard stages correspond to real execution by the appropriate worker/stage.\n\nScope:\n- make one small bounded code or documentation change in rook-workspace that is substantial enough to justify engineer work, testing, and review\n- preferred change: add one short verification subsection to docs/RUNTIME-OPERATIONS.md called \"Stage Transition Validation\" explaining that:\n  - Ready means dispatchable but not yet claimed\n  - In Progress means engineer execution is active\n  - Testing means test-stage work is active\n  - Review means review-stage work is active\n  - Done means the task completed honestly and the board/canonical state are aligned\n- if a better small change is needed to force a real test/review path, the worker may choose a similarly small bounded change in rook-workspace\n- commit using normal agent/task commit prefixes\n- update canonical task state honestly at each stage\n- post important lifecycle messages in Discord\n\nSuccess criteria:\n- task starts in Ready\n- task moves to In Progress during engineer execution\n- task moves to Testing during test-stage execution\n- task moves to Review during review-stage execution\n- task ends in Done only after real completion\n- Discord shows important lifecycle updates\n- canonical task state matches the visible board state\n- Git artifacts exist: branch and commit, and PR if applicable\n- if anything fails, task becomes blocked honestly with a real reason",
-  "status": "in_progress",
-  "assigned_agent": "rook",
-  "claimed_by": null,
+  "status": "review",
+  "assigned_agent": "review",
+  "claimed_by": "dispatcher:engineer",
   "priority": "medium",
   "dependencies": [],
-  "blocked_by": [
-    "runtime:agent-aborted"
-  ],
+  "blocked_by": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
   "branch": "agent/rook/ops-0028-full-pipeline-smoke-test-engineer-to-test-to-rev",
   "commits": [
@@ -19,24 +17,30 @@
       "message": "[agent:engineer][task:ops-0028] expand Verification section with gateway health and detailed commands",
       "author": "Engineer",
       "date": "2026-03-31T19:19:00Z"
+    },
+    {
+      "sha": "d9da81d",
+      "message": "[agent:engineer][task:ops-0028] add Pipeline Testing section to Discord Policy",
+      "author": "Engineer",
+      "date": "2026-03-31T19:30:58Z"
     }
   ],
   "commit_refs": [
     "b03c8f4"
   ],
   "labels": [],
-  "workflow_stage": "implementation",
+  "workflow_stage": "review",
   "blocked_reason": null,
-  "handoff_notes": "",
-  "last_heartbeat": "2026-03-31T17:09:57.760Z",
-  "failure_reason": "Hook worker aborted (assistant:aborted): Request was aborted.",
+  "handoff_notes": "Testing stage complete. Engineer performed test-stage work (fallback from test specialist). Added Pipeline Testing section to Discord Policy. Ready for review-stage approval.",
+  "last_heartbeat": "2026-03-31T17:43:54.462Z",
+  "failure_reason": null,
   "source_channel": "system:dispatcher",
   "artifacts": [],
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "42070f20-3f2e-4b31-bfd2-62b8e820cce0",
-    "column_name": "In Progress",
+    "column_id": "9e5a7286-4f41-4123-82ba-0caac2500eeb",
+    "column_name": "Review",
     "task_db_id": "a5eb831a-912c-406c-9bd9-c6eba77852d3",
     "position": 0,
     "sync_origin": "dashboard-kanban"
@@ -52,9 +56,31 @@
   },
   "timestamps": {
     "created_at": "2026-03-31T17:03:42.053Z",
-    "updated_at": "2026-03-31T17:30:57.028Z",
+    "updated_at": "2026-03-31T17:43:56.906Z",
     "started_at": "2026-03-31T17:06:57.003Z",
     "completed_at": null,
-    "claimed_at": null
+    "claimed_at": "2026-03-31T17:39:29.789Z"
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/rook/ops-0028-full-pipeline-smoke-test-engineer-to-test-to-rev -f per_page=5\ngh: Not Found (HTTP 404)\n"
+  },
+  "dispatch": {
+    "mode": "hook",
+    "executor": "engineer",
+    "attempts": 2,
+    "launched_at": "2026-03-31T17:39:29.789Z",
+    "last_checked_at": "2026-03-31T17:43:56.906Z",
+    "model": "minimax-portal/MiniMax-M2.5",
+    "thinking": "low",
+    "session_key": "hook:dispatcher:task:ops-0028:685ffae6",
+    "session_id": "cc300fea-73cc-4db2-836a-8384ded0d972",
+    "last_result": "running",
+    "last_error": null
   }
 }
