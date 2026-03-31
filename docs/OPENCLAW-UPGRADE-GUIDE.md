@@ -2,6 +2,10 @@
 
 This guide exists to keep the Rook runtime working after an official OpenClaw update.
 
+For the broader operating model and runtime expectations, also read:
+
+- `docs/OPERATOR-DEVELOPER-MANUAL.md`
+
 ## Goal
 
 After an update, verify that:
