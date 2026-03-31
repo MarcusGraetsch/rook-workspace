@@ -10,6 +10,8 @@ permissions:
   security-events: write
   actions: read
   checks: write
+  pull-requests: read
+  issues: write
 
 jobs:
   # Code Quality Gates
@@ -100,7 +102,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:python,javascript,typescript"
-          upload: true
+          upload: false
 
       - name: Dependency vulnerability scan
         uses: snyk/actions/python@master
