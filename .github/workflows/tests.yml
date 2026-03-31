@@ -30,7 +30,7 @@ jobs:
         working-directory: projects/digital-research/src
         run: |
           pip install -e ".[dev]"
-          pip install pytest arxiv scholarly beautifulsoup4 lxml httpx pymupdf
+          pip install pytest arxiv scholarly beautifulsoup4 lxml httpx pymupdf numpy
           
       - name: Run tests
         working-directory: projects/digital-research/src
@@ -53,7 +53,7 @@ jobs:
           
       - name: Install dependencies
         working-directory: engineering/metrics-collector
-        run: npm ci
+        run: npm install
         
       - name: Build
         working-directory: engineering/metrics-collector

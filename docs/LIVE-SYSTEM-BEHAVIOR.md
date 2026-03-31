@@ -167,6 +167,7 @@ Expected pattern:
 - `.gitmodules` should use GitHub Actions-compatible HTTPS URLs, not SSH-only URLs that require extra runner keys
 - workflow steps must run inside the actual package roots, not assume the repository root is the build root
 - `working-notes` is treated as an external project CI concern here: this repository validates the pinned gitlink, while the site build itself belongs in the `working-notes` repository
+- workspace CI may still need project-specific install commands when an external repo has not yet standardized its own lockfile or test dependency manifest
 
 That is how task execution stays recoverable after a crash or OpenClaw update.
 
