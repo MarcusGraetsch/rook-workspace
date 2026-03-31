@@ -163,6 +163,7 @@ Expected pattern:
 - worker produces commits with `[agent:...][task:...]`
 - task records relevant commits/artifacts
 - branch is pushed to GitHub
+- GitHub workflows that touch project or engineering repos must check out submodules recursively in clean clones
 
 That is how task execution stays recoverable after a crash or OpenClaw update.
 

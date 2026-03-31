@@ -10,3 +10,6 @@
 [submodule "engineering/rook-dashboard"]
 	path = engineering/rook-dashboard
 	url = git@github.com:MarcusGraetsch/rook-dashboard.git
+[submodule "engineering/metrics-collector"]
+	path = engineering/metrics-collector
+	url = git@github.com:MarcusGraetsch/metrics-collector.git
