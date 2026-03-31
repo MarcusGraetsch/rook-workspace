@@ -134,6 +134,7 @@ It is expected to:
 
 - stay online under supervision
 - expose kanban and task state
+- reconcile kanban rows from canonical task state before serving the board
 - reflect real runtime health
 - not invent execution that did not happen
 
@@ -146,6 +147,7 @@ Discord is:
 - command intake
 - status output
 - escalation surface
+- operator visibility for important dispatcher handoffs and lifecycle events
 
 Discord is not:
 
@@ -170,6 +172,7 @@ Expected pattern:
 - workspace CI may still need project-specific install commands when an external repo has not yet standardized its own lockfile or test dependency manifest
 - Review Agent must match real repository capabilities: PR-comment steps need explicit `pull-requests` and `issues` permissions, and CodeQL upload should stay disabled unless code scanning is enabled for the repository
 - Review Agent comment publication is best-effort only. The review gate is the analysis itself, not whether GitHub allowed an automated PR comment in that workflow context.
+- Kanban is not the only source of truth, but it must stay synchronized enough to be a reliable human-facing projection of canonical task state.
 
 That is how task execution stays recoverable after a crash or OpenClaw update.
 
