@@ -3,7 +3,7 @@
   "project_id": "rook-workspace",
   "title": "Test Agent einrichten",
   "description": "Unit Tests, Integration Tests, E2E Tests für alle Rook-Projekte. Soll automatisch bei Commits triggern.",
-  "status": "done",
+  "status": "review",
   "assigned_agent": "review",
   "priority": "high",
   "dependencies": [],
@@ -33,12 +33,12 @@
   ],
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
-  "handoff_notes": "GitHub Actions CI erstellt und getestet. Läuft bei jedem Push/PR auf main, develop, agent/**. Test-Resultate: 1595 passed, 1 skipped. Workflow-Syntaxfehler im rook-dashboard-Job wurde in commit bfa2cc6 korrigiert. Testing abgeschlossen - Workflow funktioniert.",
+  "handoff_notes": "Testing abgeschlossen. Workflow funktioniert. 1595 passed, 1 skipped. Bereit für Review.",
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed394fd3ad",
-    "column_name": "Testing",
+    "column_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "column_name": "Review",
     "task_db_id": "319f63ac-c855-4e0a-bd22-fe20a61eaf1e",
     "position": 0,
     "sync_origin": "dashboard-kanban"
@@ -54,15 +54,15 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:18.500Z",
-    "updated_at": "2026-03-31T11:55:56.902Z",
+    "updated_at": "2026-03-31T12:20:37.963Z",
     "started_at": "2026-03-30T15:42:18.500Z",
     "completed_at": null,
-    "claimed_at": "2026-03-31T11:55:56.902Z"
+    "claimed_at": null
   },
-  "claimed_by": "dispatcher:engineer",
+  "claimed_by": null,
   "blocked_by": [],
   "failure_reason": null,
-  "last_heartbeat": "2026-03-31T11:55:56.902Z",
+  "last_heartbeat": "2026-03-31T11:56:41.448Z",
   "review_notes": "Workflow verifiziert: .github/workflows/tests.yml vorhanden, triggert auf main/develop/agent/**, 4 Jobs (Python tests, 3x TypeScript/Node builds). Testing-Ergebnisse dokumentiert: 1595 passed, 1 skipped. Alle Commits erfolgreich integriert. Workflow bereit für Produktion.",
   "source_channel": "system:dispatcher",
   "dispatch": {
@@ -70,12 +70,21 @@
     "executor": "engineer",
     "attempts": 1,
     "launched_at": "2026-03-31T11:55:56.902Z",
-    "last_checked_at": "2026-03-31T11:56:07.096Z",
+    "last_checked_at": "2026-03-31T12:20:37.963Z",
     "model": "minimax-portal/MiniMax-M2.5",
     "thinking": "low",
     "session_key": "hook:dispatcher:task:ops-0014:3fd79d47",
     "session_id": "d1786220-ef8a-483f-b981-3bc3f75ed793",
-    "last_result": "running",
+    "last_result": "completed",
     "last_error": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/rook/ops-0014-test-agent-einrichten -f per_page=5\ngh: Not Found (HTTP 404)\n"
   }
 }

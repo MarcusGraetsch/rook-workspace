@@ -3,20 +3,30 @@
   "project_id": "rook-workspace",
   "title": "Review Agent einrichten",
   "description": "Code Review, Quality Gates, Security Review. Soll bei Pull Requests automatisch starten.",
-  "status": "blocked",
-  "assigned_agent": "rook",
+  "status": "done",
+  "assigned_agent": "review",
   "priority": "high",
   "dependencies": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
   "branch": "agent/rook/ops-0013-review-agent-einrichten",
-  "commits": [],
+  "commits": [
+    {
+      "sha": "186d99d",
+      "message": "[agent:engineer][task:ops-0013] Add Review Agent workflow for automated PR reviews",
+      "author": "engineer",
+      "timestamp": "2026-03-31T12:17:25Z"
+    }
+  ],
+  "artifacts": [
+    ".github/workflows/review-agent.yml"
+  ],
   "labels": [
     "agent",
     "review"
   ],
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
-  "handoff_notes": "",
+  "handoff_notes": "Bootstrap/setup task for the review stage. Dispatcher routed execution through engineer while the dedicated review-stage runtime was still being proven. The setup artifact now exists and hook-based runtime smoke passes for review.",
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
@@ -37,9 +47,9 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:17.144Z",
-    "updated_at": "2026-03-31T08:58:23Z",
+    "updated_at": "2026-03-31T12:20:37.963Z",
     "started_at": "2026-03-30T15:48:11.841Z",
-    "completed_at": null,
+    "completed_at": "2026-03-31T12:19:30.000Z",
     "claimed_at": null
   },
   "github_pull_request": {
@@ -53,7 +63,21 @@
   },
   "claimed_by": null,
   "blocked_by": [],
-  "failure_reason": "Dispatcher containment reset: prior claim by dispatcher:rook was invalidated after the coordinator dispatch path hung and no verified execution or status handoff completed.",
-  "last_heartbeat": "2026-03-31T08:58:23Z",
-  "source_channel": "system:dispatcher"
+  "failure_reason": null,
+  "last_heartbeat": "2026-03-31T12:17:40.209Z",
+  "review_notes": "Review workflow created at .github/workflows/review-agent.yml and pushed to branch agent/rook/ops-0013-review-agent-einrichten in commit 186d99d. The worker later aborted during cleanup, so the canonical record was normalized manually after verifying the artifact and passing hook-based runtime smoke for the review agent.",
+  "source_channel": "system:dispatcher",
+  "dispatch": {
+    "mode": "hook",
+    "executor": "engineer",
+    "attempts": 1,
+    "launched_at": "2026-03-31T12:16:39.272Z",
+    "last_checked_at": "2026-03-31T12:20:37.963Z",
+    "model": "minimax-portal/MiniMax-M2.5",
+    "thinking": "low",
+    "session_key": "hook:dispatcher:task:ops-0013:d93a9e0d",
+    "session_id": "f6331504-169a-4a08-a914-1fc702519ca5",
+    "last_result": "artifact_persisted_cleanup_incomplete",
+    "last_error": "Worker pushed the review-agent artifact and then aborted during canonical-task cleanup."
+  }
 }
