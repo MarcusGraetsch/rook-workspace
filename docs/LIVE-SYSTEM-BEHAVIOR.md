@@ -173,6 +173,7 @@ Expected pattern:
 - Review Agent must match real repository capabilities: PR-comment steps need explicit `pull-requests` and `issues` permissions, and CodeQL upload should stay disabled unless code scanning is enabled for the repository
 - Review Agent comment publication is best-effort only. The review gate is the analysis itself, not whether GitHub allowed an automated PR comment in that workflow context.
 - Kanban is not the only source of truth, but it must stay synchronized enough to be a reliable human-facing projection of canonical task state.
+- Agent branches should be short-lived: open them for focused work, merge them quickly, and delete them immediately after merge so branch lists reflect active work rather than stale history.
 
 That is how task execution stays recoverable after a crash or OpenClaw update.
 
