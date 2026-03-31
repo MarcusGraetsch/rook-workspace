@@ -114,10 +114,13 @@ function unresolvedDependencies(task, taskMap) {
 
 function summarizeTask(task, executor) {
   const canonicalTaskFile = path.join(TASKS_DIR, task.project_id, `${task.task_id}.json`);
+  const repoTail = String(task.related_repo || '').split('/').at(-1) || task.project_id;
+  const localRepoView = `/root/.openclaw/workspace-${executor}/workspace/repos/${repoTail}`;
   return [
     `Canonical task: ${task.task_id}`,
     `Canonical task file: ${canonicalTaskFile}`,
     'Primary workspace root: /root/.openclaw/workspace',
+    `Preferred local repo view: ${localRepoView}`,
     `Title: ${task.title}`,
     `Project: ${task.project_id}`,
     `Repo: ${task.related_repo}`,
@@ -194,6 +197,44 @@ function runAgent(agentId, task, dispatchMode) {
       settle({ code: code ?? 1, stdout, stderr });
     });
   });
+}
+
+function parseJsonOutput(stdout) {
+  const trimmed = stdout.trim();
+  if (!trimmed) {
+    return { ok: false, reason: 'openclaw agent returned no stdout.' };
+  }
+
+  const jsonStart = trimmed.indexOf('{');
+  if (jsonStart < 0) {
+    return { ok: false, reason: 'openclaw agent returned non-JSON stdout.' };
+  }
+
+  try {
+    return { ok: true, data: JSON.parse(trimmed.slice(jsonStart)) };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, reason: `failed to parse openclaw JSON output: ${message}` };
+  }
+}
+
+function evaluateResult(result) {
+  if (result.code !== 0) {
+    return { ok: false, reason: result.stderr || result.stdout || `openclaw agent exited with ${result.code}` };
+  }
+
+  const parsed = parseJsonOutput(result.stdout);
+  if (!parsed.ok) {
+    return { ok: false, reason: parsed.reason };
+  }
+
+  const payloads = Array.isArray(parsed.data?.payloads) ? parsed.data.payloads : [];
+  const stopReason = parsed.data?.meta?.stopReason || null;
+  if (payloads.length === 0 && stopReason !== 'stop') {
+    return { ok: false, reason: 'openclaw agent returned no payloads and no successful stop reason.' };
+  }
+
+  return { ok: true, reason: null };
 }
 
 function taskHeartbeatIso(task) {
@@ -328,16 +369,18 @@ async function main() {
     await writeJson(filePath, task);
 
     const result = await runAgent(executor, task, options.dispatchMode);
-    const ok = result.code === 0;
+    const evaluation = evaluateResult(result);
+    const ok = evaluation.ok;
 
     if (!ok) {
       task.status = 'blocked';
       task.claimed_by = null;
-      task.failure_reason = (result.stderr || result.stdout || `openclaw agent exited with ${result.code}`)
+      task.failure_reason = (evaluation.reason || result.stderr || result.stdout || `openclaw agent exited with ${result.code}`)
         .trim()
         .slice(0, MAX_LOG_BYTES);
       task.last_heartbeat = new Date().toISOString();
       task.timestamps.updated_at = task.last_heartbeat;
+      task.timestamps.claimed_at = null;
       await writeJson(filePath, task);
     }
 

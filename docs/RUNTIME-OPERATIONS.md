@@ -39,7 +39,7 @@ systemctl --user status rook-dashboard-watchdog.timer --no-pager
 systemctl --user status rook-dispatcher.timer --no-pager
 curl -fsS http://127.0.0.1:3001/kanban >/dev/null
 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --dry-run --limit 3
-timeout 25s openclaw agent --agent engineer --message 'Reply with exactly OK and nothing else.' --json
+timeout 25s openclaw agent --local --agent engineer --message 'Reply with exactly OK and nothing else.' --json
 ```
 
 ## Notes
@@ -48,5 +48,5 @@ timeout 25s openclaw agent --agent engineer --message 'Reply with exactly OK and
 - The dashboard is the human control plane.
 - Discord is intake and notification, not durable execution state.
 - Dispatcher logs are written under `workspace/operations/logs/dispatcher/`.
-- Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/*` links instead of trying to clone GitHub repos on demand.
+- Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/repos/*` links instead of trying to clone GitHub repos on demand.
 - Keep `rook-dispatcher.timer` disabled until the smoke test above succeeds and the target specialist workspace can reach the repo/task files it was assigned to handle.
