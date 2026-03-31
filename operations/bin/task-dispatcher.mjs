@@ -857,6 +857,16 @@ function classifyBlockedBy(reason) {
   return ['runtime:dispatch-failure'];
 }
 
+function isRetryableAbortReason(reason) {
+  const text = String(reason || '').toLowerCase();
+  if (!text) return false;
+  return (
+    text.includes('request was aborted')
+    || text.includes('worker prompt aborted')
+    || text.includes('assistant message aborted')
+  );
+}
+
 async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -993,6 +1003,60 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
 
     const abort = findHookAbort(state);
     if (abort) {
+      const currentAttempt = Number(nextDispatch.attempts || 1);
+      const canRetry = currentAttempt < DEFAULT_MAX_ATTEMPTS && isRetryableAbortReason(abort.reason);
+
+      if (canRetry) {
+        const retryAttempt = currentAttempt + 1;
+        await appendLog({
+          ts: nowIso,
+          task_id: task.task_id,
+          action: 'hook_worker_retrying',
+          executor,
+          previous_attempt: currentAttempt,
+          next_attempt: retryAttempt,
+          session_key: nextDispatch.session_key,
+          session_id: nextDispatch.session_id,
+          reason: truncate(abort.reason),
+        });
+
+        const retryResult = await runAgent(executor, task, nextDispatch.mode || 'hook');
+        const retryEvaluation = evaluateResult(retryResult);
+        task.last_heartbeat = nowIso;
+        task.timestamps.updated_at = nowIso;
+        task.dispatch = buildDispatchState(
+          task,
+          executor,
+          retryResult,
+          retryAttempt,
+          nextDispatch.mode || 'hook',
+          new Date().toISOString()
+        );
+        await writeJson(filePath, task);
+        await appendLog({
+          ts: new Date().toISOString(),
+          task_id: task.task_id,
+          action: 'dispatch_attempt',
+          executor,
+          attempt: retryAttempt,
+          ok: retryEvaluation.ok,
+          code: retryResult.code,
+          stdout: retryResult.stdout.slice(-MAX_LOG_BYTES),
+          stderr: retryResult.stderr.slice(-MAX_LOG_BYTES),
+          reason: retryEvaluation.reason,
+          retry_of_abort: true,
+        });
+
+        if (retryEvaluation.ok) {
+          await notifyAndRecord(
+            task,
+            'worker_retry_started',
+            `[dispatcher] retrying ${task.task_id}: relaunched ${executor} after transient hook abort`
+          );
+          continue;
+        }
+      }
+
       task.status = 'blocked';
       task.claimed_by = null;
       task.failure_reason = `Hook worker aborted (${abort.source}): ${abort.reason}`;

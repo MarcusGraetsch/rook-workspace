@@ -67,6 +67,11 @@ The dispatcher:
 - releases claims or blocks tasks when runs fail
 - writes durable alerts even if Discord notifications fail
 
+Transient runtime-abort rule:
+
+- if a hook worker dies with a transient `Request was aborted` style failure, the dispatcher now retries automatically before marking the task `blocked`
+- only after retry budget is exhausted should the task remain blocked for human attention
+
 The dispatcher does not own business logic for the task itself.
 It owns launch, supervision, and state honesty.
 
@@ -137,6 +142,12 @@ It is expected to:
 - reconcile kanban rows from canonical task state before serving the board
 - reflect real runtime health
 - not invent execution that did not happen
+
+Operational details:
+
+- the kanban board now auto-refreshes every 5 seconds so stage movement is visible without manual reloads
+- if a task becomes `blocked` and the board has no explicit `Blocked` column, the card stays anchored to the stage that actually failed
+- that means an engineer-stage abort renders as `In Progress` plus a blocked pipeline badge, not `Ready` plus confusion
 
 If the dashboard goes down, the system is degraded even if Discord still replies.
 
