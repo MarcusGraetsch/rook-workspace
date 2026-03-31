@@ -164,6 +164,8 @@ Expected pattern:
 - task records relevant commits/artifacts
 - branch is pushed to GitHub
 - GitHub workflows that touch project or engineering repos must check out submodules recursively in clean clones
+- `.gitmodules` should use GitHub Actions-compatible HTTPS URLs, not SSH-only URLs that require extra runner keys
+- workflow steps must run inside the actual package roots, not assume the repository root is the build root
 
 That is how task execution stays recoverable after a crash or OpenClaw update.
 

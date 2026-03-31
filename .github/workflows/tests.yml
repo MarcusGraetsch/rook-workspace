@@ -21,6 +21,7 @@ jobs:
           python-version: '3.11'
           
       - name: Install dependencies
+        working-directory: projects/digital-research/src
         run: |
           pip install -e ".[dev]"
           pip install pytest arxiv scholarly beautifulsoup4 lxml httpx pymupdf

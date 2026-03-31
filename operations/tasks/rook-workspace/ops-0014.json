@@ -27,6 +27,12 @@
       "message": "[agent:engineer][task:ops-0014] fix CI submodule checkout for test and review workflows",
       "author": "engineer",
       "timestamp": "2026-03-31T12:40:00Z"
+    },
+    {
+      "sha": "pending",
+      "message": "[agent:engineer][task:ops-0014] fix GitHub Actions submodule URLs and Python install path",
+      "author": "engineer",
+      "timestamp": "2026-03-31T12:48:00Z"
     }
   ],
   "artifacts": [
@@ -39,7 +45,7 @@
   ],
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
-  "handoff_notes": "Review found that the test/review workflows were not safe in a clean clone because submodules were not checked out recursively and metrics-collector was missing from .gitmodules. Commit e610a39 fixes both issues. Awaiting GitHub Actions validation on the review-complete branch before closing the task.",
+  "handoff_notes": "Review found multiple clean-clone CI defects. Commit e610a39 fixed recursive submodule checkout and the missing metrics-collector .gitmodules entry. A second review pass found two more likely causes for failed GitHub checks: SSH-only submodule URLs in .gitmodules and the Python install step running at repo root instead of projects/digital-research/src. A follow-up fix branch now addresses both. Awaiting GitHub Actions validation before closing the task.",
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
@@ -60,7 +66,7 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:18.500Z",
-    "updated_at": "2026-03-31T12:40:30.000Z",
+    "updated_at": "2026-03-31T12:48:30.000Z",
     "started_at": "2026-03-30T15:42:18.500Z",
     "completed_at": null,
     "claimed_at": null
@@ -68,8 +74,8 @@
   "claimed_by": null,
   "blocked_by": [],
   "failure_reason": null,
-  "last_heartbeat": "2026-03-31T12:40:30.000Z",
-  "review_notes": "Review on the merged clean checkout found a real CI defect: submodule-backed paths were empty in a clean clone, but tests.yml and review-agent.yml used plain checkout without recursive submodules. metrics-collector also lacked a .gitmodules entry. Commit e610a39 fixes the clean-clone CI path. Task should remain in review until the triggered GitHub Actions run on branch agent/rook/ops-0014-review-complete is confirmed.",
+  "last_heartbeat": "2026-03-31T12:48:30.000Z",
+  "review_notes": "Review on the merged clean checkout found real CI defects. First pass: submodule-backed paths were empty in a clean clone, and metrics-collector was missing from .gitmodules. Second pass: .gitmodules still used SSH-only GitHub URLs, which commonly break Actions submodule checkout, and the Python workflow installed from repo root even though the package root is projects/digital-research/src. A follow-up fix branch addresses those issues. Keep task in review until GitHub checks are green.",
   "source_channel": "system:dispatcher",
   "dispatch": {
     "mode": "hook",
