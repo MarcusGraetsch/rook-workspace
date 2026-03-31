@@ -15,4 +15,4 @@ Environment=ROOK_NOTIFY_MAX_ATTEMPTS=3
 Environment=ROOK_NOTIFY_RETRY_DELAY_MS=3000
 TimeoutStartSec=240
 KillMode=control-group
-ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --limit 5 --source-channel system:dispatcher --dispatch-mode local
+ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --limit 5 --source-channel system:dispatcher --dispatch-mode hook

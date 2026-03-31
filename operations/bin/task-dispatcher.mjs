@@ -5,6 +5,8 @@ import path from 'path';
 import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
 
+const OPENCLAW_DIR = '/root/.openclaw';
+const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const OPERATIONS_DIR = process.env.ROOK_OPERATIONS_DIR || '/root/.openclaw/workspace/operations';
 const TASKS_DIR = path.join(OPERATIONS_DIR, 'tasks');
 const LOG_DIR = path.join(OPERATIONS_DIR, 'logs', 'dispatcher');
@@ -26,10 +28,13 @@ const NOTIFY_CHANNEL = process.env.ROOK_NOTIFY_CHANNEL || 'discord';
 const NOTIFY_TARGET = process.env.ROOK_NOTIFY_TARGET || 'channel:1487786269542056071';
 const NOTIFY_ENABLED = process.env.ROOK_NOTIFY_ENABLED !== '0';
 const STAGE_FALLBACK_ENABLED = process.env.ROOK_STAGE_FALLBACK_ENABLED !== '0';
+const GATEWAY_BASE_URL = process.env.ROOK_GATEWAY_BASE_URL || 'http://127.0.0.1:18789';
+const HOOK_POLL_INTERVAL_MS = Number(process.env.ROOK_HOOK_POLL_INTERVAL_MS || '2000');
 const MAX_LOG_BYTES = 4000;
 const CHILD_GRACE_MS = 30_000;
 const READY_STATUSES = new Set(['ready']);
 const ACTIVE_STATUSES = new Set(['in_progress', 'testing', 'review']);
+let hookConfigPromise = null;
 
 function parseArgs(argv) {
   const options = {
@@ -89,6 +94,28 @@ async function loadProviderEnv() {
     }
   }
   return loaded;
+}
+
+async function loadHookConfig() {
+  if (!hookConfigPromise) {
+    hookConfigPromise = (async () => {
+      const config = await readJson(OPENCLAW_CONFIG_PATH);
+      const hooks = config?.hooks;
+      if (!hooks?.enabled) {
+        throw new Error('OpenClaw hooks are disabled in openclaw.json.');
+      }
+      if (!hooks?.token) {
+        throw new Error('OpenClaw hooks.token is missing in openclaw.json.');
+      }
+      const hookPath = String(hooks.path || '/hooks').replace(/\/+$/, '');
+      return {
+        token: String(hooks.token),
+        agentUrl: `${GATEWAY_BASE_URL}${hookPath}/agent`,
+      };
+    })();
+  }
+
+  return hookConfigPromise;
 }
 
 async function loadTasks() {
@@ -227,6 +254,10 @@ function summarizeTask(task, executor) {
 }
 
 async function runAgent(agentId, task, dispatchMode) {
+  if (dispatchMode === 'hook') {
+    return runAgentViaHook(agentId, task);
+  }
+
   const providerEnv = await loadProviderEnv();
   const sessionId = randomUUID();
   const childEnv = {
@@ -291,6 +322,210 @@ async function runAgent(agentId, task, dispatchMode) {
   });
 }
 
+function flattenAssistantText(message) {
+  const content = Array.isArray(message?.content) ? message.content : [];
+  return content
+    .filter((entry) => entry?.type === 'text')
+    .map((entry) => entry.text)
+    .join('\n')
+    .trim();
+}
+
+async function readHookTranscriptState(agentId, sessionKey) {
+  const sessionsDir = path.join(OPENCLAW_DIR, 'agents', agentId, 'sessions');
+  const indexPath = path.join(sessionsDir, 'sessions.json');
+  let index = null;
+  try {
+    index = await readJson(indexPath);
+  } catch {
+    return null;
+  }
+
+  const storeKey = `agent:${agentId}:${sessionKey}`;
+  const entry = index?.[storeKey];
+  const sessionId = entry?.sessionId;
+  if (!sessionId) {
+    return null;
+  }
+
+  const transcriptPath = path.join(sessionsDir, `${sessionId}.jsonl`);
+  let raw = '';
+  try {
+    raw = await fs.readFile(transcriptPath, 'utf8');
+  } catch {
+    return { sessionId, transcriptPath, events: [], lastMessage: null };
+  }
+
+  const events = [];
+  for (const line of raw.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      events.push(JSON.parse(trimmed));
+    } catch {
+      // Ignore partially written trailing lines while polling.
+    }
+  }
+
+  const lastMessage = [...events].reverse().find((event) => event?.type === 'message') || null;
+  const lastAssistantMessage = [...events].reverse().find(
+    (event) => event?.type === 'message' && event?.message?.role === 'assistant'
+  ) || null;
+  return { sessionId, transcriptPath, events, lastMessage, lastAssistantMessage };
+}
+
+function evaluateHookTranscriptState(state) {
+  if (!state?.lastMessage) {
+    return { done: false, ok: false, reason: 'hook session has no messages yet.' };
+  }
+
+  if (!state.lastAssistantMessage) {
+    return { done: false, ok: false, reason: 'hook session has not produced any assistant activity yet.' };
+  }
+
+  const message = state.lastAssistantMessage.message;
+  const role = message?.role || 'unknown';
+  const stopReason = message?.stopReason || null;
+  const assistantText = flattenAssistantText(message);
+
+  if (role === 'assistant' && (stopReason === 'stop' || stopReason === 'toolUse')) {
+    return {
+      done: true,
+      ok: true,
+      reason: null,
+      assistantText,
+      stopReason,
+    };
+  }
+
+  if (role === 'assistant' && stopReason) {
+    return {
+      done: true,
+      ok: false,
+      reason: `hook session ended with non-runnable stopReason=${stopReason}.`,
+      assistantText,
+      stopReason,
+    };
+  }
+
+  return {
+    done: false,
+    ok: false,
+    reason: `hook session assistant activity is incomplete (lastRole=${role}, stopReason=${stopReason || 'unknown'}).`,
+    assistantText,
+    stopReason,
+  };
+}
+
+async function waitForHookResult(agentId, sessionKey) {
+  const startedAt = Date.now();
+  const timeoutMs = DEFAULT_TIMEOUT_SECONDS * 1000;
+  let lastObserved = null;
+
+  while (Date.now() - startedAt <= timeoutMs) {
+    const state = await readHookTranscriptState(agentId, sessionKey);
+    if (state) {
+      lastObserved = state;
+      const evaluation = evaluateHookTranscriptState(state);
+      if (evaluation.done) {
+        return {
+          code: evaluation.ok ? 0 : 1,
+          stdout: JSON.stringify({
+            mode: 'hook',
+            sessionId: state.sessionId,
+            sessionKey,
+            stopReason: evaluation.stopReason,
+            assistantText: evaluation.assistantText,
+          }),
+          stderr: evaluation.ok ? '' : evaluation.reason,
+          sessionId: state.sessionId,
+          mode: 'hook',
+          meta: {
+            ok: evaluation.ok,
+            stopReason: evaluation.stopReason,
+            assistantText: evaluation.assistantText,
+            reason: evaluation.reason,
+          },
+        };
+      }
+    }
+
+    await sleep(HOOK_POLL_INTERVAL_MS);
+  }
+
+  const evaluation = evaluateHookTranscriptState(lastObserved);
+  return {
+    code: 124,
+    stdout: JSON.stringify({
+      mode: 'hook',
+      sessionId: lastObserved?.sessionId || null,
+      sessionKey,
+      stopReason: evaluation.stopReason || null,
+      assistantText: evaluation.assistantText || '',
+    }),
+    stderr: `hook session timed out after ${timeoutMs}ms. ${evaluation.reason}`,
+    sessionId: lastObserved?.sessionId || null,
+    mode: 'hook',
+    meta: {
+      ok: false,
+      stopReason: evaluation.stopReason || null,
+      assistantText: evaluation.assistantText || '',
+      reason: `hook session timed out after ${timeoutMs}ms. ${evaluation.reason}`,
+    },
+  };
+}
+
+async function runAgentViaHook(agentId, task) {
+  const hookConfig = await loadHookConfig();
+  const sessionKey = `hook:dispatcher:task:${task.task_id}:${randomUUID().slice(0, 8)}`;
+  const payload = {
+    message: summarizeTask(task, agentId),
+    name: 'Dispatcher',
+    agentId,
+    sessionKey,
+    wakeMode: 'now',
+    deliver: false,
+    timeoutSeconds: DEFAULT_TIMEOUT_SECONDS,
+  };
+
+  let response;
+  try {
+    response = await fetch(hookConfig.agentUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${hookConfig.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: `hook dispatch request failed: ${error instanceof Error ? error.message : String(error)}`,
+      sessionId: null,
+      mode: 'hook',
+    };
+  }
+
+  const bodyText = await response.text();
+  if (!response.ok) {
+    return {
+      code: response.status,
+      stdout: bodyText,
+      stderr: `hook dispatch request returned HTTP ${response.status}.`,
+      sessionId: null,
+      mode: 'hook',
+    };
+  }
+
+  const result = await waitForHookResult(agentId, sessionKey);
+  result.stdout = result.stdout
+    ? `${bodyText}\n${result.stdout}`
+    : bodyText;
+  return result;
+}
+
 function parseJsonOutput(stdout) {
   const trimmed = stdout.trim();
   if (!trimmed) {
@@ -311,6 +546,17 @@ function parseJsonOutput(stdout) {
 }
 
 function evaluateResult(result) {
+  if (result.mode === 'hook') {
+    if (result.code !== 0) {
+      return {
+        ok: false,
+        reason: result.meta?.reason || result.stderr || result.stdout || `hook run exited with ${result.code}`,
+      };
+    }
+
+    return { ok: true, reason: null };
+  }
+
   if (result.code !== 0) {
     return { ok: false, reason: result.stderr || result.stdout || `openclaw agent exited with ${result.code}` };
   }

@@ -42,6 +42,7 @@ curl -fsS http://127.0.0.1:3001/kanban >/dev/null
 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --dry-run --limit 3
 timeout 25s openclaw agent --local --agent engineer --message 'Reply with exactly OK and nothing else.' --json
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
+ROOK_DISPATCH_TIMEOUT_SECONDS=35 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --task <task-id> --limit 1 --dispatch-mode hook
 ```
 
 ## Notes
@@ -57,7 +58,8 @@ node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
   - `/root/.openclaw/.env.d/kimi-api-key.txt`
 - The dispatcher and runtime smoke checker now load those env files explicitly before spawning `openclaw agent --local`.
 - Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/repos/*` links instead of trying to clone GitHub repos on demand.
-- Dispatcher handoffs currently use local mode with bounded retries because the gateway return path has been observed hanging while local mode can return cleanly.
+- Dispatcher handoffs should use hook mode against the local OpenClaw gateway. That path supports explicit isolated `sessionKey` values and avoids reusing poisoned `agent:<id>:main` sessions.
+- Hook dispatch success means the isolated worker session actually starts and produces assistant activity. Full task completion still belongs to the worker/task lifecycle, not the dispatcher launch step.
 - Stage fallback is enabled by default for `testing` and `review`: if the dedicated `test` or `review` runtime is unstable, the dispatcher can execute that bounded work through `engineer` while keeping the canonical task in `testing` or `review`.
 - Discord notification is best-effort only. If `openclaw message send` or upstream network fetch fails, the canonical task should still land in `blocked` with a durable dispatcher alert record.
-- Keep `rook-dispatcher.timer` disabled until the smoke test above succeeds and the target specialist workspace can reach the repo/task files it was assigned to handle.
+- Keep `rook-dispatcher.timer` disabled until the hook-based smoke test above succeeds on the live gateway and the target specialist workspace can reach the repo/task files it was assigned to handle.
