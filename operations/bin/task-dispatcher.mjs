@@ -905,6 +905,33 @@ async function notifyAndRecord(task, event, message) {
   return lastNotification;
 }
 
+function formatLifecycleMessage(task, event, extra = {}) {
+  const executor = extra.executor || task.dispatch?.executor || task.claimed_by || task.assigned_agent;
+  const parts = [`${task.task_id}`];
+
+  if (event === 'dispatch_started') {
+    parts.push(`started by ${executor}`);
+  } else if (event === 'worker_completed') {
+    parts.push(`completed by ${executor}`);
+    parts.push(`status=${task.status}`);
+  } else if (event === 'stale_claim_released') {
+    parts.push(`stale claim released`);
+  }
+
+  if (task.branch) {
+    parts.push(`branch=${task.branch}`);
+  }
+  if (task.github_pull_request?.number) {
+    parts.push(`pr=#${task.github_pull_request.number}`);
+  }
+
+  if (event === 'stale_claim_released' && task.failure_reason) {
+    parts.push(task.failure_reason);
+  }
+
+  return `[dispatcher] ${parts.join(' | ')}`;
+}
+
 function buildDispatchState(task, executor, result, attempt, dispatchMode, nowIso) {
   const previous = task.dispatch && typeof task.dispatch === 'object' ? task.dispatch : {};
   const mode = dispatchMode === 'hook' ? 'hook' : dispatchMode;
@@ -1010,6 +1037,11 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
         last_checked_at: nowIso,
       };
       await writeJson(filePath, task);
+      await notifyAndRecord(
+        task,
+        'worker_completed',
+        formatLifecycleMessage(task, 'worker_completed', { executor })
+      );
       await appendLog({
         ts: nowIso,
         task_id: task.task_id,
@@ -1060,6 +1092,11 @@ async function main() {
     task.timestamps.updated_at = nowIso;
     task.timestamps.claimed_at = null;
     await writeJson(filePath, task);
+    await notifyAndRecord(
+      task,
+      'stale_claim_released',
+      formatLifecycleMessage(task, 'stale_claim_released', { previousClaim })
+    );
     await appendLog({
       ts: nowIso,
       task_id: task.task_id,
@@ -1164,6 +1201,11 @@ async function main() {
     }
 
     await writeJson(filePath, task);
+    await notifyAndRecord(
+      task,
+      'dispatch_started',
+      formatLifecycleMessage(task, 'dispatch_started', { executor })
+    );
 
     let result = { code: 1, stdout: '', stderr: '' };
     let evaluation = { ok: false, reason: 'dispatch not attempted' };
