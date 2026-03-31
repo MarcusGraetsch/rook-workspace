@@ -46,7 +46,19 @@ node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 ROOK_DISPATCH_TIMEOUT_SECONDS=35 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --task <task-id> --limit 1 --dispatch-mode hook
 ```
 
-## Notes
+## Stage Transition Validation
+
+The Kanban board reflects real execution stages:
+
+| Stage | Meaning |
+|-------|---------|
+| **Ready** | Dispatchable but not yet claimed |
+| **In Progress** | Engineer execution is active |
+| **Testing** | Test-stage work is active |
+| **Review** | Review-stage work is active |
+| **Done** | Task completed honestly, board and canonical state aligned |
+
+Each stage transition should correspond to real worker activity, not just text updates.
 
 - Canonical task files under `workspace/operations/tasks/` are the source of truth.
 - The dashboard is the human control plane.
