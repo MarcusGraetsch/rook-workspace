@@ -1,0 +1,86 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop, 'agent/**']
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # Python Tests for digital-research project
+  test-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+          pip install pytest arxiv scholarly beautifulsoup4 lxml httpx pymupdf
+          
+      - name: Run tests
+        working-directory: projects/digital-research/src
+        run: |
+          python -m pytest tests/ -v --ignore=tests/test_web_crawler.py --ignore=tests/test_web_integration.py --ignore=tests/test_web_pdf_extractor.py
+
+  # TypeScript build check for metrics-collector
+  build-metrics-collector:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        working-directory: engineering/metrics-collector
+        run: npm ci
+        
+      - name: Build
+        working-directory: engineering/metrics-collector
+        run: npm run build
+
+  # TypeScript build check for rook-dashboard
+  build-rook-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        working-directory: engineering/rook-dashboard
+        run: npm ci
+        
+      - name: Build
+        working-directory: engineering/rook-dashboard
+        run: npm run build
+
+  # Static site build check for working-notes
+  build-working-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        working-directory: projects/working-notes
+        run: npm ci
+        
+      - name: Build
+        working-directory: projects/working-notes
+        run: npm run build

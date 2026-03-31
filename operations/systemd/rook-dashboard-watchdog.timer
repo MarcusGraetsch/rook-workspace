@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the Rook dashboard watchdog every 2 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+Unit=rook-dashboard-watchdog.service
+
+[Install]
+WantedBy=timers.target

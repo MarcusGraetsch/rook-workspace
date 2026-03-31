@@ -1,0 +1,45 @@
+{
+  "task_id": "ops-0017",
+  "project_id": "rook-workspace",
+  "title": "Contabo VM Lifecycle Automation",
+  "description": "VM nur 08:00-20:00 CET laufen lassen via API. Cost reduction.",
+  "status": "in_progress",
+  "assigned_agent": "engineer",
+  "priority": "low",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/engineer/ops-0017-contabo-vm-lifecycle-automation",
+  "commits": [],
+  "labels": [
+    "infrastructure",
+    "vm",
+    "automation"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "42070f20-3f2e-4b31-bfd2-62b8e820cce0",
+    "column_name": "In Progress",
+    "task_db_id": "14a51752-e1db-4550-a15b-da3a818d8763",
+    "position": 6,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 16,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/16",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-30T15:42:24.035Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-30T15:42:22.710Z",
+    "updated_at": "2026-03-30T15:42:24.035Z",
+    "started_at": "2026-03-30T15:42:22.710Z",
+    "completed_at": null
+  }
+}

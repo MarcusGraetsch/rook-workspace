@@ -1,0 +1,45 @@
+{
+  "task_id": "ops-0003",
+  "project_id": "rook-workspace",
+  "title": "Social Media Transition Research",
+  "description": "Platform Exodus Analyse: Fediverse migration, youth bans, collapse risks, di.day research.",
+  "status": "backlog",
+  "assigned_agent": "researcher",
+  "priority": "medium",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/researcher/ops-0003-social-media-transition-research",
+  "commits": [],
+  "labels": [
+    "research",
+    "social-media",
+    "platform-analysis"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "column_name": "Backlog",
+    "task_db_id": "9a842cbc-c363-4f88-a3d3-f35b09029ac8",
+    "position": 3,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 2,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/2",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-30T15:42:05.602Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-30T15:38:39.876Z",
+    "updated_at": "2026-03-30T15:42:05.602Z",
+    "started_at": null,
+    "completed_at": null
+  }
+}

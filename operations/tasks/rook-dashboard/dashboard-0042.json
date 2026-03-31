@@ -1,0 +1,45 @@
+{
+  "task_id": "dashboard-0042",
+  "project_id": "rook-dashboard",
+  "title": "Implement canonical task read path in dashboard",
+  "description": "Add a read-only dashboard view over Git-backed operations task files so the control plane can begin migrating away from local-only kanban.db state.",
+  "status": "in_progress",
+  "assigned_agent": "engineer",
+  "priority": "high",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/dashboard-0042-canonical-task-read-path",
+  "commits": [],
+  "labels": [
+    "dashboard",
+    "operations",
+    "control-plane"
+  ],
+  "workflow_stage": "implementation",
+  "blocked_reason": null,
+  "handoff_notes": "This is the first migration slice. The existing kanban board remains transitional until dashboard write-back is implemented.",
+  "kanban": {
+    "board_id": "system-control",
+    "board_name": "System Control",
+    "column_id": "in-progress",
+    "column_name": "In Progress",
+    "task_db_id": "dashboard-0042",
+    "position": 0,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 1,
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/issues/1",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-30T14:58:55.510Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-30T10:30:00Z",
+    "updated_at": "2026-03-30T14:58:55.511Z",
+    "started_at": "2026-03-30T10:35:00Z",
+    "completed_at": null
+  }
+}

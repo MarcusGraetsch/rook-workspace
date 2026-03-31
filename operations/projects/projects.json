@@ -1,0 +1,44 @@
+[
+  {
+    "project_id": "rook-workspace",
+    "name": "Rook Workspace",
+    "related_repo": "MarcusGraetsch/rook-workspace",
+    "type": "operations"
+  },
+  {
+    "project_id": "rook-agent",
+    "name": "Rook Agent",
+    "related_repo": "MarcusGraetsch/rook-agent",
+    "type": "runtime"
+  },
+  {
+    "project_id": "rook-dashboard",
+    "name": "Rook Dashboard",
+    "related_repo": "MarcusGraetsch/rook-dashboard",
+    "type": "product"
+  },
+  {
+    "project_id": "metrics-collector",
+    "name": "Metrics Collector",
+    "related_repo": "MarcusGraetsch/metrics-collector",
+    "type": "data"
+  },
+  {
+    "project_id": "digital-research",
+    "name": "Digital Capitalism Research",
+    "related_repo": "MarcusGraetsch/digital-capitalism-research",
+    "type": "research"
+  },
+  {
+    "project_id": "critical-theory-digital",
+    "name": "Critical Theory Digital",
+    "related_repo": "MarcusGraetsch/critical-theory-digital",
+    "type": "writing"
+  },
+  {
+    "project_id": "working-notes",
+    "name": "Working Notes",
+    "related_repo": "MarcusGraetsch/working-notes",
+    "type": "publishing"
+  }
+]
