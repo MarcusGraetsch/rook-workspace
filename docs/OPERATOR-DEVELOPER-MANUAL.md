@@ -81,8 +81,16 @@ Discord exists to:
 - surface status
 - show important handoffs
 - show failures and blocked conditions
+- keep the human in the loop on important agent lifecycle events
 
 If Discord says work started but canonical task state never changed, the work did not really start.
+
+Preferred command path:
+
+- use `#agent-commands` for real dispatch requests
+- use general Rook chat for discussion and planning
+- `#agent-commands` is routed to the dedicated `dispatcher` agent
+- `rook-discord-dispatch-bridge.timer` polls that channel transcript every 15 seconds and converts explicit dispatch requests into real dispatcher launches
 
 ## 3. Real Runtime Components
 
@@ -355,6 +363,11 @@ The operator should see at least:
 - task blocked
 - stale claim released
 - dashboard/runtime failure if it affects execution
+
+Operational note:
+
+- if nothing is actually running, the dashboard should show idle cards and the command channel should not pretend otherwise
+- `#agent-commands` is intended for narrow control-plane commands, not free-form coordination chat
 
 ## 9. Worker Execution Model
 

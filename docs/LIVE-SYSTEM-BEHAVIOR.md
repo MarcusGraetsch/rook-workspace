@@ -148,12 +148,26 @@ Discord is:
 - status output
 - escalation surface
 - operator visibility for important dispatcher handoffs and lifecycle events
+- the human-facing place where important agent handoffs should remain visible
 
 Discord is not:
 
 - a durable task store
 - a reliable worker runtime
 - proof that orchestration completed
+
+Operational rule:
+
+- `#agent-commands` is now a narrow control channel, not general Rook chat
+- that channel is bound to the dedicated `dispatcher` agent
+- a user `systemd` timer (`rook-discord-dispatch-bridge.timer`) scans new `#agent-commands` messages every 15 seconds
+- when it sees an explicit dispatch request such as `dispatch canonical task ops-0019`, it launches the canonical dispatcher wrapper directly and posts an accepted/blocked acknowledgement back to Discord
+- this path exists so one Discord command can start real pipeline movement without requiring repeated human nudges
+
+Important caveat:
+
+- Rook can still speak elsewhere in Discord
+- the control loop is only trusted when the bridge/dispatcher changes canonical task state and the dashboard reflects it
 
 ## Git And GitHub Behavior
 

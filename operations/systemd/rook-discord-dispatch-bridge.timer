@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Rook Discord Dispatch Bridge every 15 seconds
+
+[Timer]
+OnBootSec=15s
+OnUnitActiveSec=15s
+Unit=rook-discord-dispatch-bridge.service
+
+[Install]
+WantedBy=timers.target
