@@ -86,6 +86,65 @@ If Discord says work started but canonical task state never changed, the work di
 
 ## 3. Real Runtime Components
 
+### Two Checkout Modes
+
+This VPS currently uses two different working trees for two different purposes.
+
+#### Live Runtime Checkout
+
+- `/root/.openclaw/workspace`
+
+Use this checkout for:
+
+- the actual supervised runtime
+- canonical task files used by the live system
+- dispatcher scripts used by the live system
+- dashboard/runtime assets used by the live system
+
+Important rule:
+
+- treat this checkout as operational state, not as the preferred place for broad Git hygiene work
+
+It can contain:
+
+- task-state churn
+- local runtime artifacts
+- service-facing edits
+- transient operational dirt
+
+#### Clean Git Checkout
+
+- `/root/.openclaw/workspace-main`
+
+Use this checkout for:
+
+- reviewable code/documentation changes
+- clean branch work
+- PR creation
+- compare/merge flow
+- documentation maintenance
+
+Important rule:
+
+- prefer this checkout for Git work that should be pushed, reviewed, and merged cleanly
+
+### Why The Split Exists
+
+The live checkout must keep the system running.
+The clean checkout exists so Git operations do not get mixed with live runtime noise.
+
+That means:
+
+- live runtime repair may happen in `/root/.openclaw/workspace`
+- durable reviewable change should usually be repeated or finalized in `/root/.openclaw/workspace-main`
+
+If this distinction is ignored, the risks are:
+
+- accidental commits of runtime dirt
+- confusing diffs
+- unsafe cleanup in the live path
+- uncertainty about what is actually deployed vs merely staged
+
 ### Required Services
 
 The minimum supervised runtime is:
@@ -404,6 +463,15 @@ curl -fsS http://127.0.0.1:3001/kanban >/dev/null
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 ```
+
+### Which Checkout To Use
+
+Use:
+
+- `/root/.openclaw/workspace` when checking live services, live canonical tasks, and live runtime behavior
+- `/root/.openclaw/workspace-main` when preparing commits, opening PRs, or reviewing diffs against `main`
+
+Do not assume those two trees are always identical at every moment.
 
 ### When Looking At The Board
 

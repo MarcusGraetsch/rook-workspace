@@ -50,6 +50,8 @@ Key paths:
   - agent repo with skills, identity, rescue scripts, config templates
 - `workspace/`
   - main coordinated work repo
+- `workspace-main/`
+  - clean Git-working checkout used for focused branch/PR work against `main`
 - `workspace-engineer/`, `workspace-researcher/`, `workspace-coach/`, `workspace-consultant/`
   - local role workspaces with mixed maturity
 - `workspace-health/`
@@ -103,6 +105,18 @@ Purpose:
 - high-level docs and memory
 
 Current state: active and central.
+
+### `MarcusGraetsch/rook-workspace` Clean Working Copy
+
+Local path: `/root/.openclaw/workspace-main`
+
+Purpose:
+
+- clean Git branch work
+- compare and PR preparation
+- documentation and merge-safe edits
+
+Current state: active as the safer Git-working copy for reviewed changes.
 
 ### `MarcusGraetsch/rook-agent`
 
@@ -302,4 +316,3 @@ Still incomplete:
 
 - not all runtime state is reconstructible from repos alone
 - local config and message runtime still need formal recovery docs
-
