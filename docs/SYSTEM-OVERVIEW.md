@@ -2,6 +2,10 @@
 
 This document describes the system that is actually running on the VPS after the March 31, 2026 recovery work.
 
+For the fuller operator/developer reference, see:
+
+- `docs/OPERATOR-DEVELOPER-MANUAL.md`
+
 ## Purpose
 
 The Rook system is an OpenClaw-first coordinator-specialist environment with four operational layers:
