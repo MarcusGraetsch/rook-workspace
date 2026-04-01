@@ -65,6 +65,7 @@ The Kanban board reflects real execution stages:
 
 | Stage | Meaning |
 |-------|---------|
+| **Intake** | Ticket is being refined into a real task contract |
 | **Ready** | Dispatchable but not yet claimed |
 | **In Progress** | Engineer execution is active |
 | **Testing** | Test-stage work is active |
@@ -72,6 +73,13 @@ The Kanban board reflects real execution stages:
 | **Done** | Task completed honestly, board and canonical state aligned |
 
 Each stage transition should correspond to real worker activity, not just text updates.
+
+`Ready` is intentionally gated:
+
+- the task must have a non-empty intake brief
+- the task must have at least one checklist item
+
+If those requirements are missing, the dashboard should keep the ticket in `Intake`/planning rather than allowing dispatchable state.
 
 - Canonical task files under `workspace/operations/tasks/` are the source of truth.
 - The dashboard is the human control plane.

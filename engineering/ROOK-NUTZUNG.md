@@ -31,6 +31,8 @@ Features:
 ### 📋 Kanban Board
 
 - Multiple Boards (Research, Consulting, Buch, etc.)
+- Full workflow columns: `Backlog -> Intake -> Ready -> In Progress -> Testing -> Review -> Blocked -> Done`
+- AI ticket refinement from rough human text
 - Drag&Drop Tasks zwischen Spalten
 - Priority (low/medium/high/urgent)
 - Labels
@@ -79,6 +81,51 @@ Dann öffne: `http://localhost:3000`
 - SSH Tunnel: `ssh -L 3000:localhost:3000 root@vmd151897`
 - Oder: Dashboard auf Hosting deployen (Vercel, Railway, etc.)
 
+### Kanban mit Intake-Workflow nutzen
+
+Der neue Ticket-Fluss ist jetzt:
+
+`Backlog -> Intake -> Ready -> In Progress -> Testing -> Review -> Done`
+
+Praktisch heißt das:
+
+1. Neue Idee in `Backlog` oder direkt in `Intake` anlegen.
+2. Im Ticket-Fenster die rohe Beschreibung in **AI Ticket Intake** schreiben.
+3. Auf **Refine Ticket** klicken.
+4. Das System erzeugt:
+   - besseren Titel
+   - klarere, agent-taugliche Beschreibung
+   - vorgeschlagene Labels / Assignee
+   - Checklist
+   - Repo-/Projekt-Vorschlag
+   - kurze Refinement-Zusammenfassung
+5. Wenn das Ticket gut genug strukturiert ist, nach `Ready` verschieben.
+
+Die Verfeinerung ist jetzt aufgabentyp-sensitiv:
+
+- Entwicklungsarbeit wird als Ausführungsauftrag mit Scope, Implementierungsziel und Validierung formuliert.
+- Research-Tickets werden als Forschungsauftrag mit Frage, Quellenlage, Findings und offenem Rest formuliert.
+- Consulting-/Strategie-Tickets werden als Entscheidungs- oder Empfehlungsvorlage mit Optionen, Tradeoffs und nächsten Schritten formuliert.
+- Die Checklist wird bei freien Fließtext-Briefs nicht mehr bloß aus den eingegebenen Sätzen kopiert, sondern als Arbeitsstruktur für den zuständigen Agenten erzeugt.
+
+Die Checklist soll deshalb nicht nur „Tasks sammeln“, sondern dem ausführenden Agenten eine brauchbare Arbeitsstruktur geben.
+
+Wichtig:
+
+- `Ready` ist jetzt absichtlich gated.
+- Ein Ticket darf nur nach `Ready`, wenn es:
+  - einen nicht-leeren `intake brief` hat
+  - mindestens einen Checklist-Eintrag hat
+- Falls ein Ticket noch roh ist, nutze **Send to Intake** oder verschiebe es in die `Intake`-Spalte.
+- Tickets in `Intake` bekommen standardmäßig `coach` als Owner, wenn kein anderer Agent explizit gesetzt ist.
+
+Faustregel:
+
+- `Backlog`: lose Ideen / Parkfläche
+- `Intake`: AI + Mensch strukturieren den Task
+- `Ready`: dispatchbar
+- `In Progress` bis `Done`: Ausführungspipeline
+
 ### Health Tracker nutzen
 
 Der Health Agent (💪) kann direkt über Telegram angesprochen werden:
@@ -95,6 +142,18 @@ Im Chat mit Rook einfach sagen:
 - „Frag den Engineer ob...“ → Engineer Sub-Agent
 - „Check mal den Health Tracker“ → Health Sub-Agent
 - „Recherchier was zu...“ → Researcher Sub-Agent
+
+### Welcher Agent macht was im Ticket-Fluss?
+
+| Phase | Typischer Owner |
+|------|------------------|
+| `Intake` | `coach` |
+| `Ready` | koordinierbar / dispatchbar |
+| `In Progress` | `engineer` oder anderer Specialist |
+| `Testing` | `test` |
+| `Review` | `review` |
+
+Hinweis: Wenn Spezialisten instabil sind, kann die Pipeline intern noch Fallbacks nutzen. Die kanonische Task-Datei bleibt trotzdem die Quelle der Wahrheit.
 
 ### Aktuelle Konfiguration prüfen
 

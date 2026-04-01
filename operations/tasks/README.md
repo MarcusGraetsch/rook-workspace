@@ -22,6 +22,7 @@ archive/
 ## Lifecycle
 
 - `backlog`
+- `intake`
 - `ready`
 - `in_progress`
 - `review`
@@ -45,9 +46,17 @@ archive/
 
 `test` and `review` are conditional execution agents in the default delivery pipeline:
 
-- `research if needed -> engineer -> test -> review -> done`
+- `intake/refinement -> research if needed -> engineer -> test -> review -> done`
 
 Coordinator-owned tasks may still stay on `rook`, but specialist execution should be explicit and durable in the canonical task file rather than implied only in chat.
+
+`intake` is the task-shaping stage before dispatch:
+
+- rough human wording may still be present
+- the ticket should be refined into clearer title, description, checklist, and repo targeting
+- `coach` is the default intake owner unless another agent is explicitly selected
+- the canonical task should preserve intake metadata such as the original brief and refinement summary
+- tasks should not move to `ready` without a non-empty intake brief and at least one checklist item
 
 ## Hybrid Workflow
 
