@@ -109,6 +109,13 @@ Im Kanban-Ticket selbst wird Delivery Evidence jetzt klarer gezeigt:
 
 Das soll sichtbar machen, ob ein Ticket nur textlich „gut aussieht“ oder ob reale Git- und Pipeline-Evidenz vorhanden ist.
 
+Im Ticket-Modal werden zusätzlich die eigentlichen Nachweise sichtbar:
+
+- Handoff Notes des Engineers
+- Test Summary und ausgeführte Commands
+- Review Summary
+- Failure Reason, falls der Task ehrlich blockiert oder fehlgeschlagen ist
+
 ### Kanban mit Intake-Workflow nutzen
 
 Der neue Ticket-Fluss ist jetzt:
