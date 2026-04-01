@@ -1,0 +1,8 @@
+[Unit]
+Description=Rook Discord Dispatch Bridge
+After=openclaw-gateway.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/.openclaw/workspace
+ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/discord-dispatch-bridge.mjs

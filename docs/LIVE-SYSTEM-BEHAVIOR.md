@@ -67,6 +67,11 @@ The dispatcher:
 - releases claims or blocks tasks when runs fail
 - writes durable alerts even if Discord notifications fail
 
+Transient runtime-abort rule:
+
+- if a hook worker dies with a transient `Request was aborted` style failure, the dispatcher now retries automatically before marking the task `blocked`
+- only after retry budget is exhausted should the task remain blocked for human attention
+
 The dispatcher does not own business logic for the task itself.
 It owns launch, supervision, and state honesty.
 
@@ -138,6 +143,12 @@ It is expected to:
 - reflect real runtime health
 - not invent execution that did not happen
 
+Operational details:
+
+- the kanban board now auto-refreshes every 5 seconds so stage movement is visible without manual reloads
+- if a task becomes `blocked` and the board has no explicit `Blocked` column, the card stays anchored to the stage that actually failed
+- that means an engineer-stage abort renders as `In Progress` plus a blocked pipeline badge, not `Ready` plus confusion
+
 If the dashboard goes down, the system is degraded even if Discord still replies.
 
 ## Discord Behavior
@@ -148,12 +159,26 @@ Discord is:
 - status output
 - escalation surface
 - operator visibility for important dispatcher handoffs and lifecycle events
+- the human-facing place where important agent handoffs should remain visible
 
 Discord is not:
 
 - a durable task store
 - a reliable worker runtime
 - proof that orchestration completed
+
+Operational rule:
+
+- `#agent-commands` is now a narrow control channel, not general Rook chat
+- that channel is bound to the dedicated `dispatcher` agent
+- a user `systemd` timer (`rook-discord-dispatch-bridge.timer`) scans new `#agent-commands` messages every 15 seconds
+- when it sees an explicit dispatch request such as `dispatch canonical task ops-0019`, it launches the canonical dispatcher wrapper directly and posts an accepted/blocked acknowledgement back to Discord
+- this path exists so one Discord command can start real pipeline movement without requiring repeated human nudges
+
+Important caveat:
+
+- Rook can still speak elsewhere in Discord
+- the control loop is only trusted when the bridge/dispatcher changes canonical task state and the dashboard reflects it
 
 ## Lifecycle Events
 

@@ -101,8 +101,16 @@ It should be used for:
 - progress updates
 - failure notifications
 - escalation
+- important inter-agent lifecycle visibility for the human operator
 
 It should not be the only place where task state exists.
+
+Current control-path rule:
+
+- general conversation can still go to `rook`
+- real task-dispatch commands should go through `#agent-commands`
+- `#agent-commands` is routed to the dedicated `dispatcher` agent and backed by the `rook-discord-dispatch-bridge.timer`
+- that bridge converts explicit dispatch messages into real canonical-dispatch attempts instead of waiting for conversational follow-up
 
 ## Health Model
 
@@ -127,6 +135,7 @@ The minimum supervised runtime is:
 - `rook-dashboard.service`
 - `rook-dashboard-watchdog.timer`
 - `rook-dispatcher.timer`
+- `rook-discord-dispatch-bridge.timer`
 
 If the gateway is up but the dashboard and dispatcher are not supervised, the system degrades into chat without reliable execution.
 
