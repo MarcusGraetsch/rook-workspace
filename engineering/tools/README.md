@@ -7,6 +7,7 @@ This directory contains scripts for disaster recovery.
 - **backup.sh** - Creates backups of workspace and configs
 - **restore.sh** - Restores environment on fresh VPS
 - **../operations/bin/backup-runtime-to-drive.sh** - Snapshots live runtime state and syncs it to Google Drive via `rclone`
+- **../operations/bin/restore-runtime-backup.sh** - Restores a runtime backup snapshot from local disk or Google Drive
 - **SECRETS.md** - Documents API keys and sensitive config
 
 ## Usage
@@ -21,6 +22,18 @@ This directory contains scripts for disaster recovery.
 ```
 
 The runtime backup is the preferred path for the current VPS because it protects the important local operational state without trying to commit or tar the entire dirty workspace.
+
+### Restoring Runtime State
+
+```bash
+# Restore from local snapshot
+/root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
+  --from-local /root/backups/rook-runtime/<timestamp>
+
+# Restore directly from Google Drive
+/root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
+  --from-gdrive <host>/<timestamp>
+```
 
 ### Restoring After VPS Failure
 

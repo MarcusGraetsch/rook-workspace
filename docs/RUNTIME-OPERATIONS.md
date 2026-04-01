@@ -64,6 +64,10 @@ node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 # Manual runtime backup test
 /root/.openclaw/workspace/operations/bin/backup-runtime-to-drive.sh
 
+# Restore a runtime snapshot
+/root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
+  --from-local /root/backups/rook-runtime/<timestamp>
+
 # Hook dispatch test (replace <task-id>)
 ROOK_DISPATCH_TIMEOUT_SECONDS=35 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --task <task-id> --limit 1 --dispatch-mode hook
 ```

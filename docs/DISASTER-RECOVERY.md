@@ -118,16 +118,13 @@ If a recent runtime backup exists, restore the local operational state before re
 Example:
 
 ```bash
-# Copy a backup down from Google Drive if needed
-rclone copy gdrive:DigitalCapitalismBackups/rook-runtime/<host>/<timestamp> /tmp/rook-runtime-restore
+# Preferred restore path
+/root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
+  --from-gdrive <host>/<timestamp>
 
-# Restore dashboard SQLite state
-cp /tmp/rook-runtime-restore/dashboard/kanban.db \
-  /root/.openclaw/workspace/engineering/rook-dashboard/data/kanban.db
-
-# Restore canonical tasks, archive, project registry, health, and dispatcher logs
-tar xzf /tmp/rook-runtime-restore/operations/tasks.tar.gz -C /root/.openclaw/workspace/operations
-tar xzf /tmp/rook-runtime-restore/operations/runtime-state.tar.gz -C /root/.openclaw/workspace/operations
+# Or restore from a local snapshot
+/root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
+  --from-local /root/backups/rook-runtime/<timestamp>
 ```
 
 Restore while the dashboard and dispatcher are stopped, then restart them and verify `/kanban`.
