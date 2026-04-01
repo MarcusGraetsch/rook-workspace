@@ -46,12 +46,43 @@ Deprecated model:
 
 ## Task Flow
 
-1. User creates or edits work in Kanban.
-2. Dashboard writes the local task DB for UI responsiveness.
-3. Dashboard mirrors the task into canonical JSON.
-4. If the task is repo-linked, dashboard syncs a GitHub Issue.
-5. Done tasks may be archived.
-6. Archived tasks remain restorable to backlog.
+1. User creates rough work in Kanban, usually in `Backlog` or `Intake`.
+2. `Intake` is the pre-delivery structuring phase. A human can write plain language and the dashboard refines it into a better task contract.
+3. Dashboard writes the local task DB for UI responsiveness.
+4. Dashboard mirrors the task into canonical JSON.
+5. If the task is repo-linked, dashboard syncs a GitHub Issue.
+6. Only structured tickets should move to `Ready`.
+7. Done tasks may be archived.
+8. Archived tasks remain restorable to backlog.
+
+## Workflow Stages
+
+- `Backlog`: loose ideas or parked work
+- `Intake`: refinement and task shaping before dispatch
+- `Ready`: dispatchable work only
+- `In Progress`: specialist execution
+- `Testing`: explicit validation stage
+- `Review`: explicit review stage
+- `Blocked`: honest stop with a reason
+- `Done`: durable completion
+
+## Intake Rules
+
+- `Ready` is gated.
+- A task must not move to `Ready` unless it has:
+  - a non-empty intake brief
+  - at least one checklist item
+- Tickets in `Intake` should default to `coach` ownership unless a different specialist is intentionally chosen.
+- The refinement step should leave durable intake metadata in the canonical task file:
+  - original brief
+  - refinement source
+  - refinement summary
+  - refined timestamp
+- Refinement should not assume every ticket is software implementation work. Intake should shape the ticket according to likely work type:
+  - engineering: scope, implementation target, validation
+  - research: question, evidence, findings
+  - consulting: decision framing, options, recommendation
+- The dashboard API now enforces this gate, so drag-and-drop or modal edits that try to bypass intake should fail.
 
 ## Git Flow
 
@@ -103,4 +134,3 @@ Discord is not:
 ## Notes
 
 The older architecture assumptions about automatic test/review agents and Discord-owned subagent sessions are no longer the current target. They remain useful as historical context only.
-

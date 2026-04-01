@@ -1,0 +1,56 @@
+{
+  "task_id": "ops-0019",
+  "project_id": "rook-workspace",
+  "title": "Full pipeline smoke test: engineer to test to review",
+  "description": "Goal: verify that the repaired multi-agent pipeline performs a real multi-stage task and that the \ndashboard stages correspond to real execution by the appropriate worker/stage.\n\nScope:\n- make one small bounded code or documentation change in rook-workspace that is substantial enough to justify engineer work, testing, and review\n- preferred change: add one short verification subsection to docs/RUNTIME-OPERATIONS.md called \"Stage Transition Validation\" explaining that:\n  - Ready means dispatchable but not yet claimed\n  - In Progress means engineer execution is active\n  - Testing means test-stage work is active\n  - Review means review-stage work is active\n  - Done means the task completed honestly and the board/canonical state are aligned\n- if a better small change is needed to force a real test/review path, the worker may choose a similarly small bounded change in rook-workspace\n- commit using normal agent/task commit prefixes\n- update canonical task state honestly at each stage\n- post important lifecycle messages in Discord\n\nSuccess criteria:\n- task starts in Ready\n- task moves to In Progress during engineer execution\n- task moves to Testing during test-stage execution\n- task moves to Review during review-stage execution\n- task ends in Done only after real completion\n- Discord shows important lifecycle updates\n- canonical task state matches the visible board state\n- Git artifacts exist: branch and commit, and PR if applicable\n- if anything fails, task becomes blocked honestly with a real reason\n\nSuggested task metadata:\n- repo/project: rook-workspace\n- status: Ready\n- assigned agent: rook or coordinator-owned\n- priority: normal",
+  "status": "done",
+  "assigned_agent": "rook",
+  "claimed_by": null,
+  "priority": "high",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/rook/ops-0019-full-pipeline-smoke-test-engineer-to-test-to-rev",
+  "commits": [
+    {
+      "sha": "1d5b32c",
+      "message": "[agent:engineer][task:ops-0019] add Stage Transition Validation section",
+      "author": "Rook (engineer)",
+      "date": "2026-03-31T17:37:00Z"
+    }
+  ],
+  "commit_refs": [],
+  "labels": [],
+  "workflow_stage": "completed",
+  "blocked_reason": null,
+  "handoff_notes": "Approved: Stage Transition Validation section merged",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "98274f3b-1676-4b88-9845-1c492d7613d0",
+    "column_name": "Review",
+    "task_db_id": "7890e56d-bb7a-4a1c-afb9-cea677aab15c",
+    "position": 27,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 26,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/26",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-03-31T15:35:09.846Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-03-31T15:35:02.685Z",
+    "updated_at": "2026-03-31T17:58:00Z",
+    "started_at": "2026-03-31T17:36:00Z",
+    "completed_at": "2026-03-31T17:58:00Z",
+    "claimed_at": null
+  }
+}

@@ -35,10 +35,42 @@
       "type": "string",
       "minLength": 3
     },
+    "intake": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "brief": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "refinement_source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "refined_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "refinement_summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
     "status": {
       "type": "string",
       "enum": [
         "backlog",
+        "intake",
         "ready",
         "in_progress",
         "review",
@@ -151,6 +183,82 @@
         "type": "string"
       }
     },
+    "checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "completed",
+          "position"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "test_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "passed",
+            "failed",
+            null
+          ]
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "review_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "verdict": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "approved",
+            "changes_requested",
+            null
+          ]
+        },
+        "summary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
     "dispatch": {
       "type": "object",
       "additionalProperties": false,
@@ -207,6 +315,18 @@
           ]
         },
         "session_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dispatched_status": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dispatched_owner": {
           "type": [
             "string",
             "null"
