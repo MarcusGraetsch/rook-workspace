@@ -6,6 +6,8 @@ This directory contains scripts for disaster recovery.
 
 - **backup.sh** - Creates backups of workspace and configs
 - **restore.sh** - Restores environment on fresh VPS
+- **../operations/bin/backup-runtime-to-drive.sh** - Snapshots live runtime state and syncs it to Google Drive via `rclone`
+- **../operations/bin/restore-runtime-backup.sh** - Restores a runtime backup snapshot from local disk or Google Drive
 - **SECRETS.md** - Documents API keys and sensitive config
 
 ## Usage
@@ -13,11 +15,24 @@ This directory contains scripts for disaster recovery.
 ### Creating Backups
 
 ```bash
-# Manual backup
-cd /root/.openclaw/workspace
-./scripts/backup.sh
+# Runtime-state backup for the live system
+/root/.openclaw/workspace/operations/bin/backup-runtime-to-drive.sh
 
-# Backups stored in: /root/backups/
+# Backups stored in: /root/backups/rook-runtime/
+```
+
+The runtime backup is the preferred path for the current VPS because it protects the important local operational state without trying to commit or tar the entire dirty workspace.
+
+### Restoring Runtime State
+
+```bash
+# Restore from local snapshot
+/root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
+  --from-local /root/backups/rook-runtime/<timestamp>
+
+# Restore directly from Google Drive
+/root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
+  --from-gdrive <host>/<timestamp>
 ```
 
 ### Restoring After VPS Failure
@@ -46,9 +61,12 @@ git clone https://github.com/YOUR_USERNAME/digital-capitalism-research.git /root
 
 ## What's Backed Up
 
-- Workspace files (excluding .git, node_modules)
-- OpenClaw configuration
-- System manifest (installed packages, versions)
+- Dashboard SQLite state
+- Canonical tasks and archived tasks
+- Project registry
+- Health snapshots
+- Dispatcher logs
+- Git head/status manifests for the main workspace and dashboard repo
 
 ## What's NOT Backed Up (Must Restore Manually)
 
@@ -59,3 +77,9 @@ git clone https://github.com/YOUR_USERNAME/digital-capitalism-research.git /root
 ## Cloud Storage Integration (Optional)
 
 For off-server backup storage, see CLOUD_STORAGE.md for setup instructions.
+
+For the current runtime flow, configure `rclone` with a `gdrive:` remote and use the runtime backup script above. The expected target is:
+
+```text
+gdrive:DigitalCapitalismBackups/rook-runtime/<host>/
+```

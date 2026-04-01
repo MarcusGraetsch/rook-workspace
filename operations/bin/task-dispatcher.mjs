@@ -229,6 +229,42 @@ function statusForDispatch(task, executor) {
   return statusForExecutor(executor);
 }
 
+function advanceStageAfterCompletion(task, executor, launchedStatus, nowIso) {
+  const currentStatus = String(launchedStatus || task.status || '');
+
+  if (currentStatus === 'in_progress' && executor === 'engineer') {
+    task.status = 'testing';
+    task.assigned_agent = 'test';
+    task.workflow_stage = 'testing';
+    task.blocked_by = [];
+    task.failure_reason = null;
+    task.timestamps.updated_at = nowIso;
+    return { advanced: true, nextStage: 'testing', nextOwner: 'test' };
+  }
+
+  if (currentStatus === 'testing' && (executor === 'test' || executor === 'engineer')) {
+    task.status = 'review';
+    task.assigned_agent = 'review';
+    task.workflow_stage = 'review';
+    task.blocked_by = [];
+    task.failure_reason = null;
+    task.timestamps.updated_at = nowIso;
+    return { advanced: true, nextStage: 'review', nextOwner: 'review' };
+  }
+
+  if (currentStatus === 'review' && (executor === 'review' || executor === 'engineer')) {
+    task.status = 'done';
+    task.workflow_stage = 'done';
+    task.blocked_by = [];
+    task.failure_reason = null;
+    task.timestamps.updated_at = nowIso;
+    task.timestamps.completed_at = task.timestamps.completed_at || nowIso;
+    return { advanced: true, nextStage: 'done', nextOwner: task.assigned_agent || executor };
+  }
+
+  return { advanced: false, nextStage: currentStatus || null, nextOwner: task.assigned_agent || null };
+}
+
 function isDispatchable(task) {
   if (task.status === 'ready') {
     return true;
@@ -321,11 +357,240 @@ function unresolvedDependencies(task, taskMap) {
   });
 }
 
+function repoTailFromTask(task) {
+  return String(task.related_repo || '').split('/').at(-1) || task.project_id;
+}
+
+function repoViewPath(task, executor) {
+  return path.join(OPENCLAW_DIR, `workspace-${executor}`, 'workspace', 'repos', repoTailFromTask(task));
+}
+
+async function runGit(repoPath, args) {
+  return new Promise((resolve) => {
+    const child = spawn('git', ['-C', repoPath, ...args], {
+      cwd: OPENCLAW_DIR,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on('close', (code) => {
+      resolve({
+        code: code ?? 1,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+      });
+    });
+    child.on('error', (error) => {
+      resolve({
+        code: 1,
+        stdout: '',
+        stderr: error instanceof Error ? error.message : String(error),
+      });
+    });
+  });
+}
+
+async function collectTaskGitEvidence(task, executor) {
+  const repoPath = repoViewPath(task, executor);
+  const evidence = {
+    repoPath,
+    exists: false,
+    currentBranch: null,
+    upstreamBranch: null,
+    aheadCount: null,
+    behindCount: null,
+    taskCommits: [],
+    error: null,
+  };
+
+  try {
+    await fs.access(repoPath);
+  } catch {
+    evidence.error = `Repo view not found: ${repoPath}`;
+    return evidence;
+  }
+
+  evidence.exists = true;
+
+  const branchResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (branchResult.code !== 0) {
+    evidence.error = branchResult.stderr || 'Failed to determine current branch.';
+    return evidence;
+  }
+  evidence.currentBranch = branchResult.stdout || null;
+
+  const upstreamResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}']);
+  if (upstreamResult.code === 0 && upstreamResult.stdout) {
+    evidence.upstreamBranch = upstreamResult.stdout;
+    const aheadBehindResult = await runGit(repoPath, ['rev-list', '--left-right', '--count', '@{upstream}...HEAD']);
+    if (aheadBehindResult.code === 0 && aheadBehindResult.stdout) {
+      const [behindRaw, aheadRaw] = aheadBehindResult.stdout.split(/\s+/);
+      evidence.behindCount = Number(behindRaw || '0');
+      evidence.aheadCount = Number(aheadRaw || '0');
+    }
+  }
+
+  const taskCommitResult = await runGit(repoPath, [
+    'log',
+    '--format=%H%x09%s',
+    '--grep',
+    `\\[task:${task.task_id}\\]`,
+    '-n',
+    '10',
+    task.branch,
+  ]);
+  if (taskCommitResult.code === 0 && taskCommitResult.stdout) {
+    evidence.taskCommits = taskCommitResult.stdout
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [sha, ...rest] = line.split('\t');
+        return {
+          sha,
+          message: rest.join('\t').trim(),
+        };
+      });
+  }
+
+  return evidence;
+}
+
+async function validateStageCompletion(task, executor, launchedStatus) {
+  const stage = String(launchedStatus || task.status || '');
+  const isCodeTask = Boolean(task.related_repo && task.branch);
+
+  if (!isCodeTask) {
+    return { ok: true, reason: null, blockedBy: [] };
+  }
+
+  if (stage === 'in_progress') {
+    const handoff = String(task.handoff_notes || '').trim();
+    if (!handoff) {
+      return {
+        ok: false,
+        reason: `Engineer work completed but ${task.task_id} is missing handoff_notes.`,
+        blockedBy: ['engineer:missing-handoff'],
+      };
+    }
+  }
+
+  if (stage === 'testing') {
+    const commands = Array.isArray(task.test_evidence?.commands) ? task.test_evidence.commands.filter(Boolean) : [];
+    const status = task.test_evidence?.status || null;
+    const summary = String(task.test_evidence?.summary || '').trim();
+    if (commands.length === 0) {
+      return {
+        ok: false,
+        reason: `Testing completed but ${task.task_id} is missing test_evidence.commands.`,
+        blockedBy: ['testing:missing-commands'],
+      };
+    }
+    if (status !== 'passed') {
+      return {
+        ok: false,
+        reason: `Testing completed but ${task.task_id} does not have test_evidence.status=passed.`,
+        blockedBy: ['testing:not-passed'],
+      };
+    }
+    if (!summary) {
+      return {
+        ok: false,
+        reason: `Testing completed but ${task.task_id} is missing test_evidence.summary.`,
+        blockedBy: ['testing:missing-summary'],
+      };
+    }
+  }
+
+  if (stage === 'review') {
+    const verdict = task.review_evidence?.verdict || null;
+    const summary = String(task.review_evidence?.summary || '').trim();
+    if (verdict !== 'approved') {
+      return {
+        ok: false,
+        reason: `Review completed but ${task.task_id} does not have review_evidence.verdict=approved.`,
+        blockedBy: ['review:not-approved'],
+      };
+    }
+    if (!summary) {
+      return {
+        ok: false,
+        reason: `Review completed but ${task.task_id} is missing review_evidence.summary.`,
+        blockedBy: ['review:missing-summary'],
+      };
+    }
+    if (task.github_pull_request?.state === 'merged') {
+      return { ok: true, reason: null, blockedBy: [] };
+    }
+
+    return {
+      ok: false,
+      reason: `Review completed but ${task.task_id} is not merged. A merged pull request is required before status can move to done.`,
+      blockedBy: ['github:pr-not-merged'],
+    };
+  }
+
+  const evidence = await collectTaskGitEvidence(task, executor);
+  if (!evidence.exists) {
+    return {
+      ok: false,
+      reason: evidence.error || `Repo view missing for ${task.task_id}.`,
+      blockedBy: ['git:repo-view-missing'],
+    };
+  }
+
+  if (evidence.currentBranch !== task.branch) {
+    return {
+      ok: false,
+      reason: `Repo view is on branch ${evidence.currentBranch || 'unknown'}, expected ${task.branch}.`,
+      blockedBy: ['git:branch-mismatch'],
+    };
+  }
+
+  if (evidence.taskCommits.length === 0) {
+    return {
+      ok: false,
+      reason: `Branch ${task.branch} has no commits tagged for ${task.task_id}.`,
+      blockedBy: ['git:no-task-commits'],
+    };
+  }
+
+  if (!evidence.upstreamBranch) {
+    return {
+      ok: false,
+      reason: `Branch ${task.branch} has no upstream tracking branch. Push is required before stage advancement.`,
+      blockedBy: ['git:no-upstream'],
+    };
+  }
+
+  if ((evidence.aheadCount || 0) > 0) {
+    return {
+      ok: false,
+      reason: `Branch ${task.branch} is ahead of ${evidence.upstreamBranch} by ${evidence.aheadCount} commit(s). Push is required before stage advancement.`,
+      blockedBy: ['git:unpushed-commits'],
+    };
+  }
+
+  return { ok: true, reason: null, blockedBy: [], evidence };
+}
+
 function summarizeTask(task, executor) {
   const canonicalTaskFile = path.join(TASKS_DIR, task.project_id, `${task.task_id}.json`);
-  const repoTail = String(task.related_repo || '').split('/').at(-1) || task.project_id;
-  const localRepoView = `/root/.openclaw/workspace-${executor}/workspace/repos/${repoTail}`;
+  const localRepoView = repoViewPath(task, executor);
   const stageOwner = task.assigned_agent || executor;
+  const checklistLines = Array.isArray(task.checklist)
+    ? task.checklist
+        .slice()
+        .sort((left, right) => (left.position ?? 0) - (right.position ?? 0))
+        .map((item, index) => `${item.completed ? '[x]' : '[ ]'} ${index + 1}. ${item.title}`)
+    : [];
   const fallbackNote = executor !== stageOwner
     ? `Execution mode: fallback executor ${executor} is handling ${task.status} on behalf of ${stageOwner} because the dedicated specialist path is currently unstable.`
     : null;
@@ -339,8 +604,23 @@ function summarizeTask(task, executor) {
     `Title: ${task.title}`,
     fallbackNote,
     task.handoff_notes ? `Notes: ${task.handoff_notes}` : null,
+    checklistLines.length > 0 ? `Checklist:\n${checklistLines.join('\n')}` : null,
+    task.test_evidence ? `Test evidence: ${JSON.stringify(task.test_evidence)}` : null,
+    task.review_evidence ? `Review evidence: ${JSON.stringify(task.review_evidence)}` : null,
     task.description ? `Goal: ${task.description}` : null,
     `Required: work only on this task, use commit prefix [agent:${executor}][task:${task.task_id}], record artifacts in the canonical file, and if blocked update failure_reason/blocked_by in the canonical file.`,
+    checklistLines.length > 0
+      ? 'Treat the checklist as part of the task contract. Complete the relevant items or update them honestly if scope changes.'
+      : null,
+    String(task.status || '') === 'in_progress'
+      ? 'Before completing engineer work: update handoff_notes with what changed and the exact validation commands/results you ran.'
+      : null,
+    String(task.status || '') === 'testing'
+      ? 'Before completing testing: fill test_evidence.status, test_evidence.commands, and test_evidence.summary in the canonical task. Do not leave testing without explicit commands and a pass/fail result.'
+      : null,
+    String(task.status || '') === 'review'
+      ? 'Before completing review: fill review_evidence.verdict and review_evidence.summary in the canonical task. Code tasks only reach done after approved review and merged PR evidence.'
+      : null,
     executor !== stageOwner
       ? `Do not change the stage owner. Keep the canonical task in ${task.status} until the testing/review work is complete, then advance it normally.`
       : null,
@@ -956,6 +1236,8 @@ function buildDispatchState(task, executor, result, attempt, dispatchMode, nowIs
     thinking: mode === 'hook' ? (result.meta?.thinking || previous.thinking || HOOK_THINKING) : (previous.thinking || null),
     session_key: result.meta?.sessionKey || previous.session_key || null,
     session_id: result.sessionId || previous.session_id || null,
+    dispatched_status: previous.dispatched_status || task.status || null,
+    dispatched_owner: previous.dispatched_owner || task.assigned_agent || executor || null,
     last_result: result.code === 0 ? 'running' : 'failed',
     last_error: result.code === 0 ? null : truncate(result.meta?.reason || result.stderr || result.stdout || `dispatch failed with code ${result.code}`),
   };
@@ -1090,6 +1372,50 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
 
     const evaluation = evaluateHookTranscriptState(state);
     if (evaluation.done && evaluation.ok && evaluation.stopReason === 'stop') {
+      const completionCheck = await validateStageCompletion(
+        task,
+        executor,
+        nextDispatch.dispatched_status,
+      );
+      if (!completionCheck.ok) {
+        task.status = 'blocked';
+        task.claimed_by = null;
+        task.blocked_by = completionCheck.blockedBy;
+        task.failure_reason = completionCheck.reason;
+        task.timestamps.updated_at = nowIso;
+        task.timestamps.claimed_at = null;
+        task.last_heartbeat = latestEventTimestamp(state) || task.last_heartbeat || nowIso;
+        task.dispatch = {
+          ...nextDispatch,
+          last_result: 'completed',
+          last_error: completionCheck.reason,
+          last_checked_at: nowIso,
+        };
+        await writeJson(filePath, task);
+        await notifyAndRecord(
+          task,
+          'dispatch_blocked',
+          `[dispatcher] blocked ${task.task_id}: ${completionCheck.reason}`
+        );
+        await appendLog({
+          ts: nowIso,
+          task_id: task.task_id,
+          action: 'hook_worker_blocked_on_completion',
+          executor,
+          session_key: nextDispatch.session_key,
+          session_id: nextDispatch.session_id,
+          reason: completionCheck.reason,
+          blocked_by: completionCheck.blockedBy,
+        });
+        continue;
+      }
+
+      const promotion = advanceStageAfterCompletion(
+        task,
+        executor,
+        nextDispatch.dispatched_status,
+        nowIso
+      );
       task.claimed_by = null;
       task.timestamps.updated_at = nowIso;
       task.timestamps.claimed_at = null;
@@ -1106,6 +1432,13 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
         'worker_completed',
         formatLifecycleMessage(task, 'worker_completed', { executor })
       );
+      if (promotion.advanced) {
+        await notifyAndRecord(
+          task,
+          'stage_advanced',
+          `[dispatcher] advanced ${task.task_id} to ${promotion.nextStage} (stage owner: ${promotion.nextOwner})`
+        );
+      }
       await appendLog({
         ts: nowIso,
         task_id: task.task_id,
@@ -1115,6 +1448,7 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
         session_id: nextDispatch.session_id,
         status: task.status,
         assigned_agent: task.assigned_agent,
+        next_stage: promotion.nextStage,
       });
       continue;
     }
@@ -1240,6 +1574,11 @@ async function main() {
     }
 
     task.status = statusForDispatch(task, executor);
+    task.assigned_agent = task.status === 'testing'
+      ? 'test'
+      : task.status === 'review'
+        ? 'review'
+        : executor;
     task.claimed_by = `dispatcher:${executor}`;
     task.blocked_by = [];
     task.failure_reason = null;
@@ -1257,6 +1596,8 @@ async function main() {
       thinking: options.dispatchMode === 'hook' ? HOOK_THINKING : null,
       session_key: null,
       session_id: null,
+      dispatched_status: task.status,
+      dispatched_owner: task.assigned_agent,
       last_result: 'launching',
       last_error: null,
     };

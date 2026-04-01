@@ -180,6 +180,10 @@ Important caveat:
 - Rook can still speak elsewhere in Discord
 - the control loop is only trusted when the bridge/dispatcher changes canonical task state and the dashboard reflects it
 
+## Lifecycle Events
+
+Important lifecycle events (dispatch started, handoff, blocked, failure, completion) must appear in Discord, but Discord is not the source of truth.
+
 ## Git And GitHub Behavior
 
 Git remains the durable memory for work products.

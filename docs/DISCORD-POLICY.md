@@ -73,4 +73,15 @@ Summary: Runtime/provider failure or dependency block; see canonical failure_rea
 3. Repo-linked work should sync to GitHub.
 4. Discord notifications should summarize, not store, system state.
 5. Failures and sync errors may be announced in Discord, but remediation happens in the dashboard and repos.
+## Pipeline Testing
+
+The system validates multi-stage execution through canonical tasks:
+
+1. **Ready** → dispatched to specialist
+2. **In Progress** → engineer working
+3. **Testing** → test stage verification
+4. **Review** → review stage approval
+5. **Done** → task completed
+
+Each stage transition must correspond to real work, not just text updates.
 6. Important starts, completions, handoffs, stale-claim releases, and failures should be visible in Discord even when the detailed state lives elsewhere.
