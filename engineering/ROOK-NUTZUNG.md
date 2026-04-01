@@ -27,6 +27,7 @@ Features:
 - 📋 Kanban Board (Project Management)
 - Cron-Job Verwaltung
 - Memory Browser
+- Runtime-Backup Status auf der Dashboard-Startseite
 
 ### 📋 Kanban Board
 
@@ -80,6 +81,21 @@ Dann öffne: `http://localhost:3000`
 **Hinweis:** Das Dashboard läuft local auf der VM. Für externen Zugriff:
 - SSH Tunnel: `ssh -L 3000:localhost:3000 root@vmd151897`
 - Oder: Dashboard auf Hosting deployen (Vercel, Railway, etc.)
+
+### Dashboard als Betriebsübersicht nutzen
+
+Die Startseite `Dashboard` soll nicht nur Sessions und Agenten zeigen, sondern auch den operativen Zustand:
+
+- Gateway / Agenten
+- Token- und Aktivitätslage
+- Runtime-Backup Status
+
+Der neue Backup-Bereich auf der Dashboard-Startseite zeigt:
+
+- ob der Backup-Timer aktiv ist
+- wann der nächste Lauf geplant ist
+- welcher Snapshot zuletzt geschrieben wurde
+- ob Dashboard-DB, Task-Archiv und Runtime-State im Snapshot enthalten sind
 
 ### Kanban mit Intake-Workflow nutzen
 
