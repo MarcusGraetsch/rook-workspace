@@ -27,6 +27,12 @@ if command -v sqlite3 >/dev/null 2>&1 && [ -f "$dashboard_db" ]; then
   echo "[1/5] Snapshotting dashboard SQLite database..."
   sqlite3 "$dashboard_db" ".backup '$RUN_DIR/dashboard/kanban.db'"
   echo "    Created dashboard/kanban.db"
+elif [ -f "$dashboard_db" ]; then
+  echo "[1/5] sqlite3 not available, copying dashboard SQLite files directly..."
+  cp "$dashboard_db" "$RUN_DIR/dashboard/kanban.db"
+  [ -f "$dashboard_db-wal" ] && cp "$dashboard_db-wal" "$RUN_DIR/dashboard/kanban.db-wal"
+  [ -f "$dashboard_db-shm" ] && cp "$dashboard_db-shm" "$RUN_DIR/dashboard/kanban.db-shm"
+  echo "    Copied dashboard/kanban.db and any WAL/SHM companions"
 else
   echo "[1/5] Dashboard SQLite snapshot skipped (sqlite3 missing or DB not found)."
 fi
