@@ -96,6 +96,8 @@ Der neue Backup-Bereich auf der Dashboard-Startseite zeigt:
 - wann der nächste Lauf geplant ist
 - welcher Snapshot zuletzt geschrieben wurde
 - ob Dashboard-DB, Task-Archiv und Runtime-State im Snapshot enthalten sind
+- welche Backup-Sammlungen lokal überhaupt existieren
+- ob neben dem neuen Runtime-Backup auch die ältere Research-/Working-Notes-Backup-Spur vorhanden ist
 
 ### Kanban mit Intake-Workflow nutzen
 
