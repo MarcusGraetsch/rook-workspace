@@ -120,20 +120,24 @@ Each stage transition should correspond to real worker activity, not just text u
 
 If those requirements are missing, the dashboard should keep the ticket in `Intake`/planning rather than allowing dispatchable state.
 
-- Canonical task files under `workspace/operations/tasks/` are the source of truth.
+- Canonical task files under `workspace/operations/tasks/` are the durable source of truth.
 - The dashboard is the human control plane.
 - Discord is intake and notification, not durable execution state.
 - The live deployed runtime currently reads from `/root/.openclaw/workspace`, not `/root/.openclaw/workspace-main`.
-- Dispatcher logs are written under `workspace/operations/logs/dispatcher/`.
-- Dispatcher alert snapshots are written under `workspace/operations/health/dispatcher-alerts.json`, even if Discord notification fails.
-- Runtime smoke checks are written under `workspace/operations/health/runtime-smoke.json` and should be treated as stronger evidence than heartbeat files.
+- Mutable runtime state is separated from the tracked repo under `/root/.openclaw/runtime/operations/`.
+- Dispatcher logs are written under `/root/.openclaw/runtime/operations/logs/dispatcher/`.
+- Dispatcher alert snapshots are written under `/root/.openclaw/runtime/operations/health/dispatcher-alerts.json`, even if Discord notification fails.
+- Discord dispatch bridge state is written under `/root/.openclaw/runtime/operations/health/discord-dispatch-state.json`.
+- Runtime task overlays are written under `/root/.openclaw/runtime/operations/task-state/` and should be treated as live execution state, not reviewable source history.
+- Archived tasks live under `/root/.openclaw/runtime/operations/archive/tasks/`.
+- Runtime smoke checks are written under `/root/.openclaw/runtime/operations/health/runtime-smoke.json` and should be treated as stronger evidence than heartbeat files.
 - The dashboard SQLite file at `workspace/engineering/rook-dashboard/data/kanban.db` is runtime state. It should be snapshotted by backup jobs rather than committed as normal source code.
+- Passive Kanban reconciliation must not rewrite canonical task files just to persist regenerated board projection metadata such as card position or column ids.
 - The runtime backup job snapshots:
   - dashboard SQLite state
-  - canonical tasks and archived tasks
-  - project registry
-  - health snapshots
-  - dispatcher logs
+  - canonical tasks and project registry from the tracked workspace
+  - archived tasks from `/root/.openclaw/runtime/operations/archive/tasks/`
+  - health snapshots, task overlays, and dispatcher logs from `/root/.openclaw/runtime/operations/`
 - Runtime backups are stored locally under `/root/backups/rook-runtime/`.
 - If `rclone` is configured with the `gdrive:` remote, runtime backups should sync to `gdrive:DigitalCapitalismBackups/rook-runtime/<host>/`.
 - Local-mode specialist execution depends on provider env vars being available. Keep these current:

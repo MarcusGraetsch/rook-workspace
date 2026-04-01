@@ -30,10 +30,11 @@ The runtime backup job is designed to protect the main local-only operational st
 
 - `engineering/rook-dashboard/data/kanban.db`
 - `operations/tasks/`
-- `operations/archive/tasks/`
+- `/root/.openclaw/runtime/operations/archive/tasks/`
 - `operations/projects/projects.json`
-- `operations/health/`
-- `operations/logs/dispatcher/`
+- `/root/.openclaw/runtime/operations/health/`
+- `/root/.openclaw/runtime/operations/logs/dispatcher/`
+- `/root/.openclaw/runtime/operations/task-state/`
 
 Backups are written locally to:
 
@@ -107,7 +108,7 @@ Check:
 The dashboard can rebuild active task state from canonical task files because:
 
 - tasks live in `workspace/operations/tasks/`
-- archived tasks live in `workspace/operations/archive/tasks/`
+- archived tasks live in `/root/.openclaw/runtime/operations/archive/tasks/`
 
 If needed, re-run task sync/reprojection logic from the dashboard APIs rather than manually reconstructing SQLite rows.
 

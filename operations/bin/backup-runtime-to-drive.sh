@@ -6,6 +6,8 @@ HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname)"
 
 WORKSPACE_ROOT="/root/.openclaw/workspace"
 DASHBOARD_ROOT="$WORKSPACE_ROOT/engineering/rook-dashboard"
+RUNTIME_ROOT="${ROOK_RUNTIME_ROOT:-/root/.openclaw/runtime}"
+RUNTIME_OPERATIONS_ROOT="${ROOK_RUNTIME_OPERATIONS_DIR:-$RUNTIME_ROOT/operations}"
 BACKUP_ROOT="/root/backups/rook-runtime"
 RUN_DIR="$BACKUP_ROOT/$DATE_UTC"
 GDRIVE_REMOTE="${ROOK_GDRIVE_REMOTE:-gdrive:DigitalCapitalismBackups/rook-runtime/$HOSTNAME_SHORT}"
@@ -40,13 +42,13 @@ fi
 echo "[2/5] Archiving canonical task state..."
 tar czf "$RUN_DIR/operations/tasks.tar.gz" \
   -C "$WORKSPACE_ROOT/operations" \
-  tasks archive/tasks projects/projects.json
+  tasks projects/projects.json
 echo "    Created operations/tasks.tar.gz"
 
 echo "[3/5] Archiving runtime health and dispatcher state..."
 tar czf "$RUN_DIR/operations/runtime-state.tar.gz" \
-  -C "$WORKSPACE_ROOT/operations" \
-  health logs/dispatcher
+  -C "$RUNTIME_OPERATIONS_ROOT" \
+  archive/tasks health logs/dispatcher
 echo "    Created operations/runtime-state.tar.gz"
 
 echo "[4/5] Writing manifests..."
@@ -55,6 +57,8 @@ timestamp_utc=$DATE_UTC
 host=$HOSTNAME_SHORT
 workspace_root=$WORKSPACE_ROOT
 dashboard_root=$DASHBOARD_ROOT
+runtime_root=$RUNTIME_ROOT
+runtime_operations_root=$RUNTIME_OPERATIONS_ROOT
 gdrive_remote=$GDRIVE_REMOTE
 EOF
 

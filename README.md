@@ -207,8 +207,10 @@ Current operational source of truth:
 
 - Kanban in `rook-dashboard` is the main human task UI
 - canonical task files live in `operations/tasks/`
-- archived tasks live in `operations/archive/tasks/`
-- agent health snapshots live in `operations/health/`
+- archived tasks live in `/root/.openclaw/runtime/operations/archive/tasks/`
+- agent health snapshots live in `/root/.openclaw/runtime/operations/health/`
+- dispatcher logs live in `/root/.openclaw/runtime/operations/logs/dispatcher/`
+- live task overlays live in `/root/.openclaw/runtime/operations/task-state/`
 
 Reference docs:
 

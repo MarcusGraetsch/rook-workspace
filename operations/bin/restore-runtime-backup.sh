@@ -32,6 +32,8 @@ SOURCE="$2"
 
 WORKSPACE_ROOT="/root/.openclaw/workspace"
 OPERATIONS_ROOT="$WORKSPACE_ROOT/operations"
+RUNTIME_ROOT="${ROOK_RUNTIME_ROOT:-/root/.openclaw/runtime}"
+RUNTIME_OPERATIONS_ROOT="${ROOK_RUNTIME_OPERATIONS_DIR:-$RUNTIME_ROOT/operations}"
 DASHBOARD_DATA_DIR="$WORKSPACE_ROOT/engineering/rook-dashboard/data"
 TMP_ROOT="/tmp/rook-runtime-restore"
 GDRIVE_BASE="${ROOK_GDRIVE_REMOTE_BASE:-gdrive:DigitalCapitalismBackups/rook-runtime}"
@@ -67,6 +69,7 @@ echo "Source: $RESTORE_DIR"
 echo
 
 mkdir -p "$DASHBOARD_DATA_DIR"
+mkdir -p "$RUNTIME_OPERATIONS_ROOT"
 if [ -f "$RESTORE_DIR/dashboard/kanban.db" ]; then
   cp "$RESTORE_DIR/dashboard/kanban.db" "$DASHBOARD_DATA_DIR/kanban.db"
   [ -f "$RESTORE_DIR/dashboard/kanban.db-wal" ] && cp "$RESTORE_DIR/dashboard/kanban.db-wal" "$DASHBOARD_DATA_DIR/kanban.db-wal"
@@ -77,14 +80,14 @@ else
 fi
 
 if [ -f "$RESTORE_DIR/operations/tasks.tar.gz" ]; then
-  tar xzf "$RESTORE_DIR/operations/tasks.tar.gz" -C "$OPERATIONS_ROOT"
+  tar xzf "$RESTORE_DIR/operations/tasks.tar.gz" -C "$WORKSPACE_ROOT/operations"
   echo "Restored canonical task state."
 else
   echo "Task archive missing; skipping canonical task restore."
 fi
 
 if [ -f "$RESTORE_DIR/operations/runtime-state.tar.gz" ]; then
-  tar xzf "$RESTORE_DIR/operations/runtime-state.tar.gz" -C "$OPERATIONS_ROOT"
+  tar xzf "$RESTORE_DIR/operations/runtime-state.tar.gz" -C "$RUNTIME_OPERATIONS_ROOT"
   echo "Restored runtime health and dispatcher logs."
 else
   echo "Runtime state archive missing; skipping health/log restore."

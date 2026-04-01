@@ -18,7 +18,8 @@ The Rook system now uses a hybrid control model:
 - `rook-dashboard` Kanban is the primary human task interface
 - canonical task files in `workspace/operations/tasks/` are the durable internal record
 - GitHub Issues mirror repo-linked work
-- structured health snapshots in `workspace/operations/health/` replace prompt-based heartbeat logic
+- mutable runtime outputs live under `/root/.openclaw/runtime/operations/`
+- structured health snapshots in `/root/.openclaw/runtime/operations/health/` replace prompt-based heartbeat logic
 
 ## Current Agent Model
 
@@ -98,7 +99,9 @@ Commit naming:
 
 Current health source of truth:
 
-- `workspace/operations/health/*.json`
+- `/root/.openclaw/runtime/operations/health/*.json`
+- `/root/.openclaw/runtime/operations/logs/dispatcher/*.jsonl`
+- `/root/.openclaw/runtime/operations/task-state/<project>/<task>.json`
 
 Health snapshots are derived from:
 

@@ -8,9 +8,13 @@ import { randomUUID } from 'crypto';
 const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const OPERATIONS_DIR = process.env.ROOK_OPERATIONS_DIR || '/root/.openclaw/workspace/operations';
+const RUNTIME_ROOT = process.env.ROOK_RUNTIME_ROOT || path.join(OPENCLAW_DIR, 'runtime');
+const RUNTIME_OPERATIONS_DIR =
+  process.env.ROOK_RUNTIME_OPERATIONS_DIR || path.join(RUNTIME_ROOT, 'operations');
 const TASKS_DIR = path.join(OPERATIONS_DIR, 'tasks');
-const LOG_DIR = path.join(OPERATIONS_DIR, 'logs', 'dispatcher');
-const HEALTH_DIR = path.join(OPERATIONS_DIR, 'health');
+const LOG_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'logs', 'dispatcher');
+const HEALTH_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'health');
+const TASK_STATE_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'task-state');
 const ALERTS_FILE = path.join(HEALTH_DIR, 'dispatcher-alerts.json');
 const ENV_DIR = '/root/.openclaw/.env.d';
 const PROVIDER_ENV_FILES = [
@@ -71,7 +75,57 @@ async function readJson(filePath) {
 }
 
 async function writeJson(filePath, data) {
+  await ensureDir(path.dirname(filePath));
   await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+}
+
+function runtimeTaskStatePath(projectId, fileName) {
+  return path.join(TASK_STATE_DIR, projectId, fileName);
+}
+
+async function readJsonIfExists(filePath) {
+  try {
+    return await readJson(filePath);
+  } catch {
+    return null;
+  }
+}
+
+function applyRuntimeTaskState(baseTask, runtimeState) {
+  if (!runtimeState || typeof runtimeState !== 'object') {
+    return baseTask;
+  }
+
+  const merged = { ...baseTask, ...runtimeState };
+  if (runtimeState.dispatch) merged.dispatch = runtimeState.dispatch;
+  if (runtimeState.timestamps) {
+    merged.timestamps = {
+      ...(baseTask.timestamps || {}),
+      ...runtimeState.timestamps,
+    };
+  }
+  if (runtimeState.github_issue) merged.github_issue = runtimeState.github_issue;
+  if (runtimeState.github_pull_request) merged.github_pull_request = runtimeState.github_pull_request;
+  return merged;
+}
+
+function buildRuntimeTaskState(task) {
+  return {
+    status: task.status,
+    assigned_agent: task.assigned_agent,
+    claimed_by: task.claimed_by ?? null,
+    blocked_by: Array.isArray(task.blocked_by) ? task.blocked_by : [],
+    workflow_stage: task.workflow_stage || null,
+    blocked_reason: task.blocked_reason ?? null,
+    handoff_notes: task.handoff_notes || '',
+    last_heartbeat: task.last_heartbeat ?? null,
+    failure_reason: task.failure_reason ?? null,
+    source_channel: task.source_channel ?? null,
+    dispatch: task.dispatch || null,
+    github_issue: task.github_issue || null,
+    github_pull_request: task.github_pull_request || null,
+    timestamps: task.timestamps || null,
+  };
 }
 
 function truncate(value, limit = MAX_LOG_BYTES) {
@@ -147,10 +201,13 @@ async function loadTasks() {
 
     for (const fileName of files) {
       if (!fileName.endsWith('.json')) continue;
-      const filePath = path.join(projectDir, fileName);
+      const sourceFilePath = path.join(projectDir, fileName);
+      const stateFilePath = runtimeTaskStatePath(projectId, fileName);
       try {
-        const task = await readJson(filePath);
-        tasks.push({ filePath, task });
+        const baseTask = await readJson(sourceFilePath);
+        const runtimeState = await readJsonIfExists(stateFilePath);
+        const task = applyRuntimeTaskState(baseTask, runtimeState);
+        tasks.push({ filePath: stateFilePath, sourceFilePath, task });
       } catch {
         // Ignore malformed tasks but keep dispatcher running.
       }

@@ -6,7 +6,11 @@ import { spawn } from 'child_process';
 
 const ROOT_DIR = '/root/.openclaw/workspace';
 const OPERATIONS_DIR = path.join(ROOT_DIR, 'operations');
+const RUNTIME_ROOT = process.env.ROOK_RUNTIME_ROOT || '/root/.openclaw/runtime';
+const RUNTIME_OPERATIONS_DIR =
+  process.env.ROOK_RUNTIME_OPERATIONS_DIR || path.join(RUNTIME_ROOT, 'operations');
 const TASKS_DIR = path.join(OPERATIONS_DIR, 'tasks');
+const TASK_STATE_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'task-state');
 const DISPATCHER_PATH = path.join(OPERATIONS_DIR, 'bin', 'task-dispatcher.mjs');
 const DISPATCH_TIMEOUT_SECONDS = Number(process.env.ROOK_DISPATCH_TIMEOUT_SECONDS || '35');
 const VALID_TASK_ID = /^[a-z0-9]+-\d{4,}$/i;
@@ -15,13 +19,43 @@ async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
 }
 
+async function readJsonIfExists(filePath) {
+  try {
+    return await readJson(filePath);
+  } catch {
+    return null;
+  }
+}
+
+function runtimeTaskStatePath(projectId, taskId) {
+  return path.join(TASK_STATE_DIR, projectId, `${taskId}.json`);
+}
+
+function applyRuntimeTaskState(baseTask, runtimeState) {
+  if (!runtimeState || typeof runtimeState !== 'object') {
+    return baseTask;
+  }
+
+  const merged = { ...baseTask, ...runtimeState };
+  if (runtimeState.dispatch) merged.dispatch = runtimeState.dispatch;
+  if (runtimeState.timestamps) {
+    merged.timestamps = {
+      ...(baseTask.timestamps || {}),
+      ...runtimeState.timestamps,
+    };
+  }
+  if (runtimeState.github_issue) merged.github_issue = runtimeState.github_issue;
+  if (runtimeState.github_pull_request) merged.github_pull_request = runtimeState.github_pull_request;
+  return merged;
+}
+
 async function findTaskFile(taskId) {
   const projectDirs = await fs.readdir(TASKS_DIR).catch(() => []);
   for (const projectId of projectDirs) {
     const candidate = path.join(TASKS_DIR, projectId, `${taskId}.json`);
     try {
       await fs.access(candidate);
-      return candidate;
+      return { filePath: candidate, projectId };
     } catch {
       // Continue search.
     }
@@ -110,8 +144,8 @@ async function main() {
     process.exit(2);
   }
 
-  const filePath = await findTaskFile(taskId);
-  if (!filePath) {
+  const found = await findTaskFile(taskId);
+  if (!found) {
     console.error(JSON.stringify({
       ok: false,
       error: 'task_not_found',
@@ -121,16 +155,20 @@ async function main() {
     process.exit(3);
   }
 
-  const before = summarizeTask(await readJson(filePath));
+  const beforeBase = await readJson(found.filePath);
+  const beforeState = await readJsonIfExists(runtimeTaskStatePath(found.projectId, taskId));
+  const before = summarizeTask(applyRuntimeTaskState(beforeBase, beforeState));
   const dispatch = await runDispatcher(taskId);
-  const after = summarizeTask(await readJson(filePath));
+  const afterBase = await readJson(found.filePath);
+  const afterState = await readJsonIfExists(runtimeTaskStatePath(found.projectId, taskId));
+  const after = summarizeTask(applyRuntimeTaskState(afterBase, afterState));
   const accepted = Boolean(after.claimed_by) || ['in_progress', 'testing', 'review'].includes(String(after.status || ''));
 
   const payload = {
     ok: dispatch.ok,
     accepted,
     task_id: taskId,
-    file_path: filePath,
+    file_path: found.filePath,
     before,
     after,
     dispatch,

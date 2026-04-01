@@ -483,6 +483,7 @@ Use:
 
 - `/root/.openclaw/workspace` when checking live services, live canonical tasks, and live runtime behavior
 - `/root/.openclaw/workspace-main` when preparing commits, opening PRs, or reviewing diffs against `main`
+- `/root/.openclaw/runtime/operations` when inspecting mutable runtime outputs such as dispatcher logs, health snapshots, archived tasks, and task-state overlays
 
 Do not assume those two trees are always identical at every moment.
 
@@ -499,8 +500,8 @@ Ask:
 
 Check:
 
-- `operations/logs/dispatcher/<date>.jsonl`
-- `operations/health/dispatcher-alerts.json`
+- `/root/.openclaw/runtime/operations/logs/dispatcher/<date>.jsonl`
+- `/root/.openclaw/runtime/operations/health/dispatcher-alerts.json`
 - worker transcript in `agents/<id>/sessions/`
 - canonical task `failure_reason`
 

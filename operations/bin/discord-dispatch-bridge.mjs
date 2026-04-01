@@ -7,7 +7,10 @@ import { spawn } from 'child_process';
 const ROOT_DIR = '/root/.openclaw';
 const WORKSPACE_DIR = path.join(ROOT_DIR, 'workspace');
 const OPERATIONS_DIR = path.join(WORKSPACE_DIR, 'operations');
-const HEALTH_DIR = path.join(OPERATIONS_DIR, 'health');
+const RUNTIME_ROOT = process.env.ROOK_RUNTIME_ROOT || path.join(ROOT_DIR, 'runtime');
+const RUNTIME_OPERATIONS_DIR =
+  process.env.ROOK_RUNTIME_OPERATIONS_DIR || path.join(RUNTIME_ROOT, 'operations');
+const HEALTH_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'health');
 const STATE_FILE = path.join(HEALTH_DIR, 'discord-dispatch-state.json');
 const WRAPPER_PATH = path.join(OPERATIONS_DIR, 'bin', 'dispatch-canonical-task.mjs');
 const COMMAND_CHANNEL_ID = '1487786269542056071';

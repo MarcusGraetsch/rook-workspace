@@ -118,9 +118,10 @@ Old heartbeat files are not enough.
 
 Stronger health now comes from:
 
-- `workspace/operations/health/runtime-smoke.json`
-- `workspace/operations/health/dispatcher-alerts.json`
-- `workspace/operations/logs/dispatcher/<date>.jsonl`
+- `/root/.openclaw/runtime/operations/health/runtime-smoke.json`
+- `/root/.openclaw/runtime/operations/health/dispatcher-alerts.json`
+- `/root/.openclaw/runtime/operations/logs/dispatcher/<date>.jsonl`
+- `/root/.openclaw/runtime/operations/task-state/<project>/<task>.json`
 - canonical task `dispatch` metadata
 - supervised service state in user `systemd`
 
@@ -148,6 +149,7 @@ Operational details:
 - the kanban board now auto-refreshes every 5 seconds so stage movement is visible without manual reloads
 - if a task becomes `blocked` and the board has no explicit `Blocked` column, the card stays anchored to the stage that actually failed
 - that means an engineer-stage abort renders as `In Progress` plus a blocked pipeline badge, not `Ready` plus confusion
+- passive board reads should not rewrite canonical task files; projection drift should be resolved in the board/database view, not by mutating Git-tracked task JSON on every poll
 
 If the dashboard goes down, the system is degraded even if Discord still replies.
 
