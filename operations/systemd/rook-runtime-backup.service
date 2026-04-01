@@ -1,0 +1,7 @@
+[Unit]
+Description=Rook runtime backup to Google Drive
+After=rook-dashboard.service
+
+[Service]
+Type=oneshot
+ExecStart=/root/.openclaw/workspace/operations/bin/backup-runtime-to-drive.sh

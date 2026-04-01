@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Rook runtime backup to Google Drive
+
+[Timer]
+OnCalendar=*-*-* 02:20:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=rook-runtime-backup.service
+
+[Install]
+WantedBy=timers.target
