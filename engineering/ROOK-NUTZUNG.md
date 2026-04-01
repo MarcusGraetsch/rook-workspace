@@ -99,6 +99,16 @@ Der neue Backup-Bereich auf der Dashboard-Startseite zeigt:
 - welche Backup-Sammlungen lokal überhaupt existieren
 - ob neben dem neuen Runtime-Backup auch die ältere Research-/Working-Notes-Backup-Spur vorhanden ist
 
+Im Kanban-Ticket selbst wird Delivery Evidence jetzt klarer gezeigt:
+
+- Handoff / Engineer
+- Commits
+- PR
+- Tests
+- Review
+
+Das soll sichtbar machen, ob ein Ticket nur textlich „gut aussieht“ oder ob reale Git- und Pipeline-Evidenz vorhanden ist.
+
 ### Kanban mit Intake-Workflow nutzen
 
 Der neue Ticket-Fluss ist jetzt:
