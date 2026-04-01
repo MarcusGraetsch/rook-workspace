@@ -104,7 +104,7 @@ It prevents recursive setup tasks from depending on a specialist that does not y
 
 Examples:
 
-- `ops-0014` set up the testing stage, then moved into `review`
+- `ops-0014` established the testing stage with a real `.github/workflows/tests.yml` pipeline and was merged to `main` after green `Tests` and `Review Agent` runs
 - `ops-0013` set up the review stage through `engineer`, produced a real workflow artifact, and was normalized to `done`
 
 ## Health Signals
@@ -134,6 +134,7 @@ It is expected to:
 
 - stay online under supervision
 - expose kanban and task state
+- reconcile kanban rows from canonical task state before serving the board
 - reflect real runtime health
 - not invent execution that did not happen
 
@@ -146,6 +147,7 @@ Discord is:
 - command intake
 - status output
 - escalation surface
+- operator visibility for important dispatcher handoffs and lifecycle events
 
 Discord is not:
 
@@ -167,6 +169,15 @@ Expected pattern:
 - worker produces commits with `[agent:...][task:...]`
 - task records relevant commits/artifacts
 - branch is pushed to GitHub
+- GitHub workflows in `rook-workspace` should fetch only the specific submodule each job needs
+- `.gitmodules` should use GitHub Actions-compatible HTTPS URLs, not SSH-only URLs that require extra runner keys
+- workflow steps must run inside the actual package roots, not assume the repository root is the build root
+- `working-notes` is treated as an external project CI concern here: this repository validates the pinned gitlink, while the site build itself belongs in the `working-notes` repository
+- workspace CI may still need project-specific install commands when an external repo has not yet standardized its own lockfile or test dependency manifest
+- Review Agent must match real repository capabilities: PR-comment steps need explicit `pull-requests` and `issues` permissions, and CodeQL upload should stay disabled unless code scanning is enabled for the repository
+- Review Agent comment publication is best-effort only. The review gate is the analysis itself, not whether GitHub allowed an automated PR comment in that workflow context.
+- Kanban is not the only source of truth, but it must stay synchronized enough to be a reliable human-facing projection of canonical task state.
+- Agent branches should be short-lived: open them for focused work, merge them quickly, and delete them immediately after merge so branch lists reflect active work rather than stale history.
 
 That is how task execution stays recoverable after a crash or OpenClaw update.
 
@@ -199,7 +210,7 @@ The remaining limits are:
 
 - long worker runs can still abort mid-cleanup
 - specialist stages exist, but `engineer` is still the safe fallback for setup tasks
-- canonical task finalization still benefits from dispatcher-side normalization
+- canonical task finalization still benefits from dispatcher-side normalization when a task spans multiple follow-up PRs
 
 That is acceptable for now.
 The execution core is now real, observable, and recoverable.

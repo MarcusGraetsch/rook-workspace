@@ -7,11 +7,19 @@ on:
     branches: [main, develop]
 
 jobs:
+  # This repository pins multiple external repos as submodules.
+  # CI should fetch only the submodule needed for each job. Recursive checkout
+  # breaks when a privately managed repo, such as working-notes, is not
+  # accessible to the default GitHub Actions token in this repository.
+
   # Python Tests for digital-research project
   test-python:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Fetch digital-research
+        run: git submodule update --init --depth 1 projects/digital-research
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -19,9 +27,10 @@ jobs:
           python-version: '3.11'
           
       - name: Install dependencies
+        working-directory: projects/digital-research/src
         run: |
           pip install -e ".[dev]"
-          pip install pytest arxiv scholarly beautifulsoup4 lxml httpx pymupdf
+          pip install pytest arxiv scholarly beautifulsoup4 lxml httpx pymupdf numpy
           
       - name: Run tests
         working-directory: projects/digital-research/src
@@ -33,6 +42,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Fetch metrics-collector
+        run: git submodule update --init --depth 1 engineering/metrics-collector
       
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -41,7 +53,7 @@ jobs:
           
       - name: Install dependencies
         working-directory: engineering/metrics-collector
-        run: npm ci
+        run: npm install
         
       - name: Build
         working-directory: engineering/metrics-collector
@@ -52,6 +64,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Fetch rook-dashboard
+        run: git submodule update --init --depth 1 engineering/rook-dashboard
       
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -66,21 +81,12 @@ jobs:
         working-directory: engineering/rook-dashboard
         run: npm run build
 
-  # Static site build check for working-notes
+  # working-notes is validated in its own repository CI. Here we only verify
+  # that rook-workspace pins a concrete revision.
   build-working-notes:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Install dependencies
-        working-directory: projects/working-notes
-        run: npm ci
-        
-      - name: Build
-        working-directory: projects/working-notes
-        run: npm run build
+
+      - name: Verify working-notes pin exists
+        run: git submodule status --cached projects/working-notes

@@ -3,12 +3,12 @@
   "project_id": "rook-workspace",
   "title": "Test Agent einrichten",
   "description": "Unit Tests, Integration Tests, E2E Tests für alle Rook-Projekte. Soll automatisch bei Commits triggern.",
-  "status": "review",
-  "assigned_agent": "review",
+  "status": "done",
+  "assigned_agent": "test",
   "priority": "high",
   "dependencies": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
-  "branch": "agent/rook/ops-0014-test-agent-einrichten",
+  "branch": "main",
   "commits": [
     {
       "sha": "4c542fe",
@@ -21,6 +21,24 @@
       "message": "[agent:engineer][task:ops-0014] Fix typo in GitHub Actions workflow (ubuntu-latestn)",
       "author": "engineer",
       "timestamp": "2026-03-31T11:44:17Z"
+    },
+    {
+      "sha": "e610a39",
+      "message": "[agent:engineer][task:ops-0014] fix CI submodule checkout for test and review workflows",
+      "author": "engineer",
+      "timestamp": "2026-03-31T12:40:00Z"
+    },
+    {
+      "sha": "58f1fae",
+      "message": "[agent:engineer][task:ops-0014] fix follow-up CI check failures",
+      "author": "engineer",
+      "timestamp": "2026-03-31T12:48:00Z"
+    },
+    {
+      "sha": "693a0a5",
+      "message": "Merge pull request #19 from MarcusGraetsch/agent/rook/ops-0014-ci-followup",
+      "author": "MarcusGraetsch",
+      "timestamp": "2026-03-31T13:39:45Z"
     }
   ],
   "artifacts": [
@@ -31,14 +49,14 @@
     "testing",
     "priority"
   ],
-  "workflow_stage": "kanban-sync",
+  "workflow_stage": "done",
   "blocked_reason": null,
-  "handoff_notes": "Testing abgeschlossen. Workflow funktioniert. 1595 passed, 1 skipped. Bereit für Review.",
+  "handoff_notes": "Test Agent setup is complete. The final implementation is merged to main via commit 693a0a5 after fixing clean-clone CI defects, submodule checkout scope, project dependency gaps, and Review Agent workflow assumptions. Tests and Review Agent both completed successfully on PR #19 before merge.",
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-    "column_name": "Review",
+    "column_id": null,
+    "column_name": "Done",
     "task_db_id": "319f63ac-c855-4e0a-bd22-fe20a61eaf1e",
     "position": 0,
     "sync_origin": "dashboard-kanban"
@@ -54,16 +72,16 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:18.500Z",
-    "updated_at": "2026-03-31T12:20:37.963Z",
+    "updated_at": "2026-03-31T13:45:00.000Z",
     "started_at": "2026-03-30T15:42:18.500Z",
-    "completed_at": null,
+    "completed_at": "2026-03-31T13:45:00.000Z",
     "claimed_at": null
   },
   "claimed_by": null,
   "blocked_by": [],
   "failure_reason": null,
-  "last_heartbeat": "2026-03-31T11:56:41.448Z",
-  "review_notes": "Workflow verifiziert: .github/workflows/tests.yml vorhanden, triggert auf main/develop/agent/**, 4 Jobs (Python tests, 3x TypeScript/Node builds). Testing-Ergebnisse dokumentiert: 1595 passed, 1 skipped. Alle Commits erfolgreich integriert. Workflow bereit für Produktion.",
+  "last_heartbeat": "2026-03-31T13:45:00.000Z",
+  "review_notes": "Final review completed successfully. PR #19 validated the repaired test workflow and the adjusted Review Agent behavior, and the branch was merged to main as 693a0a5.",
   "source_channel": "system:dispatcher",
   "dispatch": {
     "mode": "hook",
@@ -80,11 +98,11 @@
   },
   "github_pull_request": {
     "repo": "MarcusGraetsch/rook-workspace",
-    "number": null,
-    "url": null,
-    "state": null,
-    "title": null,
-    "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/rook/ops-0014-test-agent-einrichten -f per_page=5\ngh: Not Found (HTTP 404)\n"
+    "number": 19,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/pull/19",
+    "state": "merged",
+    "title": "Fix follow-up CI failures for test/review workflows",
+    "last_synced_at": "2026-03-31T13:45:00.000Z",
+    "last_error": null
   }
 }

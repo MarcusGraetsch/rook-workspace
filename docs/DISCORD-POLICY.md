@@ -13,6 +13,7 @@ Use it for:
 - discussion
 - notifications
 - escalation
+- important task handoffs and lifecycle summaries
 
 Do not use it for:
 
@@ -52,6 +53,19 @@ Branch: agent/engineer/dashboard-0042-kanban-dnd
 Summary: Drag persistence fix implemented, verification pending.
 ```
 
+Important lifecycle examples:
+
+```text
+[task:ops-0014][agent:dispatcher][status:started]
+Summary: Dispatched to engineer via isolated hook session.
+
+[task:ops-0014][agent:dispatcher][status:completed]
+Summary: Worker completed; canonical task updated and review/merge metadata recorded.
+
+[task:ops-0014][agent:dispatcher][status:blocked]
+Summary: Runtime/provider failure or dependency block; see canonical failure_reason.
+```
+
 ## Operational Rules
 
 1. Human input goes to `rook`.
@@ -59,7 +73,6 @@ Summary: Drag persistence fix implemented, verification pending.
 3. Repo-linked work should sync to GitHub.
 4. Discord notifications should summarize, not store, system state.
 5. Failures and sync errors may be announced in Discord, but remediation happens in the dashboard and repos.
-
 ## Pipeline Testing
 
 The system validates multi-stage execution through canonical tasks:
@@ -71,4 +84,4 @@ The system validates multi-stage execution through canonical tasks:
 5. **Done** → task completed
 
 Each stage transition must correspond to real work, not just text updates.
-
+6. Important starts, completions, handoffs, stale-claim releases, and failures should be visible in Discord even when the detailed state lives elsewhere.

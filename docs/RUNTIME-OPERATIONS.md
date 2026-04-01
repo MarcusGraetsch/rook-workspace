@@ -12,6 +12,32 @@ This runbook is for the actual VPS runtime, not the aspirational architecture.
 
 The gateway alone is not enough. If the dashboard and dispatcher are unsupervised, the system degrades into chat without execution.
 
+## Which Checkout Is Which
+
+There are two different workspace checkouts on this VPS:
+
+- `/root/.openclaw/workspace`
+  - the live runtime checkout
+- `/root/.openclaw/workspace-main`
+  - the clean Git/PR checkout
+
+Use `/root/.openclaw/workspace` for:
+
+- live service scripts
+- live task-state inspection
+- live dashboard/runtime verification
+- user `systemd` unit sync from the currently deployed repo copy
+
+Use `/root/.openclaw/workspace-main` for:
+
+- branch work
+- PR preparation
+- compare review
+- documentation changes
+- clean merges into `main`
+
+Do not treat the live runtime checkout as the safest place for broad Git cleanup.
+
 ## Install User Units
 
 ```bash
@@ -97,6 +123,7 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - Canonical task files under `workspace/operations/tasks/` are the source of truth.
 - The dashboard is the human control plane.
 - Discord is intake and notification, not durable execution state.
+- The live deployed runtime currently reads from `/root/.openclaw/workspace`, not `/root/.openclaw/workspace-main`.
 - Dispatcher logs are written under `workspace/operations/logs/dispatcher/`.
 - Dispatcher alert snapshots are written under `workspace/operations/health/dispatcher-alerts.json`, even if Discord notification fails.
 - Runtime smoke checks are written under `workspace/operations/health/runtime-smoke.json` and should be treated as stronger evidence than heartbeat files.

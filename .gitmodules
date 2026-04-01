@@ -1,12 +1,15 @@
 [submodule "projects/critical-theory-digital"]
 	path = projects/critical-theory-digital
-	url = git@github.com:MarcusGraetsch/critical-theory-digital.git
+	url = https://github.com/MarcusGraetsch/critical-theory-digital.git
 [submodule "projects/working-notes"]
 	path = projects/working-notes
-	url = git@github.com:MarcusGraetsch/working-notes.git
+	url = https://github.com/MarcusGraetsch/working-notes.git
 [submodule "projects/digital-research"]
 	path = projects/digital-research
-	url = git@github.com:MarcusGraetsch/digital-capitalism-research.git
+	url = https://github.com/MarcusGraetsch/digital-capitalism-research.git
 [submodule "engineering/rook-dashboard"]
 	path = engineering/rook-dashboard
-	url = git@github.com:MarcusGraetsch/rook-dashboard.git
+	url = https://github.com/MarcusGraetsch/rook-dashboard.git
+[submodule "engineering/metrics-collector"]
+	path = engineering/metrics-collector
+	url = https://github.com/MarcusGraetsch/metrics-collector.git
