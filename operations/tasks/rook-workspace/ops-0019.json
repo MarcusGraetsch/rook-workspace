@@ -48,9 +48,18 @@
   },
   "timestamps": {
     "created_at": "2026-03-31T15:35:02.685Z",
-    "updated_at": "2026-03-31T17:58:00Z",
+    "updated_at": "2026-04-01T17:20:40.632Z",
     "started_at": "2026-03-31T17:36:00Z",
     "completed_at": "2026-03-31T17:58:00Z",
     "claimed_at": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/rook/ops-0019-full-pipeline-smoke-test-engineer-to-test-to-rev -f per_page=5\ngh: Not Found (HTTP 404)\n"
   }
 }

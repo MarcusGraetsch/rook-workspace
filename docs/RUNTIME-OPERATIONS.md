@@ -120,6 +120,13 @@ Each stage transition should correspond to real worker activity, not just text u
 
 If those requirements are missing, the dashboard should keep the ticket in `Intake`/planning rather than allowing dispatchable state.
 
+`Ready` is now also an execution trigger:
+
+- when a ticket is moved into `Ready` through the dashboard API, the system immediately runs the canonical dispatch wrapper
+- that means drag-and-drop into `Ready` should start the same real dispatch path that the old Discord command used
+- if the dispatch attempt fails, the ticket still lands in `Ready`, but the dashboard returns the real failure reason so the UI can surface it
+- edits to a ticket that is already sitting in `Ready` do not repeatedly re-dispatch it unless it newly transitions into `Ready`
+
 - Canonical task files under `workspace/operations/tasks/` are the durable source of truth.
 - The dashboard is the human control plane.
 - Discord is intake and notification, not durable execution state.

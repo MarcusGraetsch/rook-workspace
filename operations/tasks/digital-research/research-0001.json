@@ -1,0 +1,77 @@
+{
+  "task_id": "research-0001",
+  "project_id": "digital-research",
+  "title": "Research the latest development in Digital Capitalism",
+  "description": "Research objective:\n- What is the latest development in Digital Capitalism\n\nExpected deliverable:\n- Produce a concise research summary with the current findings, relevant sources, and the main implications.\n- Distinguish established facts from interpretation or open questions.\n\nDefinition of done:\n- The research question is clearly answered.\n- The answer is grounded in identifiable sources or evidence.\n- Open gaps, uncertainty, or next research steps are noted.",
+  "intake": {
+    "brief": "What is the latest development in Digital Capitalism?",
+    "refinement_source": "fallback",
+    "refined_at": "2026-04-01T14:14:39.443Z",
+    "refinement_summary": "Structured from the rough brief with the local fallback refiner for research work."
+  },
+  "status": "intake",
+  "assigned_agent": "researcher",
+  "claimed_by": null,
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/digital-capitalism-research",
+  "branch": "agent/researcher/research-0001-research-the-latest-development-in-digital-capit",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [],
+  "checklist": [
+    {
+      "title": "Define the research question and scope for research the latest development in digital capitalism",
+      "completed": false,
+      "position": 0
+    },
+    {
+      "title": "Collect the relevant sources, references, or comparison points",
+      "completed": false,
+      "position": 1
+    },
+    {
+      "title": "Synthesize the findings into concise conclusions and recommendations",
+      "completed": false,
+      "position": 2
+    },
+    {
+      "title": "Record the deliverable summary and any open questions in the task",
+      "completed": false,
+      "position": 3
+    }
+  ],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "7b8e8c01-43e0-4b3b-a442-1c98cf382fe8",
+    "column_name": "Intake",
+    "task_db_id": "61f9d1de-7701-489a-ba6a-1c859a65ac78",
+    "position": 1,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/digital-capitalism-research",
+    "number": 1,
+    "url": "https://github.com/MarcusGraetsch/digital-capitalism-research/issues/1",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-04-02T12:43:05.749Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-02T12:43:04.241Z",
+    "updated_at": "2026-04-02T12:43:05.749Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}

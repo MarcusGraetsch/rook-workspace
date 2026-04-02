@@ -136,6 +136,13 @@ Praktisch heißt das:
    - kurze Refinement-Zusammenfassung
 5. Wenn das Ticket gut genug strukturiert ist, nach `Ready` verschieben.
 
+Neu:
+
+- Der Schritt nach `Ready` ist nicht mehr nur organisatorisch.
+- Wenn du ein Ticket per Drag & Drop oder im Modal nach `Ready` verschiebst, versucht das Dashboard sofort den echten kanonischen Dispatch.
+- Du musst dafür nicht mehr separat in Discord `dispatch canonical task ...` schreiben.
+- Falls der Dispatch nicht klappt, bleibt das Ticket in `Ready`, aber die UI zeigt den echten Fehler statt still zu scheitern.
+
 Die Verfeinerung ist jetzt aufgabentyp-sensitiv:
 
 - Entwicklungsarbeit wird als Ausführungsauftrag mit Scope, Implementierungsziel und Validierung formuliert.
@@ -159,6 +166,7 @@ Faustregel:
 - `Backlog`: lose Ideen / Parkfläche
 - `Intake`: AI + Mensch strukturieren den Task
 - `Ready`: dispatchbar
+- `Ready`: dispatchbar und löst beim Eintritt direkt einen Dispatch-Versuch aus
 - `In Progress` bis `Done`: Ausführungspipeline
 
 ### Health Tracker nutzen

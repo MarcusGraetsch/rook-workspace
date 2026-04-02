@@ -32,8 +32,8 @@
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
-    "column_name": "Backlog",
+    "column_id": "40a83a58-a039-4032-9663-87d0a80fad62",
+    "column_name": "Done",
     "task_db_id": "2f5b6999-5f24-4da9-a346-afa3c2df973f",
     "position": 27,
     "sync_origin": "dashboard-kanban"
@@ -49,9 +49,18 @@
   },
   "timestamps": {
     "created_at": "2026-03-31T15:22:58.341Z",
-    "updated_at": "2026-03-31T17:24:00Z",
+    "updated_at": "2026-04-01T17:20:38.397Z",
     "started_at": "2026-03-31T17:20:00Z",
     "completed_at": "2026-03-31T17:24:00Z",
-    "claimed_at": "2026-03-31T17:20:00Z"
+    "claimed_at": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/rook/ops-0018-smoke-test-dispatcher-lifecycle-through-discord -f per_page=5\ngh: Not Found (HTTP 404)\n"
   }
 }

@@ -3,13 +3,22 @@
   "project_id": "rook-workspace",
   "title": "gog CLI für Gmail/Calendar installieren",
   "description": "Google Services Integration: Gmail, Calendar, Drive, Contacts.",
-  "status": "in_progress",
+  "intake": {
+    "brief": null,
+    "refinement_source": null,
+    "refined_at": null,
+    "refinement_summary": null
+  },
+  "status": "backlog",
   "assigned_agent": "engineer",
+  "claimed_by": null,
   "priority": "medium",
   "dependencies": [],
+  "blocked_by": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
   "branch": "agent/engineer/ops-0016-gog-cli-f-r-gmail-calendar-installieren",
   "commits": [],
+  "commit_refs": [],
   "labels": [
     "infrastructure",
     "google",
@@ -18,13 +27,18 @@
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
   "handoff_notes": "",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [],
+  "checklist": [],
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "42070f20-3f2e-4b31-bfd2-62b8e820cce0",
-    "column_name": "In Progress",
+    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "column_name": "Backlog",
     "task_db_id": "9c939f05-cba8-4f23-9420-922f348ca9c8",
-    "position": 5,
+    "position": 25,
     "sync_origin": "dashboard-kanban"
   },
   "github_issue": {
@@ -33,13 +47,14 @@
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/15",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-03-30T15:42:22.705Z",
+    "last_synced_at": "2026-04-01T17:09:34.902Z",
     "last_error": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:21.402Z",
-    "updated_at": "2026-03-30T15:42:22.705Z",
+    "updated_at": "2026-04-01T17:09:34.902Z",
     "started_at": "2026-03-30T15:42:21.402Z",
-    "completed_at": null
+    "completed_at": null,
+    "claimed_at": null
   }
 }

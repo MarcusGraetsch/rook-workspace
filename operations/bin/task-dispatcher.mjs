@@ -290,6 +290,12 @@ function advanceStageAfterCompletion(task, executor, launchedStatus, nowIso) {
   const currentStatus = String(launchedStatus || task.status || '');
 
   if (currentStatus === 'in_progress' && executor === 'engineer') {
+    if (Array.isArray(task.checklist) && task.checklist.length > 0) {
+      task.checklist = task.checklist.map((item) => ({
+        ...item,
+        completed: true,
+      }));
+    }
     task.status = 'testing';
     task.assigned_agent = 'test';
     task.workflow_stage = 'testing';
@@ -541,7 +547,8 @@ async function validateStageCompletion(task, executor, launchedStatus) {
 
   if (stage === 'testing') {
     const commands = Array.isArray(task.test_evidence?.commands) ? task.test_evidence.commands.filter(Boolean) : [];
-    const status = task.test_evidence?.status || null;
+    const rawStatus = String(task.test_evidence?.status || '').trim().toLowerCase();
+    const status = rawStatus === 'pass' ? 'passed' : (rawStatus || null);
     const summary = String(task.test_evidence?.summary || '').trim();
     if (commands.length === 0) {
       return {
@@ -567,7 +574,8 @@ async function validateStageCompletion(task, executor, launchedStatus) {
   }
 
   if (stage === 'review') {
-    const verdict = task.review_evidence?.verdict || null;
+    const rawVerdict = String(task.review_evidence?.verdict || '').trim().toLowerCase();
+    const verdict = rawVerdict === 'pass' ? 'approved' : (rawVerdict || null);
     const summary = String(task.review_evidence?.summary || '').trim();
     if (verdict !== 'approved') {
       return {
@@ -670,7 +678,7 @@ function summarizeTask(task, executor) {
       ? 'Treat the checklist as part of the task contract. Complete the relevant items or update them honestly if scope changes.'
       : null,
     String(task.status || '') === 'in_progress'
-      ? 'Before completing engineer work: update handoff_notes with what changed and the exact validation commands/results you ran.'
+      ? 'Before completing engineer work: update handoff_notes with what changed and the exact validation commands/results you ran, and mark the implemented checklist items complete in the canonical task.'
       : null,
     String(task.status || '') === 'testing'
       ? 'Before completing testing: fill test_evidence.status, test_evidence.commands, and test_evidence.summary in the canonical task. Do not leave testing without explicit commands and a pass/fail result.'

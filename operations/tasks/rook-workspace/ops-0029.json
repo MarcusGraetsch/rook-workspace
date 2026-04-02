@@ -1,0 +1,112 @@
+{
+  "task_id": "ops-0029",
+  "project_id": "rook-workspace",
+  "title": "Filter nach frei wahlbarem Zeitraum. Date Picker mit Presets (7d, 30d...",
+  "description": "Objective:\n- Filter nach frei wahlbarem Zeitraum. Date Picker mit Presets (7d, 30d, 90d, Custom). Acceptance criteria: - Date picker component - Presets: 7d, 30d, 90d, This month, Last month, Custom - Custom range selection - Updates all dashboard widgets based on selected range\n\nContext:\n- Date Picker mit Presets (7d, 30d, 90d, Custom)\n- Acceptance criteria: - Date picker component - Presets: 7d, 30d, 90d, This month, Last month, Custom - Custom range selection - Updates all dashboard widgets based on selected range\n\nDefinition of done:\n- The task scope is clear.\n- The expected deliverable is defined.\n- Validation or review expectations are recorded.",
+  "intake": {
+    "brief": "Filter nach frei wahlbarem Zeitraum. Date Picker mit Presets (7d, 30d, 90d, Custom). Acceptance criteria: - Date picker component - Presets: 7d, 30d, 90d, This month, Last month, Custom - Custom range selection - Updates all dashboard widgets based on selected range",
+    "refinement_source": "fallback",
+    "refined_at": "2026-04-02T17:41:47.388Z",
+    "refinement_summary": "Structured from the rough brief with the local fallback refiner for general work."
+  },
+  "status": "testing",
+  "assigned_agent": "test",
+  "claimed_by": "dispatcher:test",
+  "priority": "high",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/test/ops-0029-feature-custom-date-ranges",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [
+    "filter",
+    "ux",
+    "mvp",
+    "dashboard",
+    "ui"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "last_heartbeat": "2026-04-02T17:42:07.526Z",
+  "failure_reason": null,
+  "source_channel": "discord:dispatch-command",
+  "artifacts": [],
+  "checklist": [
+    {
+      "title": "Clarify the expected outcome for filter nach frei wahlbarem zeitraum. date picker mit presets (7d, 30d..",
+      "completed": true,
+      "position": 0
+    },
+    {
+      "title": "Break the work into concrete execution steps",
+      "completed": true,
+      "position": 1
+    },
+    {
+      "title": "Validate the result and record the evidence in the task",
+      "completed": true,
+      "position": 2
+    }
+  ],
+  "test_evidence": {
+    "status": "pass",
+    "commands": [
+      "npm run build",
+      "DateRangePicker component verified at src/components/dashboard/DateRangePicker.tsx",
+      "Dashboard integration verified at src/app/page.tsx",
+      "API route /api/gateway/sessions accepts from/to params"
+    ],
+    "summary": "✓ Date picker component exists with all required presets (7d, 30d, 90d, This month, Last month, Custom). ✓ Custom range selection implemented with date inputs. ✓ Dashboard widgets update based on selected range via URL params. ✓ Build passes successfully."
+  },
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
+    "column_name": "Ready",
+    "task_db_id": "697bfae2-138f-437e-a073-9973d514fc5e",
+    "position": 0,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 38,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/38",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-04-02T17:42:07.408Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-01T17:09:29.592Z",
+    "updated_at": "2026-04-02T17:42:25.218Z",
+    "started_at": "2026-04-02T17:42:07.526Z",
+    "completed_at": null,
+    "claimed_at": "2026-04-02T17:42:07.526Z"
+  },
+  "dispatch": {
+    "mode": "hook",
+    "executor": "test",
+    "attempts": 1,
+    "launched_at": "2026-04-02T17:42:07.526Z",
+    "last_checked_at": "2026-04-02T17:42:19.801Z",
+    "model": "minimax-portal/MiniMax-M2.5",
+    "thinking": "low",
+    "session_key": "hook:dispatcher:task:ops-0029:28a084a4",
+    "session_id": "0b44e847-ee10-40bb-8ef2-10a23a56b579",
+    "dispatched_status": "testing",
+    "dispatched_owner": "test",
+    "last_result": "running",
+    "last_error": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-workspace/commits -f sha=agent/test/ops-0029-feature-custom-date-ranges -f per_page=5\ngh: Not Found (HTTP 404)\n"
+  }
+}
