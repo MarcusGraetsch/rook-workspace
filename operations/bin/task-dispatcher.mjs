@@ -466,6 +466,17 @@ function taskRef(task) {
   return projectId ? `${projectId}/${task.task_id}` : String(task.task_id || '');
 }
 
+function runtimeBlockStateChanged(entry, blockedBy, failureReason) {
+  const priorRuntimeState = entry.runtimeState && typeof entry.runtimeState === 'object' ? entry.runtimeState : null;
+  const previousBlockedBy = Array.isArray(priorRuntimeState?.blocked_by) ? priorRuntimeState.blocked_by : [];
+  const previousFailureReason = String(priorRuntimeState?.failure_reason || '');
+  return (
+    !deepEqualJson(previousBlockedBy, blockedBy)
+    || previousFailureReason !== failureReason
+    || priorRuntimeState?.status !== 'blocked'
+  );
+}
+
 function repoTailFromTask(task) {
   return String(task.related_repo || '').split('/').at(-1) || task.project_id;
 }
@@ -1760,14 +1771,7 @@ async function main() {
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
       await writeJson(filePath, task);
-      const priorRuntimeState = entry.runtimeState && typeof entry.runtimeState === 'object' ? entry.runtimeState : null;
-      const previousBlockedBy = Array.isArray(priorRuntimeState?.blocked_by) ? priorRuntimeState.blocked_by : [];
-      const previousFailureReason = String(priorRuntimeState?.failure_reason || '');
-      const dependencyBlockChanged = (
-        !deepEqualJson(previousBlockedBy, blockers)
-        || previousFailureReason !== task.failure_reason
-        || priorRuntimeState?.status !== 'blocked'
-      );
+      const dependencyBlockChanged = runtimeBlockStateChanged(entry, blockers, task.failure_reason);
       if (dependencyBlockChanged) {
         await notifyAndRecord(
           task,
@@ -1793,11 +1797,13 @@ async function main() {
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
       await writeJson(filePath, task);
-      await notifyAndRecord(
-        task,
-        'no_executor',
-        `[dispatcher] blocked ${task.task_id}: no executor mapping for coordinator-owned task`
-      );
+      if (runtimeBlockStateChanged(entry, task.blocked_by, task.failure_reason)) {
+        await notifyAndRecord(
+          task,
+          'no_executor',
+          `[dispatcher] blocked ${taskRef(task)}: no executor mapping for coordinator-owned task`
+        );
+      }
       await appendLog({
         ts: nowIso,
         task_id: task.task_id,
