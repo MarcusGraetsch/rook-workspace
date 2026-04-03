@@ -424,8 +424,58 @@ function repoTailFromTask(task) {
   return String(task.related_repo || '').split('/').at(-1) || task.project_id;
 }
 
+function canonicalRepoPath(task) {
+  const repoTail = repoTailFromTask(task);
+  if (repoTail === 'rook-workspace') {
+    return path.join(OPENCLAW_DIR, 'workspace');
+  }
+  if (repoTail === 'rook-dashboard') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'engineering', 'rook-dashboard');
+  }
+  if (repoTail === 'metrics-collector') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'engineering', 'metrics-collector');
+  }
+  if (repoTail === 'digital-research') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'projects', 'digital-research');
+  }
+  if (repoTail === 'critical-theory-digital') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'projects', 'critical-theory-digital');
+  }
+  if (repoTail === 'working-notes') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'projects', 'working-notes');
+  }
+  return null;
+}
+
 function repoViewPath(task, executor) {
   return path.join(OPENCLAW_DIR, `workspace-${executor}`, 'workspace', 'repos', repoTailFromTask(task));
+}
+
+async function ensureSpecialistRepoView(task, executor) {
+  const repoPath = repoViewPath(task, executor);
+  const canonicalPath = canonicalRepoPath(task);
+
+  await ensureDir(path.dirname(repoPath));
+
+  try {
+    await fs.lstat(repoPath);
+    return repoPath;
+  } catch {
+    // Create the link if the target repo exists locally.
+  }
+
+  if (!canonicalPath) {
+    return repoPath;
+  }
+
+  try {
+    await fs.access(canonicalPath);
+  } catch {
+    return repoPath;
+  }
+
+  await fs.symlink(canonicalPath, repoPath);
+  return repoPath;
 }
 
 async function runGit(repoPath, args) {
@@ -460,8 +510,62 @@ async function runGit(repoPath, args) {
   });
 }
 
+async function postHookWithCurl(url, token, payload) {
+  return new Promise((resolve) => {
+    const child = spawn('curl', [
+      '-sS',
+      '-X',
+      'POST',
+      url,
+      '-H',
+      `Authorization: Bearer ${token}`,
+      '-H',
+      'Content-Type: application/json',
+      '--data',
+      JSON.stringify(payload),
+      '-w',
+      '\n%{http_code}',
+    ], {
+      cwd: OPENCLAW_DIR,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on('close', (code) => {
+      const trimmed = stdout.trimEnd();
+      const newlineIndex = trimmed.lastIndexOf('\n');
+      const bodyText = newlineIndex >= 0 ? trimmed.slice(0, newlineIndex) : '';
+      const statusText = newlineIndex >= 0 ? trimmed.slice(newlineIndex + 1).trim() : '';
+      const status = Number(statusText || '0');
+      resolve({
+        ok: code === 0 && status >= 200 && status < 300,
+        code: code ?? 1,
+        status,
+        bodyText,
+        stderr: stderr.trim(),
+      });
+    });
+    child.on('error', (error) => {
+      resolve({
+        ok: false,
+        code: 1,
+        status: 0,
+        bodyText: '',
+        stderr: error instanceof Error ? error.message : String(error),
+      });
+    });
+  });
+}
+
 async function collectTaskGitEvidence(task, executor) {
-  const repoPath = repoViewPath(task, executor);
+  const repoPath = await ensureSpecialistRepoView(task, executor);
   const evidence = {
     repoPath,
     exists: false,
@@ -693,6 +797,8 @@ function summarizeTask(task, executor) {
 }
 
 async function runAgent(agentId, task, dispatchMode) {
+  await ensureSpecialistRepoView(task, agentId);
+
   if (dispatchMode === 'hook') {
     return runAgentViaHook(agentId, task);
   }
@@ -980,6 +1086,7 @@ async function runAgentViaHook(agentId, task) {
   };
 
   let response;
+  let bodyText = '';
   try {
     response = await fetch(hookConfig.agentUrl, {
       method: 'POST',
@@ -990,16 +1097,29 @@ async function runAgentViaHook(agentId, task) {
       body: JSON.stringify(payload),
     });
   } catch (error) {
-    return {
-      code: 1,
-      stdout: '',
-      stderr: `hook dispatch request failed: ${error instanceof Error ? error.message : String(error)}`,
-      sessionId: null,
-      mode: 'hook',
+    const curlFallback = await postHookWithCurl(hookConfig.agentUrl, hookConfig.token, payload);
+    if (!curlFallback.ok) {
+      const fallbackReason = curlFallback.stderr || `curl fallback returned HTTP ${curlFallback.status || 0}`;
+      return {
+        code: 1,
+        stdout: curlFallback.bodyText || '',
+        stderr: `hook dispatch request failed: ${error instanceof Error ? error.message : String(error)}; curl fallback failed: ${fallbackReason}`,
+        sessionId: null,
+        mode: 'hook',
+      };
+    }
+
+    bodyText = curlFallback.bodyText;
+    response = {
+      ok: true,
+      status: curlFallback.status,
+      text: async () => bodyText,
     };
   }
 
-  const bodyText = await response.text();
+  if (!bodyText) {
+    bodyText = await response.text();
+  }
   if (!response.ok) {
     return {
       code: response.status,
