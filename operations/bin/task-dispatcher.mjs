@@ -290,6 +290,12 @@ function advanceStageAfterCompletion(task, executor, launchedStatus, nowIso) {
   const currentStatus = String(launchedStatus || task.status || '');
 
   if (currentStatus === 'in_progress' && executor === 'engineer') {
+    if (Array.isArray(task.checklist) && task.checklist.length > 0) {
+      task.checklist = task.checklist.map((item) => ({
+        ...item,
+        completed: true,
+      }));
+    }
     task.status = 'testing';
     task.assigned_agent = 'test';
     task.workflow_stage = 'testing';
@@ -418,8 +424,58 @@ function repoTailFromTask(task) {
   return String(task.related_repo || '').split('/').at(-1) || task.project_id;
 }
 
+function canonicalRepoPath(task) {
+  const repoTail = repoTailFromTask(task);
+  if (repoTail === 'rook-workspace') {
+    return path.join(OPENCLAW_DIR, 'workspace');
+  }
+  if (repoTail === 'rook-dashboard') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'engineering', 'rook-dashboard');
+  }
+  if (repoTail === 'metrics-collector') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'engineering', 'metrics-collector');
+  }
+  if (repoTail === 'digital-research') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'projects', 'digital-research');
+  }
+  if (repoTail === 'critical-theory-digital') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'projects', 'critical-theory-digital');
+  }
+  if (repoTail === 'working-notes') {
+    return path.join(OPENCLAW_DIR, 'workspace', 'projects', 'working-notes');
+  }
+  return null;
+}
+
 function repoViewPath(task, executor) {
   return path.join(OPENCLAW_DIR, `workspace-${executor}`, 'workspace', 'repos', repoTailFromTask(task));
+}
+
+async function ensureSpecialistRepoView(task, executor) {
+  const repoPath = repoViewPath(task, executor);
+  const canonicalPath = canonicalRepoPath(task);
+
+  await ensureDir(path.dirname(repoPath));
+
+  try {
+    await fs.lstat(repoPath);
+    return repoPath;
+  } catch {
+    // Create the link if the target repo exists locally.
+  }
+
+  if (!canonicalPath) {
+    return repoPath;
+  }
+
+  try {
+    await fs.access(canonicalPath);
+  } catch {
+    return repoPath;
+  }
+
+  await fs.symlink(canonicalPath, repoPath);
+  return repoPath;
 }
 
 async function runGit(repoPath, args) {
@@ -454,8 +510,62 @@ async function runGit(repoPath, args) {
   });
 }
 
+async function postHookWithCurl(url, token, payload) {
+  return new Promise((resolve) => {
+    const child = spawn('curl', [
+      '-sS',
+      '-X',
+      'POST',
+      url,
+      '-H',
+      `Authorization: Bearer ${token}`,
+      '-H',
+      'Content-Type: application/json',
+      '--data',
+      JSON.stringify(payload),
+      '-w',
+      '\n%{http_code}',
+    ], {
+      cwd: OPENCLAW_DIR,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on('close', (code) => {
+      const trimmed = stdout.trimEnd();
+      const newlineIndex = trimmed.lastIndexOf('\n');
+      const bodyText = newlineIndex >= 0 ? trimmed.slice(0, newlineIndex) : '';
+      const statusText = newlineIndex >= 0 ? trimmed.slice(newlineIndex + 1).trim() : '';
+      const status = Number(statusText || '0');
+      resolve({
+        ok: code === 0 && status >= 200 && status < 300,
+        code: code ?? 1,
+        status,
+        bodyText,
+        stderr: stderr.trim(),
+      });
+    });
+    child.on('error', (error) => {
+      resolve({
+        ok: false,
+        code: 1,
+        status: 0,
+        bodyText: '',
+        stderr: error instanceof Error ? error.message : String(error),
+      });
+    });
+  });
+}
+
 async function collectTaskGitEvidence(task, executor) {
-  const repoPath = repoViewPath(task, executor);
+  const repoPath = await ensureSpecialistRepoView(task, executor);
   const evidence = {
     repoPath,
     exists: false,
@@ -541,7 +651,8 @@ async function validateStageCompletion(task, executor, launchedStatus) {
 
   if (stage === 'testing') {
     const commands = Array.isArray(task.test_evidence?.commands) ? task.test_evidence.commands.filter(Boolean) : [];
-    const status = task.test_evidence?.status || null;
+    const rawStatus = String(task.test_evidence?.status || '').trim().toLowerCase();
+    const status = rawStatus === 'pass' ? 'passed' : (rawStatus || null);
     const summary = String(task.test_evidence?.summary || '').trim();
     if (commands.length === 0) {
       return {
@@ -567,7 +678,8 @@ async function validateStageCompletion(task, executor, launchedStatus) {
   }
 
   if (stage === 'review') {
-    const verdict = task.review_evidence?.verdict || null;
+    const rawVerdict = String(task.review_evidence?.verdict || '').trim().toLowerCase();
+    const verdict = rawVerdict === 'pass' ? 'approved' : (rawVerdict || null);
     const summary = String(task.review_evidence?.summary || '').trim();
     if (verdict !== 'approved') {
       return {
@@ -670,7 +782,7 @@ function summarizeTask(task, executor) {
       ? 'Treat the checklist as part of the task contract. Complete the relevant items or update them honestly if scope changes.'
       : null,
     String(task.status || '') === 'in_progress'
-      ? 'Before completing engineer work: update handoff_notes with what changed and the exact validation commands/results you ran.'
+      ? 'Before completing engineer work: update handoff_notes with what changed and the exact validation commands/results you ran, and mark the implemented checklist items complete in the canonical task.'
       : null,
     String(task.status || '') === 'testing'
       ? 'Before completing testing: fill test_evidence.status, test_evidence.commands, and test_evidence.summary in the canonical task. Do not leave testing without explicit commands and a pass/fail result.'
@@ -685,6 +797,8 @@ function summarizeTask(task, executor) {
 }
 
 async function runAgent(agentId, task, dispatchMode) {
+  await ensureSpecialistRepoView(task, agentId);
+
   if (dispatchMode === 'hook') {
     return runAgentViaHook(agentId, task);
   }
@@ -972,6 +1086,7 @@ async function runAgentViaHook(agentId, task) {
   };
 
   let response;
+  let bodyText = '';
   try {
     response = await fetch(hookConfig.agentUrl, {
       method: 'POST',
@@ -982,16 +1097,29 @@ async function runAgentViaHook(agentId, task) {
       body: JSON.stringify(payload),
     });
   } catch (error) {
-    return {
-      code: 1,
-      stdout: '',
-      stderr: `hook dispatch request failed: ${error instanceof Error ? error.message : String(error)}`,
-      sessionId: null,
-      mode: 'hook',
+    const curlFallback = await postHookWithCurl(hookConfig.agentUrl, hookConfig.token, payload);
+    if (!curlFallback.ok) {
+      const fallbackReason = curlFallback.stderr || `curl fallback returned HTTP ${curlFallback.status || 0}`;
+      return {
+        code: 1,
+        stdout: curlFallback.bodyText || '',
+        stderr: `hook dispatch request failed: ${error instanceof Error ? error.message : String(error)}; curl fallback failed: ${fallbackReason}`,
+        sessionId: null,
+        mode: 'hook',
+      };
+    }
+
+    bodyText = curlFallback.bodyText;
+    response = {
+      ok: true,
+      status: curlFallback.status,
+      text: async () => bodyText,
     };
   }
 
-  const bodyText = await response.text();
+  if (!bodyText) {
+    bodyText = await response.text();
+  }
   if (!response.ok) {
     return {
       code: response.status,

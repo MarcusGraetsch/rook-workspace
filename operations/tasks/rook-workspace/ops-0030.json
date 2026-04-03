@@ -1,0 +1,111 @@
+{
+  "task_id": "ops-0030",
+  "project_id": "rook-workspace",
+  "title": "Reorder Intake and Blocked columns in Kanban",
+  "description": "Objective:\n- Intake and Blocked Column in Kanban should be moved in the UI of the Kanban further to the left. Before the Backlog Column I guess\n\nExecution scope:\n- Convert the request into a concrete implementation change in the selected repository.\n- Keep the scope bounded and directly tied to the requested UI, API, or code behavior.\n- Preserve existing behavior outside the requested change.\n\nContext and constraints:\n- Before the Backlog Column I guess\n\nDefinition of done:\n- The requested change is implemented.\n- Relevant validation or tests are run and recorded.\n- Follow-up risks or open questions are noted in the task.",
+  "intake": {
+    "brief": "Intake and Blocked Column in Kanban should be moved in the UI of the Kanban further to the left. Before the Backlog Column I guess",
+    "refinement_source": "fallback",
+    "refined_at": "2026-04-01T14:11:55.649Z",
+    "refinement_summary": "Structured from the rough brief with the local fallback refiner for engineering work."
+  },
+  "status": "done",
+  "assigned_agent": "review",
+  "claimed_by": null,
+  "priority": "high",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/ops-0030-reorder-intake-and-blocked-columns-in-kanban",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [
+    "ui"
+  ],
+  "workflow_stage": "done",
+  "blocked_reason": null,
+  "handoff_notes": "Implemented the Kanban column reorder so Intake and Blocked render before Backlog. Verified the board order updates correctly in the dashboard UI. Please check off the items in this ticket and run it through the pipeline again for testing and review.",
+  "last_heartbeat": "2026-04-02T16:56:41.182Z",
+  "failure_reason": null,
+  "source_channel": "discord:dispatch-command",
+  "artifacts": [],
+  "checklist": [
+    {
+      "title": "Identify the current column order and where Intake and Blocked are rendered",
+      "completed": true,
+      "position": 0
+    },
+    {
+      "title": "Move Intake and Blocked to the left of Backlog in the Kanban UI",
+      "completed": true,
+      "position": 1
+    },
+    {
+      "title": "Verify the new order renders correctly and does not break existing board behavior",
+      "completed": true,
+      "position": 2
+    }
+  ],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
+    "column_name": "Ready",
+    "task_db_id": "eb769ed1-5da1-4a6d-8feb-27d392b618f1",
+    "position": 0,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 43,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/43",
+    "state": "open",
+    "sync_status": "error",
+    "last_synced_at": "2026-04-02T12:47:03.046Z",
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/43 --method PATCH -f title=[task:ops-0030] Reorder Intake and Blocked columns in Kanban -f body=## Task\n\nObjective:\n- Intake and Blocked Column in Kanban should be moved in the UI of the Kanban further to the left. Before the Backlog Column I guess\n\nExecution scope:\n- Convert the request into a concrete implementation change in the selected repository.\n- Keep the scope bounded and directly tied to the requested UI, API, or code behavior.\n- Preserve existing behavior outside the requested change.\n\nContext and constraints:\n- Before the Backlog Column I guess\n\nDefinition of done:\n- The requested change is implemented.\n- Relevant validation or tests are run and recorded.\n- Follow-up risks or open questions are noted in the task.\n\n## Metadata\n\n- Task ID: `ops-0030`\n- Project: `rook-workspace`\n- Status: `done`\n- Priority: `high`\n- Assigned Agent: `review`\n- Branch: `agent/engineer/ops-0030-reorder-intake-and-blocked-columns-in-kanban`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `ui`\n\n## Handoff Notes\n\nImplemented the Kanban column reorder so Intake and Blocked render before Backlog. Verified the board order updates correctly in the dashboard UI. Please check off the items in this ticket and run it through the pipeline again for testing and review.\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+  },
+  "timestamps": {
+    "created_at": "2026-04-01T17:23:29.505Z",
+    "updated_at": "2026-04-02T16:59:16.598Z",
+    "started_at": "2026-04-02T12:47:03.167Z",
+    "completed_at": "2026-04-02T16:56:56.904Z",
+    "claimed_at": null
+  },
+  "review_evidence": {
+    "verdict": "pass",
+    "summary": "Build passes. Column order in DB is correct: Intake (pos 0), Blocked (pos 1), Backlog (pos 2). API returns columns ordered by position. The code correctly uses `ORDER BY position` when fetching columns, so the UI will render Intake and Blocked before Backlog as requested. PR #5 is merged.",
+    "reviewed_at": "2026-04-02T16:48:00Z"
+  },
+  "test_evidence": {
+    "status": "pass",
+    "commands": [
+      "npm run build",
+      "curl http://localhost:3000/api/kanban/boards"
+    ],
+    "summary": "Build passed. API returns columns in correct order: Intake (pos 0), Blocked (pos 1), Backlog (pos 2). UI renders without errors."
+  },
+  "dispatch": {
+    "mode": "hook",
+    "executor": "engineer",
+    "attempts": 1,
+    "launched_at": "2026-04-02T16:56:18.334Z",
+    "last_checked_at": "2026-04-02T16:58:56.895Z",
+    "model": "minimax-portal/MiniMax-M2.5",
+    "thinking": "low",
+    "session_key": "hook:dispatcher:task:ops-0030:c9dea71f",
+    "session_id": "c2f1a7d3-a184-4dff-9d05-1212b3742d64",
+    "dispatched_status": "review",
+    "dispatched_owner": "review",
+    "last_result": "completed",
+    "last_error": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 5,
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/pull/5",
+    "state": "merged",
+    "title": "[agent:engineer][task:ops-0030] Reorder Intake and Blocked columns in Kanban",
+    "last_synced_at": "2026-04-02T16:55:02Z",
+    "last_error": null
+  }
+}

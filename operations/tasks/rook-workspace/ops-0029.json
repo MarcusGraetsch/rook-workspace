@@ -1,0 +1,112 @@
+{
+  "task_id": "ops-0029",
+  "project_id": "rook-workspace",
+  "title": "Filter nach frei wahlbarem Zeitraum. Date Picker mit Presets (7d, 30d...",
+  "description": "Objective:\n- Filter nach frei wahlbarem Zeitraum. Date Picker mit Presets (7d, 30d, 90d, Custom). Acceptance criteria: - Date picker component - Presets: 7d, 30d, 90d, This month, Last month, Custom - Custom range selection - Updates all dashboard widgets based on selected range\n\nContext:\n- Date Picker mit Presets (7d, 30d, 90d, Custom)\n- Acceptance criteria: - Date picker component - Presets: 7d, 30d, 90d, This month, Last month, Custom - Custom range selection - Updates all dashboard widgets based on selected range\n\nDefinition of done:\n- The task scope is clear.\n- The expected deliverable is defined.\n- Validation or review expectations are recorded.",
+  "intake": {
+    "brief": "Filter nach frei wahlbarem Zeitraum. Date Picker mit Presets (7d, 30d, 90d, Custom). Acceptance criteria: - Date picker component - Presets: 7d, 30d, 90d, This month, Last month, Custom - Custom range selection - Updates all dashboard widgets based on selected range",
+    "refinement_source": "fallback",
+    "refined_at": "2026-04-02T17:41:47.388Z",
+    "refinement_summary": "Structured from the rough brief with the local fallback refiner for general work."
+  },
+  "status": "blocked",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "high",
+  "dependencies": [],
+  "blocked_by": ["sandbox_content_mismatch"],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/engineer/ops-0029-feature-custom-date-ranges",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [
+    "filter",
+    "ux",
+    "mvp",
+    "dashboard",
+    "ui"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": "test_evidence claims files exist (src/components/dashboard/DateRangePicker.tsx) but sandbox contains different project (Python research/knowledge system, no Next.js dashboard). Expected dashboard/webapp structure does not exist in this sandbox.",
+  "handoff_notes": "[agent:engineer][task:ops-0029] BLOCKED - Sandbox content mismatch. The test_evidence claims DateRangePicker.tsx exists but the sandbox contains a different project: Python research/knowledge system (src/researchclaw/) instead of Next.js dashboard. No package.json, no src/app/, no components/dashboard/ directory exists. Task cannot proceed without correct sandbox content. Required: either dispatch to correct repo with dashboard webapp, or ensure sandbox has rook-workspace with Next.js structure.",
+  "last_heartbeat": "2026-04-03T11:27:00.000Z",
+  "failure_reason": "sandbox_content_mismatch",
+  "source_channel": "discord:dispatch-command",
+  "artifacts": [],
+  "checklist": [
+    {
+      "title": "Clarify the expected outcome for filter nach frei wahlbarem zeitraum. date picker mit presets (7d, 30d..",
+      "completed": true,
+      "position": 0,
+      "note": "Scope is clear: DateRangePicker component with presets (7d, 30d, 90d, This month, Last month, Custom) updating dashboard widgets"
+    },
+    {
+      "title": "Break the work into concrete execution steps",
+      "completed": false,
+      "position": 1,
+      "note": "BLOCKED - cannot proceed without correct sandbox content"
+    },
+    {
+      "title": "Validate the result and record the evidence in the task",
+      "completed": false,
+      "position": 2,
+      "note": "BLOCKED - cannot proceed without correct sandbox content"
+    }
+  ],
+  "test_evidence": {
+    "status": "fail",
+    "commands": [
+      "ls -laR /root/.openclaw/workspace-engineer/workspace/repos/rook-workspace/src/"
+    ],
+    "summary": "BLOCKED: The test_evidence was previously set to 'pass' but the required files do not exist. Sandbox contains Python research/knowledge system (src/researchclaw/), not a Next.js dashboard webapp. No DateRangePicker.tsx, no src/app/page.tsx, no package.json exists. Task cannot proceed without correct sandbox content or fresh task dispatch to correct repo."
+  },
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
+    "column_name": "Ready",
+    "task_db_id": "697bfae2-138f-437e-a073-9973d514fc5e",
+    "position": 0,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 38,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/38",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-04-02T17:42:07.408Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-01T17:09:29.592Z",
+    "updated_at": "2026-04-03T11:18:00.000Z",
+    "started_at": "2026-04-02T17:42:07.526Z",
+    "completed_at": null,
+    "claimed_at": null
+  },
+  "dispatch": {
+    "mode": "hook",
+    "executor": null,
+    "attempts": 2,
+    "launched_at": "2026-04-02T17:42:07.526Z",
+    "last_checked_at": "2026-04-03T11:18:00.000Z",
+    "model": "minimax-portal/MiniMax-M2.5",
+    "thinking": "low",
+    "session_key": null,
+    "session_id": null,
+    "dispatched_status": "blocked",
+    "dispatched_owner": "engineer",
+    "last_result": "sandbox_content_mismatch",
+    "last_error": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "title": null,
+    "last_synced_at": null,
+    "last_error": null
+  }
+}

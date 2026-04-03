@@ -84,6 +84,7 @@ Deprecated model:
   - research: question, evidence, findings
   - consulting: decision framing, options, recommendation
 - The dashboard API now enforces this gate, so drag-and-drop or modal edits that try to bypass intake should fail.
+- Entering `Ready` through the dashboard API now also triggers an immediate canonical dispatch attempt. The old Discord command remains optional fallback control, not the primary path.
 
 ## Git Flow
 

@@ -30,8 +30,8 @@
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
-    "column_name": "Ready",
+    "column_id": "40a83a58-a039-4032-9663-87d0a80fad62",
+    "column_name": "Done",
     "task_db_id": "a8c0a4d9-52c0-4563-985b-d8ec9999fe80",
     "position": 1,
     "sync_origin": "dashboard-kanban"
@@ -47,7 +47,7 @@
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:17.144Z",
-    "updated_at": "2026-03-31T12:20:37.963Z",
+    "updated_at": "2026-04-01T17:20:36.539Z",
     "started_at": "2026-03-30T15:48:11.841Z",
     "completed_at": "2026-03-31T12:19:30.000Z",
     "claimed_at": null
@@ -72,7 +72,7 @@
     "executor": "engineer",
     "attempts": 1,
     "launched_at": "2026-03-31T12:16:39.272Z",
-    "last_checked_at": "2026-03-31T12:20:37.963Z",
+    "last_checked_at": "2026-04-01T17:19:44.207Z",
     "model": "minimax-portal/MiniMax-M2.5",
     "thinking": "low",
     "session_key": "hook:dispatcher:task:ops-0013:d93a9e0d",
