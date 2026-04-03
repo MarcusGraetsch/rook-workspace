@@ -461,6 +461,11 @@ function unresolvedDependencies(task, taskMap) {
   });
 }
 
+function taskRef(task) {
+  const projectId = String(task.project_id || '').trim();
+  return projectId ? `${projectId}/${task.task_id}` : String(task.task_id || '');
+}
+
 function repoTailFromTask(task) {
   return String(task.related_repo || '').split('/').at(-1) || task.project_id;
 }
@@ -1755,11 +1760,21 @@ async function main() {
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
       await writeJson(filePath, task);
-      await notifyAndRecord(
-        task,
-        'dependency_block',
-        `[dispatcher] blocked ${task.task_id}: waiting for dependencies ${blockers.join(', ')}`
+      const priorRuntimeState = entry.runtimeState && typeof entry.runtimeState === 'object' ? entry.runtimeState : null;
+      const previousBlockedBy = Array.isArray(priorRuntimeState?.blocked_by) ? priorRuntimeState.blocked_by : [];
+      const previousFailureReason = String(priorRuntimeState?.failure_reason || '');
+      const dependencyBlockChanged = (
+        !deepEqualJson(previousBlockedBy, blockers)
+        || previousFailureReason !== task.failure_reason
+        || priorRuntimeState?.status !== 'blocked'
       );
+      if (dependencyBlockChanged) {
+        await notifyAndRecord(
+          task,
+          'dependency_block',
+          `[dispatcher] blocked ${taskRef(task)}: waiting for dependencies ${blockers.join(', ')}`
+        );
+      }
       await appendLog({
         ts: nowIso,
         task_id: task.task_id,
