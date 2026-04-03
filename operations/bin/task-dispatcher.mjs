@@ -98,9 +98,18 @@ function shouldPreferCanonicalControlState(baseTask, runtimeState) {
 
   const normalizedBaseStatus = normalizeTaskStatus(baseTask.status);
   const normalizedRuntimeStatus = normalizeTaskStatus(runtimeState.status);
+  const runtimeClaimActive = Boolean(runtimeState.claimed_by)
+    || (
+      ACTIVE_STATUSES.has(normalizedRuntimeStatus)
+      && ['launching', 'running'].includes(String(runtimeState.dispatch?.last_result || ''))
+    );
   return (
     TERMINAL_STATUSES.has(normalizedBaseStatus)
-    || (READY_STATUSES.has(normalizedBaseStatus) && normalizedRuntimeStatus !== normalizedBaseStatus)
+    || (
+      READY_STATUSES.has(normalizedBaseStatus)
+      && normalizedRuntimeStatus !== normalizedBaseStatus
+      && !runtimeClaimActive
+    )
   );
 }
 
@@ -117,7 +126,26 @@ function applyRuntimeTaskState(baseTask, runtimeState) {
     };
   }
 
-  const merged = { ...baseTask, ...runtimeState };
+  const merged = { ...baseTask };
+  const runtimeControlKeys = [
+    'status',
+    'assigned_agent',
+    'claimed_by',
+    'blocked_by',
+    'workflow_stage',
+    'blocked_reason',
+    'last_heartbeat',
+    'failure_reason',
+    'source_channel',
+  ];
+  for (const key of runtimeControlKeys) {
+    if (Object.prototype.hasOwnProperty.call(runtimeState, key)) {
+      merged[key] = runtimeState[key];
+    }
+  }
+  if (typeof runtimeState.handoff_notes === 'string' && runtimeState.handoff_notes.trim()) {
+    merged.handoff_notes = runtimeState.handoff_notes;
+  }
   if (runtimeState.dispatch) merged.dispatch = runtimeState.dispatch;
   if (runtimeState.timestamps) {
     merged.timestamps = {
@@ -256,6 +284,10 @@ async function loadTasks() {
   }
 
   return tasks;
+}
+
+async function writeRuntimeTaskState(filePath, task) {
+  await writeJson(filePath, buildRuntimeTaskState(task));
 }
 
 function statusForExecutor(agentId) {
@@ -404,7 +436,7 @@ async function normalizeTerminalTasks(loadedTasks, nowIso) {
     if (!terminal) {
       if (changed) {
         task.timestamps.updated_at = nowIso;
-        await writeJson(filePath, task);
+        await writeRuntimeTaskState(filePath, task);
       }
       continue;
     }
@@ -443,7 +475,7 @@ async function normalizeTerminalTasks(loadedTasks, nowIso) {
 
     if (changed) {
       task.timestamps.updated_at = nowIso;
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
       await appendLog({
         ts: nowIso,
         task_id: task.task_id,
@@ -488,6 +520,9 @@ function canonicalRepoPath(task) {
   }
   if (repoTail === 'rook-dashboard') {
     return path.join(OPENCLAW_DIR, 'workspace', 'engineering', 'rook-dashboard');
+  }
+  if (repoTail === 'rook-agent') {
+    return path.join(OPENCLAW_DIR, 'rook-agent');
   }
   if (repoTail === 'metrics-collector') {
     return path.join(OPENCLAW_DIR, 'workspace', 'engineering', 'metrics-collector');
@@ -1560,7 +1595,7 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
           nextDispatch.mode || 'hook',
           new Date().toISOString()
         );
-        await writeJson(filePath, task);
+        await writeRuntimeTaskState(filePath, task);
         await appendLog({
           ts: new Date().toISOString(),
           task_id: task.task_id,
@@ -1598,7 +1633,7 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
         last_error: task.failure_reason,
         last_checked_at: nowIso,
       };
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
       await notifyAndRecord(
         task,
         'worker_aborted',
@@ -1637,7 +1672,7 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
           last_error: completionCheck.reason,
           last_checked_at: nowIso,
         };
-        await writeJson(filePath, task);
+        await writeRuntimeTaskState(filePath, task);
         await notifyAndRecord(
           task,
           'dispatch_blocked',
@@ -1672,7 +1707,7 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
         last_error: null,
         last_checked_at: nowIso,
       };
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
       await notifyAndRecord(
         task,
         'worker_completed',
@@ -1706,7 +1741,7 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
 
     if (changed) {
       task.timestamps.updated_at = nowIso;
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
     }
   }
 }
@@ -1735,7 +1770,7 @@ async function main() {
     task.last_heartbeat = nowIso;
     task.timestamps.updated_at = nowIso;
     task.timestamps.claimed_at = null;
-    await writeJson(filePath, task);
+    await writeRuntimeTaskState(filePath, task);
     await notifyAndRecord(
       task,
       'stale_claim_released',
@@ -1770,7 +1805,7 @@ async function main() {
       task.failure_reason = `Waiting for dependencies: ${blockers.join(', ')}`;
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
       const dependencyBlockChanged = runtimeBlockStateChanged(entry, blockers, task.failure_reason);
       if (dependencyBlockChanged) {
         await notifyAndRecord(
@@ -1796,7 +1831,7 @@ async function main() {
       task.failure_reason = 'Coordinator-owned task requires explicit executor mapping before dispatch.';
       task.last_heartbeat = nowIso;
       task.timestamps.updated_at = nowIso;
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
       if (runtimeBlockStateChanged(entry, task.blocked_by, task.failure_reason)) {
         await notifyAndRecord(
           task,
@@ -1861,7 +1896,7 @@ async function main() {
       task.timestamps.started_at = nowIso;
     }
 
-    await writeJson(filePath, task);
+    await writeRuntimeTaskState(filePath, task);
     await notifyAndRecord(
       task,
       'dispatch_started',
@@ -1876,7 +1911,7 @@ async function main() {
       result = await runAgent(executor, task, options.dispatchMode);
       evaluation = evaluateResult(result);
       task.dispatch = buildDispatchState(task, executor, result, attempt, options.dispatchMode, new Date().toISOString());
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
 
       await appendLog({
         ts: new Date().toISOString(),
@@ -1918,7 +1953,7 @@ async function main() {
         last_error: task.failure_reason,
         last_checked_at: task.last_heartbeat,
       };
-      await writeJson(filePath, task);
+      await writeRuntimeTaskState(filePath, task);
       await notifyAndRecord(
         task,
         'dispatch_blocked',

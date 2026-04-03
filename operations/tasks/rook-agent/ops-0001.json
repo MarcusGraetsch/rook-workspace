@@ -3,15 +3,26 @@
   "project_id": "rook-agent",
   "title": "Replace prompt heartbeats with structured health snapshots",
   "description": "Define and implement one machine-readable health file per agent, replacing the current heartbeat pattern of scheduled natural-language prompts against dashboard endpoints.",
-  "status": "ready",
+  "intake": {
+    "brief": null,
+    "refinement_source": null,
+    "refined_at": null,
+    "refinement_summary": null
+  },
+  "status": "blocked",
   "assigned_agent": "rook",
+  "claimed_by": null,
   "priority": "urgent",
   "dependencies": [
     "dashboard-0042"
   ],
+  "blocked_by": [
+    "dispatcher:executor-mapping"
+  ],
   "related_repo": "MarcusGraetsch/rook-agent",
   "branch": "agent/rook/ops-0001-health-snapshots",
   "commits": [],
+  "commit_refs": [],
   "labels": [
     "orchestration",
     "health",
@@ -20,19 +31,34 @@
   "workflow_stage": "design",
   "blocked_reason": null,
   "handoff_notes": "Use this task to drive the removal of engineer-owned fake subagent heartbeats and move to structured agent status records under workspace/operations/health.",
+  "last_heartbeat": "2026-04-03T12:34:56.903Z",
+  "failure_reason": "Coordinator-owned task requires explicit executor mapping before dispatch.",
+  "source_channel": null,
+  "artifacts": [],
+  "checklist": [],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "d26fa667-29e7-440e-b791-a2de22f5f30c",
+    "column_name": "Blocked",
+    "task_db_id": "6be4a0fc-68a4-4d5a-b907-b4e92b488f3d",
+    "position": 25,
+    "sync_origin": "dashboard-kanban"
+  },
   "github_issue": {
     "repo": "MarcusGraetsch/rook-agent",
     "number": 1,
     "url": "https://github.com/MarcusGraetsch/rook-agent/issues/1",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-03-30T15:42:03.794Z",
+    "last_synced_at": "2026-04-03T12:35:51.578Z",
     "last_error": null
   },
   "timestamps": {
     "created_at": "2026-03-30T10:31:00Z",
-    "updated_at": "2026-03-30T15:42:03.794Z",
+    "updated_at": "2026-04-03T12:35:51.578Z",
     "started_at": null,
-    "completed_at": null
+    "completed_at": null,
+    "claimed_at": null
   }
 }

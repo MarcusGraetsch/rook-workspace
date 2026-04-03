@@ -1,8 +1,8 @@
 {
-  "task_id": "ops-0008",
+  "task_id": "ops-0021",
   "project_id": "rook-workspace",
-  "title": "Labor: Sources Page – API + UI",
-  "description": "Implementiere /api/labor/sources (aus Registry/Fixtures) + /labor/sources mit Source Registry (HRW, Stanford FMTI, AlgorithmWatch, Fairwork etc.).",
+  "title": "Feature: Zero UI Elements",
+  "description": "Gesture-based interactions. Wischen, Handgesten zur Navigation.\n\nAcceptance criteria:\n- Gesture recognition on dashboard\n- Swipe to navigate between views\n- Hand gesture controls\n- Works with touch and mouse",
   "intake": {
     "brief": null,
     "refinement_source": null,
@@ -10,19 +10,20 @@
     "refinement_summary": null
   },
   "status": "backlog",
-  "assigned_agent": "researcher",
+  "assigned_agent": "engineer",
   "claimed_by": null,
   "priority": "low",
   "dependencies": [],
   "blocked_by": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
-  "branch": "agent/researcher/ops-0008-labor-sources-page-api-ui",
+  "branch": "agent/engineer/ops-0021-feature-zero-ui-elements",
   "commits": [],
   "commit_refs": [],
   "labels": [
-    "labor",
-    "sources",
-    "rook-dashboard"
+    "Gesture",
+    "UX",
+    "Phase3",
+    "dashboard"
   ],
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
@@ -37,22 +38,22 @@
     "board_name": "Rook System",
     "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
     "column_name": "Backlog",
-    "task_db_id": "8c277398-8ae0-471f-813b-5266b89d89b3",
-    "position": 4,
+    "task_db_id": "2159dbb4-b052-4336-bf36-d1f1977117b1",
+    "position": 10,
     "sync_origin": "dashboard-kanban"
   },
   "github_issue": {
     "repo": "MarcusGraetsch/rook-workspace",
-    "number": 7,
-    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/7",
+    "number": 28,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/28",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-04-03T12:35:58.601Z",
+    "last_synced_at": "2026-04-03T12:36:07.852Z",
     "last_error": null
   },
   "timestamps": {
-    "created_at": "2026-03-30T15:42:09.867Z",
-    "updated_at": "2026-04-03T12:35:58.601Z",
+    "created_at": "2026-04-03T12:36:06.231Z",
+    "updated_at": "2026-04-03T12:36:07.852Z",
     "started_at": null,
     "completed_at": null,
     "claimed_at": null
