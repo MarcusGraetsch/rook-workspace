@@ -91,9 +91,30 @@ async function readJsonIfExists(filePath) {
   }
 }
 
+function shouldPreferCanonicalControlState(baseTask, runtimeState) {
+  if (!runtimeState || typeof runtimeState !== 'object') {
+    return false;
+  }
+
+  const normalizedBaseStatus = normalizeTaskStatus(baseTask.status);
+  const normalizedRuntimeStatus = normalizeTaskStatus(runtimeState.status);
+  return (
+    TERMINAL_STATUSES.has(normalizedBaseStatus)
+    || (READY_STATUSES.has(normalizedBaseStatus) && normalizedRuntimeStatus !== normalizedBaseStatus)
+  );
+}
+
 function applyRuntimeTaskState(baseTask, runtimeState) {
   if (!runtimeState || typeof runtimeState !== 'object') {
     return baseTask;
+  }
+
+  if (shouldPreferCanonicalControlState(baseTask, runtimeState)) {
+    return {
+      ...baseTask,
+      github_issue: runtimeState.github_issue || baseTask.github_issue,
+      github_pull_request: runtimeState.github_pull_request || baseTask.github_pull_request,
+    };
   }
 
   const merged = { ...baseTask, ...runtimeState };
@@ -126,6 +147,20 @@ function buildRuntimeTaskState(task) {
     github_pull_request: task.github_pull_request || null,
     timestamps: task.timestamps || null,
   };
+}
+
+function shouldClearHandoffNotesForDispatch(task) {
+  const status = normalizeTaskStatus(String(task.status || ''));
+  if (status !== 'ready') {
+    return false;
+  }
+
+  const notes = String(task.handoff_notes || '').trim().toLowerCase();
+  if (!notes) {
+    return false;
+  }
+
+  return notes.startsWith('[agent:') && (notes.includes('blocked') || notes.includes('validated') || notes.includes('completed'));
 }
 
 function truncate(value, limit = MAX_LOG_BYTES) {
@@ -207,7 +242,13 @@ async function loadTasks() {
         const baseTask = await readJson(sourceFilePath);
         const runtimeState = await readJsonIfExists(stateFilePath);
         const task = applyRuntimeTaskState(baseTask, runtimeState);
-        tasks.push({ filePath: stateFilePath, sourceFilePath, task });
+        tasks.push({
+          filePath: stateFilePath,
+          sourceFilePath,
+          task,
+          runtimeState,
+          canonicalStatePreferred: shouldPreferCanonicalControlState(baseTask, runtimeState),
+        });
       } catch {
         // Ignore malformed tasks but keep dispatcher running.
       }
@@ -350,10 +391,10 @@ function normalizeTaskStatus(status) {
 
 async function normalizeTerminalTasks(loadedTasks, nowIso) {
   for (const entry of loadedTasks) {
-    const { task, filePath } = entry;
+    const { task, filePath, runtimeState, canonicalStatePreferred } = entry;
     const normalizedStatus = normalizeTaskStatus(task.status);
     const terminal = TERMINAL_STATUSES.has(normalizedStatus);
-    let changed = false;
+    let changed = canonicalStatePreferred && !deepEqualJson(task, runtimeState);
 
     if (normalizedStatus !== task.status) {
       task.status = normalizedStatus;
@@ -1762,14 +1803,19 @@ async function main() {
       continue;
     }
 
+    const clearStaleHandoffNotes = shouldClearHandoffNotesForDispatch(task);
     task.status = statusForDispatch(task, executor);
     task.assigned_agent = task.status === 'testing'
       ? 'test'
       : task.status === 'review'
         ? 'review'
         : executor;
+    if (clearStaleHandoffNotes) {
+      task.handoff_notes = '';
+    }
     task.claimed_by = `dispatcher:${executor}`;
     task.blocked_by = [];
+    task.blocked_reason = null;
     task.failure_reason = null;
     task.last_heartbeat = nowIso;
     task.source_channel = task.source_channel || options.sourceChannel;
