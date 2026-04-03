@@ -754,6 +754,9 @@ function summarizeTask(task, executor) {
   const canonicalTaskFile = path.join(TASKS_DIR, task.project_id, `${task.task_id}.json`);
   const localRepoView = repoViewPath(task, executor);
   const stageOwner = task.assigned_agent || executor;
+  const workspaceRepoHint = task.related_repo === 'MarcusGraetsch/rook-workspace'
+    ? 'Repo layout hint: product code may live in nested project paths such as engineering/rook-dashboard rather than the workspace root.'
+    : null;
   const checklistLines = Array.isArray(task.checklist)
     ? task.checklist
         .slice()
@@ -771,6 +774,7 @@ function summarizeTask(task, executor) {
     `Stage owner: ${stageOwner}`,
     `Branch: ${task.branch}`,
     `Title: ${task.title}`,
+    workspaceRepoHint,
     fallbackNote,
     task.handoff_notes ? `Notes: ${task.handoff_notes}` : null,
     checklistLines.length > 0 ? `Checklist:\n${checklistLines.join('\n')}` : null,
