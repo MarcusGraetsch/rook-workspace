@@ -3,6 +3,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
+import { cleanupSessionArtifacts } from './session-cleanup-lib.mjs';
 
 const ROOT_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(ROOT_DIR, 'openclaw.json');
@@ -132,79 +133,87 @@ async function runProbe(agentId) {
   const startedAt = Date.now();
   const sessionKey = `hook:smoke:${agentId}:${randomUUID().slice(0, 8)}`;
 
-  let response;
   try {
-    response = await fetch(hookConfig.agentUrl, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${hookConfig.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: `Reply with exactly ${token} and nothing else.`,
-        name: 'Runtime Smoke',
-        agentId,
-        sessionKey,
-        wakeMode: 'now',
-        deliver: false,
-        model: HOOK_MODEL,
-        thinking: HOOK_THINKING,
-        timeoutSeconds: TIMEOUT_SECONDS,
-      }),
-    });
-  } catch (error) {
-    return {
-      agent_id: agentId,
-      ok: false,
-      reason: `hook request failed: ${error instanceof Error ? error.message : String(error)}`,
-      code: 1,
-      duration_ms: Date.now() - startedAt,
-      stdout: '',
-      stderr: '',
-    };
-  }
-
-  const bodyText = await response.text();
-  if (!response.ok) {
-    return {
-      agent_id: agentId,
-      ok: false,
-      reason: `hook request returned HTTP ${response.status}`,
-      code: response.status,
-      duration_ms: Date.now() - startedAt,
-      stdout: bodyText.slice(-1000),
-      stderr: '',
-    };
-  }
-
-  const deadline = Date.now() + TIMEOUT_SECONDS * 1000;
-  while (Date.now() <= deadline) {
-    const state = await readHookTranscriptState(agentId, sessionKey);
-    const terminal = findTerminalState(state);
-    if (terminal) {
-      const ok = terminal.ok && terminal.assistantText.includes(token);
+    let response;
+    try {
+      response = await fetch(hookConfig.agentUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${hookConfig.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Reply with exactly ${token} and nothing else.`,
+          name: 'Runtime Smoke',
+          agentId,
+          sessionKey,
+          wakeMode: 'now',
+          deliver: false,
+          model: HOOK_MODEL,
+          thinking: HOOK_THINKING,
+          timeoutSeconds: TIMEOUT_SECONDS,
+        }),
+      });
+    } catch (error) {
       return {
         agent_id: agentId,
-        ok,
-        reason: ok ? null : (terminal.reason || 'unexpected hook response'),
-        code: ok ? 0 : 1,
+        ok: false,
+        reason: `hook request failed: ${error instanceof Error ? error.message : String(error)}`,
+        code: 1,
         duration_ms: Date.now() - startedAt,
-        stdout: terminal.assistantText.slice(-1000),
-        stderr: bodyText.slice(-1000),
+        stdout: '',
+        stderr: '',
       };
     }
-    await new Promise((resolve) => setTimeout(resolve, HOOK_POLL_INTERVAL_MS));
-  }
 
-  return {
-    agent_id: agentId,
-    ok: false,
-    reason: `hook smoke timed out after ${TIMEOUT_SECONDS}s`,
-    code: 124,
-    duration_ms: Date.now() - startedAt,
-    stdout: '',
-    stderr: bodyText.slice(-1000),
-  };
+    const bodyText = await response.text();
+    if (!response.ok) {
+      return {
+        agent_id: agentId,
+        ok: false,
+        reason: `hook request returned HTTP ${response.status}`,
+        code: response.status,
+        duration_ms: Date.now() - startedAt,
+        stdout: bodyText.slice(-1000),
+        stderr: '',
+      };
+    }
+
+    const deadline = Date.now() + TIMEOUT_SECONDS * 1000;
+    while (Date.now() <= deadline) {
+      const state = await readHookTranscriptState(agentId, sessionKey);
+      const terminal = findTerminalState(state);
+      if (terminal) {
+        const ok = terminal.ok && terminal.assistantText.includes(token);
+        return {
+          agent_id: agentId,
+          ok,
+          reason: ok ? null : (terminal.reason || 'unexpected hook response'),
+          code: ok ? 0 : 1,
+          duration_ms: Date.now() - startedAt,
+          stdout: terminal.assistantText.slice(-1000),
+          stderr: bodyText.slice(-1000),
+        };
+      }
+      await new Promise((resolve) => setTimeout(resolve, HOOK_POLL_INTERVAL_MS));
+    }
+
+    return {
+      agent_id: agentId,
+      ok: false,
+      reason: `hook smoke timed out after ${TIMEOUT_SECONDS}s`,
+      code: 124,
+      duration_ms: Date.now() - startedAt,
+      stdout: '',
+      stderr: bodyText.slice(-1000),
+    };
+  } finally {
+    await cleanupSessionArtifacts({
+      rootDir: ROOT_DIR,
+      agentId,
+      sessionKey,
+    }).catch(() => null);
+  }
 }
 
 async function main() {

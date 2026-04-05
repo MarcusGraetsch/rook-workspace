@@ -196,6 +196,7 @@ Expected pattern:
 - worker produces commits with `[agent:...][task:...]`
 - task records relevant commits/artifacts
 - branch is pushed to GitHub
+- approved review is followed by PR merge and branch deletion before a code task reaches `done`
 - GitHub workflows in `rook-workspace` should fetch only the specific submodule each job needs
 - `.gitmodules` should use GitHub Actions-compatible HTTPS URLs, not SSH-only URLs that require extra runner keys
 - workflow steps must run inside the actual package roots, not assume the repository root is the build root
@@ -237,7 +238,7 @@ The remaining limits are:
 
 - long worker runs can still abort mid-cleanup
 - specialist stages exist, but `engineer` is still the safe fallback for setup tasks
-- canonical task finalization still benefits from dispatcher-side normalization when a task spans multiple follow-up PRs
+- there is still no official Gateway teardown API for forcibly terminating an already-crashed in-memory hook worker, so recovery focuses on session store and transcript cleanup
 
 That is acceptable for now.
 The execution core is now real, observable, and recoverable.

@@ -53,7 +53,10 @@ chmod +x /root/.openclaw/workspace/operations/bin/bootstrap-specialist-workspace
 chmod +x /root/.openclaw/workspace/operations/bin/start-dashboard.sh
 chmod +x /root/.openclaw/workspace/operations/bin/dashboard-watchdog.sh
 chmod +x /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs
+chmod +x /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs
 chmod +x /root/.openclaw/workspace/operations/bin/backup-runtime-to-drive.sh
+chmod +x /root/.openclaw/workspace/operations/bin/check-runtime-backup-integrity.mjs
+chmod +x /root/.openclaw/workspace/operations/bin/check-runtime-restore-readiness.mjs
 chmod +x /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 chmod +x /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 /root/.openclaw/workspace/operations/bin/bootstrap-specialist-workspaces.sh
@@ -86,9 +89,18 @@ node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --dry-run --li
 # Runtime smoke checks
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
+node /root/.openclaw/workspace/operations/bin/check-canonical-task-integrity.mjs
+node /root/.openclaw/workspace/operations/bin/check-runtime-backup-integrity.mjs
+
+# Session cleanup dry run
+node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --dry-run --stale-hours 24
 
 # Manual runtime backup test
 /root/.openclaw/workspace/operations/bin/backup-runtime-to-drive.sh
+
+# Check whether a snapshot is restorable before restore
+node /root/.openclaw/workspace/operations/bin/check-runtime-restore-readiness.mjs \
+  --snapshot /root/backups/rook-runtime/<timestamp>
 
 # Restore a runtime snapshot
 /root/.openclaw/workspace/operations/bin/restore-runtime-backup.sh \
@@ -97,6 +109,40 @@ node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 # Hook dispatch test (replace <task-id>)
 ROOK_DISPATCH_TIMEOUT_SECONDS=35 node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --task <task-id> --limit 1 --dispatch-mode hook
 ```
+
+## Session Cleanup
+
+Hook-mode worker sessions now clean up in two layers:
+
+- the dispatcher removes managed hook session artifacts immediately after task completion, abort, or completion-block
+- the runtime smoke probe removes its temporary `hook:smoke:*` sessions after every run
+- `cleanup-sessions.mjs` remains the periodic reaper for orphaned transcripts and stale session-store entries
+
+Recommended manual commands:
+
+```bash
+# Report only
+node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --dry-run --stale-hours 24
+
+# Mark stale active entries as stale and remove orphaned / managed ephemeral hook sessions
+node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --stale-hours 24
+
+# Hard-remove stale active entries from sessions.json before orphan sweep
+node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --stale-hours 24 --remove-stale
+```
+
+Recommended cron example:
+
+```cron
+15 * * * * node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --stale-hours 24 >> /root/.openclaw/runtime/operations/logs/session-cleanup.log 2>&1
+```
+
+Behavior details:
+
+- orphaned `.jsonl` files are detected against both `sessionId` and explicit `sessionFile` references from `sessions.json`
+- stale active entries are identified from `updatedAt`, `startedAt`, `endedAt`, and transcript `mtime`
+- managed ephemeral sessions currently include `hook:dispatcher:*` and `hook:smoke:*`
+- there is still no official Gateway teardown API for forcibly stopping an already-crashed in-memory worker; cleanup therefore focuses on persistent artifacts and stale store state
 
 ## Stage Transition Validation
 
@@ -109,7 +155,7 @@ The Kanban board reflects real execution stages:
 | **In Progress** | Engineer execution is active |
 | **Testing** | Test-stage work is active |
 | **Review** | Review-stage work is active |
-| **Done** | Task completed honestly, board and canonical state aligned |
+| **Done** | Task completed honestly; for code tasks this means review approved, PR merged, and branch cleanup completed |
 
 Each stage transition should correspond to real worker activity, not just text updates.
 
@@ -139,19 +185,30 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - Archived tasks live under `/root/.openclaw/runtime/operations/archive/tasks/`.
 - Runtime smoke checks are written under `/root/.openclaw/runtime/operations/health/runtime-smoke.json` and should be treated as stronger evidence than heartbeat files.
 - The dashboard SQLite file at `workspace/engineering/rook-dashboard/data/kanban.db` is runtime state. It should be snapshotted by backup jobs rather than committed as normal source code.
+- `rook-dashboard.service` should export `DB_PATH=/root/.openclaw/workspace/engineering/rook-dashboard/data/kanban.db` so the live board does not drift when working directories or specialist clones change.
+- `start-dashboard.sh` should treat `.next/BUILD_ID`, `.next/routes-manifest.json`, `.next/server/pages-manifest.json`, and `.next/server/app-paths-manifest.json` as the minimum healthy build set. If any are missing, the service should rebuild from a clean `.next`.
 - Passive Kanban reconciliation must not rewrite canonical task files just to persist regenerated board projection metadata such as card position or column ids.
 - The runtime backup job snapshots:
   - dashboard SQLite state
   - canonical tasks and project registry from the tracked workspace
   - archived tasks from `/root/.openclaw/runtime/operations/archive/tasks/`
   - health snapshots, task overlays, and dispatcher logs from `/root/.openclaw/runtime/operations/`
+- `check-runtime-backup-integrity.mjs` should be used after backup rollout and during audits to confirm the latest local snapshot is fresh and contains the required restore artifacts.
+- `check-runtime-restore-readiness.mjs` should be used before restore operations or recovery drills to confirm the chosen snapshot contains the dashboard DB, canonical task archive, runtime archive, and task-overlay state required for a meaningful restore.
 - Runtime backups are stored locally under `/root/backups/rook-runtime/`.
 - If `rclone` is configured with the `gdrive:` remote, runtime backups should sync to `gdrive:DigitalCapitalismBackups/rook-runtime/<host>/`.
 - Local-mode specialist execution depends on provider env vars being available. Keep these current:
   - `/root/.openclaw/.env.d/minimax-api-key.txt`
   - `/root/.openclaw/.env.d/kimi-api-key.txt`
+- If either secret file is missing, treat that as a contract failure, not a soft warning.
 - The dispatcher and runtime smoke checker now load those env files explicitly before spawning `openclaw agent --local`.
-- Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/repos/*` links instead of trying to clone GitHub repos on demand.
+- Specialist sandboxes currently use repo views under `/root/.openclaw/workspace-*/workspace/repos/*`.
+- Most of those repo views still come from symlinks created by `bootstrap-specialist-workspaces.sh`.
+- High-conflict repos may need isolated local shared clones instead; `rook-dashboard` currently uses local shared clones in the active engineer/test/review workspaces.
+- For isolated shared clones, `origin` must point to the real GitHub repository and `canonical` must point to the local shared source checkout. Do not rely on a local-path `origin` for branch push/merge validation.
+- For isolated repos, the dispatcher now creates task-scoped repo views under `/root/.openclaw/workspace-*/workspace/repo-views/<repo>/<task-id>/` so concurrent tasks do not fight over one mutable checkout.
+- The dispatcher's stage-completion Git checks now prefer a real network remote (`origin`, or `github` as fallback) and treat local-path remotes as non-authoritative for "pushed" branch validation.
+- `check-canonical-task-integrity.mjs` should be used to catch duplicate task ids or path/identity mismatches before they turn into sync corruption.
 - Dispatcher handoffs should use hook mode against the local OpenClaw gateway. That path supports explicit isolated `sessionKey` values and avoids reusing poisoned `agent:<id>:main` sessions.
 - Dispatcher-launched workers should prefer `minimax-portal/MiniMax-M2.5` unless there is a verified reason to override it. The `kimi-coding/k2p5` path has shown mid-task aborts and malformed tool-call behavior during longer tool-heavy runs.
 - The live OpenClaw contract should keep `agents.defaults.timeoutSeconds` at `180` and the core worker agents (`engineer`, `researcher`, `test`, `review`) on `minimax-portal/MiniMax-M2.5`.
@@ -161,4 +218,4 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - Stage fallback is enabled by default for `testing` and `review`: if the dedicated `test` or `review` runtime is unstable, the dispatcher can execute that bounded work through `engineer` while keeping the canonical task in `testing` or `review`.
 - Ready-stage bootstrap tasks for `test` and `review` should also execute through `engineer` when the ticket is about setting up the specialist itself.
 - Discord notification is best-effort only. If `openclaw message send` or upstream network fetch fails, the canonical task should still land in `blocked` with a durable dispatcher alert record.
-- Keep `rook-dispatcher.timer` disabled until the hook-based smoke test above succeeds on the live gateway and the target specialist workspace can reach the repo/task files it was assigned to handle.
+- Keep `rook-dispatcher.timer` enabled only after the hook-based smoke test above succeeds on the live gateway and the target specialist workspace can reach the repo/task files it was assigned to handle.

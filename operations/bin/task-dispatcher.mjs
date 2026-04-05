@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
+import { cleanupSessionArtifacts } from './session-cleanup-lib.mjs';
 
 const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
@@ -43,6 +44,7 @@ const ACTIVE_STATUSES = new Set(['in_progress', 'testing', 'review']);
 const TERMINAL_STATUS_ALIASES = new Map([['completed', 'done']]);
 const TERMINAL_STATUSES = new Set(['done']);
 const BOOTSTRAP_SPECIALISTS = new Set(['test', 'review']);
+const ISOLATED_REPO_VIEWS = new Set(['rook-dashboard']);
 let hookConfigPromise = null;
 
 function parseArgs(argv) {
@@ -98,16 +100,39 @@ function shouldPreferCanonicalControlState(baseTask, runtimeState) {
 
   const normalizedBaseStatus = normalizeTaskStatus(baseTask.status);
   const normalizedRuntimeStatus = normalizeTaskStatus(runtimeState.status);
+  const baseUpdatedAtMs = Date.parse(baseTask.timestamps?.updated_at || '');
+  const runtimeUpdatedAtMs = Date.parse(runtimeState.timestamps?.updated_at || '');
   const runtimeClaimActive = Boolean(runtimeState.claimed_by)
     || (
       ACTIVE_STATUSES.has(normalizedRuntimeStatus)
       && ['launching', 'running'].includes(String(runtimeState.dispatch?.last_result || ''))
     );
+  const runtimeHasBlockingState = normalizedRuntimeStatus === 'blocked'
+    && (
+      String(runtimeState.failure_reason || '').trim()
+      || (Array.isArray(runtimeState.blocked_by) && runtimeState.blocked_by.length > 0)
+    );
+
+  if (
+    READY_STATUSES.has(normalizedBaseStatus)
+    && runtimeHasBlockingState
+    && Number.isFinite(baseUpdatedAtMs)
+    && Number.isFinite(runtimeUpdatedAtMs)
+    && runtimeUpdatedAtMs >= baseUpdatedAtMs
+  ) {
+    return false;
+  }
+
   return (
     TERMINAL_STATUSES.has(normalizedBaseStatus)
     || (
       READY_STATUSES.has(normalizedBaseStatus)
       && normalizedRuntimeStatus !== normalizedBaseStatus
+      && (
+        !Number.isFinite(baseUpdatedAtMs)
+        || !Number.isFinite(runtimeUpdatedAtMs)
+        || baseUpdatedAtMs > runtimeUpdatedAtMs
+      )
       && !runtimeClaimActive
     )
   );
@@ -540,7 +565,125 @@ function canonicalRepoPath(task) {
 }
 
 function repoViewPath(task, executor) {
+  if (shouldUseIsolatedRepoView(task) && task?.task_id) {
+    return path.join(
+      OPENCLAW_DIR,
+      `workspace-${executor}`,
+      'workspace',
+      'repo-views',
+      repoTailFromTask(task),
+      task.task_id
+    );
+  }
   return path.join(OPENCLAW_DIR, `workspace-${executor}`, 'workspace', 'repos', repoTailFromTask(task));
+}
+
+function shouldUseIsolatedRepoView(task) {
+  return ISOLATED_REPO_VIEWS.has(repoTailFromTask(task));
+}
+
+function githubRepoUrl(task) {
+  const relatedRepo = String(task?.related_repo || '').trim();
+  if (!relatedRepo.includes('/')) {
+    return null;
+  }
+  if (relatedRepo.startsWith('http://') || relatedRepo.startsWith('https://') || relatedRepo.startsWith('git@')) {
+    return relatedRepo;
+  }
+  return `https://github.com/${relatedRepo}.git`;
+}
+
+async function createSharedClone(sourcePath, clonePath) {
+  await ensureDir(path.dirname(clonePath));
+  return new Promise((resolve) => {
+    const child = spawn('git', ['clone', '--shared', sourcePath, clonePath], {
+      cwd: OPENCLAW_DIR,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on('close', (code) => {
+      resolve({
+        code: code ?? 1,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+      });
+    });
+    child.on('error', (error) => {
+      resolve({
+        code: 1,
+        stdout: '',
+        stderr: error instanceof Error ? error.message : String(error),
+      });
+    });
+  });
+}
+
+function looksLikeLocalGitRemote(url) {
+  const value = String(url || '').trim();
+  if (!value) return false;
+  return value.startsWith('/') || value.startsWith('file://');
+}
+
+async function getGitRemoteUrl(repoPath, remoteName) {
+  const result = await runGit(repoPath, ['config', '--get', `remote.${remoteName}.url`]);
+  return result.code === 0 && result.stdout ? result.stdout.trim() : null;
+}
+
+async function gitRemoteExists(repoPath, remoteName) {
+  const result = await runGit(repoPath, ['remote']);
+  if (result.code !== 0) {
+    return false;
+  }
+  return result.stdout.split('\n').map((line) => line.trim()).includes(remoteName);
+}
+
+async function configureRepoViewRemotes(repoPath, canonicalPath, task) {
+  const githubUrl = githubRepoUrl(task);
+  const originUrl = await getGitRemoteUrl(repoPath, 'origin');
+
+  if (originUrl && originUrl === canonicalPath) {
+    if (await gitRemoteExists(repoPath, 'canonical')) {
+      await runGit(repoPath, ['remote', 'set-url', 'canonical', canonicalPath]);
+      await runGit(repoPath, ['remote', 'remove', 'origin']);
+    } else {
+      await runGit(repoPath, ['remote', 'rename', 'origin', 'canonical']);
+    }
+  }
+
+  if (await gitRemoteExists(repoPath, 'canonical')) {
+    await runGit(repoPath, ['remote', 'set-url', 'canonical', canonicalPath]);
+  } else {
+    await runGit(repoPath, ['remote', 'add', 'canonical', canonicalPath]);
+  }
+
+  if (githubUrl) {
+    if (await gitRemoteExists(repoPath, 'origin')) {
+      await runGit(repoPath, ['remote', 'set-url', 'origin', githubUrl]);
+    } else {
+      await runGit(repoPath, ['remote', 'add', 'origin', githubUrl]);
+    }
+    await runGit(repoPath, ['fetch', 'origin', '--prune']);
+  }
+}
+
+async function preferredNetworkRemote(repoPath) {
+  const originUrl = await getGitRemoteUrl(repoPath, 'origin');
+  if (originUrl && !looksLikeLocalGitRemote(originUrl)) {
+    return 'origin';
+  }
+  const githubUrl = await getGitRemoteUrl(repoPath, 'github');
+  if (githubUrl && !looksLikeLocalGitRemote(githubUrl)) {
+    return 'github';
+  }
+  return 'origin';
 }
 
 async function ensureSpecialistRepoView(task, executor) {
@@ -550,10 +693,14 @@ async function ensureSpecialistRepoView(task, executor) {
   await ensureDir(path.dirname(repoPath));
 
   try {
-    await fs.lstat(repoPath);
-    return repoPath;
+    const stats = await fs.lstat(repoPath);
+    if (shouldUseIsolatedRepoView(task) && stats.isSymbolicLink()) {
+      await fs.rm(repoPath, { recursive: true, force: true });
+    } else {
+      return repoPath;
+    }
   } catch {
-    // Create the link if the target repo exists locally.
+    // Create the repo view if the target repo exists locally.
   }
 
   if (!canonicalPath) {
@@ -564,6 +711,15 @@ async function ensureSpecialistRepoView(task, executor) {
     await fs.access(canonicalPath);
   } catch {
     return repoPath;
+  }
+
+  if (shouldUseIsolatedRepoView(task)) {
+    const cloneResult = await createSharedClone(canonicalPath, repoPath);
+    if (cloneResult.code === 0) {
+      await configureRepoViewRemotes(repoPath, canonicalPath, task);
+      return repoPath;
+    }
+    throw new Error(cloneResult.stderr || cloneResult.stdout || `Failed to create shared clone for ${repoPath}`);
   }
 
   await fs.symlink(canonicalPath, repoPath);
@@ -600,6 +756,170 @@ async function runGit(repoPath, args) {
       });
     });
   });
+}
+
+async function runGh(repoPath, args) {
+  return new Promise((resolve) => {
+    const child = spawn('gh', args, {
+      cwd: repoPath || OPENCLAW_DIR,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: {
+        ...process.env,
+        GH_REPO: undefined,
+      },
+    });
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on('close', (code) => {
+      resolve({
+        code: code ?? 1,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+      });
+    });
+    child.on('error', (error) => {
+      resolve({
+        code: 1,
+        stdout: '',
+        stderr: error instanceof Error ? error.message : String(error),
+      });
+    });
+  });
+}
+
+async function gitRefExists(repoPath, ref) {
+  const result = await runGit(repoPath, ['show-ref', '--verify', '--quiet', ref]);
+  return result.code === 0;
+}
+
+async function resolveBranchStartPoint(repoPath, taskBranch) {
+  const remoteName = await preferredNetworkRemote(repoPath);
+  if (taskBranch && await gitRefExists(repoPath, `refs/remotes/${remoteName}/${taskBranch}`)) {
+    return `${remoteName}/${taskBranch}`;
+  }
+  if (taskBranch && await gitRefExists(repoPath, `refs/heads/${taskBranch}`)) {
+    return taskBranch;
+  }
+
+  const remoteHead = await runGit(repoPath, ['symbolic-ref', '--quiet', `refs/remotes/${remoteName}/HEAD`]);
+  if (remoteHead.code === 0 && remoteHead.stdout.startsWith('refs/remotes/')) {
+    return remoteHead.stdout.slice('refs/remotes/'.length);
+  }
+
+  if (await gitRefExists(repoPath, 'refs/heads/main')) {
+    return 'main';
+  }
+  if (await gitRefExists(repoPath, `refs/remotes/${remoteName}/main`)) {
+    return `${remoteName}/main`;
+  }
+
+  const currentBranch = await runGit(repoPath, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (currentBranch.code === 0 && currentBranch.stdout) {
+    return currentBranch.stdout;
+  }
+
+  return 'HEAD';
+}
+
+async function ensureRepoViewOnTaskBranch(task, executor) {
+  const repoPath = await ensureSpecialistRepoView(task, executor);
+  const result = {
+    ok: true,
+    repoPath,
+    currentBranch: null,
+    targetBranch: task.branch || null,
+    changed: false,
+    reason: null,
+  };
+
+  if (!task.related_repo || !task.branch) {
+    return result;
+  }
+
+  try {
+    await fs.access(repoPath);
+  } catch {
+    return {
+      ...result,
+      ok: false,
+      reason: `Repo view not found: ${repoPath}`,
+    };
+  }
+
+  const remoteName = await preferredNetworkRemote(repoPath);
+
+  const branchResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (branchResult.code !== 0) {
+    return {
+      ...result,
+      ok: false,
+      reason: branchResult.stderr || 'Failed to determine current branch before dispatch.',
+    };
+  }
+
+  result.currentBranch = branchResult.stdout || null;
+  if (result.currentBranch === task.branch) {
+    return result;
+  }
+
+  const statusResult = await runGit(repoPath, ['status', '--porcelain']);
+  if (statusResult.code !== 0) {
+    return {
+      ...result,
+      ok: false,
+      reason: statusResult.stderr || 'Failed to determine repo cleanliness before dispatch.',
+    };
+  }
+
+  if (statusResult.stdout.trim()) {
+    return {
+      ...result,
+      ok: false,
+      reason: `Repo view is dirty on ${result.currentBranch || 'unknown'} and cannot switch to ${task.branch}.`,
+    };
+  }
+
+  let checkoutResult;
+  if (await gitRefExists(repoPath, `refs/heads/${task.branch}`)) {
+    checkoutResult = await runGit(repoPath, ['checkout', task.branch]);
+  } else {
+    const startPoint = await resolveBranchStartPoint(repoPath, task.branch);
+    checkoutResult = await runGit(repoPath, ['checkout', '-B', task.branch, startPoint]);
+  }
+
+  if (checkoutResult.code !== 0) {
+    return {
+      ...result,
+      ok: false,
+      reason: checkoutResult.stderr || `Failed to checkout ${task.branch} before dispatch.`,
+    };
+  }
+
+  const verifyResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  result.changed = true;
+  result.currentBranch = verifyResult.code === 0 ? (verifyResult.stdout || task.branch) : task.branch;
+  if (result.currentBranch !== task.branch) {
+    return {
+      ...result,
+      ok: false,
+      reason: `Repo view remained on ${result.currentBranch || 'unknown'} after checkout; expected ${task.branch}.`,
+    };
+  }
+
+  if (await gitRefExists(repoPath, `refs/remotes/${remoteName}/${task.branch}`)) {
+    await runGit(repoPath, ['branch', '--set-upstream-to', `${remoteName}/${task.branch}`, task.branch]);
+  } else if (await gitRefExists(repoPath, `refs/remotes/${remoteName}/main`)) {
+    await runGit(repoPath, ['branch', '--set-upstream-to', `${remoteName}/main`, task.branch]);
+  }
+
+  return result;
 }
 
 async function postHookWithCurl(url, token, payload) {
@@ -677,6 +997,7 @@ async function collectTaskGitEvidence(task, executor) {
   }
 
   evidence.exists = true;
+  const remoteName = await preferredNetworkRemote(repoPath);
 
   const branchResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', 'HEAD']);
   if (branchResult.code !== 0) {
@@ -685,10 +1006,21 @@ async function collectTaskGitEvidence(task, executor) {
   }
   evidence.currentBranch = branchResult.stdout || null;
 
-  const upstreamResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}']);
-  if (upstreamResult.code === 0 && upstreamResult.stdout) {
-    evidence.upstreamBranch = upstreamResult.stdout;
-    const aheadBehindResult = await runGit(repoPath, ['rev-list', '--left-right', '--count', '@{upstream}...HEAD']);
+  let upstreamRef = null;
+  if (await gitRefExists(repoPath, `refs/remotes/${remoteName}/${task.branch}`)) {
+    upstreamRef = `${remoteName}/${task.branch}`;
+  } else if (await gitRefExists(repoPath, `refs/remotes/${remoteName}/main`)) {
+    upstreamRef = `${remoteName}/main`;
+  } else {
+    const upstreamResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}']);
+    if (upstreamResult.code === 0 && upstreamResult.stdout) {
+      upstreamRef = upstreamResult.stdout;
+    }
+  }
+
+  if (upstreamRef) {
+    evidence.upstreamBranch = upstreamRef;
+    const aheadBehindResult = await runGit(repoPath, ['rev-list', '--left-right', '--count', `${upstreamRef}...HEAD`]);
     if (aheadBehindResult.code === 0 && aheadBehindResult.stdout) {
       const [behindRaw, aheadRaw] = aheadBehindResult.stdout.split(/\s+/);
       evidence.behindCount = Number(behindRaw || '0');
@@ -756,7 +1088,9 @@ async function validateStageCompletion(task, executor, launchedStatus) {
     if (status !== 'passed') {
       return {
         ok: false,
-        reason: `Testing completed but ${task.task_id} does not have test_evidence.status=passed.`,
+        reason: summary
+          ? `Testing failed for ${task.task_id}: ${summary}`
+          : `Testing completed but ${task.task_id} does not have test_evidence.status=passed.`,
         blockedBy: ['testing:not-passed'],
       };
     }
@@ -776,7 +1110,9 @@ async function validateStageCompletion(task, executor, launchedStatus) {
     if (verdict !== 'approved') {
       return {
         ok: false,
-        reason: `Review completed but ${task.task_id} does not have review_evidence.verdict=approved.`,
+        reason: summary
+          ? `Review rejected for ${task.task_id}: ${summary}`
+          : `Review completed but ${task.task_id} does not have review_evidence.verdict=approved.`,
         blockedBy: ['review:not-approved'],
       };
     }
@@ -842,6 +1178,286 @@ async function validateStageCompletion(task, executor, launchedStatus) {
   return { ok: true, reason: null, blockedBy: [], evidence };
 }
 
+function buildPullRequestTitle(task) {
+  const title = String(task.title || task.task_id || 'Task update').trim();
+  return title.startsWith('[task:')
+    ? title
+    : `[task:${task.task_id}] ${title}`;
+}
+
+function buildPullRequestBody(task) {
+  return [
+    '## Task',
+    '',
+    String(task.description || '').trim() || '(no description)',
+    '',
+    '## Handoff Notes',
+    '',
+    String(task.handoff_notes || '').trim() || '(no handoff notes)',
+    '',
+    '## Canonical Record',
+    '',
+    'This pull request was created by the dispatcher from the Rook canonical task system.',
+  ].join('\n');
+}
+
+async function syncPullRequestState(task, repoPath) {
+  const fallback = {
+    repo: task.related_repo,
+    number: task.github_pull_request?.number || null,
+    url: task.github_pull_request?.url || null,
+    state: task.github_pull_request?.state || null,
+    title: task.github_pull_request?.title || null,
+    last_synced_at: new Date().toISOString(),
+    last_error: null,
+  };
+
+  const result = await runGh(repoPath, [
+    'pr',
+    'list',
+    '--head',
+    task.branch,
+    '--state',
+    'all',
+    '--json',
+    'number,url,state,title,isDraft,mergedAt',
+    '--limit',
+    '1',
+  ]);
+  if (result.code !== 0) {
+    return {
+      ok: false,
+      pullRequest: {
+        ...fallback,
+        last_error: truncate(result.stderr || result.stdout || 'Failed to query GitHub pull request state.'),
+      },
+      reason: truncate(result.stderr || result.stdout || 'Failed to query GitHub pull request state.'),
+    };
+  }
+
+  let items = [];
+  try {
+    items = JSON.parse(result.stdout || '[]');
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return {
+      ok: false,
+      pullRequest: {
+        ...fallback,
+        last_error: `Failed to parse GitHub pull request state: ${reason}`,
+      },
+      reason: `Failed to parse GitHub pull request state: ${reason}`,
+    };
+  }
+
+  const latest = Array.isArray(items) ? items[0] : null;
+  if (!latest) {
+    return { ok: true, pullRequest: fallback, reason: null };
+  }
+
+  return {
+    ok: true,
+    pullRequest: {
+      repo: task.related_repo,
+      number: Number(latest.number || 0) || null,
+      url: latest.url || null,
+      state: latest.mergedAt ? 'merged' : (latest.state || null),
+      title: latest.title || null,
+      last_synced_at: new Date().toISOString(),
+      last_error: null,
+    },
+    reason: null,
+  };
+}
+
+async function ensureMergedPullRequest(task, executor) {
+  const repoPath = await ensureSpecialistRepoView(task, executor);
+  const syncBefore = await syncPullRequestState(task, repoPath);
+  if (syncBefore.pullRequest) {
+    task.github_pull_request = syncBefore.pullRequest;
+  }
+  if (!syncBefore.ok) {
+    return { ok: false, reason: syncBefore.reason, blockedBy: ['github:pr-sync-failed'] };
+  }
+
+  if (task.github_pull_request?.state === 'merged') {
+    return { ok: true, reason: null, blockedBy: [] };
+  }
+
+  if (!task.github_pull_request?.number) {
+    const createResult = await runGh(repoPath, [
+      'pr',
+      'create',
+      '--head',
+      task.branch,
+      '--base',
+      'main',
+      '--title',
+      buildPullRequestTitle(task),
+      '--body',
+      buildPullRequestBody(task),
+    ]);
+    if (createResult.code !== 0) {
+      const reason = truncate(createResult.stderr || createResult.stdout || `Failed to create pull request for ${task.task_id}.`);
+      task.github_pull_request = {
+        repo: task.related_repo,
+        number: null,
+        url: null,
+        state: null,
+        title: null,
+        last_synced_at: new Date().toISOString(),
+        last_error: reason,
+      };
+      return { ok: false, reason, blockedBy: ['github:pr-create-failed'] };
+    }
+
+    const created = await syncPullRequestState(task, repoPath);
+    if (created.pullRequest) {
+      task.github_pull_request = created.pullRequest;
+    }
+    if (!created.ok || !task.github_pull_request?.number) {
+      return {
+        ok: false,
+        reason: created.reason || `Pull request for ${task.task_id} was created but could not be resolved.`,
+        blockedBy: ['github:pr-sync-failed'],
+      };
+    }
+  }
+
+  const mergeResult = await runGh(repoPath, [
+    'pr',
+    'merge',
+    String(task.github_pull_request.number),
+    '--merge',
+    '--delete-branch',
+  ]);
+  if (mergeResult.code !== 0) {
+    const reason = truncate(mergeResult.stderr || mergeResult.stdout || `Failed to merge pull request for ${task.task_id}.`);
+    task.github_pull_request = {
+      ...(task.github_pull_request || {
+        repo: task.related_repo,
+        number: null,
+        url: null,
+        state: null,
+        title: null,
+      }),
+      last_synced_at: new Date().toISOString(),
+      last_error: reason,
+    };
+    return { ok: false, reason, blockedBy: ['github:pr-merge-failed'] };
+  }
+
+  const synced = await syncPullRequestState(task, repoPath);
+  if (synced.pullRequest) {
+    task.github_pull_request = synced.pullRequest;
+  }
+  if (!synced.ok) {
+    return { ok: false, reason: synced.reason, blockedBy: ['github:pr-sync-failed'] };
+  }
+  if (task.github_pull_request?.state !== 'merged') {
+    return {
+      ok: false,
+      reason: `Pull request for ${task.task_id} did not reach merged state after merge attempt.`,
+      blockedBy: ['github:pr-not-merged'],
+    };
+  }
+
+  return { ok: true, reason: null, blockedBy: [] };
+}
+
+async function finalizeCompletedTaskFromHook(task, filePath, executor, dispatchState, state, nowIso, action) {
+  if (String(dispatchState.dispatched_status || task.status || '') === 'review') {
+    const mergeCheck = await ensureMergedPullRequest(task, executor);
+    if (!mergeCheck.ok) {
+      task.status = 'blocked';
+      task.claimed_by = null;
+      task.blocked_by = mergeCheck.blockedBy;
+      task.failure_reason = mergeCheck.reason;
+      task.timestamps.updated_at = nowIso;
+      task.timestamps.claimed_at = null;
+      task.last_heartbeat = latestEventTimestamp(state) || task.last_heartbeat || nowIso;
+      task.dispatch = {
+        ...dispatchState,
+        last_result: 'completed',
+        last_error: mergeCheck.reason,
+        last_checked_at: nowIso,
+      };
+      await writeRuntimeTaskState(filePath, task);
+      await notifyAndRecord(
+        task,
+        'dispatch_blocked',
+        `[dispatcher] blocked ${task.task_id}: ${mergeCheck.reason}`
+      );
+      await appendLog({
+        ts: nowIso,
+        task_id: task.task_id,
+        action: 'hook_worker_blocked_on_merge',
+        executor,
+        session_key: dispatchState.session_key,
+        session_id: dispatchState.session_id,
+        reason: mergeCheck.reason,
+        blocked_by: mergeCheck.blockedBy,
+      });
+      if (dispatchState.session_key) {
+        await cleanupSessionArtifacts({
+          rootDir: OPENCLAW_DIR,
+          agentId: executor,
+          sessionKey: dispatchState.session_key,
+        }).catch(() => null);
+      }
+      return;
+    }
+  }
+
+  const promotion = advanceStageAfterCompletion(
+    task,
+    executor,
+    dispatchState.dispatched_status,
+    nowIso
+  );
+  task.claimed_by = null;
+  task.timestamps.updated_at = nowIso;
+  task.timestamps.claimed_at = null;
+  task.last_heartbeat = latestEventTimestamp(state) || task.last_heartbeat || nowIso;
+  task.dispatch = {
+    ...dispatchState,
+    last_result: 'completed',
+    last_error: null,
+    last_checked_at: nowIso,
+  };
+  await writeRuntimeTaskState(filePath, task);
+  await notifyAndRecord(
+    task,
+    'worker_completed',
+    formatLifecycleMessage(task, 'worker_completed', { executor })
+  );
+  if (promotion.advanced) {
+    await notifyAndRecord(
+      task,
+      'stage_advanced',
+      `[dispatcher] advanced ${task.task_id} to ${promotion.nextStage} (stage owner: ${promotion.nextOwner})`
+    );
+  }
+  await appendLog({
+    ts: nowIso,
+    task_id: task.task_id,
+    action,
+    executor,
+    session_key: dispatchState.session_key,
+    session_id: dispatchState.session_id,
+    status: task.status,
+    assigned_agent: task.assigned_agent,
+    next_stage: promotion.nextStage,
+  });
+  if (dispatchState.session_key) {
+    await cleanupSessionArtifacts({
+      rootDir: OPENCLAW_DIR,
+      agentId: executor,
+      sessionKey: dispatchState.session_key,
+    }).catch(() => null);
+  }
+}
+
 function summarizeTask(task, executor) {
   const canonicalTaskFile = path.join(TASKS_DIR, task.project_id, `${task.task_id}.json`);
   const localRepoView = repoViewPath(task, executor);
@@ -893,7 +1509,20 @@ function summarizeTask(task, executor) {
 }
 
 async function runAgent(agentId, task, dispatchMode) {
-  await ensureSpecialistRepoView(task, agentId);
+  const branchPrep = await ensureRepoViewOnTaskBranch(task, agentId);
+  if (!branchPrep.ok) {
+    return {
+      code: 1,
+      stdout: '',
+      stderr: branchPrep.reason || `Failed to prepare repo view for ${task.task_id}.`,
+      sessionId: null,
+      mode: dispatchMode === 'hook' ? 'hook' : dispatchMode,
+      meta: {
+        ok: false,
+        reason: branchPrep.reason || `Failed to prepare repo view for ${task.task_id}.`,
+      },
+    };
+  }
 
   if (dispatchMode === 'hook') {
     return runAgentViaHook(agentId, task);
@@ -1566,6 +2195,24 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
 
     const abort = findHookAbort(state);
     if (abort) {
+      const completionCheck = await validateStageCompletion(
+        task,
+        executor,
+        nextDispatch.dispatched_status,
+      );
+      if (completionCheck.ok) {
+        await finalizeCompletedTaskFromHook(
+          task,
+          filePath,
+          executor,
+          nextDispatch,
+          state,
+          nowIso,
+          'hook_worker_completed_after_abort'
+        );
+        continue;
+      }
+
       const currentAttempt = Number(nextDispatch.attempts || 1);
       const canRetry = currentAttempt < DEFAULT_MAX_ATTEMPTS && isRetryableAbortReason(abort.reason);
 
@@ -1648,6 +2295,11 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
         session_id: nextDispatch.session_id,
         reason: task.failure_reason,
       });
+      await cleanupSessionArtifacts({
+        rootDir: OPENCLAW_DIR,
+        agentId: executor,
+        sessionKey: nextDispatch.session_key,
+      }).catch(() => null);
       continue;
     }
 
@@ -1688,49 +2340,23 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
           reason: completionCheck.reason,
           blocked_by: completionCheck.blockedBy,
         });
+        await cleanupSessionArtifacts({
+          rootDir: OPENCLAW_DIR,
+          agentId: executor,
+          sessionKey: nextDispatch.session_key,
+        }).catch(() => null);
         continue;
       }
 
-      const promotion = advanceStageAfterCompletion(
+      await finalizeCompletedTaskFromHook(
         task,
+        filePath,
         executor,
-        nextDispatch.dispatched_status,
-        nowIso
+        nextDispatch,
+        state,
+        nowIso,
+        'hook_worker_completed'
       );
-      task.claimed_by = null;
-      task.timestamps.updated_at = nowIso;
-      task.timestamps.claimed_at = null;
-      task.last_heartbeat = latestEventTimestamp(state) || task.last_heartbeat || nowIso;
-      task.dispatch = {
-        ...nextDispatch,
-        last_result: 'completed',
-        last_error: null,
-        last_checked_at: nowIso,
-      };
-      await writeRuntimeTaskState(filePath, task);
-      await notifyAndRecord(
-        task,
-        'worker_completed',
-        formatLifecycleMessage(task, 'worker_completed', { executor })
-      );
-      if (promotion.advanced) {
-        await notifyAndRecord(
-          task,
-          'stage_advanced',
-          `[dispatcher] advanced ${task.task_id} to ${promotion.nextStage} (stage owner: ${promotion.nextOwner})`
-        );
-      }
-      await appendLog({
-        ts: nowIso,
-        task_id: task.task_id,
-        action: 'hook_worker_completed',
-        executor,
-        session_key: nextDispatch.session_key,
-        session_id: nextDispatch.session_id,
-        status: task.status,
-        assigned_agent: task.assigned_agent,
-        next_stage: promotion.nextStage,
-      });
       continue;
     }
 
@@ -1959,6 +2585,13 @@ async function main() {
         'dispatch_blocked',
         `[dispatcher] blocked ${task.task_id}: ${task.failure_reason}`
       );
+      if (options.dispatchMode === 'hook' && task.dispatch?.session_key) {
+        await cleanupSessionArtifacts({
+          rootDir: OPENCLAW_DIR,
+          agentId: executor,
+          sessionKey: task.dispatch.session_key,
+        }).catch(() => null);
+      }
     }
 
     await appendLog({

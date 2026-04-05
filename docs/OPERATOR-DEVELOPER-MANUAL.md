@@ -475,6 +475,7 @@ systemctl --user status rook-dispatcher.timer --no-pager
 curl -fsS http://127.0.0.1:3001/kanban >/dev/null
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
+node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --dry-run --stale-hours 24
 ```
 
 ### Which Checkout To Use
@@ -505,6 +506,18 @@ Check:
 - worker transcript in `agents/<id>/sessions/`
 - canonical task `failure_reason`
 
+If old hook transcripts or stale session-store entries accumulate, run:
+
+```bash
+node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --stale-hours 24
+```
+
+If you want a non-destructive report first, use:
+
+```bash
+node /root/.openclaw/workspace/operations/bin/cleanup-sessions.mjs --dry-run --stale-hours 24
+```
+
 ## 13. Recovery Principles
 
 The system should prefer honest degradation over fake smoothness.
@@ -525,7 +538,7 @@ Current limits:
 - long worker runs can still abort mid-cleanup
 - provider/runtime stability still matters
 - `engineer` remains the safe fallback for some specialist setup work
-- some task completion normalization still relies on dispatcher-side cleanup logic
+- there is still no official Gateway API to force-stop a crashed in-memory hook worker; persistent cleanup is file/store-based
 
 Those are known limits.
 They are narrower and more honest than the original failure mode.
