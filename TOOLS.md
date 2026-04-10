@@ -89,3 +89,29 @@ ps aux | grep openclaw
 ---
 
 *Letzte Aktualisierung: 2026-03-27*
+
+## OpenClaw RPA (Browser Automation)
+
+- **Skill:** `skills/openclaw-rpa/` (Submodule in rook-agent)
+- **Wrapper:** `skills/custom/rpa-run.sh` (funktioniert aus jedem Projekt-Kontext)
+- **Trigger:** `#rpa`, `#rpa-api`, `#rpa-login`, `#rpa-list`, `#rpa-run:<name>`
+
+**Nutzung:**
+```bash
+# Wrapper (aus jedem Verzeichnis):
+rpa-run.sh env-check   # Verify OK
+rpa-run.sh list        # Alle Tasks
+rpa-run.sh run <name>   # Replay einen Task
+
+# Oder direkt im Skill-Verzeichnis:
+cd ~/.openclaw/rook-agent/skills/openclaw-rpa
+source .venv/bin/activate
+python3 rpa_manager.py <command>
+```
+
+**Typische Tasks:**
+- Web: Login → navigieren → extrahieren → ausfüllen
+- API: REST Calls mit HTTP
+- Excel/Word: Office-Dateien ohne Office
+
+**Kosten:** Erste Aufnahme = Token. Jeder Replay = $0 (reines Python).
