@@ -207,6 +207,46 @@
         }
       }
     },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "approach": { "type": "string" },
+        "scope": { "type": "array", "items": { "type": "string" } },
+        "out_of_scope": { "type": "array", "items": { "type": "string" } },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "title", "owner", "completed"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "owner": { "type": "string" },
+              "completed": { "type": "boolean" }
+            }
+          }
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "description"],
+            "properties": {
+              "id": { "type": "string" },
+              "description": { "type": "string" },
+              "met": { "type": ["boolean", "null"] }
+            }
+          }
+        },
+        "risks": { "type": "array", "items": { "type": "string" } },
+        "context": { "type": "string" },
+        "planned_by": { "type": "string" },
+        "planned_at": { "type": "string", "format": "date-time" }
+      }
+    },
     "test_evidence": {
       "type": "object",
       "additionalProperties": false,

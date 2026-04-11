@@ -35,6 +35,7 @@ const STAGE_FALLBACK_ENABLED = process.env.ROOK_STAGE_FALLBACK_ENABLED !== '0';
 const GATEWAY_BASE_URL = process.env.ROOK_GATEWAY_BASE_URL || 'http://127.0.0.1:18789';
 const HOOK_POLL_INTERVAL_MS = Number(process.env.ROOK_HOOK_POLL_INTERVAL_MS || '2000');
 const HOOK_MODEL = process.env.ROOK_HOOK_MODEL || 'minimax-portal/MiniMax-M2.5';
+const HOOK_FALLBACK_MODEL = process.env.ROOK_HOOK_FALLBACK_MODEL || 'kimi-coding/k2p5';
 const HOOK_THINKING = process.env.ROOK_HOOK_THINKING || 'low';
 const MAX_LOG_BYTES = 4000;
 const CHILD_GRACE_MS = 30_000;
@@ -98,6 +99,14 @@ function shouldPreferCanonicalControlState(baseTask, runtimeState) {
 
   const normalizedBaseStatus = normalizeTaskStatus(baseTask.status);
   const normalizedRuntimeStatus = normalizeTaskStatus(runtimeState.status);
+
+  // Never override a definitive blocked or terminal runtime state with canonical.
+  // This prevents the dispatcher from infinitely re-dispatching a task that
+  // failed and was written as blocked in the runtime state.
+  if (normalizedRuntimeStatus === 'blocked' || TERMINAL_STATUSES.has(normalizedRuntimeStatus)) {
+    return false;
+  }
+
   return (
     TERMINAL_STATUSES.has(normalizedBaseStatus)
     || (READY_STATUSES.has(normalizedBaseStatus) && normalizedRuntimeStatus !== normalizedBaseStatus)
@@ -835,6 +844,23 @@ function summarizeTask(task, executor) {
     fallbackNote,
     task.handoff_notes ? `Notes: ${task.handoff_notes}` : null,
     checklistLines.length > 0 ? `Checklist:\n${checklistLines.join('\n')}` : null,
+    task.plan?.approach ? `Plan — Approach: ${task.plan.approach}` : null,
+    Array.isArray(task.plan?.scope) && task.plan.scope.length > 0
+      ? `Plan — Scope: ${task.plan.scope.join('; ')}`
+      : null,
+    Array.isArray(task.plan?.out_of_scope) && task.plan.out_of_scope.length > 0
+      ? `Plan — Out of scope: ${task.plan.out_of_scope.join('; ')}`
+      : null,
+    Array.isArray(task.plan?.steps) && task.plan.steps.length > 0
+      ? `Plan — Steps:\n${task.plan.steps.map((s, i) => `${s.completed ? '[x]' : '[ ]'} ${i + 1}. ${s.title} (${s.owner})`).join('\n')}`
+      : null,
+    Array.isArray(task.plan?.acceptance_criteria) && task.plan.acceptance_criteria.length > 0
+      ? `Plan — Acceptance criteria:\n${task.plan.acceptance_criteria.map((ac) => `- ${ac.description}${ac.met === true ? ' ✓' : ac.met === false ? ' ✗' : ''}`).join('\n')}`
+      : null,
+    Array.isArray(task.plan?.risks) && task.plan.risks.length > 0
+      ? `Plan — Risks: ${task.plan.risks.join('; ')}`
+      : null,
+    task.plan?.context ? `Plan — Context: ${task.plan.context}` : null,
     task.test_evidence ? `Test evidence: ${JSON.stringify(task.test_evidence)}` : null,
     task.review_evidence ? `Review evidence: ${JSON.stringify(task.review_evidence)}` : null,
     task.description ? `Goal: ${task.description}` : null,
@@ -857,11 +883,11 @@ function summarizeTask(task, executor) {
   ].filter(Boolean).join('\n');
 }
 
-async function runAgent(agentId, task, dispatchMode) {
+async function runAgent(agentId, task, dispatchMode, model = HOOK_MODEL) {
   await ensureSpecialistRepoView(task, agentId);
 
   if (dispatchMode === 'hook') {
-    return runAgentViaHook(agentId, task);
+    return runAgentViaHook(agentId, task, model);
   }
 
   const providerEnv = await loadProviderEnv();
@@ -1131,7 +1157,7 @@ async function waitForHookResult(agentId, sessionKey) {
   };
 }
 
-async function runAgentViaHook(agentId, task) {
+async function runAgentViaHook(agentId, task, model = HOOK_MODEL) {
   const hookConfig = await loadHookConfig();
   const sessionKey = `hook:dispatcher:task:${task.task_id}:${randomUUID().slice(0, 8)}`;
   const payload = {
@@ -1141,7 +1167,7 @@ async function runAgentViaHook(agentId, task) {
     sessionKey,
     wakeMode: 'now',
     deliver: false,
-    model: HOOK_MODEL,
+    model,
     thinking: HOOK_THINKING,
     timeoutSeconds: DEFAULT_TIMEOUT_SECONDS,
   };
@@ -1199,7 +1225,7 @@ async function runAgentViaHook(agentId, task) {
     ...(result.meta || {}),
     mode: 'hook',
     sessionKey,
-    model: HOOK_MODEL,
+    model,
     thinking: HOOK_THINKING,
   };
   return result;
@@ -1391,6 +1417,10 @@ function isRetryableAbortReason(reason) {
     || text.includes('worker prompt aborted')
     || text.includes('assistant message aborted')
   );
+}
+
+function isTimeoutWithNoMessages(result) {
+  return result.code === 124 && String(result.stderr || '').includes('no messages yet');
 }
 
 async function sleep(ms) {
@@ -1871,9 +1901,10 @@ async function main() {
     let result = { code: 1, stdout: '', stderr: '' };
     let evaluation = { ok: false, reason: 'dispatch not attempted' };
     let attempt = 0;
+    let modelToUse = HOOK_MODEL;
 
     for (attempt = 1; attempt <= DEFAULT_MAX_ATTEMPTS; attempt += 1) {
-      result = await runAgent(executor, task, options.dispatchMode);
+      result = await runAgent(executor, task, options.dispatchMode, modelToUse);
       evaluation = evaluateResult(result);
       task.dispatch = buildDispatchState(task, executor, result, attempt, options.dispatchMode, new Date().toISOString());
       await writeJson(filePath, task);
@@ -1884,6 +1915,7 @@ async function main() {
         action: 'dispatch_attempt',
         executor,
         attempt,
+        model: modelToUse,
         ok: evaluation.ok,
         code: result.code,
         stdout: result.stdout.slice(-MAX_LOG_BYTES),
@@ -1896,6 +1928,9 @@ async function main() {
       }
 
       if (attempt < DEFAULT_MAX_ATTEMPTS) {
+        if (isTimeoutWithNoMessages(result) && modelToUse === HOOK_MODEL && HOOK_FALLBACK_MODEL) {
+          modelToUse = HOOK_FALLBACK_MODEL;
+        }
         await sleep(DEFAULT_RETRY_DELAY_MS);
       }
     }
