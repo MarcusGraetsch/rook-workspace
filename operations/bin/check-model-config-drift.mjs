@@ -6,6 +6,10 @@ import path from 'path';
 const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
+const PROVIDER_ALIASES = new Map([
+  ['openai-codex', ['openai-codex', 'codex']],
+  ['codex', ['codex', 'openai-codex']],
+]);
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -66,6 +70,27 @@ function modelIdSet(providerConfig) {
   );
 }
 
+function providerCandidates(providerName) {
+  return PROVIDER_ALIASES.get(providerName) || [providerName];
+}
+
+function normalizeProviderName(providerName, providers, modelId = null) {
+  const candidates = providerCandidates(providerName).filter((candidate) => providers?.[candidate]);
+  if (candidates.length === 0) {
+    return providerName;
+  }
+
+  if (modelId) {
+    const withModel = candidates.find((candidate) => modelIdSet(providers?.[candidate]).has(modelId));
+    if (withModel) {
+      return withModel;
+    }
+  }
+
+  const withDeclaredModels = candidates.find((candidate) => (providers?.[candidate]?.models || []).length > 0);
+  return withDeclaredModels || candidates[0];
+}
+
 async function inspectAgent(config, agentId) {
   const agentDir = path.join(AGENTS_DIR, agentId, 'agent');
   const modelsPath = path.join(agentDir, 'models.json');
@@ -78,7 +103,8 @@ async function inspectAgent(config, agentId) {
 
   const inspectRef = (ref, severity, type) => {
     const [providerName, modelId] = ref.split('/');
-    const providerConfig = providers?.[providerName];
+    const providerKey = normalizeProviderName(providerName, providers, modelId);
+    const providerConfig = providerKey ? providers?.[providerKey] : null;
     if (!providerConfig) {
       findings.push({
         severity,
@@ -95,9 +121,9 @@ async function inspectAgent(config, agentId) {
       findings.push({
         severity,
         type,
-        provider: providerName,
+        provider: providerKey || providerName,
         model: modelId,
-        details: `Configured model ${ref} is not declared under provider ${providerName} in ${path.relative(OPENCLAW_DIR, modelsPath)}.`,
+        details: `Configured model ${ref} is not declared under provider ${providerKey || providerName} in ${path.relative(OPENCLAW_DIR, modelsPath)}.`,
       });
     }
   };
@@ -110,19 +136,47 @@ async function inspectAgent(config, agentId) {
     inspectRef(ref, 'warning', 'optional_model_missing');
   }
 
+  const handledAuthProviders = new Set();
+
   for (const [providerName, providerConfig] of Object.entries(providers)) {
+    const normalizedProviderName = normalizeProviderName(providerName, providers);
+    handledAuthProviders.add(normalizedProviderName);
     const authMatches = summarizeProviderAuth(authProfiles, providerName);
+    const aliasedAuthMatches = providerCandidates(providerName)
+      .flatMap((candidate) => summarizeProviderAuth(authProfiles, candidate));
     const declaredModels = Array.isArray(providerConfig?.models) ? providerConfig.models.length : 0;
     const configuredForProvider = [...configuredRefs.required, ...configuredRefs.optional]
-      .filter((ref) => ref.startsWith(`${providerName}/`));
+      .filter((ref) => providerCandidates(providerName).some((candidate) => ref.startsWith(`${candidate}/`)));
 
-    if (authMatches.length > 0 && declaredModels === 0 && configuredForProvider.length === 0) {
+    if ((authMatches.length > 0 || aliasedAuthMatches.length > 0) && declaredModels === 0 && configuredForProvider.length === 0) {
       findings.push({
         severity: 'warning',
         type: 'auth_without_configured_models',
         provider: providerName,
-        details: `Provider ${providerName} has ${authMatches.length} auth profile(s) but no declared models and no configured model refs for active agent ${agentId}.`,
+        details: `Provider ${providerName} has auth configured but no declared models and no configured model refs for active agent ${agentId}.`,
       });
+    }
+  }
+
+  if (authProfiles?.profiles) {
+    for (const profile of Object.values(authProfiles.profiles)) {
+      const providerName = profile?.provider;
+      if (typeof providerName !== 'string' || handledAuthProviders.has(providerName)) {
+        continue;
+      }
+
+      const normalizedProviderName = normalizeProviderName(providerName, providers);
+      if (normalizedProviderName !== providerName && providers?.[normalizedProviderName]) {
+        continue;
+      }
+
+      findings.push({
+        severity: 'warning',
+        type: 'auth_provider_without_models_entry',
+        provider: providerName,
+        details: `Auth profile provider ${providerName} has no matching provider entry in ${path.relative(OPENCLAW_DIR, modelsPath)} for active agent ${agentId}.`,
+      });
+      handledAuthProviders.add(providerName);
     }
   }
 
