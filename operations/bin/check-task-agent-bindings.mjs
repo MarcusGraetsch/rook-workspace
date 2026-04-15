@@ -57,6 +57,19 @@ function configuredAgentIds(config) {
   );
 }
 
+function normalizeClaimedBy(value) {
+  if (typeof value !== 'string' || value.length === 0) {
+    return null;
+  }
+
+  if (value.startsWith('dispatcher:')) {
+    const [, agentId] = value.split(':', 2);
+    return agentId || null;
+  }
+
+  return value;
+}
+
 async function main() {
   const config = await readJson(OPENCLAW_CONFIG_PATH);
   const agentIds = configuredAgentIds(config);
@@ -83,6 +96,7 @@ async function main() {
     const taskId = typeof task?.task_id === 'string' ? task.task_id : path.basename(taskFile, '.json');
     const assignedAgent = typeof task?.assigned_agent === 'string' ? task.assigned_agent : null;
     const claimedBy = typeof task?.claimed_by === 'string' ? task.claimed_by : null;
+    const normalizedClaimedBy = normalizeClaimedBy(claimedBy);
 
     if (assignedAgent && !agentIds.has(assignedAgent)) {
       findings.push({
@@ -96,13 +110,14 @@ async function main() {
       });
     }
 
-    if (claimedBy && !agentIds.has(claimedBy)) {
+    if (claimedBy && normalizedClaimedBy && !agentIds.has(normalizedClaimedBy)) {
       findings.push({
         severity: 'warning',
         type: 'claimed_by_unbound',
         task_id: taskId,
         task_file: path.relative(OPENCLAW_DIR, taskFile),
         claimed_by: claimedBy,
+        normalized_claimed_by: normalizedClaimedBy,
         status: task?.status || null,
         workflow_stage: task?.workflow_stage || null,
       });

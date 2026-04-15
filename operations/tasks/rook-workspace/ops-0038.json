@@ -1,0 +1,144 @@
+{
+  "task_id": "ops-0038",
+  "project_id": "rook-workspace",
+  "title": "Runtime state hygiene: scrub incomplete schemas and orphaned task-state files",
+  "description": "Several runtime task-state files at `/root/.openclaw/runtime/operations/task-state/` have schema issues:\n\n1. **Missing `task_id` field**: Three files use a reduced schema with no `task_id` at the top level — `rook-agent/agent-0001.json`, `rook-workspace/ops-0029.json`, `rook-workspace/ops-0034.json`. All are `status: done`. The dispatcher's `applyRuntimeTaskState` does `{ ...baseTask, ...runtimeState }` — without `task_id` in runtime state this is harmless, but it makes tooling that scans runtime states by task_id unreliable.\n\n2. **Missing `dispatch` block**: Several runtime states (ops-0001, ops-0018, ops-0019, ops-0035, dashboard-0042) have no `dispatch` key. Code that does `r.get('dispatch', {})` handles this gracefully but it means dispatch history is unrecoverable for those tasks.\n\nObjective:\n- Write a one-time repair script (`workspace/operations/bin/repair-runtime-states.mjs`) that:\n  a. Scans all runtime state files\n  b. For files missing `task_id`: cross-references by filename to the canonical task and back-fills `task_id` and `project_id`\n  c. For files missing `dispatch`: adds an empty `dispatch: {}` block\n  d. Writes a summary report of what was repaired\n- After repair, validate all runtime state files parse as valid JSON\n- Add the `task_id` field as a required check to any future runtime state write path in task-dispatcher.mjs",
+  "intake": {
+    "brief": "Repair runtime state files missing task_id and dispatch fields; add future validation",
+    "refinement_source": "manual",
+    "refined_at": "2026-04-11T10:00:00.000Z",
+    "refinement_summary": "Identified during system audit: 3 files missing task_id, several missing dispatch block."
+  },
+  "status": "in_progress",
+  "assigned_agent": "engineer",
+  "claimed_by": "dispatcher:engineer",
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/engineer/ops-0038-runtime-state-hygiene",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [
+    "operations",
+    "reliability"
+  ],
+  "workflow_stage": "ready",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "last_heartbeat": "2026-04-11T21:47:47.630Z",
+  "failure_reason": null,
+  "source_channel": "system:control",
+  "artifacts": [],
+  "plan": {
+    "approach": "Write a repair script and add validation to the dispatcher write path.",
+    "scope": [
+      "Scan /root/.openclaw/runtime/operations/task-state/**/*.json",
+      "Back-fill task_id from filename cross-reference to canonical",
+      "Add empty dispatch: {} where missing",
+      "Print repair summary",
+      "Add task_id assertion to task-dispatcher.mjs runtime state write"
+    ],
+    "out_of_scope": [
+      "Deleting any runtime state files"
+    ],
+    "steps": [
+      {
+        "id": "1",
+        "title": "Write repair-runtime-states.mjs scan + cross-reference logic",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "2",
+        "title": "Back-fill task_id and project_id from filename",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "3",
+        "title": "Add dispatch: {} where missing",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "4",
+        "title": "Run repair script and validate all files",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "5",
+        "title": "Add task_id assertion to dispatcher buildRuntimeTaskState()",
+        "owner": "engineer",
+        "completed": false
+      }
+    ],
+    "acceptance_criteria": [],
+    "risks": [
+      "Back-filling task_id from filename assumes filename === task_id, which is the established convention"
+    ],
+    "context": "Runtime states at /root/.openclaw/runtime/operations/task-state/. Canonical tasks at /root/.openclaw/workspace/operations/tasks/. Dispatcher at /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs",
+    "planned_by": "manual",
+    "planned_at": "2026-04-11T10:00:00.000Z"
+  },
+  "checklist": [
+    {
+      "title": "Write repair-runtime-states.mjs",
+      "completed": false,
+      "position": 0
+    },
+    {
+      "title": "Back-fill task_id from filename",
+      "completed": false,
+      "position": 1
+    },
+    {
+      "title": "Add empty dispatch block where missing",
+      "completed": false,
+      "position": 2
+    },
+    {
+      "title": "Run repair and validate all files",
+      "completed": false,
+      "position": 3
+    },
+    {
+      "title": "Add task_id assertion to dispatcher write path",
+      "completed": false,
+      "position": 4
+    }
+  ],
+  "kanban": null,
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "sync_status": "not_requested",
+    "last_synced_at": null,
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-11T10:00:00.000Z",
+    "updated_at": "2026-04-11T21:47:47.630Z",
+    "started_at": "2026-04-11T21:47:47.630Z",
+    "completed_at": null,
+    "claimed_at": "2026-04-11T21:47:47.630Z"
+  },
+  "dispatch": {
+    "mode": "hook",
+    "executor": "engineer",
+    "attempts": 1,
+    "launched_at": "2026-04-11T21:47:47.630Z",
+    "last_checked_at": "2026-04-11T21:51:03.248Z",
+    "model": "minimax-portal/MiniMax-M2.5",
+    "thinking": "low",
+    "session_key": "hook:dispatcher:task:ops-0038:cb8717d4",
+    "session_id": "43050445-0c19-4984-8c3b-82ff90c01d06",
+    "dispatched_status": "in_progress",
+    "dispatched_owner": "engineer",
+    "last_result": "failed",
+    "last_error": "hook session timed out after 180000ms. hook session has no messages yet."
+  }
+}
