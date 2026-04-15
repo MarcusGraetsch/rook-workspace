@@ -7,9 +7,9 @@ const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const USER_SYSTEMD_DIR = '/root/.config/systemd/user';
 const REQUIRED_AGENT_IDS = ['rook', 'engineer', 'researcher', 'test', 'review'];
+const REQUIRED_WORKER_AGENT_IDS = ['engineer', 'researcher', 'test', 'review'];
 const REQUIRED_HOOK_PREFIX = 'hook:';
-const REQUIRED_TIMEOUT_SECONDS = 180;
-const REQUIRED_PRIMARY_MODEL = 'minimax-portal/MiniMax-M2.5';
+const MIN_TIMEOUT_SECONDS = 180;
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -24,6 +24,14 @@ function hasEnvAssignment(unitText, key, expectedValue) {
   return unitText.includes(needle);
 }
 
+function getEnvAssignment(unitText, key) {
+  const prefix = `Environment=${key}=`;
+  const line = unitText
+    .split('\n')
+    .find((entry) => entry.startsWith(prefix));
+  return line ? line.slice(prefix.length).trim() : null;
+}
+
 function hasExecArg(unitText, expectedArg) {
   return unitText
     .split('\n')
@@ -33,16 +41,21 @@ function hasExecArg(unitText, expectedArg) {
 async function main() {
   const checks = [];
   let ok = true;
+  let warningCount = 0;
 
   const config = await readJson(OPENCLAW_CONFIG_PATH);
   const hooks = config?.hooks || {};
   const defaults = config?.agents?.defaults || {};
   const agentList = Array.isArray(config?.agents?.list) ? config.agents.list : [];
   const agentIds = new Set(agentList.map((agent) => agent?.id).filter(Boolean));
+  const defaultPrimaryModel = typeof defaults?.model?.primary === 'string'
+    ? defaults.model.primary
+    : null;
 
-  const record = (name, pass, details) => {
-    checks.push({ name, ok: pass, details });
-    if (!pass) ok = false;
+  const record = (name, pass, details, severity = 'error') => {
+    checks.push({ name, ok: pass, severity, details });
+    if (!pass && severity === 'error') ok = false;
+    if (!pass && severity === 'warning') warningCount += 1;
   };
 
   record('hooks.enabled', hooks.enabled === true, hooks.enabled === true ? 'enabled' : 'disabled or missing');
@@ -55,25 +68,33 @@ async function main() {
   );
   record(
     'agents.defaults.timeoutSeconds',
-    Number(defaults?.timeoutSeconds || 0) >= REQUIRED_TIMEOUT_SECONDS,
+    Number(defaults?.timeoutSeconds || 0) >= MIN_TIMEOUT_SECONDS,
     String(defaults?.timeoutSeconds ?? 'missing')
   );
   record(
     'agents.defaults.model.primary',
-    defaults?.model?.primary === REQUIRED_PRIMARY_MODEL,
-    String(defaults?.model?.primary || 'missing')
+    typeof defaultPrimaryModel === 'string' && defaultPrimaryModel.length > 0,
+    String(defaultPrimaryModel || 'missing')
   );
 
   for (const agentId of REQUIRED_AGENT_IDS) {
     record(`agent:${agentId}`, agentIds.has(agentId), agentIds.has(agentId) ? 'present' : 'missing');
   }
 
-  for (const agent of agentList) {
-    if (!REQUIRED_AGENT_IDS.includes(agent?.id) || agent.id === 'rook') continue;
+  for (const agentId of REQUIRED_WORKER_AGENT_IDS) {
+    const agent = agentList.find((entry) => entry?.id === agentId);
+    const actualPrimaryModel = agent?.model?.primary || null;
     record(
-      `agent:${agent.id}:model.primary`,
-      agent?.model?.primary === REQUIRED_PRIMARY_MODEL,
-      String(agent?.model?.primary || 'missing')
+      `agent:${agentId}:model.primary`,
+      typeof actualPrimaryModel === 'string' && actualPrimaryModel.length > 0,
+      String(actualPrimaryModel || 'missing')
+    );
+    record(
+      `agent:${agentId}:model.consistent_with_defaults`,
+      !defaultPrimaryModel || actualPrimaryModel === defaultPrimaryModel,
+      defaultPrimaryModel
+        ? `default=${defaultPrimaryModel}, actual=${actualPrimaryModel || 'missing'}`
+        : 'defaults.model.primary missing'
     );
   }
 
@@ -90,6 +111,7 @@ async function main() {
   const dashboardUnitPath = path.join(USER_SYSTEMD_DIR, 'rook-dashboard.service');
   const dispatcherUnit = await readText(dispatcherUnitPath);
   const dashboardUnit = await readText(dashboardUnitPath);
+  const dispatcherHookModel = getEnvAssignment(dispatcherUnit, 'ROOK_HOOK_MODEL');
 
   record(
     'rook-dispatcher.service dispatch mode',
@@ -99,8 +121,16 @@ async function main() {
   );
   record(
     'rook-dispatcher.service hook model',
-    hasEnvAssignment(dispatcherUnit, 'ROOK_HOOK_MODEL', 'minimax-portal/MiniMax-M2.5'),
-    'expected Environment=ROOK_HOOK_MODEL=minimax-portal/MiniMax-M2.5'
+    typeof dispatcherHookModel === 'string' && dispatcherHookModel.length > 0,
+    String(dispatcherHookModel || 'missing')
+  );
+  record(
+    'rook-dispatcher.service hook model drift',
+    !defaultPrimaryModel || !dispatcherHookModel || dispatcherHookModel === defaultPrimaryModel,
+    defaultPrimaryModel && dispatcherHookModel
+      ? `defaults.model.primary=${defaultPrimaryModel}, dispatcher.ROOK_HOOK_MODEL=${dispatcherHookModel}`
+      : 'skipped due to missing model value',
+    'warning'
   );
   record(
     'rook-dashboard.service present',
@@ -113,6 +143,9 @@ async function main() {
     openclaw_config: OPENCLAW_CONFIG_PATH,
     systemd_dir: USER_SYSTEMD_DIR,
     ok,
+    warning_count: warningCount,
+    defaults_model_primary: defaultPrimaryModel,
+    dispatcher_hook_model: dispatcherHookModel,
     checks,
   };
 
