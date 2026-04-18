@@ -55,8 +55,15 @@ Scripts: `~/.openclaw/rook-agent/scripts/`
   - ontology
   - proactive-agent-lite
   - self-improving-agent
+  - hallucination-prevention (2026-04-15) ✅ NEU
 - **Geplant:** Eigene Skills bauen (nach Aaron's Tipp)
 - **Referenz:** https://clawskills.sh/ (5.400+ Skills)
+
+### Halluzinations-Prävention
+
+- **Skill:** `skills/hallucination-prevention.md`
+- **Regel:** Jede Behauptung mit spezifischen Namen, Daten, Zitaten oder Fakten muss vor Ausgabe geprüft werden.
+- **Anlass:** KI-Modell-Vergleich – Halluzination bei Patricia Evangelista (unbelegter Name)
 
 ## Bekannte Probleme
 

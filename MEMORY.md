@@ -23,6 +23,21 @@
 
 ### Wichtige Personen
 - **Aaron** — Kontakt von einem Networking-Event (25.03.2026), arbeitet bei Noctiluca. Gab Tips zu: Skills selbst bauen, ChatGPT-Daten exportieren, Dashboard bauen, Personal Assistant neu denken. 3-Stunden-Gespräch, Wasser statt Alkohol, LinkedIn-Connect.
+- **Andrea** — Ex-Frau, war bei UN in New York. November 2012 zusammen hingezogen. Juni/Juli 2013 kam sie von einem UN-Meeting in Berlin zurück mit "Ich hab dich nicht vermisst". Dann Wohnzimmer, Oktober 2013 zurück nach Berlin.
+- **Traumfrau** (Name noch?) — Borderlinerin, seit November 2015 zusammen. Kennengelernt 2014.
+- **Tom** — Halbbruder, 7 Jahre älter, hat ihn öfter ausgenutzt (Geld, Miete), war dominanter in der Meuterei-Kneipe.
+
+### Lebensgeschichte (kurz)
+- 2001: Aus England (Warwick) nach Berlin gezogen, zu Andrea
+- 2003: Studienstreik, Hausbesetzer-Szene, lernt Tom kennen
+- 2007: Meuterei gegründet (Kollektiv-Kneipe)
+- 2008-2012: Aktiv in linker Szene (Blockupy, Occupy)
+- 2012: Nach New York gezogen (zu Andrea), Left Forum Praktikum
+- 2013: Andrea macht Schluss (Juni/Juli). Oktober zurück nach Berlin, Couch bei Tom
+- 2014-2021: Meuterei läuft, wird aber rausgedrängt
+- Ab 2019: Isolierung in der autonomen Szene
+- Seit 2024: Senior Consultant bei HiSolutions
+- Privat: Single in Neukölln, isoliert, arbeitet an sich
 
 ---
 
@@ -72,6 +87,7 @@
 | 2026-03-26 | Täglicher Sync-Cron um 02:00 | Backup der Core-Dateien zu GitHub |
 | 2026-03-27 | OpenClaw forken statt separates Dashboard | Ein Dashboard, kein Tool-Wildwuchs |
 | 2026-03-27 | TenacitOS als Referenz, nicht installieren | Features cherry-picken ins OpenClaw Dashboard |
+| 2026-04-14 | C-base AI Meetup ("Wuhle") starten | Community-Aufbau, Hardware poolen, KI verstehen statt fürchten |
 
 ---
 
@@ -102,6 +118,11 @@
 - Default: Kimi K2.5 (kimi-coding/k2p5)
 - Problem: Rate Limits bei intensiver Nutzung
 - Fallback: OpenAI/Codex (noch nicht konfiguriert)
+
+### Neue Projekte (2026-04-14)
+- **community_politics_art-projects** — Privates Repo für Community/Politik/Kunst-Projekte (GitHub)
+  - Enthält zunächst: C-base AI Meetup Planung
+  - Wird weiter wachsen mit politischen Projekten, Community-Building, Kunst
 
 ---
 
