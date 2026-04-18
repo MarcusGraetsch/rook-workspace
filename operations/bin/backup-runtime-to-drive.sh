@@ -93,6 +93,15 @@ fi
 
 find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -mtime +"$LOCAL_RETENTION_DAYS" -exec rm -rf {} +
 
+LOG_RETENTION_DAYS="${ROOK_LOG_RETENTION_DAYS:-14}"
+DISPATCHER_LOG_DIR="$RUNTIME_OPERATIONS_ROOT/logs/dispatcher"
+if [ -d "$DISPATCHER_LOG_DIR" ]; then
+  pruned=$(find "$DISPATCHER_LOG_DIR" -maxdepth 1 -name "*.jsonl" -mtime +"$LOG_RETENTION_DAYS" -print -delete | wc -l)
+  if [ "$pruned" -gt 0 ]; then
+    echo "    Pruned $pruned dispatcher log file(s) older than ${LOG_RETENTION_DAYS}d"
+  fi
+fi
+
 echo
 echo "Backup complete."
 echo "Local snapshot: $RUN_DIR"
