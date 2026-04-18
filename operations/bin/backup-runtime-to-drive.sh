@@ -48,7 +48,7 @@ echo "    Created operations/tasks.tar.gz"
 echo "[3/5] Archiving runtime health and dispatcher state..."
 tar czf "$RUN_DIR/operations/runtime-state.tar.gz" \
   -C "$RUNTIME_OPERATIONS_ROOT" \
-  archive/tasks health logs/dispatcher
+  archive health logs/dispatcher
 echo "    Created operations/runtime-state.tar.gz"
 
 echo "[4/5] Writing manifests..."

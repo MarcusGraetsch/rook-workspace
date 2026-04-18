@@ -17,6 +17,7 @@ This script restores:
   - project registry
   - health snapshots
   - dispatcher logs
+  - archived runtime task overlays
 
 Run it while `rook-dashboard.service` and `rook-dispatcher.timer` are stopped.
 EOF
