@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "acknowledged_findings": {
+    "telegram_group_allowlist_empty": {
+      "enabled": true,
+      "reason": "Telegram group ingress is intentionally disabled; operator access is limited to DM allowlist usage.",
+      "review_after": "2026-06-01",
+      "constraints": {
+        "telegram_enabled": true,
+        "telegram_group_policy": "allowlist",
+        "telegram_groups_count": 0
+      }
+    },
+    "gateway_insecure_auth_enabled": {
+      "enabled": true,
+      "reason": "The control UI is intentionally loopback-only and the gateway still enforces token auth for local operator access.",
+      "review_after": "2026-06-01",
+      "constraints": {
+        "gateway_bind": "loopback",
+        "gateway_auth_mode": "token",
+        "gateway_allow_insecure_auth": true
+      }
+    }
+  }
+}

@@ -10,6 +10,7 @@ const execFile = promisify(execFileCallback);
 const OPENCLAW_DIR = '/root/.openclaw';
 const WORKSPACE_DIR = path.join(OPENCLAW_DIR, 'workspace');
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
+const RUNTIME_POSTURE_POLICY_PATH = path.join(WORKSPACE_DIR, 'operations', 'config', 'runtime-posture-policy.json');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
 const TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'tasks');
@@ -38,6 +39,14 @@ const UNIT_FILES = [
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
+}
+
+async function readOptionalJson(filePath) {
+  try {
+    return await readJson(filePath);
+  } catch {
+    return null;
+  }
 }
 
 async function readText(filePath) {
@@ -253,6 +262,35 @@ function classifyTrackedReference(filePath) {
   return 'informational';
 }
 
+function matchesConstraints(constraints, actual) {
+  return Object.entries(constraints || {}).every(([key, expected]) => actual[key] === expected);
+}
+
+function resolveAcknowledgement(policy, findingType, actual) {
+  const entry = policy?.acknowledged_findings?.[findingType];
+  if (!entry || entry.enabled !== true) {
+    return { acknowledged: false };
+  }
+
+  if (!matchesConstraints(entry.constraints || {}, actual || {})) {
+    return { acknowledged: false, reason: 'policy_constraints_mismatch' };
+  }
+
+  const reviewAfter = typeof entry.review_after === 'string' ? entry.review_after : null;
+  if (reviewAfter) {
+    const reviewTimestamp = Date.parse(`${reviewAfter}T00:00:00Z`);
+    if (Number.isFinite(reviewTimestamp) && Date.now() > reviewTimestamp) {
+      return { acknowledged: false, reason: 'policy_review_expired' };
+    }
+  }
+
+  return {
+    acknowledged: true,
+    reason: typeof entry.reason === 'string' ? entry.reason : '',
+    review_after: reviewAfter,
+  };
+}
+
 async function subdirExists(dirPath, childName) {
   try {
     const stat = await fs.stat(path.join(dirPath, childName));
@@ -363,6 +401,7 @@ function normalizeClaimedBy(value) {
 
 async function main() {
   const config = await readJson(OPENCLAW_CONFIG_PATH);
+  const runtimePolicy = await readOptionalJson(RUNTIME_POSTURE_POLICY_PATH);
   const agentIds = configuredAgentIds(config);
   const agentIdList = [...agentIds].sort();
   const checks = [];
@@ -508,11 +547,23 @@ async function main() {
     ? Object.keys(telegram.groups)
     : [];
   if (telegram.enabled === true && telegram.groupPolicy === 'allowlist' && telegramGroups.length === 0) {
+    const acknowledgement = resolveAcknowledgement(runtimePolicy, 'telegram_group_allowlist_empty', {
+      telegram_enabled: telegram.enabled === true,
+      telegram_group_policy: telegram.groupPolicy || null,
+      telegram_groups_count: telegramGroups.length,
+    });
     findings.push({
       source: 'runtime_posture',
-      severity: 'warning',
+      severity: acknowledgement.acknowledged ? 'info' : 'warning',
       type: 'telegram_group_allowlist_empty',
       details: 'telegram groupPolicy=allowlist but groups=0',
+      ...(acknowledgement.acknowledged
+        ? {
+            acknowledged: true,
+            acknowledgment_reason: acknowledgement.reason,
+            review_after: acknowledgement.review_after,
+          }
+        : {}),
     });
   }
 
@@ -528,11 +579,23 @@ async function main() {
   }
 
   if (gateway?.controlUi?.allowInsecureAuth === true) {
+    const acknowledgement = resolveAcknowledgement(runtimePolicy, 'gateway_insecure_auth_enabled', {
+      gateway_bind: gateway?.bind || null,
+      gateway_auth_mode: gateway?.auth?.mode || null,
+      gateway_allow_insecure_auth: gateway?.controlUi?.allowInsecureAuth === true,
+    });
     findings.push({
       source: 'runtime_posture',
-      severity: 'warning',
+      severity: acknowledgement.acknowledged ? 'info' : 'warning',
       type: 'gateway_insecure_auth_enabled',
       details: 'gateway.controlUi.allowInsecureAuth=true',
+      ...(acknowledgement.acknowledged
+        ? {
+            acknowledged: true,
+            acknowledgment_reason: acknowledgement.reason,
+            review_after: acknowledgement.review_after,
+          }
+        : {}),
     });
   }
 
@@ -781,6 +844,7 @@ async function main() {
     checked_at: new Date().toISOString(),
     workspace_dir: WORKSPACE_DIR,
     openclaw_config: OPENCLAW_CONFIG_PATH,
+    runtime_posture_policy: RUNTIME_POSTURE_POLICY_PATH,
     configured_agent_count: agentIdList.length,
     configured_agent_ids: agentIdList,
     user_systemd_dir: USER_SYSTEMD_DIR,

@@ -7,9 +7,18 @@ const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
+const RUNTIME_POSTURE_POLICY_PATH = path.join(OPENCLAW_DIR, 'workspace', 'operations', 'config', 'runtime-posture-policy.json');
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
+}
+
+async function readOptionalJson(filePath) {
+  try {
+    return await readJson(filePath);
+  } catch {
+    return null;
+  }
 }
 
 async function pathExists(targetPath) {
@@ -38,16 +47,51 @@ function configuredAgentIds(config) {
     : [];
 }
 
+function matchesConstraints(constraints, actual) {
+  return Object.entries(constraints || {}).every(([key, expected]) => actual[key] === expected);
+}
+
+function resolveAcknowledgement(policy, findingType, actual) {
+  const entry = policy?.acknowledged_findings?.[findingType];
+  if (!entry || entry.enabled !== true) {
+    return { acknowledged: false };
+  }
+
+  if (!matchesConstraints(entry.constraints || {}, actual || {})) {
+    return { acknowledged: false, reason: 'policy_constraints_mismatch' };
+  }
+
+  const reviewAfter = typeof entry.review_after === 'string' ? entry.review_after : null;
+  if (reviewAfter) {
+    const reviewTimestamp = Date.parse(`${reviewAfter}T00:00:00Z`);
+    if (Number.isFinite(reviewTimestamp) && Date.now() > reviewTimestamp) {
+      return { acknowledged: false, reason: 'policy_review_expired' };
+    }
+  }
+
+  return {
+    acknowledged: true,
+    reason: typeof entry.reason === 'string' ? entry.reason : '',
+    review_after: reviewAfter,
+  };
+}
+
 async function main() {
   const config = await readJson(OPENCLAW_CONFIG_PATH);
+  const runtimePolicy = await readOptionalJson(RUNTIME_POSTURE_POLICY_PATH);
   const checks = [];
   let ok = true;
   let warningCount = 0;
+  let infoCount = 0;
 
-  const record = (name, pass, details, severity = 'error') => {
+  const record = (name, pass, details, severity = 'error', extras = {}) => {
     checks.push({ name, ok: pass, severity, details });
     if (!pass && severity === 'error') ok = false;
     if (!pass && severity === 'warning') warningCount += 1;
+    if (!pass && severity === 'info') infoCount += 1;
+    if (Object.keys(extras).length > 0) {
+      checks[checks.length - 1] = { ...checks[checks.length - 1], ...extras };
+    }
   };
 
   const agentIds = configuredAgentIds(config);
@@ -91,13 +135,29 @@ async function main() {
   const telegramGroups = telegram?.groups && typeof telegram.groups === 'object'
     ? Object.keys(telegram.groups)
     : [];
+  const telegramAcknowledgement = resolveAcknowledgement(
+    runtimePolicy,
+    'telegram_group_allowlist_empty',
+    {
+      telegram_enabled: telegram.enabled === true,
+      telegram_group_policy: telegram.groupPolicy || null,
+      telegram_groups_count: telegramGroups.length,
+    }
+  );
   record(
     'channels.telegram.group_allowlist_bootstrap',
     !(telegram.enabled === true && telegram.groupPolicy === 'allowlist' && telegramGroups.length === 0),
     telegram.enabled === true
       ? `groupPolicy=${telegram.groupPolicy || 'missing'}, groups=${telegramGroups.length}`
       : 'telegram disabled',
-    'warning'
+    telegramAcknowledgement.acknowledged ? 'info' : 'warning',
+    telegramAcknowledgement.acknowledged
+      ? {
+          acknowledged: true,
+          acknowledgment_reason: telegramAcknowledgement.reason,
+          review_after: telegramAcknowledgement.review_after,
+        }
+      : {}
   );
 
   const discordAllowFrom = Array.isArray(discord?.allowFrom) ? discord.allowFrom : [];
@@ -110,16 +170,32 @@ async function main() {
     'warning'
   );
 
+  const gatewayAcknowledgement = resolveAcknowledgement(
+    runtimePolicy,
+    'gateway_insecure_auth_enabled',
+    {
+      gateway_bind: gateway?.bind || null,
+      gateway_auth_mode: gateway?.auth?.mode || null,
+      gateway_allow_insecure_auth: gateway?.controlUi?.allowInsecureAuth === true,
+    }
+  );
   record(
     'gateway.controlUi.allowInsecureAuth',
     gateway?.controlUi?.allowInsecureAuth !== true,
     String(gateway?.controlUi?.allowInsecureAuth ?? 'missing'),
-    'warning'
+    gatewayAcknowledgement.acknowledged ? 'info' : 'warning',
+    gatewayAcknowledgement.acknowledged
+      ? {
+          acknowledged: true,
+          acknowledgment_reason: gatewayAcknowledgement.reason,
+          review_after: gatewayAcknowledgement.review_after,
+        }
+      : {}
   );
 
   record(
     'hooks.allowRequestSessionKey',
-    hooks.allowRequestSessionKey !== true,
+    hooks.allowRequestSessionKey === true,
     String(hooks.allowRequestSessionKey ?? 'missing'),
     'warning'
   );
@@ -136,8 +212,10 @@ async function main() {
   const summary = {
     checked_at: new Date().toISOString(),
     openclaw_config: OPENCLAW_CONFIG_PATH,
+    runtime_posture_policy: RUNTIME_POSTURE_POLICY_PATH,
     ok,
     warning_count: warningCount,
+    info_count: infoCount,
     configured_agent_count: agentIds.length,
     unbound_agent_dirs: unboundAgentDirs,
     checks,
