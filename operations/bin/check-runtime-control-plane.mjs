@@ -195,6 +195,33 @@ async function findTrackedReferences(agentId, trackedFiles) {
   return refs;
 }
 
+function classifyTrackedReference(filePath) {
+  const normalized = String(filePath || '').replace(/\\/g, '/');
+
+  if (
+    normalized === 'workspace/AGENTS.md'
+    || normalized === 'workspace/TOOLS.md'
+    || normalized.startsWith('workspace/operations/')
+    || normalized.startsWith('workspace/tasks/')
+    || normalized.startsWith('workspace/skills/')
+    || normalized.startsWith('workspace/wiki/')
+    || normalized.startsWith('workspace/.github/')
+    || normalized.startsWith('workspace/.openclaw/')
+  ) {
+    return 'active';
+  }
+
+  if (
+    normalized.startsWith('workspace/docs/reports/')
+    || normalized.startsWith('workspace/memory/')
+    || normalized.startsWith('workspace/projects/')
+  ) {
+    return 'historical';
+  }
+
+  return 'informational';
+}
+
 async function subdirExists(dirPath, childName) {
   try {
     const stat = await fs.stat(path.join(dirPath, childName));
@@ -572,6 +599,11 @@ async function main() {
   for (const agentId of unboundAgentDirs) {
     const agentDir = path.join(AGENTS_DIR, agentId);
     const refs = await findTrackedReferences(agentId, trackedFiles);
+    const classifiedRefs = refs.map((ref) => ({
+      ...ref,
+      classification: classifyTrackedReference(ref.file),
+    }));
+    const blockingRefs = classifiedRefs.filter((ref) => ref.classification === 'active');
     const hasAgentDir = await subdirExists(agentDir, 'agent');
     const hasSessionsDir = await subdirExists(agentDir, 'sessions');
     const hasSessionStore = await fileExists(path.join(agentDir, 'sessions', 'sessions.json'));
@@ -587,12 +619,14 @@ async function main() {
       has_session_store: hasSessionStore,
       session_file_count: await countSessionFiles(agentDir),
       latest_activity_at: await latestMtimeIso(agentDir),
-      tracked_reference_count: refs.length,
-      tracked_references: refs.slice(0, 10),
-      archive_readiness: !hasAgentDir && refs.length === 0 ? 'ready' : 'blocked',
+      tracked_reference_count: classifiedRefs.length,
+      blocking_reference_count: blockingRefs.length,
+      non_blocking_reference_count: classifiedRefs.length - blockingRefs.length,
+      tracked_references: classifiedRefs.slice(0, 10),
+      archive_readiness: !hasAgentDir && blockingRefs.length === 0 ? 'ready' : 'blocked',
       archive_blockers: [
         ...(hasAgentDir ? ['agent_subdir_present'] : []),
-        ...(refs.length > 0 ? ['tracked_workspace_references'] : []),
+        ...(blockingRefs.length > 0 ? ['active_workspace_references'] : []),
       ],
     });
   }
