@@ -1,0 +1,97 @@
+{
+  "task_id": "ops-0035",
+  "project_id": "rook-workspace",
+  "title": "Implement in our ecology page i need an UI fix when I hover over \"Inf...",
+  "description": "Objective:\n- In our ecology page i need an UI fix when I hover over \"Infrastructure Impact (VM/Server)\" widget I see the pop up window but it is cut at the top so i cannot read or see the whole pop up window. i want to see the whole pop up window\n\nExecution scope:\n- Convert the request into a concrete implementation change in the selected repository.\n- Keep the scope bounded and directly tied to the requested UI, API, or code behavior.\n- Preserve existing behavior outside the requested change.\n\nContext and constraints:\n- I want to see the whole pop up window\n\nDefinition of done:\n- The requested change is implemented.\n- Relevant validation or tests are run and recorded.\n- Follow-up risks or open questions are noted in the task.",
+  "intake": {
+    "brief": "In our ecology page i need an UI fix when I hover over \"Infrastructure Impact (VM/Server)\" widget I see the pop up window but it is cut at the top so i cannot read or see the whole pop up window. i want to see the whole pop up window",
+    "refinement_source": "fallback",
+    "refined_at": "2026-04-03T14:00:12.227Z",
+    "refinement_summary": "Structured from the rough brief with the local fallback refiner for engineering work."
+  },
+  "status": "done",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/ops-0035-implement-in-our-ecology-page-i-need-an-ui-fix-w",
+  "commits": [
+    "3dad269",
+    "b0c0214"
+  ],
+  "commit_refs": [
+    "3dad269",
+    "b0c0214"
+  ],
+  "labels": [
+    "bug",
+    "ui"
+  ],
+  "workflow_stage": "done",
+  "blocked_reason": null,
+  "handoff_notes": "Implemented the ecology tooltip visibility fix for the Infrastructure Impact widget. The tooltip now checks available space above and below the hovered card, falls back below the element when there is not enough room above, and clamps horizontal positioning so the popup stays within the viewport. Validation: `npm run build` completed successfully. Commits: 3dad269 [agent:engineer][task:ops-0035] Fix: Position tooltip below element when near top of viewport; b0c0214 [agent:engineer][task:ops-0035] Keep ecology tooltip within viewport bounds.",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [
+    "Merged to rook-dashboard main via direct commit evidence: 3dad269, b0c0214"
+  ],
+  "checklist": [
+    {
+      "title": "Inspect the affected code paths and confirm the concrete change needed for implement in our ecology page i need an ui fix when i hover over \"inf..",
+      "completed": true,
+      "position": 0
+    },
+    {
+      "title": "Implement the required code and configuration changes in the target repository",
+      "completed": true,
+      "position": 1
+    },
+    {
+      "title": "Run the relevant validation or test commands and record the result",
+      "completed": true,
+      "position": 2
+    },
+    {
+      "title": "Update task notes with the delivered change and any follow-up risks",
+      "completed": true,
+      "position": 3
+    }
+  ],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
+    "column_name": "Ready",
+    "task_db_id": "793cf942-7d21-4e49-b1ec-da3ef9adf4e8",
+    "position": 0,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": 54,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/54",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-04-03T14:00:27.552Z",
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-03T14:00:20.472Z",
+    "updated_at": "2026-04-03T14:07:15Z",
+    "started_at": "2026-04-03T14:00:27.689Z",
+    "completed_at": "2026-04-03T14:02:56.896Z",
+    "claimed_at": "2026-04-03T14:00:27.689Z"
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 9,
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/pull/9",
+    "state": "merged",
+    "title": "[cleanup] Merge outstanding ecology dashboard work",
+    "last_synced_at": "2026-04-05T12:08:42.374Z",
+    "last_error": null
+  }
+}

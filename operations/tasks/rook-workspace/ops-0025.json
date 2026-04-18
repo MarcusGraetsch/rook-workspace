@@ -1,0 +1,61 @@
+{
+  "task_id": "ops-0025",
+  "project_id": "rook-workspace",
+  "title": "Feature: AI Insight Cards",
+  "description": "KI-generierte automatische Erkenntnisse als Widget. System erkennt Anomalien/Trends und zeigt Card an.\n\nAcceptance criteria:\n- Widget displays AI-generated insights\n- Auto-detection of anomalies and trends\n- Click to expand details\n- Configurable sensitivity",
+  "intake": {
+    "brief": null,
+    "refinement_source": null,
+    "refined_at": null,
+    "refinement_summary": null
+  },
+  "status": "backlog",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/ops-0025-feature-ai-insight-cards",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [
+    "AI",
+    "Automation",
+    "Phase2",
+    "dashboard"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [],
+  "checklist": [],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "column_name": "Backlog",
+    "task_db_id": "99d8474e-43e3-4a35-b36a-c15f28516f86",
+    "position": 8,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 31,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/31",
+    "state": null,
+    "sync_status": "error",
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/31 --method PATCH -f title=[task:ops-0025] Feature: AI Insight Cards -f body=## Task\n\nKI-generierte automatische Erkenntnisse als Widget. System erkennt Anomalien/Trends und zeigt Card an.\n\nAcceptance criteria:\n- Widget displays AI-generated insights\n- Auto-detection of anomalies and trends\n- Click to expand details\n- Configurable sensitivity\n\n## Metadata\n\n- Task ID: `ops-0025`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `medium`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0025-feature-ai-insight-cards`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `AI`, `Automation`, `Phase2`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+  },
+  "timestamps": {
+    "created_at": "2026-04-10T15:09:41.967Z",
+    "updated_at": "2026-04-10T15:09:42.881Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}

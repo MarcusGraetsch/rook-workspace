@@ -1,0 +1,43 @@
+{
+  "updated_at": "2026-04-03T15:18:42.983Z",
+  "timeout_seconds": 20,
+  "ok": true,
+  "results": [
+    {
+      "agent_id": "engineer",
+      "ok": true,
+      "reason": null,
+      "code": 0,
+      "duration_ms": 3166,
+      "stdout": "ENGINEER_OK",
+      "stderr": "{\"ok\":true,\"runId\":\"402b1d45-d02d-45a8-8816-f2c0f88e34f7\"}"
+    },
+    {
+      "agent_id": "researcher",
+      "ok": true,
+      "reason": null,
+      "code": 0,
+      "duration_ms": 3018,
+      "stdout": "RESEARCHER_OK",
+      "stderr": "{\"ok\":true,\"runId\":\"ed6ab2b2-4959-4e71-953c-0fb921d33f2e\"}"
+    },
+    {
+      "agent_id": "test",
+      "ok": true,
+      "reason": null,
+      "code": 0,
+      "duration_ms": 2012,
+      "stdout": "TEST_OK",
+      "stderr": "{\"ok\":true,\"runId\":\"1fcbda25-9512-4936-aa76-a167384c96a5\"}"
+    },
+    {
+      "agent_id": "review",
+      "ok": true,
+      "reason": null,
+      "code": 0,
+      "duration_ms": 2013,
+      "stdout": "REVIEW_OK",
+      "stderr": "{\"ok\":true,\"runId\":\"8514bc3d-2667-4648-b15b-08d465bec3e7\"}"
+    }
+  ]
+}

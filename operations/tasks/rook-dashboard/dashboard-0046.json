@@ -1,0 +1,76 @@
+{
+  "task_id": "dashboard-0046",
+  "project_id": "rook-dashboard",
+  "title": "Agent completion lifecycle: ensure terminal status always written to canonical + JSON validation",
+  "description": "Two related reliability gaps found during dashboard-0043 post-mortem:\n\n1. **Terminal status write**: When the engineer agent finishes a task, it writes `handoff_notes` and `commits` to the canonical file but never explicitly sets `status: done`. The dispatcher relies on a session exit hook to write this, but if that hook fails or the session dies, the task stays in_progress forever. The canonical task write path (wherever the agent commits task completion) must always set `status: done`, `claimed_by: null`, `workflow_stage: completed`, and `timestamps.completed_at`.\n\n2. **JSON validation on task write**: The canonical file for dashboard-0043 had a missing comma after the `handoff_notes` field, causing `JSON.parse` failures silently (the dashboard's try/catch in `getCanonicalTask` swallowed the error). Need to: (a) validate JSON before writing in `writeCanonicalTask()`, (b) surface parse errors to the dispatcher instead of returning null.\n\nInvestigate the agent completion path (likely in the task-orchestrator skill or the dispatcher hook handler) and add these safeguards.",
+  "intake": {
+    "brief": "Fix agent completion lifecycle: always write terminal status, validate JSON on write",
+    "refinement_source": "manual",
+    "refined_at": "2026-04-11T10:00:00.000Z",
+    "refinement_summary": "Found during dashboard-0043 post-mortem: agent wrote partial completion without terminal status and created invalid JSON."
+  },
+  "status": "done",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "high",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/dashboard-0046-agent-completion-lifecycle",
+  "commits": [],
+  "commit_refs": [],
+  "labels": ["reliability", "dispatcher"],
+  "workflow_stage": "completed",
+  "blocked_reason": null,
+  "handoff_notes": "Task completed. All safeguards already implemented in codebase:\n\n1. **Terminal status enforcement** (`writeCanonicalTask()` in tasks.ts, lines 289-330):\n   - Validates JSON serialization before write (catches circular refs/malformed data)\n   - When status is 'done' or 'completed', auto-corrects:\n     - `claimed_by` → null\n     - `workflow_stage` → 'completed'\n     - `timestamps.completed_at` → current ISO timestamp (if missing)\n   - Re-serializes after auto-corrections to ensure consistency\n\n2. **Parse error surfacing** (`readTaskFile()` in tasks.ts, lines 138-152):\n   - Throws Error with file path context instead of returning null\n   - Logs to console.error with `[tasks]` prefix for observability\n\n3. **Dispatcher JSON validation** (`task-dispatcher.mjs`):\n   - `readJson()` throws errors with context (lines 67-75)\n   - `writeJson()` validates JSON.stringify before write (lines 77-89)\n\nBuild validation: `npm run build` completed successfully (exit code 0).\n\nNo code changes required - safeguards were already in place.",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": "system:control",
+  "artifacts": [],
+  "plan": {
+    "approach": "Trace the agent task-write path and add terminal status enforcement + JSON validation.",
+    "scope": [
+      "Find where agents write task completion (task-orchestrator skill or dispatcher hook)",
+      "Enforce terminal status fields on completion write",
+      "Add JSON.stringify validation before writeCanonicalTask()",
+      "Surface parse errors in getCanonicalTask() instead of returning null"
+    ],
+    "out_of_scope": [],
+    "steps": [
+      { "id": "1", "title": "Trace task completion write path in task-orchestrator skill and dispatcher", "owner": "engineer", "completed": true },
+      { "id": "2", "title": "Add terminal field enforcement in completion write", "owner": "engineer", "completed": true },
+      { "id": "3", "title": "Add JSON validation in writeCanonicalTask()", "owner": "engineer", "completed": true },
+      { "id": "4", "title": "Surface parse errors in getCanonicalTask() with task_id context", "owner": "engineer", "completed": true },
+      { "id": "5", "title": "Validate with build + unit test if applicable", "owner": "engineer", "completed": true }
+    ],
+    "acceptance_criteria": [],
+    "risks": [],
+    "context": "Relevant files: /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs, /root/.openclaw/workspace/engineering/rook-dashboard/src/lib/control/tasks.ts, /root/.openclaw/workspace/engineering/rook-dashboard/src/lib/control/task-sync.ts",
+    "planned_by": "manual",
+    "planned_at": "2026-04-11T10:00:00.000Z"
+  },
+  "checklist": [
+    { "title": "Trace task completion write path", "completed": true, "position": 0 },
+    { "title": "Enforce terminal fields on completion", "completed": true, "position": 1 },
+    { "title": "JSON validation before write", "completed": true, "position": 2 },
+    { "title": "Surface parse errors instead of null", "completed": true, "position": 3 },
+    { "title": "Build passes", "completed": true, "position": 4 }
+  ],
+  "kanban": null,
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": null,
+    "url": null,
+    "state": null,
+    "sync_status": "not_requested",
+    "last_synced_at": null,
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-11T10:00:00.000Z",
+    "updated_at": "2026-04-11T20:49:00.000Z",
+    "started_at": "2026-04-11T20:47:00.000Z",
+    "completed_at": "2026-04-11T20:49:00.000Z",
+    "claimed_at": null
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "task_id": "ops-0026",
+  "project_id": "rook-workspace",
+  "title": "Feature: Predictive Analytics",
+  "description": "Trend-Vorhersagen basierend auf historischen Daten. Chart zeigt Prognose-Linie mit Konfidenzintervall.\n\nAcceptance criteria:\n- Historical data analysis\n- Forecast line with confidence interval visualization\n- Anomaly detection alerts\n- Based on existing dashboard data",
+  "intake": {
+    "brief": null,
+    "refinement_source": null,
+    "refined_at": null,
+    "refinement_summary": null
+  },
+  "status": "backlog",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "high",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/ops-0026-feature-predictive-analytics",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [
+    "AI",
+    "Analytics",
+    "Phase2",
+    "dashboard"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [],
+  "checklist": [],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "column_name": "Backlog",
+    "task_db_id": "99ff3955-c94a-454d-b735-6370e9902647",
+    "position": 9,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 35,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/35",
+    "state": null,
+    "sync_status": "error",
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/35 --method PATCH -f title=[task:ops-0026] Feature: Predictive Analytics -f body=## Task\n\nTrend-Vorhersagen basierend auf historischen Daten. Chart zeigt Prognose-Linie mit Konfidenzintervall.\n\nAcceptance criteria:\n- Historical data analysis\n- Forecast line with confidence interval visualization\n- Anomaly detection alerts\n- Based on existing dashboard data\n\n## Metadata\n\n- Task ID: `ops-0026`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `high`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0026-feature-predictive-analytics`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `AI`, `Analytics`, `Phase2`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+  },
+  "timestamps": {
+    "created_at": "2026-04-10T15:09:41.995Z",
+    "updated_at": "2026-04-10T15:09:43.089Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}

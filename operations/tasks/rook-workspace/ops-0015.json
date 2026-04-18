@@ -37,7 +37,7 @@
     "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
     "column_name": "Backlog",
     "task_db_id": "a1969738-3774-4c37-85f2-60ff94612751",
-    "position": 27,
+    "position": 14,
     "sync_origin": "dashboard-kanban"
   },
   "github_issue": {
@@ -46,12 +46,12 @@
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/14",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-04-01T17:09:33.687Z",
+    "last_synced_at": "2026-04-10T15:09:43.852Z",
     "last_error": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:20.024Z",
-    "updated_at": "2026-04-01T17:09:33.687Z",
+    "updated_at": "2026-04-10T15:09:43.852Z",
     "started_at": "2026-03-30T15:42:20.024Z",
     "completed_at": null,
     "claimed_at": null

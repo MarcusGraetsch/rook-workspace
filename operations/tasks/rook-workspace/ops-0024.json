@@ -1,0 +1,60 @@
+{
+  "task_id": "ops-0024",
+  "project_id": "rook-workspace",
+  "title": "Feature: Team Collaboration",
+  "description": "Kommentare und Sharing direkt im Dashboard. User konnen Charts kommentieren, Dashboards teilen.\n\nAcceptance criteria:\n- Comment on charts\n- Share dashboard with permissions\n- Real-time collaboration indicators\n- Mention users in comments",
+  "intake": {
+    "brief": null,
+    "refinement_source": null,
+    "refined_at": null,
+    "refinement_summary": null
+  },
+  "status": "backlog",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/ops-0024-feature-team-collaboration",
+  "commits": [],
+  "commit_refs": [],
+  "labels": [
+    "Collaboration",
+    "Phase2",
+    "dashboard"
+  ],
+  "workflow_stage": "kanban-sync",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [],
+  "checklist": [],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "column_name": "Backlog",
+    "task_db_id": "5fbdfed2-7044-44cd-8edf-18a3fac51ae6",
+    "position": 7,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 30,
+    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/30",
+    "state": null,
+    "sync_status": "error",
+    "last_synced_at": null,
+    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/30 --method PATCH -f title=[task:ops-0024] Feature: Team Collaboration -f body=## Task\n\nKommentare und Sharing direkt im Dashboard. User konnen Charts kommentieren, Dashboards teilen.\n\nAcceptance criteria:\n- Comment on charts\n- Share dashboard with permissions\n- Real-time collaboration indicators\n- Mention users in comments\n\n## Metadata\n\n- Task ID: `ops-0024`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `medium`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0024-feature-team-collaboration`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `Collaboration`, `Phase2`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+  },
+  "timestamps": {
+    "created_at": "2026-04-10T15:09:41.970Z",
+    "updated_at": "2026-04-10T15:09:42.960Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}
