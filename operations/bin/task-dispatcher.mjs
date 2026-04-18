@@ -612,6 +612,38 @@ async function runGit(repoPath, args) {
   });
 }
 
+async function runGh(repoPath, args) {
+  return new Promise((resolve) => {
+    const child = spawn('gh', args, {
+      cwd: repoPath,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr.on('data', (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on('close', (code) => {
+      resolve({
+        code: code ?? 1,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+      });
+    });
+    child.on('error', (error) => {
+      resolve({
+        code: 1,
+        stdout: '',
+        stderr: error instanceof Error ? error.message : String(error),
+      });
+    });
+  });
+}
+
 async function postHookWithCurl(url, token, payload) {
   return new Promise((resolve) => {
     const child = spawn('curl', [
@@ -831,16 +863,17 @@ async function maybePushAndCreatePR(task, executor) {
     const prBody = task.handoff_notes || `Work completed for ${task.task_id}.`;
 
     // gh pr create --title "$title" --body "$body" --head "$branch" --base main
-    const prResult = await runGit(repoPath, [
+    const prResult = await runGh(repoPath, [
       'pr', 'create',
       '--title', prTitle,
       '--body', prBody,
       '--head', task.branch,
+      '--base', 'main',
     ]);
 
     if (prResult.code !== 0) {
       // Check if PR already exists (case where it was created in a prior run)
-      const existingPrCheck = await runGit(repoPath, [
+      const existingPrCheck = await runGh(repoPath, [
         'pr', 'list',
         '--head', task.branch,
         '--json', 'number,title,url,state',
