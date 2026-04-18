@@ -72,12 +72,28 @@ async function ensureDir(dirPath) {
 }
 
 async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, 'utf8'));
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    return JSON.parse(raw);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[dispatcher] Failed to parse JSON from ${filePath}: ${errorMessage}`);
+    throw new Error(`Failed to parse JSON from ${filePath}: ${errorMessage}`);
+  }
 }
 
 async function writeJson(filePath, data) {
   await ensureDir(path.dirname(filePath));
-  await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+  // Validate JSON serialization before writing to catch circular refs or malformed data
+  let serialized;
+  try {
+    serialized = JSON.stringify(data, null, 2);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`[dispatcher] JSON serialization failed for ${filePath}: ${errorMessage}`);
+    throw new Error(`Failed to serialize data to JSON for ${filePath}: ${errorMessage}`);
+  }
+  await fs.writeFile(filePath, `${serialized}\n`, 'utf8');
 }
 
 function runtimeTaskStatePath(projectId, fileName) {
@@ -434,18 +450,17 @@ async function normalizeTerminalTasks(loadedTasks, nowIso) {
     }
 
     if (task.dispatch && typeof task.dispatch === 'object') {
-      const nextDispatch = {
-        ...task.dispatch,
-        last_checked_at: nowIso,
-      };
-
-      if (nextDispatch.last_result === 'running' || nextDispatch.last_result === 'launching') {
-        nextDispatch.last_result = 'completed';
-        nextDispatch.last_error = null;
-      }
-
-      if (!deepEqualJson(task.dispatch, nextDispatch)) {
-        task.dispatch = nextDispatch;
+      // Only normalize last_result if it's stuck in a non-terminal state.
+      // Do NOT update last_checked_at here: touching it on every run causes a diff
+      // every 60 s for every completed task, producing log spam and constant file I/O.
+      const needsResultNormalization =
+        task.dispatch.last_result === 'running' || task.dispatch.last_result === 'launching';
+      if (needsResultNormalization) {
+        task.dispatch = {
+          ...task.dispatch,
+          last_result: 'completed',
+          last_error: null,
+        };
         changed = true;
       }
     }
@@ -1347,6 +1362,121 @@ async function sendNotification(message) {
   });
 }
 
+function isSessionDead(task, nowMs) {
+  // Check if the session is dead: last_result is running/launching but heartbeat is stale
+  const dispatch = task.dispatch && typeof task.dispatch === 'object' ? task.dispatch : null;
+  if (!dispatch) {
+    return false;
+  }
+
+  const lastResult = dispatch.last_result;
+  if (lastResult !== 'running' && lastResult !== 'launching') {
+    return false;
+  }
+
+  if (!task.claimed_by || !ACTIVE_STATUSES.has(task.status)) {
+    return false;
+  }
+
+  const heartbeatIso = taskHeartbeatIso(task);
+  const heartbeatMs = heartbeatIso ? Date.parse(heartbeatIso) : Number.NaN;
+  if (!Number.isFinite(heartbeatMs)) {
+    return true;
+  }
+
+  return nowMs - heartbeatMs > DEFAULT_STALE_CLAIM_MINUTES * 60_000;
+}
+
+function hasCompletedWork(task) {
+  // Check if the task has evidence of completed work
+  const handoffNotes = String(task.handoff_notes || '').trim();
+  const commits = Array.isArray(task.commits) ? task.commits : [];
+  const commitRefs = Array.isArray(task.commit_refs) ? task.commit_refs : [];
+  
+  // Consider work complete if handoff_notes is non-empty AND there are commits
+  return handoffNotes.length > 0 && (commits.length > 0 || commitRefs.length > 0);
+}
+
+async function recoverDeadSession(entry, nowIso) {
+  const { task, filePath } = entry;
+  const previousClaim = task.claimed_by;
+  const heartbeatIso = taskHeartbeatIso(task);
+  
+  // Determine recovery action based on task state
+  const completedWork = hasCompletedWork(task);
+  const recoveryStatus = completedWork ? 'done' : 'failed';
+  const recoveryReason = completedWork
+    ? `Dead session recovered: work appears complete (handoff_notes + commits present). Previous claim: ${previousClaim || 'unknown'}; last heartbeat: ${heartbeatIso || 'missing'}.`
+    : `Dead session detected: no completion evidence found. Previous claim: ${previousClaim || 'unknown'}; last heartbeat: ${heartbeatIso || 'missing'}.`;
+
+  // Update task state
+  const previousStatus = task.status;
+  task.status = recoveryStatus;
+  task.claimed_by = null;
+  task.failure_reason = completedWork ? null : recoveryReason;
+  task.blocked_by = completedWork ? [] : ['runtime:dead-session'];
+  task.last_heartbeat = nowIso;
+  task.timestamps.updated_at = nowIso;
+  task.timestamps.claimed_at = null;
+  
+  if (recoveryStatus === 'done' && !task.timestamps.completed_at) {
+    task.timestamps.completed_at = nowIso;
+  }
+
+  // Update dispatch state
+  if (task.dispatch && typeof task.dispatch === 'object') {
+    task.dispatch = {
+      ...task.dispatch,
+      last_result: completedWork ? 'completed' : 'failed',
+      last_error: completedWork ? null : recoveryReason,
+      last_checked_at: nowIso,
+    };
+  }
+
+  // Write the updated task
+  await writeJson(filePath, task);
+
+  // Create alert entry
+  const alert = {
+    ts: nowIso,
+    task_id: task.task_id,
+    event: 'dead_session_recovered',
+    previous_status: previousStatus,
+    recovery_status: recoveryStatus,
+    previous_claim: previousClaim,
+    last_heartbeat: heartbeatIso,
+    reason: recoveryReason,
+    work_evidence: {
+      handoff_notes_present: String(task.handoff_notes || '').trim().length > 0,
+      commits_count: (Array.isArray(task.commits) ? task.commits : []).length,
+      commit_refs_count: (Array.isArray(task.commit_refs) ? task.commit_refs : []).length,
+    },
+  };
+
+  await appendAlert(alert);
+
+  // Log the recovery
+  await appendLog({
+    ts: nowIso,
+    task_id: task.task_id,
+    action: 'dead_session_recovered',
+    previous_status: previousStatus,
+    recovery_status: recoveryStatus,
+    previous_claim: previousClaim,
+    last_heartbeat: heartbeatIso,
+    reason: recoveryReason,
+  });
+
+  // Send notification
+  const message = completedWork
+    ? `[dispatcher] recovered ${task.task_id}: dead session auto-completed (work evidence found)`
+    : `[dispatcher] recovered ${task.task_id}: dead session marked failed (no work evidence)`;
+  
+  await notifyAndRecord(task, 'dead_session_recovered', message);
+
+  return { recoveryStatus, completedWork };
+}
+
 function taskHeartbeatIso(task) {
   return task.last_heartbeat
     || task.timestamps?.claimed_at
@@ -1521,11 +1651,18 @@ function buildDispatchState(task, executor, result, attempt, dispatchMode, nowIs
 }
 
 async function inspectActiveHookClaims(loadedTasks, nowIso) {
+  const nowMs = Date.now();
   for (const entry of loadedTasks) {
     const { task, filePath } = entry;
     const dispatch = task.dispatch && typeof task.dispatch === 'object' ? task.dispatch : null;
 
     if (!task.claimed_by || !ACTIVE_STATUSES.has(task.status)) {
+      continue;
+    }
+
+    // Check for dead sessions first (stale heartbeat while running/launching)
+    if (isSessionDead(task, nowMs)) {
+      await recoverDeadSession(entry, nowIso);
       continue;
     }
 
