@@ -40,3 +40,9 @@ nohup.out
 # Podcasts - too large for Git
 projects/digital-research/data/podcasts/
 *.mp3
+
+# MigrateToClaw workspace (1.5 GB, managed separately)
+MigrateToClaw/
+
+# Memory runtime state (ephemeral recall events and working memory, not session logs)
+memory/.dreams/
