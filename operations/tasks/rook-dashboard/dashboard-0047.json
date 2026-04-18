@@ -9,24 +9,32 @@
     "refined_at": "2026-04-11T10:00:00.000Z",
     "refinement_summary": "Found during dashboard-0043 post-mortem: branch committed locally but never pushed."
   },
-  "status": "ready",
+  "status": "done",
   "assigned_agent": "engineer",
   "claimed_by": null,
   "priority": "high",
-  "dependencies": ["dashboard-0046"],
+  "dependencies": [
+    "dashboard-0046"
+  ],
   "blocked_by": [],
   "related_repo": "MarcusGraetsch/rook-dashboard",
   "branch": "agent/engineer/dashboard-0047-auto-push-pr-after-commit",
   "commits": [],
   "commit_refs": [],
-  "labels": ["dispatcher", "github", "reliability"],
-  "workflow_stage": "ready",
+  "labels": [
+    "dispatcher",
+    "github",
+    "reliability"
+  ],
+  "workflow_stage": "completed",
   "blocked_reason": null,
-  "handoff_notes": "",
+  "handoff_notes": "Auto-push and PR creation implemented in task-dispatcher.mjs.\n\n## What changed\n- Added `runGh()` helper (analogous to `runGit()`) to invoke `gh` CLI with proper cwd handling\n- Changed `gh pr create` invocations in `maybePushAndCreatePR()` from `runGit(repoPath, ['pr', 'create', ...])` to `runGh(repoPath, ['pr', 'create', '--base', 'main', ...])` \u2014 this was the core bug: `git pr create` is not a valid command, `gh` must be called directly\n- `runGh()` runs `gh` with `cwd=repoPath` (no `-C` flag since gh operates relative to cwd like git)\n\n## Root cause\nThe original code called `git pr create` via `runGit()` \u2014 git has no `pr` alias/subcommand, so `runGit` returned code 1 with \"git: 'pr' is not a git command\". The error was silently swallowed (non-blocking), so push succeeded but PR creation always silently failed.\n\n## Validation\n- Build: `npm run build` in rook-dashboard repo \u2192 exit code 0\n- Push: `git push --force-with-lease -u origin agent/engineer/dashboard-0047-auto-push-pr-after-commit` \u2192 new branch pushed\n- PR: `gh pr create --title \"...\" --body \"...\" --head agent/engineer/dashboard-0047-auto-push-pr-after-commit --base main` \u2192 https://github.com/MarcusGraetsch/rook-dashboard/pull/13\n- PR metadata written back to canonical dashboard-0047.json (number=13, state=open)",
   "last_heartbeat": null,
   "failure_reason": null,
   "source_channel": "system:control",
-  "artifacts": [],
+  "artifacts": [
+    "https://github.com/MarcusGraetsch/rook-dashboard/pull/13"
+  ],
   "plan": {
     "approach": "Add a post-commit push+PR step to the agent completion path.",
     "scope": [
@@ -36,31 +44,88 @@
       "Write PR number/url back to canonical github_pull_request",
       "Non-blocking: failures go to last_error only"
     ],
-    "out_of_scope": ["Changing the git commit format", "PR review automation"],
+    "out_of_scope": [
+      "Changing the git commit format",
+      "PR review automation"
+    ],
     "steps": [
-      { "id": "1", "title": "Locate completion write path in dispatcher / task-orchestrator skill", "owner": "engineer", "completed": false },
-      { "id": "2", "title": "Add git push step after commits present", "owner": "engineer", "completed": false },
-      { "id": "3", "title": "Add gh pr create step with task title + handoff_notes body", "owner": "engineer", "completed": false },
-      { "id": "4", "title": "Write PR metadata back to canonical task file", "owner": "engineer", "completed": false },
-      { "id": "5", "title": "Handle auth/push failures gracefully (last_error, non-blocking)", "owner": "engineer", "completed": false },
-      { "id": "6", "title": "Validate with build + manual test", "owner": "engineer", "completed": false }
+      {
+        "id": "1",
+        "title": "Locate completion write path in dispatcher / task-orchestrator skill",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "2",
+        "title": "Add git push step after commits present",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "3",
+        "title": "Add gh pr create step with task title + handoff_notes body",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "4",
+        "title": "Write PR metadata back to canonical task file",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "5",
+        "title": "Handle auth/push failures gracefully (last_error, non-blocking)",
+        "owner": "engineer",
+        "completed": false
+      },
+      {
+        "id": "6",
+        "title": "Validate with build + manual test",
+        "owner": "engineer",
+        "completed": false
+      }
     ],
     "acceptance_criteria": [],
     "risks": [
-      "gh CLI auth must be available in agent workspace — verify GITHUB_TOKEN is set in .env.d",
-      "Force-pushing to existing branches may overwrite in-flight review work — use --force-with-lease"
+      "gh CLI auth must be available in agent workspace \u2014 verify GITHUB_TOKEN is set in .env.d",
+      "Force-pushing to existing branches may overwrite in-flight review work \u2014 use --force-with-lease"
     ],
     "context": "Dispatcher at /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs. Task-orchestrator skill at /root/.openclaw/rook-agent/skills/task-orchestrator/. Branch pattern: agent/<agent>/<task-id>-<slug>",
     "planned_by": "manual",
     "planned_at": "2026-04-11T10:00:00.000Z"
   },
   "checklist": [
-    { "title": "Locate completion write path", "completed": false, "position": 0 },
-    { "title": "git push after commits present", "completed": false, "position": 1 },
-    { "title": "gh pr create with title + handoff body", "completed": false, "position": 2 },
-    { "title": "Write PR metadata to canonical", "completed": false, "position": 3 },
-    { "title": "Graceful failure handling", "completed": false, "position": 4 },
-    { "title": "Build passes", "completed": false, "position": 5 }
+    {
+      "title": "Locate completion write path",
+      "completed": true,
+      "position": 0
+    },
+    {
+      "title": "git push after commits present",
+      "completed": true,
+      "position": 1
+    },
+    {
+      "title": "gh pr create with title + handoff body",
+      "completed": true,
+      "position": 2
+    },
+    {
+      "title": "Write PR metadata to canonical",
+      "completed": true,
+      "position": 3
+    },
+    {
+      "title": "Graceful failure handling",
+      "completed": true,
+      "position": 4
+    },
+    {
+      "title": "Build passes",
+      "completed": true,
+      "position": 5
+    }
   ],
   "kanban": null,
   "github_issue": {
@@ -76,7 +141,16 @@
     "created_at": "2026-04-11T10:00:00.000Z",
     "updated_at": "2026-04-11T10:00:00.000Z",
     "started_at": null,
-    "completed_at": null,
+    "completed_at": "2026-04-18T20:20:00.000Z",
     "claimed_at": null
+  },
+  "github_pull_request": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 13,
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/pull/13",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-04-18T20:14:00.000Z",
+    "last_error": null
   }
 }
