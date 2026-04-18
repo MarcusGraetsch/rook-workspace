@@ -4,7 +4,7 @@
   "title": "Replace prompt heartbeats with structured health snapshots",
   "description": "Define and implement one machine-readable health file per agent, replacing the current heartbeat pattern of scheduled natural-language prompts against dashboard endpoints.",
   "status": "ready",
-  "assigned_agent": "rook",
+  "assigned_agent": "engineer",
   "priority": "urgent",
   "dependencies": [
     "dashboard-0042"
