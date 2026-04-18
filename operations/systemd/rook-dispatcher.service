@@ -14,7 +14,7 @@ Environment=ROOK_DISPATCH_RETRY_DELAY_MS=5000
 Environment=ROOK_NOTIFY_MAX_ATTEMPTS=3
 Environment=ROOK_NOTIFY_RETRY_DELAY_MS=3000
 Environment=ROOK_DISPATCH_MODE=hook
-Environment=ROOK_HOOK_MODEL=minimax-portal/MiniMax-M2.5
+Environment=ROOK_HOOK_MODEL=minimax-portal/MiniMax-M2.7
 Environment=ROOK_HOOK_THINKING=low
 TimeoutStartSec=240
 KillMode=control-group

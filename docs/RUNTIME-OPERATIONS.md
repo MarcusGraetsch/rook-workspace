@@ -153,8 +153,8 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - The dispatcher and runtime smoke checker now load those env files explicitly before spawning `openclaw agent --local`.
 - Specialist sandboxes should reuse the checked-out VPS repos through `/root/.openclaw/workspace-*/workspace/repos/*` links instead of trying to clone GitHub repos on demand.
 - Dispatcher handoffs should use hook mode against the local OpenClaw gateway. That path supports explicit isolated `sessionKey` values and avoids reusing poisoned `agent:<id>:main` sessions.
-- Dispatcher-launched workers should prefer `minimax-portal/MiniMax-M2.5` unless there is a verified reason to override it. The `kimi-coding/k2p5` path has shown mid-task aborts and malformed tool-call behavior during longer tool-heavy runs.
-- The live OpenClaw contract should keep `agents.defaults.timeoutSeconds` at `180` and the core worker agents (`engineer`, `researcher`, `test`, `review`) on `minimax-portal/MiniMax-M2.5`.
+- Dispatcher-launched workers should prefer `minimax-portal/MiniMax-M2.7` unless there is a verified reason to override it. The `kimi-coding/k2p5` path has shown mid-task aborts and malformed tool-call behavior during longer tool-heavy runs.
+- The live OpenClaw contract should keep `agents.defaults.timeoutSeconds` at `180` and the core worker agents (`engineer`, `researcher`, `test`, `review`) on `minimax/MiniMax-M2.7`, with the dispatcher user unit aligned to `minimax-portal/MiniMax-M2.7`.
 - Hook dispatch success means the isolated worker session actually starts and produces assistant activity. Full task completion still belongs to the worker/task lifecycle, not the dispatcher launch step.
 - Dispatcher claims now store explicit hook metadata in the canonical task file under `dispatch`. That metadata is also used to detect worker aborts from the transcript before the old stale-claim timeout expires.
 - Runtime smoke checks should use isolated hook sessions, not persistent `agent:<id>:main` sessions. Persistent-session smoke results are weaker and can be poisoned by unrelated session history.

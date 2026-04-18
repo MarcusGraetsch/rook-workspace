@@ -83,7 +83,7 @@ Important runtime properties:
 
 - isolated hook sessions are required
 - persistent `agent:<id>:main` sessions are not safe for bounded worker dispatch
-- hook workers currently prefer `minimax-portal/MiniMax-M2.5`
+- hook workers currently prefer `minimax-portal/MiniMax-M2.7`
 - live `openclaw.json` keeps `agents.defaults.timeoutSeconds = 180`
 
 That means a worker launch is considered healthy only when:

@@ -382,7 +382,7 @@ The live contract depends on:
 - explicit request session keys allowed
 - `hook:` session key prefix allowed
 - `agents.defaults.timeoutSeconds >= 180`
-- `minimax-portal/MiniMax-M2.5` as the stable default worker model
+- `minimax-portal/MiniMax-M2.7` as the stable default worker model
 
 ### Why Isolated Hook Sessions Matter
 
