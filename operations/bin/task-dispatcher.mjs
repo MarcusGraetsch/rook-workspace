@@ -116,6 +116,20 @@ function shouldPreferCanonicalControlState(baseTask, runtimeState) {
   const normalizedBaseStatus = normalizeTaskStatus(baseTask.status);
   const normalizedRuntimeStatus = normalizeTaskStatus(runtimeState.status);
 
+  // If the operator has manually set the canonical task to ready while the runtime
+  // is blocked and no agent holds a live claim, treat this as an explicit re-queue.
+  // Covers two cases:
+  //   1. Dispatcher wrote runtime=blocked for a dependency that is now resolved.
+  //   2. Human-driven unblock: operator edits canonical to ready after an agent failure.
+  // We do NOT apply this when claimed_by is set, as that signals active work in progress.
+  if (
+    normalizedRuntimeStatus === 'blocked'
+    && READY_STATUSES.has(normalizedBaseStatus)
+    && !runtimeState.claimed_by
+  ) {
+    return true;
+  }
+
   // Never override a definitive blocked or terminal runtime state with canonical.
   // This prevents the dispatcher from infinitely re-dispatching a task that
   // failed and was written as blocked in the runtime state.
@@ -709,6 +723,162 @@ async function collectTaskGitEvidence(task, executor) {
   }
 
   return evidence;
+}
+
+/**
+ * Pushes the agent's branch to origin and creates a PR if needed.
+ * Called after agent completion when commits are present.
+ * Non-blocking: failures are logged to github_pull_request.last_error but don't prevent advancement.
+ * Scope: engineer and review agents only (researcher/coach don't commit code).
+ *
+ * @param {object} task - The task object (modified in place)
+ * @param {string} executor - The agent executor (engineer|review|etc.)
+ * @returns {{ pushed: boolean, prCreated: boolean, error: string|null }}
+ */
+async function maybePushAndCreatePR(task, executor) {
+  const result = { pushed: false, prCreated: false, error: null };
+
+  // Scope restriction: only engineer and review agents push
+  const CODE_AGENTS = new Set(['engineer', 'review']);
+  if (!CODE_AGENTS.has(executor)) {
+    return result;
+  }
+
+  // Must be a code task with a branch
+  if (!task.related_repo || !task.branch) {
+    return result;
+  }
+
+  // Must have commits to push
+  const commits = Array.isArray(task.commits) ? task.commits : [];
+  const commitRefs = Array.isArray(task.commit_refs) ? task.commit_refs : [];
+  if (commits.length === 0 && commitRefs.length === 0) {
+    return result;
+  }
+
+  // Don't push if PR already exists and is merged
+  if (task.github_pull_request?.state === 'merged') {
+    return result;
+  }
+
+  const repoPath = await ensureSpecialistRepoView(task, executor);
+
+  // Check current branch matches expected
+  const branchResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  if (branchResult.code !== 0) {
+    result.error = `Failed to determine current branch: ${branchResult.stderr}`;
+    return result;
+  }
+
+  const currentBranch = branchResult.stdout?.trim();
+  if (currentBranch !== task.branch) {
+    result.error = `Repo on branch ${currentBranch}, expected ${task.branch}. Skipping push.`;
+    return result;
+  }
+
+  // Check upstream status and ahead count
+  const upstreamResult = await runGit(repoPath, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}']);
+  const hasUpstream = upstreamResult.code === 0 && upstreamResult.stdout?.trim();
+  let aheadCount = 0;
+
+  if (hasUpstream) {
+    const aheadBehindResult = await runGit(repoPath, ['rev-list', '--left-right', '--count', '@{upstream}...HEAD']);
+    if (aheadBehindResult.code === 0 && aheadBehindResult.stdout) {
+      const parts = aheadBehindResult.stdout.split(/\s+/);
+      aheadCount = Number(parts[1] || '0'); // [behind, ahead] - we care about ahead
+    }
+  }
+
+  // Initialize github_pull_request if not present
+  if (!task.github_pull_request) {
+    task.github_pull_request = {
+      repo: task.related_repo,
+      number: null,
+      url: null,
+      state: null,
+      sync_status: 'not_requested',
+      last_synced_at: null,
+      last_error: null,
+    };
+  }
+
+  // Push if no upstream or ahead of upstream
+  if (!hasUpstream || aheadCount > 0) {
+    // Use --force-with-lease for safety: only push if remote hasn't changed
+    const pushArgs = ['push', '--force-with-lease', '-u', 'origin', task.branch];
+    const pushResult = await runGit(repoPath, pushArgs);
+
+    if (pushResult.code !== 0) {
+      result.error = `git push failed: ${pushResult.stderr}`;
+      task.github_pull_request.last_error = result.error;
+      // Non-blocking: log error but don't block task completion
+      return result;
+    }
+
+    result.pushed = true;
+  }
+
+  // Create PR if one doesn't exist yet
+  if (!task.github_pull_request?.number) {
+    const prTitle = task.title || `Agent work: ${task.task_id}`;
+    const prBody = task.handoff_notes || `Work completed for ${task.task_id}.`;
+
+    // gh pr create --title "$title" --body "$body" --head "$branch" --base main
+    const prResult = await runGit(repoPath, [
+      'pr', 'create',
+      '--title', prTitle,
+      '--body', prBody,
+      '--head', task.branch,
+    ]);
+
+    if (prResult.code !== 0) {
+      // Check if PR already exists (case where it was created in a prior run)
+      const existingPrCheck = await runGit(repoPath, [
+        'pr', 'list',
+        '--head', task.branch,
+        '--json', 'number,title,url,state',
+        '--jq', '.[0]',
+      ]);
+
+      if (existingPrCheck.code === 0 && existingPrCheck.stdout) {
+        try {
+          const existingPr = JSON.parse(existingPrCheck.stdout);
+          if (existingPr?.number) {
+            task.github_pull_request.number = existingPr.number;
+            task.github_pull_request.url = existingPr.url;
+            task.github_pull_request.state = existingPr.state?.toLowerCase() || 'open';
+            task.github_pull_request.sync_status = 'synced';
+            task.github_pull_request.last_synced_at = new Date().toISOString();
+            result.prCreated = true;
+            return result;
+          }
+        } catch {
+          // JSON parse failed, fall through to error
+        }
+      }
+
+      result.error = `gh pr create failed: ${prResult.stderr}`;
+      task.github_pull_request.last_error = result.error;
+      return result;
+    }
+
+    // Parse PR URL/number from output
+    const prOutput = prResult.stdout?.trim() || '';
+    const prUrlMatch = prOutput.match(/https?:\/\/github\.com\/[^\/]+\/[^\/]+\/pull\/\d+/);
+    const prUrl = prUrlMatch ? prUrlMatch[0] : prOutput;
+    const prNumberMatch = prUrl.match(/\/pull\/(\d+)/);
+    const prNumber = prNumberMatch ? parseInt(prNumberMatch[1], 10) : null;
+
+    task.github_pull_request.number = prNumber;
+    task.github_pull_request.url = prUrl;
+    task.github_pull_request.state = 'open';
+    task.github_pull_request.sync_status = 'synced';
+    task.github_pull_request.last_synced_at = new Date().toISOString();
+    task.github_pull_request.last_error = null;
+    result.prCreated = true;
+  }
+
+  return result;
 }
 
 async function validateStageCompletion(task, executor, launchedStatus) {
@@ -1785,6 +1955,22 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
 
     const evaluation = evaluateHookTranscriptState(state);
     if (evaluation.done && evaluation.ok && evaluation.stopReason === 'stop') {
+      // Push branch and create PR before validation (non-blocking)
+      // This ensures upstream tracking is set before validateStageCompletion checks it
+      const pushResult = await maybePushAndCreatePR(task, executor);
+      if (pushResult.error) {
+        // Log the error but don't block - push failures are non-blocking
+        await appendLog({
+          ts: nowIso,
+          task_id: task.task_id,
+          action: 'push_pr_non_blocking_error',
+          executor,
+          pushed: pushResult.pushed,
+          prCreated: pushResult.prCreated,
+          error: pushResult.error,
+        });
+      }
+
       const completionCheck = await validateStageCompletion(
         task,
         executor,
