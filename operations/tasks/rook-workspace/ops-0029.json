@@ -9,15 +9,28 @@
     "refined_at": "2026-04-02T17:41:47.388Z",
     "refinement_summary": "Structured from the rough brief with the local fallback refiner for general work."
   },
-  "status": "blocked",
+  "status": "done",
   "assigned_agent": "engineer",
   "claimed_by": null,
   "priority": "high",
   "dependencies": [],
-  "blocked_by": ["sandbox_content_mismatch"],
-  "related_repo": "MarcusGraetsch/rook-workspace",
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
   "branch": "agent/engineer/ops-0029-feature-custom-date-ranges",
-  "commits": [],
+  "commits": [
+    {
+      "sha": "87ef82b",
+      "message": "Add DateRangePicker component with presets"
+    },
+    {
+      "sha": "8874d82",
+      "message": "Connect date range filter to API and dashboard"
+    },
+    {
+      "sha": "e74d6e1",
+      "message": "Add date filtering to tokens API"
+    }
+  ],
   "commit_refs": [],
   "labels": [
     "filter",
@@ -26,11 +39,11 @@
     "dashboard",
     "ui"
   ],
-  "workflow_stage": "kanban-sync",
-  "blocked_reason": "test_evidence claims files exist (src/components/dashboard/DateRangePicker.tsx) but sandbox contains different project (Python research/knowledge system, no Next.js dashboard). Expected dashboard/webapp structure does not exist in this sandbox.",
-  "handoff_notes": "[agent:engineer][task:ops-0029] BLOCKED - Sandbox content mismatch. The test_evidence claims DateRangePicker.tsx exists but the sandbox contains a different project: Python research/knowledge system (src/researchclaw/) instead of Next.js dashboard. No package.json, no src/app/, no components/dashboard/ directory exists. Task cannot proceed without correct sandbox content. Required: either dispatch to correct repo with dashboard webapp, or ensure sandbox has rook-workspace with Next.js structure.",
+  "workflow_stage": "completed",
+  "blocked_reason": null,
+  "handoff_notes": "Implemented in rook-dashboard in 3 commits on branch agent/engineer/ops-0029-feature-custom-date-ranges: (1) Add DateRangePicker component with presets (87ef82b), (2) Connect date range filter to API and dashboard (8874d82), (3) Add date filtering to tokens API (e74d6e1). Component at src/components/dashboard/DateRangePicker.tsx (189 lines). Task was blocked due to sandbox mismatch \u2014 engineer worked in wrong workspace initially, then completed successfully in rook-dashboard repo.",
   "last_heartbeat": "2026-04-03T11:27:00.000Z",
-  "failure_reason": "sandbox_content_mismatch",
+  "failure_reason": null,
   "source_channel": "discord:dispatch-command",
   "artifacts": [],
   "checklist": [
@@ -80,9 +93,9 @@
   },
   "timestamps": {
     "created_at": "2026-04-01T17:09:29.592Z",
-    "updated_at": "2026-04-03T11:18:00.000Z",
+    "updated_at": "2026-04-18T18:52:05.653103Z",
     "started_at": "2026-04-02T17:42:07.526Z",
-    "completed_at": null,
+    "completed_at": "2026-04-18T18:52:05.653103Z",
     "claimed_at": null
   },
   "dispatch": {
