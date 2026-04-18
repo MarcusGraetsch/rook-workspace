@@ -13,6 +13,7 @@ const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
 const TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'tasks');
+const CANONICAL_ARCHIVE_TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'archive', 'tasks');
 const RUNTIME_TASK_STATE_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'task-state');
 const RUNTIME_ARCHIVE_TASKS_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'tasks');
 const WORKSPACE_MAIN_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace-main', 'operations', 'tasks');
@@ -147,10 +148,10 @@ async function findBackupMatches(relativePath) {
   return matches.sort();
 }
 
-function classifyRuntimeOnlyFinding({ runtimeArchiveExists, workspaceMainExists, backupMatches }) {
+function classifyRuntimeOnlyFinding({ canonicalArchiveExists, runtimeArchiveExists, workspaceMainExists, backupMatches }) {
   const hasBackupMatches = Array.isArray(backupMatches) && backupMatches.length > 0;
 
-  if (runtimeArchiveExists) {
+  if (canonicalArchiveExists || runtimeArchiveExists) {
     return {
       classification: 'stale_runtime_overlay_for_archived_task',
       recommended_action: 'prune_runtime_overlay',
@@ -609,8 +610,10 @@ async function main() {
       }
       const relativePath = path.join(projectId, taskFile);
       const runtimeArchivePath = path.join(RUNTIME_ARCHIVE_TASKS_DIR, relativePath);
+      const canonicalArchivePath = path.join(CANONICAL_ARCHIVE_TASKS_DIR, relativePath);
       const workspaceMainPath = path.join(WORKSPACE_MAIN_TASKS_DIR, relativePath);
       const backupMatches = await findBackupMatches(path.join('operations', 'tasks', relativePath));
+      const canonicalArchiveExists = await pathExists(canonicalArchivePath);
       const runtimeArchiveExists = await pathExists(runtimeArchivePath);
       const workspaceMainExists = await pathExists(workspaceMainPath);
       findings.push({
@@ -621,10 +624,12 @@ async function main() {
         project_id: projectId,
         task_file: taskFile,
         runtime_path: path.join(RUNTIME_TASK_STATE_DIR, relativePath),
+        canonical_archive_exists: canonicalArchiveExists,
         runtime_archive_exists: runtimeArchiveExists,
         workspace_main_exists: workspaceMainExists,
         backup_matches: backupMatches,
         ...classifyRuntimeOnlyFinding({
+          canonicalArchiveExists,
           runtimeArchiveExists,
           workspaceMainExists,
           backupMatches,

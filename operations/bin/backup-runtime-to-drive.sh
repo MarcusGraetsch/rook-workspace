@@ -42,7 +42,7 @@ fi
 echo "[2/5] Archiving canonical task state..."
 tar czf "$RUN_DIR/operations/tasks.tar.gz" \
   -C "$WORKSPACE_ROOT/operations" \
-  tasks projects/projects.json
+  tasks archive/tasks projects/projects.json
 echo "    Created operations/tasks.tar.gz"
 
 echo "[3/5] Archiving runtime health and dispatcher state..."

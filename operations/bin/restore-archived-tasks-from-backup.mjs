@@ -6,11 +6,7 @@ import path from 'path';
 const OPENCLAW_DIR = '/root/.openclaw';
 const CANONICAL_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace', 'operations', 'tasks');
 const CANONICAL_ARCHIVE_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace', 'operations', 'archive', 'tasks');
-const RUNTIME_OPERATIONS_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations');
-const RUNTIME_TASK_STATE_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'task-state');
-const RUNTIME_ARCHIVE_TASKS_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'archive', 'tasks');
-const RUNTIME_ARCHIVE_OVERLAYS_DIR = path.join(RUNTIME_OPERATIONS_DIR, 'archive', 'runtime-task-state');
-const WORKSPACE_MAIN_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace-main', 'operations', 'tasks');
+const RUNTIME_TASK_STATE_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'task-state');
 const BACKUP_GLOB_ROOT = path.join(OPENCLAW_DIR, 'backup');
 
 function parseArgs(argv) {
@@ -55,6 +51,15 @@ async function collectJsonFiles(dirPath) {
   return files;
 }
 
+async function readJson(filePath) {
+  return JSON.parse(await fs.readFile(filePath, 'utf8'));
+}
+
+async function writeJson(filePath, data) {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
+}
+
 async function findBackupMatches(relativePath) {
   const matches = [];
 
@@ -79,34 +84,13 @@ async function findBackupMatches(relativePath) {
   return matches.sort();
 }
 
-function classifyRuntimeOnlyFinding({ canonicalArchiveExists, runtimeArchiveExists, workspaceMainExists, backupMatches }) {
-  const hasBackupMatches = Array.isArray(backupMatches) && backupMatches.length > 0;
-
-  if (canonicalArchiveExists || runtimeArchiveExists) {
-    return {
-      classification: 'stale_runtime_overlay_for_archived_task',
-      recommended_action: 'prune_runtime_overlay',
-    };
-  }
-
-  if (workspaceMainExists) {
-    return {
-      classification: 'runtime_overlay_with_workspace_main_evidence',
-      recommended_action: 'compare_against_workspace_main',
-    };
-  }
-
-  if (hasBackupMatches) {
-    return {
-      classification: 'backup_only_task_evidence',
-      recommended_action: 'review_for_restore_or_archive',
-    };
-  }
-
-  return {
-    classification: 'orphan_runtime_overlay',
-    recommended_action: 'manual_investigation',
-  };
+function isRestorableArchivedTask(task) {
+  return (
+    task
+    && typeof task.task_id === 'string'
+    && typeof task.project_id === 'string'
+    && task.status === 'done'
+  );
 }
 
 async function main() {
@@ -129,55 +113,49 @@ async function main() {
 
     const canonicalPath = path.join(CANONICAL_TASKS_DIR, relativePath);
     const canonicalArchivePath = path.join(CANONICAL_ARCHIVE_TASKS_DIR, relativePath);
-    if (await pathExists(canonicalPath)) {
+    if (await pathExists(canonicalPath) || await pathExists(canonicalArchivePath)) {
       continue;
     }
 
-    const runtimeArchivePath = path.join(RUNTIME_ARCHIVE_TASKS_DIR, relativePath);
-    const workspaceMainPath = path.join(WORKSPACE_MAIN_TASKS_DIR, relativePath);
     const backupMatches = await findBackupMatches(path.join('operations', 'tasks', relativePath));
-    const canonicalArchiveExists = await pathExists(canonicalArchivePath);
-    const runtimeArchiveExists = await pathExists(runtimeArchivePath);
-    const workspaceMainExists = await pathExists(workspaceMainPath);
-    const classification = classifyRuntimeOnlyFinding({
-      canonicalArchiveExists,
-      runtimeArchiveExists,
-      workspaceMainExists,
-      backupMatches,
-    });
-
-    if (classification.classification !== 'stale_runtime_overlay_for_archived_task') {
+    if (backupMatches.length === 0) {
       continue;
     }
 
-    const archiveOverlayPath = path.join(RUNTIME_ARCHIVE_OVERLAYS_DIR, relativePath);
+    const backupPath = backupMatches[backupMatches.length - 1];
+    const backupTask = await readJson(backupPath);
+    if (!isRestorableArchivedTask(backupTask)) {
+      actions.push({
+        action: 'skip_backup_restore',
+        reason: 'backup_task_not_restorable_done_task',
+        project_id: projectId,
+        task_id: taskId,
+        runtime_path: runtimePath,
+        backup_path: backupPath,
+      });
+      continue;
+    }
+
     actions.push({
-      action: 'archive_runtime_overlay',
+      action: 'restore_archived_task_from_backup',
       project_id: projectId,
       task_id: taskId,
       runtime_path: runtimePath,
+      backup_path: backupPath,
       canonical_archive_path: canonicalArchivePath,
-      archive_overlay_path: archiveOverlayPath,
-      canonical_archive_exists: canonicalArchiveExists,
-      runtime_archive_exists: runtimeArchiveExists,
-      workspace_main_exists: workspaceMainExists,
-      backup_matches: backupMatches,
-      ...classification,
+      status: backupTask.status,
+      related_repo: backupTask.related_repo || null,
     });
-  }
 
-  if (options.apply) {
-    for (const action of actions) {
-      await fs.mkdir(path.dirname(action.archive_overlay_path), { recursive: true });
-      await fs.rename(action.runtime_path, action.archive_overlay_path);
+    if (options.apply) {
+      await writeJson(canonicalArchivePath, backupTask);
     }
   }
 
   const summary = {
     checked_at: new Date().toISOString(),
     apply: options.apply,
-    runtime_task_state_dir: RUNTIME_TASK_STATE_DIR,
-    runtime_archive_overlays_dir: RUNTIME_ARCHIVE_OVERLAYS_DIR,
+    canonical_archive_tasks_dir: CANONICAL_ARCHIVE_TASKS_DIR,
     action_count: actions.length,
     actions,
   };
