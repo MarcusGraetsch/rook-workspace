@@ -130,6 +130,13 @@ function shouldPreferCanonicalControlState(baseTask, runtimeState) {
     return true;
   }
 
+  // Canonical terminal status (done) always wins over any runtime state.
+  // This ensures tasks marked done in canonical are cleaned up in runtime
+  // regardless of whether the runtime says blocked, in_progress, etc.
+  if (TERMINAL_STATUSES.has(normalizedBaseStatus)) {
+    return true;
+  }
+
   // Never override a definitive blocked or terminal runtime state with canonical.
   // This prevents the dispatcher from infinitely re-dispatching a task that
   // failed and was written as blocked in the runtime state.
