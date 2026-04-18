@@ -87,6 +87,7 @@ node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --dry-run --li
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 node /root/.openclaw/workspace/operations/bin/check-runtime-control-plane.mjs
+node /root/.openclaw/workspace/operations/bin/archive-stale-agent-dir.mjs --agent main
 
 # Manual runtime backup test
 /root/.openclaw/workspace/operations/bin/backup-runtime-to-drive.sh
@@ -164,3 +165,4 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - Discord notification is best-effort only. If `openclaw message send` or upstream network fetch fails, the canonical task should still land in `blocked` with a durable dispatcher alert record.
 - Keep `rook-dispatcher.timer` disabled until the hook-based smoke test above succeeds on the live gateway and the target specialist workspace can reach the repo/task files it was assigned to handle.
 - `check-runtime-control-plane.mjs` is the fastest aggregated operator check when you want one report for contract drift, stale agent dirs, runtime-only task state, task-agent binding issues, and repo-vs-installed user unit drift.
+- `archive-stale-agent-dir.mjs` should be used in dry-run mode before touching unbound agent directories like `agents/main`. Only use `--apply` after the dry-run shows no active workspace blockers and you want to move the full agent directory into `/root/.openclaw/runtime/archive/stale-agents/`.
