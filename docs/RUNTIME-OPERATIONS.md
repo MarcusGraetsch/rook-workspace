@@ -86,6 +86,7 @@ node /root/.openclaw/workspace/operations/bin/task-dispatcher.mjs --dry-run --li
 # Runtime smoke checks
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
+node /root/.openclaw/workspace/operations/bin/check-runtime-control-plane.mjs
 
 # Manual runtime backup test
 /root/.openclaw/workspace/operations/bin/backup-runtime-to-drive.sh
@@ -162,3 +163,4 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - Ready-stage bootstrap tasks for `test` and `review` should also execute through `engineer` when the ticket is about setting up the specialist itself.
 - Discord notification is best-effort only. If `openclaw message send` or upstream network fetch fails, the canonical task should still land in `blocked` with a durable dispatcher alert record.
 - Keep `rook-dispatcher.timer` disabled until the hook-based smoke test above succeeds on the live gateway and the target specialist workspace can reach the repo/task files it was assigned to handle.
+- `check-runtime-control-plane.mjs` is the fastest aggregated operator check when you want one report for contract drift, stale agent dirs, runtime-only task state, task-agent binding issues, and repo-vs-installed user unit drift.

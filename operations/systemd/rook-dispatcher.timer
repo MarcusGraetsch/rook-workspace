@@ -1,9 +1,9 @@
 [Unit]
-Description=Dispatch ready canonical tasks every 5 minutes
+Description=Dispatch ready canonical tasks every 15 seconds
 
 [Timer]
-OnBootSec=3min
-OnUnitActiveSec=5min
+OnBootSec=15s
+OnUnitActiveSec=15s
 Unit=rook-dispatcher.service
 
 [Install]

@@ -30,6 +30,7 @@ systemctl --user status rook-dashboard.service --no-pager
 systemctl --user status rook-dispatcher.timer --no-pager
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 node /root/.openclaw/workspace/operations/bin/check-agent-runtime.mjs
+node /root/.openclaw/workspace/operations/bin/check-runtime-control-plane.mjs
 ```
 
 ## Post-Upgrade Contract Checks
@@ -38,6 +39,7 @@ Run this first:
 
 ```bash
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
+node /root/.openclaw/workspace/operations/bin/check-runtime-control-plane.mjs
 ```
 
 The contract check must confirm:
