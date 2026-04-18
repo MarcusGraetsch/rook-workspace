@@ -1,0 +1,31 @@
+[Unit]
+Description=OpenClaw Gateway (v2026.4.15)
+After=network-online.target
+Wants=network-online.target
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+[Service]
+ExecStart=/usr/bin/node /usr/lib/node_modules/openclaw/dist/index.js gateway --port 18789
+Restart=always
+RestartSec=5
+RestartPreventExitStatus=78
+TimeoutStopSec=30
+TimeoutStartSec=30
+SuccessExitStatus=0 143
+KillMode=control-group
+Environment=BRAVE_API_KEY=BSAMt9sNLncYKoBQjCdf3_5aBeslaox
+Environment=MINIMAX_API_KEY=sk-cp-Cc6fKDX0nX11Ok0sfIjdugaXnXZVrpSPvCXCcNXOj43HfynN0wnn01wYH_2puoNyZG0P8eSUFeO20Yur1fwehEhB3FOQ0isGeintriF4htg6va2NmYzAj8c
+Environment=KIMI_API_KEY=sk-kimi-CdGL7n5qBhyMz7MRuQLUAORAahnCuaBdToDaPXPzBuf0ceJx8x6ZA9vnTPLytAK6
+Environment=HOME=/root
+Environment=TMPDIR=/tmp
+Environment=PATH=/usr/bin:/root/.local/bin:/root/.npm-global/bin:/root/bin:/root/.volta/bin:/root/.asdf/shims:/root/.bun/bin:/root/.nvm/current/bin:/root/.fnm/current/bin:/root/.local/share/pnpm:/usr/local/bin:/bin
+Environment=OPENCLAW_GATEWAY_PORT=18789
+Environment=OPENCLAW_SYSTEMD_UNIT=openclaw-gateway.service
+Environment="OPENCLAW_WINDOWS_TASK_NAME=OpenClaw Gateway"
+Environment=OPENCLAW_SERVICE_MARKER=openclaw
+Environment=OPENCLAW_SERVICE_KIND=gateway
+Environment=OPENCLAW_SERVICE_VERSION=2026.4.15
+
+[Install]
+WantedBy=default.target
