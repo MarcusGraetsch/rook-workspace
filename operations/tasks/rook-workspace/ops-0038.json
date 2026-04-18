@@ -2,16 +2,16 @@
   "task_id": "ops-0038",
   "project_id": "rook-workspace",
   "title": "Runtime state hygiene: scrub incomplete schemas and orphaned task-state files",
-  "description": "Several runtime task-state files at `/root/.openclaw/runtime/operations/task-state/` have schema issues:\n\n1. **Missing `task_id` field**: Three files use a reduced schema with no `task_id` at the top level — `rook-agent/agent-0001.json`, `rook-workspace/ops-0029.json`, `rook-workspace/ops-0034.json`. All are `status: done`. The dispatcher's `applyRuntimeTaskState` does `{ ...baseTask, ...runtimeState }` — without `task_id` in runtime state this is harmless, but it makes tooling that scans runtime states by task_id unreliable.\n\n2. **Missing `dispatch` block**: Several runtime states (ops-0001, ops-0018, ops-0019, ops-0035, dashboard-0042) have no `dispatch` key. Code that does `r.get('dispatch', {})` handles this gracefully but it means dispatch history is unrecoverable for those tasks.\n\nObjective:\n- Write a one-time repair script (`workspace/operations/bin/repair-runtime-states.mjs`) that:\n  a. Scans all runtime state files\n  b. For files missing `task_id`: cross-references by filename to the canonical task and back-fills `task_id` and `project_id`\n  c. For files missing `dispatch`: adds an empty `dispatch: {}` block\n  d. Writes a summary report of what was repaired\n- After repair, validate all runtime state files parse as valid JSON\n- Add the `task_id` field as a required check to any future runtime state write path in task-dispatcher.mjs",
+  "description": "Several runtime task-state files at `/root/.openclaw/runtime/operations/task-state/` have schema issues:\n\n1. **Missing `task_id` field**: Three files use a reduced schema with no `task_id` at the top level \u2014 `rook-agent/agent-0001.json`, `rook-workspace/ops-0029.json`, `rook-workspace/ops-0034.json`. All are `status: done`. The dispatcher's `applyRuntimeTaskState` does `{ ...baseTask, ...runtimeState }` \u2014 without `task_id` in runtime state this is harmless, but it makes tooling that scans runtime states by task_id unreliable.\n\n2. **Missing `dispatch` block**: Several runtime states (ops-0001, ops-0018, ops-0019, ops-0035, dashboard-0042) have no `dispatch` key. Code that does `r.get('dispatch', {})` handles this gracefully but it means dispatch history is unrecoverable for those tasks.\n\nObjective:\n- Write a one-time repair script (`workspace/operations/bin/repair-runtime-states.mjs`) that:\n  a. Scans all runtime state files\n  b. For files missing `task_id`: cross-references by filename to the canonical task and back-fills `task_id` and `project_id`\n  c. For files missing `dispatch`: adds an empty `dispatch: {}` block\n  d. Writes a summary report of what was repaired\n- After repair, validate all runtime state files parse as valid JSON\n- Add the `task_id` field as a required check to any future runtime state write path in task-dispatcher.mjs",
   "intake": {
     "brief": "Repair runtime state files missing task_id and dispatch fields; add future validation",
     "refinement_source": "manual",
     "refined_at": "2026-04-11T10:00:00.000Z",
     "refinement_summary": "Identified during system audit: 3 files missing task_id, several missing dispatch block."
   },
-  "status": "in_progress",
+  "status": "done",
   "assigned_agent": "engineer",
-  "claimed_by": "dispatcher:engineer",
+  "claimed_by": null,
   "priority": "medium",
   "dependencies": [],
   "blocked_by": [],
@@ -23,9 +23,9 @@
     "operations",
     "reliability"
   ],
-  "workflow_stage": "ready",
+  "workflow_stage": "completed",
   "blocked_reason": null,
-  "handoff_notes": "",
+  "handoff_notes": "repair-runtime-states.mjs implemented and executed. 39 runtime state files repaired (dispatch field back-filled). 1 file (ops-0029) had task_id back-filled from filename. All 45 files now conform to schema. Script committed at operations/bin/repair-runtime-states.mjs.",
   "last_heartbeat": "2026-04-11T21:47:47.630Z",
   "failure_reason": null,
   "source_channel": "system:control",
@@ -121,9 +121,9 @@
   },
   "timestamps": {
     "created_at": "2026-04-11T10:00:00.000Z",
-    "updated_at": "2026-04-11T21:47:47.630Z",
+    "updated_at": "2026-04-18T18:39:35.548654Z",
     "started_at": "2026-04-11T21:47:47.630Z",
-    "completed_at": null,
+    "completed_at": "2026-04-18T18:39:35.548654Z",
     "claimed_at": "2026-04-11T21:47:47.630Z"
   },
   "dispatch": {
