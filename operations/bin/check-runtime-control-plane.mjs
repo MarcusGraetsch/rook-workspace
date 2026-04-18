@@ -147,6 +147,36 @@ async function findBackupMatches(relativePath) {
   return matches.sort();
 }
 
+function classifyRuntimeOnlyFinding({ runtimeArchiveExists, workspaceMainExists, backupMatches }) {
+  const hasBackupMatches = Array.isArray(backupMatches) && backupMatches.length > 0;
+
+  if (runtimeArchiveExists) {
+    return {
+      classification: 'stale_runtime_overlay_for_archived_task',
+      recommended_action: 'prune_runtime_overlay',
+    };
+  }
+
+  if (workspaceMainExists) {
+    return {
+      classification: 'runtime_overlay_with_workspace_main_evidence',
+      recommended_action: 'compare_against_workspace_main',
+    };
+  }
+
+  if (hasBackupMatches) {
+    return {
+      classification: 'backup_only_task_evidence',
+      recommended_action: 'review_for_restore_or_archive',
+    };
+  }
+
+  return {
+    classification: 'orphan_runtime_overlay',
+    recommended_action: 'manual_investigation',
+  };
+}
+
 async function trackedWorkspaceFiles() {
   const { stdout } = await execFile('git', ['-C', WORKSPACE_DIR, 'ls-files']);
   return stdout
@@ -580,6 +610,9 @@ async function main() {
       const relativePath = path.join(projectId, taskFile);
       const runtimeArchivePath = path.join(RUNTIME_ARCHIVE_TASKS_DIR, relativePath);
       const workspaceMainPath = path.join(WORKSPACE_MAIN_TASKS_DIR, relativePath);
+      const backupMatches = await findBackupMatches(path.join('operations', 'tasks', relativePath));
+      const runtimeArchiveExists = await pathExists(runtimeArchivePath);
+      const workspaceMainExists = await pathExists(workspaceMainPath);
       findings.push({
         source: 'runtime_only_task_state',
         severity: 'warning',
@@ -588,9 +621,14 @@ async function main() {
         project_id: projectId,
         task_file: taskFile,
         runtime_path: path.join(RUNTIME_TASK_STATE_DIR, relativePath),
-        runtime_archive_exists: await pathExists(runtimeArchivePath),
-        workspace_main_exists: await pathExists(workspaceMainPath),
-        backup_matches: await findBackupMatches(path.join('operations', 'tasks', relativePath)),
+        runtime_archive_exists: runtimeArchiveExists,
+        workspace_main_exists: workspaceMainExists,
+        backup_matches: backupMatches,
+        ...classifyRuntimeOnlyFinding({
+          runtimeArchiveExists,
+          workspaceMainExists,
+          backupMatches,
+        }),
       });
     }
   }
