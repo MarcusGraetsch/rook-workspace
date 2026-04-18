@@ -188,14 +188,16 @@ echo ""
 echo -e "${YELLOW}📁 8. OpenClaw spezifische Logs...${NC}"
 
 # OpenClaw Sessions
-if [ -d /root/.openclaw/agents/main/sessions ]; then
-    echo "   → Prüfe OpenClaw Sessions..."
-    # Suche nach Sessions vom 11.02
-    find /root/.openclaw/agents/main/sessions -name "*.jsonl" -type f -newermt "$START_DATE" ! -newermt "$END_DATE" 2>/dev/null | while read -r session; do
-        echo "   → Session: $session"
-        if grep -i "molt\|moltcities\|evan" "$session" 2>/dev/null | head -5; then
-            echo -e "   ${GREEN}✅ MoltCities-Einträge in Session gefunden${NC}"
-        fi
+if [ -d /root/.openclaw/agents ]; then
+    echo "   → Prüfe OpenClaw Sessions aller Agents..."
+    find /root/.openclaw/agents -mindepth 2 -maxdepth 2 -type d -name "sessions" 2>/dev/null | while read -r sessions_dir; do
+        agent_name="$(basename "$(dirname "$sessions_dir")")"
+        find "$sessions_dir" -name "*.jsonl" -type f -newermt "$START_DATE" ! -newermt "$END_DATE" 2>/dev/null | while read -r session; do
+            echo "   → Agent [$agent_name] Session: $session"
+            if grep -i "molt\|moltcities\|evan" "$session" 2>/dev/null | head -5; then
+                echo -e "   ${GREEN}✅ MoltCities-Einträge in Session gefunden${NC}"
+            fi
+        done
     done
 fi
 
