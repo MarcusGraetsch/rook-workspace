@@ -3,20 +3,26 @@
   "project_id": "rook-workspace",
   "title": "Dispatcher: split task-dispatcher.mjs into focused modules",
   "description": "task-dispatcher.mjs is 2,349 lines and handles too many concerns: task loading, state merging, dead session recovery, stale claim release, dependency resolution, dispatch, hook polling, push/PR creation, stage validation, notification, and logging. This makes individual functions hard to test and the file difficult to navigate.\n\nProposed split into `operations/bin/dispatcher/` directory:\n- `loader.mjs` — loadTasks(), applyRuntimeTaskState(), shouldPreferCanonicalControlState(), normalizeTerminalTasks()\n- `claims.mjs` — inspectActiveHookClaims(), isSessionDead(), recoverDeadSession(), isClaimStale()\n- `github.mjs` — runGh(), maybePushAndCreatePR(), collectTaskGitEvidence(), ensureSpecialistRepoView()\n- `validation.mjs` — validateStageCompletion(), pickExecutor(), statusForDispatch()\n- `notify.mjs` — notifyAndRecord(), appendAlert(), appendLog()\n- `dispatch.mjs` — dispatchTask(), postHookWithCurl(), hookPoll()\n- `index.mjs` — main(), argument parsing, orchestration\n\nKeep the existing `task-dispatcher.mjs` as a thin entry point that imports and calls `index.mjs` for backwards compatibility with the systemd service.\n\nDo not change any function signatures or behavior — this is a pure refactor.",
-  "status": "ready",
+  "status": "done",
   "assigned_agent": "engineer",
   "priority": "low",
   "dependencies": ["ops-0039", "ops-0040", "ops-0041", "ops-0042", "ops-0043"],
   "related_repo": "MarcusGraetsch/rook-workspace",
   "branch": "agent/engineer/ops-0045-dispatcher-modular-split",
   "labels": ["dispatcher", "refactor"],
-  "workflow_stage": "ready",
+  "workflow_stage": "done",
   "blocked_reason": null,
   "failure_reason": null,
-  "handoff_notes": "",
-  "commits": [],
-  "commit_refs": [],
-  "artifacts": [],
+  "handoff_notes": "[agent:engineer][task:ops-0045] implemented successfully.\n\nFiles changed:\n- operations/bin/dispatcher/index.mjs: clean orchestration layer, all imports at top, duplicate function declarations removed, main() uses dispatchTask() from dispatch.mjs\n- All 7 modules pass node --check: claims.mjs, dispatch.mjs, github.mjs, index.mjs, loader.mjs, notify.mjs, validation.mjs\n- operations/bin/task-dispatcher.mjs: thin entry point unchanged\n\nCommit: 5e1f7db on branch agent/engineer/ops-0045-dispatcher-modular-split",
+  "commits": ["5e1f7db"],
+  "commit_refs": ["5e1f7db"],
+  "artifacts": [
+    {
+      "type": "code_change",
+      "file": "operations/bin/dispatcher/index.mjs",
+      "description": "Clean orchestration layer: all imports at top, removed duplicate function declarations already in dispatch.mjs/claims.mjs, main() delegates dispatch loop to dispatchTask()"
+    }
+  ],
   "github_issue": {
     "repo": "MarcusGraetsch/rook-workspace",
     "number": null,
@@ -29,8 +35,8 @@
   "timestamps": {
     "created_at": "2026-04-19T06:16:43Z",
     "updated_at": "2026-04-19T06:16:43Z",
-    "started_at": null,
-    "completed_at": null,
+    "started_at": "2026-04-19T08:00:00Z",
+    "completed_at": "2026-04-19T08:10:00Z",
     "claimed_at": null
   }
 }
