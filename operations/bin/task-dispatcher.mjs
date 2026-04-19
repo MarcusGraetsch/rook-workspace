@@ -24,6 +24,7 @@ const PROVIDER_ENV_FILES = [
 const DEFAULT_TIMEOUT_SECONDS = Number(process.env.ROOK_DISPATCH_TIMEOUT_SECONDS || '60');
 const DEFAULT_STALE_CLAIM_MINUTES = Number(process.env.ROOK_STALE_CLAIM_MINUTES || '20');
 const DEFAULT_MAX_ATTEMPTS = Number(process.env.ROOK_DISPATCH_MAX_ATTEMPTS || '3');
+const DEFAULT_MAX_TOTAL_ATTEMPTS = Number(process.env.ROOK_DISPATCH_MAX_TOTAL_ATTEMPTS || '9');
 const DEFAULT_RETRY_DELAY_MS = Number(process.env.ROOK_DISPATCH_RETRY_DELAY_MS || '5000');
 const NOTIFY_TIMEOUT_SECONDS = Number(process.env.ROOK_NOTIFY_TIMEOUT_SECONDS || '15');
 const NOTIFY_MAX_ATTEMPTS = Number(process.env.ROOK_NOTIFY_MAX_ATTEMPTS || '3');
@@ -77,7 +78,11 @@ async function readJson(filePath) {
     return JSON.parse(raw);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`[dispatcher] Failed to parse JSON from ${filePath}: ${errorMessage}`);
+    // ENOENT is expected for optional files (runtime state, etc.) — callers use readJsonIfExists.
+    // Only log errors that indicate a real problem (parse failure, permissions, etc.).
+    if (error.code !== 'ENOENT') {
+      console.error(`[dispatcher] Failed to parse JSON from ${filePath}: ${errorMessage}`);
+    }
     throw new Error(`Failed to parse JSON from ${filePath}: ${errorMessage}`);
   }
 }
@@ -925,19 +930,20 @@ async function validateStageCompletion(task, executor, launchedStatus) {
   const stage = String(launchedStatus || task.status || '');
   const isCodeTask = Boolean(task.related_repo && task.branch);
 
-  if (!isCodeTask) {
-    return { ok: true, reason: null, blockedBy: [] };
-  }
-
+  // All agents must leave handoff_notes — applies to code and non-code tasks alike.
   if (stage === 'in_progress') {
     const handoff = String(task.handoff_notes || '').trim();
     if (!handoff) {
       return {
         ok: false,
-        reason: `Engineer work completed but ${task.task_id} is missing handoff_notes.`,
-        blockedBy: ['engineer:missing-handoff'],
+        reason: `${task.task_id} completed but is missing handoff_notes. All agents must document what was done.`,
+        blockedBy: ['agent:missing-handoff'],
       };
     }
+  }
+
+  if (!isCodeTask) {
+    return { ok: true, reason: null, blockedBy: [] };
   }
 
   if (stage === 'testing') {
@@ -1711,7 +1717,9 @@ function isClaimStale(task, nowMs) {
 
 async function appendLog(entry) {
   await ensureDir(LOG_DIR);
-  const filePath = path.join(LOG_DIR, `${new Date().toISOString().slice(0, 10)}.jsonl`);
+  // Use local date (sv locale gives ISO format) so entries after midnight local time
+  // land in today's file rather than yesterday's (UTC is behind CEST by 2h).
+  const filePath = path.join(LOG_DIR, `${new Date().toLocaleDateString('sv')}.jsonl`);
   await fs.appendFile(filePath, `${JSON.stringify(entry)}\n`, 'utf8');
 }
 
@@ -1846,6 +1854,7 @@ function buildDispatchState(task, executor, result, attempt, dispatchMode, nowIs
     mode,
     executor,
     attempts: attempt,
+    total_attempts: (Number(previous.total_attempts || 0) + 1),
     launched_at: previous.launched_at || nowIso,
     last_checked_at: nowIso,
     model: mode === 'hook' ? (result.meta?.model || previous.model || HOOK_MODEL) : (previous.model || null),
@@ -2217,6 +2226,32 @@ async function main() {
       continue;
     }
 
+    // Hard ceiling: if this task has already consumed too many total dispatch attempts,
+    // block it permanently rather than retrying indefinitely.
+    const previousTotalAttempts = Number(task.dispatch?.total_attempts || 0);
+    if (previousTotalAttempts >= DEFAULT_MAX_TOTAL_ATTEMPTS) {
+      task.status = 'blocked';
+      task.blocked_by = ['dispatcher:max-total-attempts'];
+      task.failure_reason = `Exceeded maximum total dispatch attempts (${DEFAULT_MAX_TOTAL_ATTEMPTS}). Manual intervention required.`;
+      task.timestamps.updated_at = nowIso;
+      await writeJson(filePath, task);
+      if (runtimeBlockStateChanged(entry, task.blocked_by, task.failure_reason)) {
+        await notifyAndRecord(
+          task,
+          'max_attempts_exceeded',
+          `[dispatcher] blocked ${taskRef(task)}: exceeded max total dispatch attempts (${previousTotalAttempts}/${DEFAULT_MAX_TOTAL_ATTEMPTS})`
+        );
+      }
+      await appendLog({
+        ts: nowIso,
+        task_id: task.task_id,
+        action: 'max_attempts_exceeded',
+        total_attempts: previousTotalAttempts,
+        max: DEFAULT_MAX_TOTAL_ATTEMPTS,
+      });
+      continue;
+    }
+
     const clearStaleHandoffNotes = shouldClearHandoffNotesForDispatch(task);
     task.status = statusForDispatch(task, executor);
     task.assigned_agent = task.status === 'testing'
@@ -2239,6 +2274,7 @@ async function main() {
       mode: options.dispatchMode,
       executor,
       attempts: 0,
+      total_attempts: previousTotalAttempts,
       launched_at: nowIso,
       last_checked_at: nowIso,
       model: options.dispatchMode === 'hook' ? HOOK_MODEL : null,
