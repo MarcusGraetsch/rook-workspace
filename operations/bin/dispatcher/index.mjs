@@ -32,6 +32,7 @@ import {
   isDispatchable,
 } from './validation.mjs';
 import { ensureSpecialistRepoView, runGh, maybePushAndCreatePR } from './github.mjs';
+import { pathToFileURL } from 'url';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -359,9 +360,12 @@ export async function main() {
 // ---------------------------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------------------------
+const directEntryHref = process.argv[1] ? pathToFileURL(process.argv[1]).href : null;
 
-main().catch(async (error) => {
-  const message = error instanceof Error ? error.stack || error.message : String(error);
-  await appendLog({ ts: new Date().toISOString(), action: 'fatal', error: message });
-  process.exitCode = 1;
-});
+if (directEntryHref && import.meta.url === directEntryHref) {
+  main().catch(async (error) => {
+    const message = error instanceof Error ? error.stack || error.message : String(error);
+    await appendLog({ ts: new Date().toISOString(), action: 'fatal', error: message });
+    process.exitCode = 1;
+  });
+}
