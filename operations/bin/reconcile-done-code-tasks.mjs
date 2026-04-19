@@ -33,17 +33,48 @@ function isCodeTask(task) {
   return Boolean(task?.related_repo && task?.branch);
 }
 
-function findingReason(task) {
+function classifyFinding(task) {
   if (task.github_pull_request?.state === 'merged') {
     return null;
   }
   if (task.github_pull_request?.number) {
-    return `task is done but PR #${task.github_pull_request.number} is ${task.github_pull_request.state || 'not merged'}`
+    return {
+      classification: 'open_or_unmerged_pr',
+      reason: `task is done but PR #${task.github_pull_request.number} is ${task.github_pull_request.state || 'not merged'}`,
+      remediation: {
+        summary: 'The task is marked done while its PR is still open or otherwise unmerged.',
+        operator_action: 'Either merge/close the PR and sync the canonical metadata, or move the task out of done if review is still active.',
+      },
+    }
+  }
+  if (task.branch === 'main') {
+    return {
+      classification: 'direct_to_main_without_merge_evidence',
+      reason: 'task is done on main with commit evidence but no merged PR evidence',
+      remediation: {
+        summary: 'This task appears to have been completed directly on main.',
+        operator_action: 'Confirm that direct-to-main completion was intentional. If yes, document it as a direct-main exception; otherwise add durable PR evidence or reopen the task.',
+      },
+    }
   }
   if ((task.commit_refs || task.commits || []).length > 0) {
-    return 'task is done with commit evidence but no merged PR evidence'
+    return {
+      classification: 'commit_evidence_without_pr_metadata',
+      reason: 'task is done with commit evidence but no merged PR evidence',
+      remediation: {
+        summary: 'The task records commits, but canonical metadata has no merged PR evidence.',
+        operator_action: 'Backfill the missing PR metadata if the work was merged, or document why this task is an accepted non-PR exception.',
+      },
+    }
   }
-  return 'task is done without merged PR evidence'
+  return {
+    classification: 'done_without_merge_evidence',
+    reason: 'task is done without merged PR evidence',
+    remediation: {
+      summary: 'The task is marked done without commits or merged PR evidence in canonical metadata.',
+      operator_action: 'Reopen the task or add durable completion evidence before treating it as reconciled.',
+    },
+  }
 }
 
 async function main() {
@@ -62,8 +93,8 @@ async function main() {
       continue;
     }
 
-    const reason = findingReason(task);
-    if (!reason) {
+    const classification = classifyFinding(task);
+    if (!classification) {
       continue;
     }
 
@@ -72,9 +103,11 @@ async function main() {
       project_id: task.project_id,
       related_repo: task.related_repo,
       branch: task.branch,
-      reason,
+      reason: classification.reason,
+      classification: classification.classification,
       pr_state: task.github_pull_request?.state || null,
       pr_number: task.github_pull_request?.number || null,
+      remediation: classification.remediation,
     });
   }
 
