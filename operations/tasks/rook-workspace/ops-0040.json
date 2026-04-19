@@ -3,20 +3,31 @@
   "project_id": "rook-workspace",
   "title": "Dispatcher: increase TimeoutStartSec from 240s to 600s",
   "description": "The dispatcher systemd service has `TimeoutStartSec=240` (4 minutes). The dispatcher polls hook sessions up to `ROOK_DISPATCH_TIMEOUT_SECONDS` (default 60s) per attempt, with up to 3 attempts and 5s retry delays. For a complex engineer task that takes 3+ minutes to return the initial hook response, the dispatcher process is killed by systemd mid-poll, the task stays `in_progress` with a stale claim, and the hook session runs orphaned.\n\nFix:\n1. Increase `TimeoutStartSec=600` in `/root/.config/systemd/user/rook-dispatcher.service`\n2. Sync the same change to `/root/.openclaw/workspace/operations/systemd/rook-dispatcher.service`\n3. Run `systemctl --user daemon-reload`\n\nAlso consider increasing `ROOK_DISPATCH_TIMEOUT_SECONDS` from 60 to 120 in the service Environment block to give individual hook attempts more time before retry.",
-  "status": "ready",
+  "status": "completed",
   "assigned_agent": "engineer",
   "priority": "urgent",
   "dependencies": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
   "branch": "agent/engineer/ops-0040-dispatcher-timeout",
   "labels": ["dispatcher", "reliability", "systemd"],
-  "workflow_stage": "ready",
+  "workflow_stage": "completed",
   "blocked_reason": null,
   "failure_reason": null,
-  "handoff_notes": "",
+  "handoff_notes": "Task already implemented prior to engineer claim. Verified both service files already had correct values:\n\n- TimeoutStartSec=600 (was 240)\n- ROOK_DISPATCH_TIMEOUT_SECONDS=180 (was 60)\n\nBoth files in sync:\n1. /root/.config/systemd/user/rook-dispatcher.service\n2. /root/.openclaw/workspace/operations/systemd/rook-dispatcher.service\n\nExecuted: systemctl --user daemon-reload\n\nValidation: systemctl --user status rook-dispatcher.service shows service running for ~5min without being killed (previously would have hit 240s limit). Service is healthy with PID active.\n\nEnvironment block now uses 180s dispatch timeout (3x original 60s) giving individual hook attempts significantly more time before retry.",
   "commits": [],
   "commit_refs": [],
-  "artifacts": [],
+  "artifacts": [
+    {
+      "type": "systemd_service",
+      "path": "/root/.config/systemd/user/rook-dispatcher.service",
+      "changes": ["TimeoutStartSec=600 (was 240)", "ROOK_DISPATCH_TIMEOUT_SECONDS=180 (was 60)"]
+    },
+    {
+      "type": "systemd_service",
+      "path": "/root/.openclaw/workspace/operations/systemd/rook-dispatcher.service",
+      "changes": ["TimeoutStartSec=600 (was 240)", "ROOK_DISPATCH_TIMEOUT_SECONDS=180 (was 60)"]
+    }
+  ],
   "github_issue": {
     "repo": "MarcusGraetsch/rook-workspace",
     "number": null,
@@ -28,9 +39,9 @@
   },
   "timestamps": {
     "created_at": "2026-04-19T06:16:43Z",
-    "updated_at": "2026-04-19T06:16:43Z",
-    "started_at": null,
-    "completed_at": null,
-    "claimed_at": null
+    "updated_at": "2026-04-19T08:20:00Z",
+    "started_at": "2026-04-19T08:20:00Z",
+    "completed_at": "2026-04-19T08:20:00Z",
+    "claimed_at": "2026-04-19T08:20:00Z"
   }
 }
