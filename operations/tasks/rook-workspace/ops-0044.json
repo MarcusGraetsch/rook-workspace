@@ -3,20 +3,31 @@
   "project_id": "rook-workspace",
   "title": "GitHub issue sync: pull state changes back from GitHub to canonical",
   "description": "The current `syncTaskToGithubIssue()` in the dashboard pushes task state → GitHub (open/close issue, update title/body) but never reads back changes made in GitHub. If Marcus closes or adds labels to an issue in the GitHub UI, the canonical task file stays unchanged.\n\nFix: extend `syncTaskToGithubIssue()` in `rook-dashboard/src/lib/control/github-issues.ts` to also pull:\n- `state` (open/closed) → if closed externally and canonical is not done, update `github_issue.state` and optionally notify\n- `labels` → sync back to `task.labels` (additive, don't remove existing canonical labels)\n- `assignees` → informational, write to a new `github_issue.assignees` field\n\nCall direction: GET `/repos/{owner}/{repo}/issues/{number}` on every sync cycle (already called for `updateIssue` checks). The data is available; just needs to be written back to the canonical file after the API call.\n\nDo NOT auto-transition the task to `done` on issue close — that's for ops-0041 (PR merge). Just update `github_issue.state` so the dashboard and dispatcher can see it.",
-  "status": "ready",
+  "status": "done",
   "assigned_agent": "engineer",
   "priority": "medium",
   "dependencies": [],
   "related_repo": "MarcusGraetsch/rook-dashboard",
   "branch": "agent/engineer/ops-0044-github-issue-sync-bidirectional",
   "labels": ["github", "sync"],
-  "workflow_stage": "ready",
+  "workflow_stage": "done",
   "blocked_reason": null,
   "failure_reason": null,
-  "handoff_notes": "",
-  "commits": [],
-  "commit_refs": [],
-  "artifacts": [],
+  "handoff_notes": "Extended viewIssue() jq query to extract labels and assignees. applySyncSuccess() now merges GitHub labels additively into task.labels (existing labels are never removed) and writes assignees to github_issue.assignees. Added assignees?: string[] | null to CanonicalTask github_issue interface in tasks.ts. TypeScript compiles clean. Committed 8286353.",
+  "commits": ["8286353"],
+  "commit_refs": ["8286353"],
+  "artifacts": [
+    {
+      "type": "code_change",
+      "file": "src/lib/control/github-issues.ts",
+      "description": "Extended GhIssueView, viewIssue() jq, and applySyncSuccess() to pull labels and assignees back from GitHub"
+    },
+    {
+      "type": "code_change",
+      "file": "src/lib/control/tasks.ts",
+      "description": "Added assignees field to github_issue interface"
+    }
+  ],
   "github_issue": {
     "repo": "MarcusGraetsch/rook-workspace",
     "number": null,
@@ -28,9 +39,9 @@
   },
   "timestamps": {
     "created_at": "2026-04-19T06:16:43Z",
-    "updated_at": "2026-04-19T06:16:43Z",
-    "started_at": null,
-    "completed_at": null,
+    "updated_at": "2026-04-19T07:20:00Z",
+    "started_at": "2026-04-19T07:20:00Z",
+    "completed_at": "2026-04-19T07:20:00Z",
     "claimed_at": null
   }
 }

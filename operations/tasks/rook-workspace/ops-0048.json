@@ -3,20 +3,26 @@
   "project_id": "rook-workspace",
   "title": "getCanonicalTasks(): add in-process TTL cache to reduce disk reads",
   "description": "getCanonicalTasks() in rook-dashboard reads all canonical task JSON files from disk on every call. It is currently called once per health refresh (after the writeHealthSnapshots() batch fix) but is also called directly from several other API routes. At 45 tasks today this is fine; at 100+ tasks across more projects it will be measurable, especially given the health GET now always calls writeHealthSnapshots().\n\nFix: wrap `getCanonicalTasks()` with a simple in-process TTL cache in `tasks.ts`:\n\n```ts\nlet taskCache: { tasks: CanonicalTask[]; expiresAt: number } | null = null;\nconst CACHE_TTL_MS = 5000; // 5 seconds\n\nexport async function getCanonicalTasks(): Promise<CanonicalTask[]> {\n  if (taskCache && Date.now() < taskCache.expiresAt) {\n    return taskCache.tasks;\n  }\n  const tasks = await readAllCanonicalTasksFromDisk();\n  taskCache = { tasks, expiresAt: Date.now() + CACHE_TTL_MS };\n  return tasks;\n}\n\nexport function invalidateTaskCache() { taskCache = null; }\n```\n\nCall `invalidateTaskCache()` from `writeCanonicalTask()` so writes are immediately visible. The 5-second window is invisible to users but eliminates N concurrent reads during a health page load.",
-  "status": "ready",
+  "status": "done",
   "assigned_agent": "engineer",
   "priority": "low",
   "dependencies": [],
   "related_repo": "MarcusGraetsch/rook-dashboard",
   "branch": "agent/engineer/ops-0048-canonical-task-cache",
   "labels": ["dashboard", "performance"],
-  "workflow_stage": "ready",
+  "workflow_stage": "done",
   "blocked_reason": null,
   "failure_reason": null,
-  "handoff_notes": "",
-  "commits": [],
-  "commit_refs": [],
-  "artifacts": [],
+  "handoff_notes": "Added 5s TTL cache to getCanonicalTasks() in tasks.ts. Extracted disk-read logic into readAllCanonicalTasksFromDisk(). getCanonicalTasks() returns cached result within TTL; writeCanonicalTask() calls invalidateTaskCache() so writes are immediately visible. TypeScript compiles clean. Committed cdaa513.",
+  "commits": ["cdaa513"],
+  "commit_refs": ["cdaa513"],
+  "artifacts": [
+    {
+      "type": "code_change",
+      "file": "src/lib/control/tasks.ts",
+      "description": "Added _taskCache, invalidateTaskCache(), readAllCanonicalTasksFromDisk(); wired cache into getCanonicalTasks() and writeCanonicalTask()"
+    }
+  ],
   "github_issue": {
     "repo": "MarcusGraetsch/rook-dashboard",
     "number": null,
@@ -28,9 +34,9 @@
   },
   "timestamps": {
     "created_at": "2026-04-19T06:16:43Z",
-    "updated_at": "2026-04-19T06:16:43Z",
-    "started_at": null,
-    "completed_at": null,
+    "updated_at": "2026-04-19T07:10:00Z",
+    "started_at": "2026-04-19T07:10:00Z",
+    "completed_at": "2026-04-19T07:10:00Z",
     "claimed_at": null
   }
 }
