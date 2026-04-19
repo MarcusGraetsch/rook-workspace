@@ -1875,6 +1875,70 @@ async function inspectActiveHookClaims(loadedTasks, nowIso) {
     const { task, filePath } = entry;
     const dispatch = task.dispatch && typeof task.dispatch === 'object' ? task.dispatch : null;
 
+    // [agent:engineer][task:ops-0041] Auto-detect PR merge for tasks stuck in review.
+    // Only check tasks that have been in review for > 5 minutes to avoid immediate re-check on dispatch.
+    if (task.status === 'review' && task.github_pull_request?.number && task.github_pull_request?.repo) {
+      const enteredReviewAt = task.timestamps?.updated_at ? Date.parse(task.timestamps.updated_at) : 0;
+      const minutesInReview = (nowMs - enteredReviewAt) / 60000;
+      if (minutesInReview > 5) {
+        const repoPath = await ensureSpecialistRepoView(task, 'engineer');
+        const prResult = await runGh(repoPath, [
+          'pr', 'view',
+          String(task.github_pull_request.number),
+          '--repo', String(task.github_pull_request.repo),
+          '--json', 'state,mergedAt',
+        ]);
+        if (prResult.code === 0) {
+          try {
+            const prData = JSON.parse(prResult.stdout);
+            if (prData.state === 'MERGED') {
+              task.status = 'done';
+              task.workflow_stage = 'done';
+              task.github_pull_request.state = 'merged';
+              task.github_pull_request.last_synced_at = nowIso;
+              task.timestamps.completed_at = prData.mergedAt || nowIso;
+              task.timestamps.updated_at = nowIso;
+              task.blocked_by = [];
+              task.failure_reason = null;
+              await writeJson(filePath, task);
+              await notifyAndRecord(
+                task,
+                'pr_auto_merged',
+                `[dispatcher] ${task.task_id} auto-transitioned to done: PR #${task.github_pull_request.number} was merged`
+              );
+              await appendLog({
+                ts: nowIso,
+                task_id: task.task_id,
+                action: 'pr_merge_auto_detected',
+                pr_number: task.github_pull_request.number,
+                repo: task.github_pull_request.repo,
+                merged_at: prData.mergedAt,
+              });
+              continue;
+            }
+          } catch (parseErr) {
+            await appendLog({
+              ts: nowIso,
+              task_id: task.task_id,
+              action: 'pr_merge_check_parse_error',
+              pr_number: task.github_pull_request.number,
+              repo: task.github_pull_request.repo,
+              error: String(parseErr),
+            });
+          }
+        } else {
+          await appendLog({
+            ts: nowIso,
+            task_id: task.task_id,
+            action: 'pr_merge_check_failed',
+            pr_number: task.github_pull_request.number,
+            repo: task.github_pull_request.repo,
+            gh_stderr: prResult.stderr,
+          });
+        }
+      }
+    }
+
     if (!task.claimed_by || !ACTIVE_STATUSES.has(task.status)) {
       continue;
     }
