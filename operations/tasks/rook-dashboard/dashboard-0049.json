@@ -1,0 +1,36 @@
+{
+  "task_id": "dashboard-0049",
+  "project_id": "rook-dashboard",
+  "title": "Agents page: cross-agent dependency and queue visibility panel",
+  "description": "The `/agents` health page shows each agent's status independently (idle/in_progress/blocked/error). It doesn't show which tasks are queued for each agent, which tasks are blocking other agents, or cross-agent dependency chains.\n\nAdd a 'Queue & Blockers' panel below the agent health cards on the `/agents` page that shows:\n1. **Per-agent queue**: for each agent, list tasks with status `ready` or `in_progress` — task_id, title (truncated), priority badge\n2. **Blocked tasks**: tasks with `status: blocked` grouped by `blocked_by` — show what's blocking them (task ID + current status of the blocker)\n3. **Cross-agent waits**: highlight when Agent A is idle but waiting for Agent B to complete a dependency (e.g. engineer idle, review task blocked on `github:pr-not-merged`)\n\nData source: extend the `/api/agent/stats` response to include `queuedTasks: [{task_id, title, status, priority}]` and `blockedTasks: [{task_id, title, blocked_by: string[]}]` per agent, populated from `getCanonicalTasks()` (already called in `writeHealthSnapshots`).\n\nUI: collapsible section per agent, collapsed by default, max 5 tasks shown with 'show more' link to Kanban.",
+  "status": "ready",
+  "assigned_agent": "engineer",
+  "priority": "medium",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/dashboard-0049-agent-queue-panel",
+  "labels": ["dashboard", "ui", "observability"],
+  "workflow_stage": "ready",
+  "blocked_reason": null,
+  "failure_reason": null,
+  "handoff_notes": "",
+  "commits": [],
+  "commit_refs": [],
+  "artifacts": [],
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": null,
+    "url": null,
+    "state": null,
+    "sync_status": "not_requested",
+    "last_synced_at": null,
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-19T06:16:43Z",
+    "updated_at": "2026-04-19T06:16:43Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}

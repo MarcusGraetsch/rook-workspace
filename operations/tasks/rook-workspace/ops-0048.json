@@ -1,0 +1,36 @@
+{
+  "task_id": "ops-0048",
+  "project_id": "rook-workspace",
+  "title": "getCanonicalTasks(): add in-process TTL cache to reduce disk reads",
+  "description": "getCanonicalTasks() in rook-dashboard reads all canonical task JSON files from disk on every call. It is currently called once per health refresh (after the writeHealthSnapshots() batch fix) but is also called directly from several other API routes. At 45 tasks today this is fine; at 100+ tasks across more projects it will be measurable, especially given the health GET now always calls writeHealthSnapshots().\n\nFix: wrap `getCanonicalTasks()` with a simple in-process TTL cache in `tasks.ts`:\n\n```ts\nlet taskCache: { tasks: CanonicalTask[]; expiresAt: number } | null = null;\nconst CACHE_TTL_MS = 5000; // 5 seconds\n\nexport async function getCanonicalTasks(): Promise<CanonicalTask[]> {\n  if (taskCache && Date.now() < taskCache.expiresAt) {\n    return taskCache.tasks;\n  }\n  const tasks = await readAllCanonicalTasksFromDisk();\n  taskCache = { tasks, expiresAt: Date.now() + CACHE_TTL_MS };\n  return tasks;\n}\n\nexport function invalidateTaskCache() { taskCache = null; }\n```\n\nCall `invalidateTaskCache()` from `writeCanonicalTask()` so writes are immediately visible. The 5-second window is invisible to users but eliminates N concurrent reads during a health page load.",
+  "status": "ready",
+  "assigned_agent": "engineer",
+  "priority": "low",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "agent/engineer/ops-0048-canonical-task-cache",
+  "labels": ["dashboard", "performance"],
+  "workflow_stage": "ready",
+  "blocked_reason": null,
+  "failure_reason": null,
+  "handoff_notes": "",
+  "commits": [],
+  "commit_refs": [],
+  "artifacts": [],
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": null,
+    "url": null,
+    "state": null,
+    "sync_status": "not_requested",
+    "last_synced_at": null,
+    "last_error": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-19T06:16:43Z",
+    "updated_at": "2026-04-19T06:16:43Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}
