@@ -25,6 +25,8 @@ Before updating OpenClaw:
 ```bash
 cd /root/.openclaw
 git status --short
+git -C /root/.openclaw/workspace status --short
+git -C /root/.openclaw/workspace submodule status
 cp openclaw.json /tmp/openclaw.json.pre-upgrade.$(date +%F-%H%M%S)
 systemctl --user status rook-dashboard.service --no-pager
 systemctl --user status rook-dispatcher.timer --no-pager
@@ -40,6 +42,7 @@ Run this first:
 ```bash
 node /root/.openclaw/workspace/operations/bin/check-openclaw-contract.mjs
 node /root/.openclaw/workspace/operations/bin/check-runtime-control-plane.mjs
+git -C /root/.openclaw/workspace submodule status
 ```
 
 The contract check must confirm:
@@ -53,7 +56,10 @@ The contract check must confirm:
 - those agents are still allowed through hooks
 - `engineer`, `researcher`, `test`, and `review` still default to `minimax/MiniMax-M2.7`
 - `rook-dispatcher.service` still runs in hook mode
-- `rook-dispatcher.service` still points at `minimax-portal/MiniMax-M2.7`
+- `rook-dispatcher.service` still points at a hook model compatible with the worker default model family
+  - accepted today:
+    - exact match with `agents.defaults.model.primary`
+    - same model id across the `minimax` / `minimax-portal` provider pair
 
 If that fails, fix the contract before trusting live dispatch.
 
@@ -98,6 +104,19 @@ These units must remain installed under `~/.config/systemd/user/`:
 
 After any upgrade that touches runtime paths or env behavior, resync the unit files from the repo and reload user `systemd`.
 
+## Submodule Expectations
+
+The live workspace depends on intentional submodule revisions.
+
+At minimum, verify:
+
+- `git -C /root/.openclaw/workspace submodule status`
+- `engineering/rook-dashboard` still points at the deployed dashboard revision
+- no submodule is left dirty unless you are actively repairing it
+
+Do not treat a clean submodule worktree and a stale superproject pointer as the same thing.
+The dashboard can be locally clean while `rook-workspace` still points at an outdated dashboard commit.
+
 ## What To Watch For
 
 Common breakage patterns after an update:
@@ -105,8 +124,10 @@ Common breakage patterns after an update:
 - hooks disabled or token removed
 - dispatcher falls back to non-isolated sessions
 - model/provider defaults changed silently
+- compatible hook model pair becomes incompatible because provider/model naming changed upstream
 - tool policy changes break worker execution
 - dashboard process path or Node environment changed
+- submodule pointers no longer match the deployed dashboard or project revisions
 - worker transcript format changes, breaking abort detection
 
 ## Recovery Order If Upgrade Breaks Runtime

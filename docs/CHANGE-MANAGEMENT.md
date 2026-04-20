@@ -47,6 +47,8 @@ At minimum, compare:
 - `.github/workflows/`
 - `docs/`
 - `openclaw.json` live contract expectations
+- `git submodule status`
+- `engineering/rook-dashboard` pointer versus the actually deployed dashboard revision
 
 Questions to answer:
 
@@ -55,6 +57,7 @@ Questions to answer:
 - Does it change task truth or only documentation?
 - Does it contain temporary fallback logic that should stay temporary?
 - Does it include task-state snapshots that should not become permanent history?
+- Does it move a submodule pointer to a commit that exists only locally?
 
 ## Practical Merge Policy
 
@@ -85,6 +88,11 @@ Default rule:
 4. delete the remote branch immediately after merge
 
 Do not keep absorbed branches around once `main` contains the work.
+
+Submodule rule:
+
+1. if the superproject points at a submodule commit, that commit must be reachable on the intended remote before merge
+2. if the deployed dashboard revision changed locally, either push that dashboard commit first or do not advance the superproject pointer yet
 
 If a branch is:
 
