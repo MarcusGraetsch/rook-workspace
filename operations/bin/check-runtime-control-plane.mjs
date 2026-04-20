@@ -100,6 +100,33 @@ function hasExecArg(unitText, expectedArg) {
     .some((line) => line.startsWith('ExecStart=') && line.includes(expectedArg));
 }
 
+function splitModelId(modelId) {
+  const value = String(modelId || '').trim();
+  const [provider = '', model = ''] = value.split('/');
+  return { provider, model };
+}
+
+function areCompatibleHookModels(defaultPrimaryModel, dispatcherHookModel) {
+  if (!defaultPrimaryModel || !dispatcherHookModel) {
+    return true;
+  }
+
+  if (defaultPrimaryModel === dispatcherHookModel) {
+    return true;
+  }
+
+  const defaults = splitModelId(defaultPrimaryModel);
+  const dispatcher = splitModelId(dispatcherHookModel);
+  const compatibleProviders = new Set(['minimax', 'minimax-portal']);
+
+  return (
+    defaults.model.length > 0
+    && defaults.model === dispatcher.model
+    && compatibleProviders.has(defaults.provider)
+    && compatibleProviders.has(dispatcher.provider)
+  );
+}
+
 async function collectJsonFiles(dirPath) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   const files = [];
@@ -671,7 +698,7 @@ async function main() {
       details: 'rook-dispatcher.service missing ROOK_HOOK_MODEL',
     });
   }
-  if (defaultPrimaryModel && dispatcherHookModel && dispatcherHookModel === defaultPrimaryModel) {
+  if (!areCompatibleHookModels(defaultPrimaryModel, dispatcherHookModel)) {
     findings.push({
       source: 'openclaw_contract',
       severity: 'warning',

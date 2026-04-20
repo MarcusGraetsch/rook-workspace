@@ -38,6 +38,33 @@ function hasExecArg(unitText, expectedArg) {
     .some((line) => line.startsWith('ExecStart=') && line.includes(expectedArg));
 }
 
+function splitModelId(modelId) {
+  const value = String(modelId || '').trim();
+  const [provider = '', model = ''] = value.split('/');
+  return { provider, model };
+}
+
+function areCompatibleHookModels(defaultPrimaryModel, dispatcherHookModel) {
+  if (!defaultPrimaryModel || !dispatcherHookModel) {
+    return true;
+  }
+
+  if (defaultPrimaryModel === dispatcherHookModel) {
+    return true;
+  }
+
+  const defaults = splitModelId(defaultPrimaryModel);
+  const dispatcher = splitModelId(dispatcherHookModel);
+  const compatibleProviders = new Set(['minimax', 'minimax-portal']);
+
+  return (
+    defaults.model.length > 0
+    && defaults.model === dispatcher.model
+    && compatibleProviders.has(defaults.provider)
+    && compatibleProviders.has(dispatcher.provider)
+  );
+}
+
 async function main() {
   const checks = [];
   let ok = true;
@@ -126,7 +153,7 @@ async function main() {
   );
   record(
     'rook-dispatcher.service hook model drift',
-    !defaultPrimaryModel || !dispatcherHookModel || dispatcherHookModel === defaultPrimaryModel,
+    areCompatibleHookModels(defaultPrimaryModel, dispatcherHookModel),
     defaultPrimaryModel && dispatcherHookModel
       ? `defaults.model.primary=${defaultPrimaryModel}, dispatcher.ROOK_HOOK_MODEL=${dispatcherHookModel}`
       : 'skipped due to missing model value',
