@@ -682,24 +682,25 @@ async function main() {
 
   const canonicalFiles = await collectJsonFiles(TASKS_DIR);
   const runtimeFiles = await collectJsonFiles(RUNTIME_TASK_STATE_DIR);
-  const canonicalMap = new Map();
+  const canonicalMapAll = relativeProjectTaskMap(TASKS_DIR, canonicalFiles);
+  const canonicalMapRequired = new Map();
   for (const filePath of canonicalFiles) {
     const relativePath = path.relative(TASKS_DIR, filePath);
     const projectId = path.dirname(relativePath);
     const taskFile = path.basename(relativePath);
     const task = await readJson(filePath);
-    if (!canonicalMap.has(projectId)) {
-      canonicalMap.set(projectId, new Set());
+    if (!canonicalMapRequired.has(projectId)) {
+      canonicalMapRequired.set(projectId, new Set());
     }
     if (requiresRuntimeState(task)) {
-      canonicalMap.get(projectId).add(taskFile);
+      canonicalMapRequired.get(projectId).add(taskFile);
     }
   }
   const runtimeMap = relativeProjectTaskMap(RUNTIME_TASK_STATE_DIR, runtimeFiles);
-  const projectIds = new Set([...canonicalMap.keys(), ...runtimeMap.keys()]);
+  const projectIds = new Set([...canonicalMapRequired.keys(), ...runtimeMap.keys()]);
 
   for (const projectId of [...projectIds].sort()) {
-    const canonical = canonicalMap.get(projectId) || new Set();
+    const canonical = canonicalMapRequired.get(projectId) || new Set();
     const runtime = runtimeMap.get(projectId) || new Set();
     const missingInRuntime = [...canonical].filter((taskFile) => !runtime.has(taskFile)).sort();
     const runtimeOnly = [...runtime].filter((taskFile) => !canonical.has(taskFile)).sort();
@@ -718,7 +719,7 @@ async function main() {
   }
 
   for (const [projectId, runtimeSet] of runtimeMap.entries()) {
-    const canonicalSet = canonicalMap.get(projectId) || new Set();
+    const canonicalSet = canonicalMapAll.get(projectId) || new Set();
     for (const taskFile of [...runtimeSet].sort()) {
       if (canonicalSet.has(taskFile)) {
         continue;
