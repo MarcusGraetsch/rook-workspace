@@ -114,13 +114,38 @@ Konsequenz: Die Snapshots können veralten. Der Dashboard-Refresh-Button ist die
 
 ## 4. Umgesetzte Änderungen
 
-_(wird nach Implementierung ausgefüllt)_
+### P1: Stale `github_issue.last_error` bereinigt (Datenfixup)
+
+- **14 kanonische Task-Dateien** in `workspace/operations/tasks/rook-workspace/`: `last_error → null`, `sync_status → not_requested`
+- **15 Runtime-Overlay-Dateien** in `runtime/operations/task-state/rook-workspace/`: gleiche Bereinigung
+- Ursache für Runtime-Overlay-Fixup: `mergeSyncRecord()` schreibt Runtime-Wert zurück wenn kanonischer Wert `null` ist ("leer" → Runtime-Wert gewinnt). Beide Quellen müssen konsistent sein.
+- Zusätzlich: 3 Tasks mit `completed`-Status zu `done` normalisiert: `dashboard-0045`, `dashboard-0048`, `ops-0040`
+- `ops-0030` (done): stale `last_error` ebenfalls bereinigt
+
+### P2: `deriveStatus()` Code-Fix in `health.ts`
+
+- **Datei:** `src/lib/control/health.ts`
+- **Änderung:** `github_issue.last_error` Fallback-Check filtert jetzt inactive Tasks heraus: `['backlog', 'done', 'completed', 'archived', 'cancelled']`
+- **Zweck:** Defense-in-depth — verhindert dass zukünftige Sync-Fehler auf inaktiven Tasks die Agent-Health beeinflussen
+- Dashboard rebuilt (`npm run build` → 0 Fehler) und via PM2 neu gestartet
+
+### Commits
+
+- `48195d5` — `fix(health): exclude inactive tasks from github_issue error surfacing` (rook-dashboard)
+- `f03b360` — `fix(tasks): clear stale github_issue.last_error from 14 backlog tasks` (rook-workspace)
+- `1913b09` — `chore: update rook-dashboard submodule + session architecture report`
+
+Beide Repositories gepusht nach GitHub.
 
 ---
 
 ## 5. Validierung
 
-_(wird nach Implementierung ausgefüllt)_
+- `npm run build` in `rook-dashboard` → exit 0, keine TypeScript-Fehler
+- Compiled health route enthält korrekt: `a.filter(t=>!_.has(t.status))` mit `_=Set(["backlog","done","completed","archived","cancelled"])`
+- `POST /api/control/health` vor Fix: 3 Agenten mit `status: error`
+- `POST /api/control/health` nach Fix: 7 Agenten, **alle ohne `last_error`**, statuses: `idle` (5x), `offline` (1x health - expected)
+- Stichprobe Datendateien: `ops-0027.json`, `ops-0005.json`, `ops-0030.json` — `last_error: null` bestätigt
 
 ---
 
