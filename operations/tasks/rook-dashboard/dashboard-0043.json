@@ -127,6 +127,6 @@
     "state": null,
     "title": null,
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/commits -f sha=agent/engineer/dashboard-0043-as-a-user-i-want-to-be-able-to-see-the-dashboard -f per_page=5\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   }
 }

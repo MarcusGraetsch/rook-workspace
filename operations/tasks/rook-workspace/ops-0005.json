@@ -2,7 +2,7 @@
   "task_id": "ops-0005",
   "project_id": "rook-workspace",
   "title": "Ecology: Methodology & Hover-Explainability",
-  "description": "Für /ecology Kacheln (Energie, CO2, Wasser, Hardware) eine Methodology-Struktur einführen und per Hover/Info-Icon kurz erklären, wie die Werte geschätzt werden (Formel, Inputs, Quellen, Confidence). Optionale Methodology-Seite analog zu Labor.",
+  "description": "F\u00fcr /ecology Kacheln (Energie, CO2, Wasser, Hardware) eine Methodology-Struktur einf\u00fchren und per Hover/Info-Icon kurz erkl\u00e4ren, wie die Werte gesch\u00e4tzt werden (Formel, Inputs, Quellen, Confidence). Optionale Methodology-Seite analog zu Labor.",
   "intake": {
     "brief": null,
     "refinement_source": null,
@@ -65,6 +65,6 @@
     "state": null,
     "title": null,
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/commits -f sha=agent/researcher/ops-0005-ecology-methodology-hover-explainability -f per_page=5\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   }
 }
