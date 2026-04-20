@@ -117,6 +117,18 @@ At minimum, verify:
 Do not treat a clean submodule worktree and a stale superproject pointer as the same thing.
 The dashboard can be locally clean while `rook-workspace` still points at an outdated dashboard commit.
 
+Interpretation hint:
+
+- leading ` ` = initialized and aligned
+- leading `-` = submodule commit is recorded, but the submodule is not initialized/registered in this workspace view
+
+If a required submodule shows `-`, repair it explicitly before trusting upgrade diagnostics:
+
+```bash
+git -C /root/.openclaw/workspace submodule init engineering/metrics-collector
+git -C /root/.openclaw/workspace submodule status
+```
+
 ## What To Watch For
 
 Common breakage patterns after an update:
