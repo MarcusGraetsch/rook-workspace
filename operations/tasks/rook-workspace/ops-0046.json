@@ -1,0 +1,37 @@
+{
+  "task_id": "ops-0046",
+  "project_id": "rook-workspace",
+  "title": "Dispatcher: fix log file date — UTC vs CEST timezone mismatch",
+  "description": "Dispatcher log files are named by `new Date().toISOString().slice(0, 10)` (UTC date). But the systemd service runs in a CEST environment (UTC+2). Log entries written between 00:00–01:59 CEST appear in the previous day's file because that time window is still UTC the previous day.\n\nThis is a cosmetic issue (no data loss, entries are correctly timestamped) but causes confusion when tracing overnight dispatcher behavior — e.g. a 01:30 CEST event appears to have happened the day before.\n\nFix options (pick one):\nA. Name files by local date: `new Date().toLocaleDateString('sv')` (ISO format, locale-independent)\nB. Document it in a comment above the `filePath` line in `appendLog()` so future maintainers know\n\nOption B is the minimal-risk fix given logs are rolling anyway. Option A is cleaner.\n\nFile: `workspace/operations/bin/task-dispatcher.mjs`, function `appendLog()`, line that builds `filePath`.",
+  "status": "done",
+  "assigned_agent": "engineer",
+  "priority": "low",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/engineer/ops-0046-log-date-timezone",
+  "labels": [
+    "dispatcher",
+    "logging"
+  ],
+  "workflow_stage": "done",
+  "blocked_reason": null,
+  "failure_reason": null,
+  "handoff_notes": "Changed appendLog() to use new Date().toLocaleDateString('sv') for log file naming. Swedish locale (sv) produces ISO date format (YYYY-MM-DD) from local time, so midnight CEST no longer causes entries to land in the previous UTC day's file.",
+  "commits": [],
+  "commit_refs": [],
+  "artifacts": [],
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "sync_status": "not_requested",
+    "last_synced_at": null,
+    "last_error": null
+  },
+  "timestamps": {
+    "completed_at": "2026-04-19T06:35:00Z",
+    "updated_at": "2026-04-19T06:35:00Z",
+    "started_at": "2026-04-19T06:35:00Z"
+  }
+}

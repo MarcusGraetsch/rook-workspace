@@ -1,0 +1,37 @@
+{
+  "task_id": "ops-0043",
+  "project_id": "rook-workspace",
+  "title": "Dispatcher: total dispatch attempt ceiling to prevent infinite retry spirals",
+  "description": "The dispatcher retries up to `DEFAULT_MAX_ATTEMPTS=3` per dispatcher run. But when a task's session dies and the stale-claim release fires, the retry counter resets on the next dispatch. An agent can effectively be dispatched indefinitely on a permanently broken task.\n\nFix: add a `dispatch.total_attempts` counter to the runtime state that accumulates across claim releases and is never reset. When `total_attempts >= MAX_TOTAL_ATTEMPTS` (suggest 9 = 3 runs × 3 attempts), block the task permanently with `failure_reason: 'Exceeded maximum total dispatch attempts (9). Manual intervention required.'`\n\nChanges:\n1. In `buildRuntimeTaskState()`: include `total_attempts: task.dispatch?.total_attempts || 0`\n2. In the dispatch loop: increment `task.dispatch.total_attempts` on each attempt (not just each run)\n3. Before dispatching: check `task.dispatch?.total_attempts >= MAX_TOTAL_ATTEMPTS` and block if exceeded\n4. Add `ROOK_DISPATCH_MAX_TOTAL_ATTEMPTS` env var (default 9) to service file\n\nDo NOT reset `total_attempts` on stale claim release. Only reset when status transitions to `done`.",
+  "status": "done",
+  "assigned_agent": "engineer",
+  "priority": "medium",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/engineer/ops-0043-dispatch-total-attempt-ceiling",
+  "labels": [
+    "dispatcher",
+    "reliability"
+  ],
+  "workflow_stage": "done",
+  "blocked_reason": null,
+  "failure_reason": null,
+  "handoff_notes": "Added DEFAULT_MAX_TOTAL_ATTEMPTS=9 constant (env: ROOK_DISPATCH_MAX_TOTAL_ATTEMPTS). dispatch.total_attempts persists across claim releases via buildDispatchState(). Pre-dispatch check blocks permanently when total_attempts >= ceiling. Added ROOK_DISPATCH_MAX_TOTAL_ATTEMPTS=9 to both service files and ran daemon-reload.",
+  "commits": [],
+  "commit_refs": [],
+  "artifacts": [],
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "sync_status": "not_requested",
+    "last_synced_at": null,
+    "last_error": null
+  },
+  "timestamps": {
+    "completed_at": "2026-04-19T06:35:00Z",
+    "updated_at": "2026-04-19T06:35:00Z",
+    "started_at": "2026-04-19T06:35:00Z"
+  }
+}

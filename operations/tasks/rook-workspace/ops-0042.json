@@ -1,0 +1,37 @@
+{
+  "task_id": "ops-0042",
+  "project_id": "rook-workspace",
+  "title": "Dispatcher: enforce handoff_notes for non-code agent completions",
+  "description": "`validateStageCompletion()` in task-dispatcher.mjs bails out with `ok: true` immediately for non-code tasks (`!isCodeTask`). This means coach, researcher, and health agents can complete a task with empty `handoff_notes` and it advances to done with no human-readable summary of what was produced.\n\nFix: restructure `validateStageCompletion()` so the `handoff_notes` check for `in_progress` stage runs for ALL tasks, not just code tasks:\n\n```js\nif (stage === 'in_progress') {\n  const handoff = String(task.handoff_notes || '').trim();\n  if (!handoff) {\n    return { ok: false, reason: `${task.task_id} is missing handoff_notes.`, blockedBy: ['agent:missing-handoff'] };\n  }\n}\n// Only then check isCodeTask for git evidence\nif (!isCodeTask) return { ok: true, reason: null, blockedBy: [] };\n```\n\nThis keeps git evidence checks scoped to code tasks while ensuring all agents must leave a handoff note.",
+  "status": "done",
+  "assigned_agent": "engineer",
+  "priority": "medium",
+  "dependencies": [],
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/engineer/ops-0042-handoff-notes-all-agents",
+  "labels": [
+    "dispatcher",
+    "quality"
+  ],
+  "workflow_stage": "done",
+  "blocked_reason": null,
+  "failure_reason": null,
+  "handoff_notes": "Restructured validateStageCompletion() in task-dispatcher.mjs: handoff_notes check now runs before the isCodeTask early return, so all agents (coach, researcher, health, engineer) must provide handoff_notes. blockedBy changed from 'engineer:missing-handoff' to 'agent:missing-handoff'. Validated with dry-run (exit 0).",
+  "commits": [],
+  "commit_refs": [],
+  "artifacts": [],
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-workspace",
+    "number": null,
+    "url": null,
+    "state": null,
+    "sync_status": "not_requested",
+    "last_synced_at": null,
+    "last_error": null
+  },
+  "timestamps": {
+    "completed_at": "2026-04-19T06:35:00Z",
+    "updated_at": "2026-04-19T06:35:00Z",
+    "started_at": "2026-04-19T06:35:00Z"
+  }
+}

@@ -1,8 +1,26 @@
 # HEARTBEAT.md
 
-## Deprecated
+## Active Heartbeat Mechanism
 
-This workspace no longer uses prompt-based heartbeat polling as an operational control path.
+For long-running agent tasks (>20 min), use the heartbeat script to prevent claim staleness:
+
+```bash
+node operations/bin/write-heartbeat.mjs <task_id> <project_id>
+```
+
+Example (from repo root):
+```bash
+node operations/bin/write-heartbeat.mjs ops-0039 rook-workspace
+```
+
+The script:
+- Updates `last_heartbeat` and `timestamps.updated_at` in the runtime task-state file
+- Writes atomically (tmp + rename)
+- Exits silently if the task-state file doesn't exist
+
+## Deprecated Items
+
+The old `heartbeat.js` polling flow for the engineer workspace has been retired.
 
 Current source of truth:
 

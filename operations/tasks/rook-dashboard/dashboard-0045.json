@@ -9,7 +9,7 @@
     "refined_at": "2026-04-11T10:00:00.000Z",
     "refinement_summary": "Identified after dashboard-0043 showed no UI way to recover stuck tasks without CLI."
   },
-  "status": "ready",
+  "status": "completed",
   "assigned_agent": "engineer",
   "claimed_by": null,
   "priority": "high",
@@ -17,12 +17,12 @@
   "blocked_by": [],
   "related_repo": "MarcusGraetsch/rook-dashboard",
   "branch": "agent/engineer/dashboard-0045-force-done-stuck-indicator-reconcile",
-  "commits": [],
+  "commits": ["1937151"],
   "commit_refs": [],
   "labels": ["ui", "dashboard"],
-  "workflow_stage": "ready",
+  "workflow_stage": "completed",
   "blocked_reason": null,
-  "handoff_notes": "",
+  "handoff_notes": "[agent:engineer][task:dashboard-0045] Completed.\n\nChanges made:\n1. POST /api/control/tasks/force-done route — already existed at src/app/api/control/tasks/force-done/route.ts\n\n2. Force Done in TaskModal — button already existed in modal footer (visible when task has canonical_task_id)\n\n3. Stuck-task amber indicator in KanbanCard — already showed amber pulsing badge when pipeline_state=running + heartbeat > 30min\n   (Required fix: used invalid IIFE syntax that caused build failure — corrected IIFE wrapper pattern)\n\n4. Manual Sync button in KanbanBoard header — already existed (RefreshCw icon, calls POST /api/kanban/sync)\n\nFix applied during this session:\n- KanbanCard.tsx: Fixed invalid IIFE JSX expression syntax for stuck-task indicator. Changed from `{(condition) && (() => {...})()}` to `{(() => { if (condition) return null; ... })()}` pattern.\n\nValidation: npm run build PASSED (exit code 0)\nAll 5 checklist items confirmed complete.",
   "last_heartbeat": null,
   "failure_reason": null,
   "source_channel": "system:control",
@@ -37,11 +37,11 @@
     ],
     "out_of_scope": ["Full task lifecycle redesign"],
     "steps": [
-      { "id": "1", "title": "Create POST /api/control/tasks/force-done route", "owner": "engineer", "completed": false },
-      { "id": "2", "title": "Add Force Done button to TaskModal actions", "owner": "engineer", "completed": false },
-      { "id": "3", "title": "Add stuck-task amber indicator to KanbanCard when heartbeat age > 30m", "owner": "engineer", "completed": false },
-      { "id": "4", "title": "Add manual Sync button to KanbanBoard header", "owner": "engineer", "completed": false },
-      { "id": "5", "title": "Validate build passes", "owner": "engineer", "completed": false }
+      { "id": "1", "title": "Create POST /api/control/tasks/force-done route", "owner": "engineer", "completed": true },
+      { "id": "2", "title": "Add Force Done button to TaskModal actions", "owner": "engineer", "completed": true },
+      { "id": "3", "title": "Add stuck-task amber indicator to KanbanCard when heartbeat age > 30m", "owner": "engineer", "completed": true },
+      { "id": "4", "title": "Add manual Sync button to KanbanBoard header", "owner": "engineer", "completed": true },
+      { "id": "5", "title": "Validate build passes", "owner": "engineer", "completed": true }
     ],
     "acceptance_criteria": [],
     "risks": [],
@@ -50,11 +50,11 @@
     "planned_at": "2026-04-11T10:00:00.000Z"
   },
   "checklist": [
-    { "title": "POST /api/control/tasks/force-done endpoint", "completed": false, "position": 0 },
-    { "title": "Force Done UI action in TaskModal", "completed": false, "position": 1 },
-    { "title": "Stuck-task amber indicator on KanbanCard", "completed": false, "position": 2 },
-    { "title": "Manual Sync button in board header", "completed": false, "position": 3 },
-    { "title": "Validate build passes", "completed": false, "position": 4 }
+    { "title": "POST /api/control/tasks/force-done endpoint", "completed": true, "position": 0 },
+    { "title": "Force Done UI action in TaskModal", "completed": true, "position": 1 },
+    { "title": "Stuck-task amber indicator on KanbanCard", "completed": true, "position": 2 },
+    { "title": "Manual Sync button in board header", "completed": true, "position": 3 },
+    { "title": "Validate build passes", "completed": true, "position": 4 }
   ],
   "kanban": null,
   "github_issue": {
@@ -68,9 +68,9 @@
   },
   "timestamps": {
     "created_at": "2026-04-11T10:00:00.000Z",
-    "updated_at": "2026-04-11T10:00:00.000Z",
-    "started_at": null,
-    "completed_at": null,
+    "updated_at": "2026-04-18T19:54:00.000Z",
+    "started_at": "2026-04-18T19:54:00.000Z",
+    "completed_at": "2026-04-18T19:58:00.000Z",
     "claimed_at": null
   }
 }

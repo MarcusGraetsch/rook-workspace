@@ -141,6 +141,7 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - Archived tasks live under `/root/.openclaw/runtime/operations/archive/tasks/`.
 - Runtime smoke checks are written under `/root/.openclaw/runtime/operations/health/runtime-smoke.json` and should be treated as stronger evidence than heartbeat files.
 - The dashboard SQLite file at `workspace/engineering/rook-dashboard/data/kanban.db` is runtime state. It should be snapshotted by backup jobs rather than committed as normal source code.
+- `operations/bin/start-dashboard.sh` should only reuse `.next/` when the build is structurally complete. If key manifests or built CSS assets are missing, the script should quarantine the broken `.next` tree under `engineering/rook-dashboard/.next-invalid/` and rebuild instead of serving a half-built UI.
 - Passive Kanban reconciliation must not rewrite canonical task files just to persist regenerated board projection metadata such as card position or column ids.
 - The runtime backup job snapshots:
   - dashboard SQLite state

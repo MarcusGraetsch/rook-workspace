@@ -6,6 +6,7 @@ import path from 'path';
 const OPENCLAW_DIR = '/root/.openclaw';
 const CANONICAL_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace', 'operations', 'tasks');
 const RUNTIME_TASK_STATE_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'task-state');
+const ACTIVE_RUNTIME_STATUSES = new Set(['in_progress', 'testing', 'review', 'blocked']);
 
 function parseArgs(argv) {
   const options = {
@@ -51,6 +52,45 @@ async function writeJson(filePath, data) {
   await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 }
 
+function hasRuntimeSignal(task) {
+  if (!task || typeof task !== 'object') {
+    return false;
+  }
+
+  if (task.claimed_by || task.last_heartbeat || task.failure_reason) {
+    return true;
+  }
+
+  const dispatch = task.dispatch;
+  if (!dispatch || typeof dispatch !== 'object') {
+    return false;
+  }
+
+  return Object.values(dispatch).some((value) => {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+    if (typeof value === 'number') {
+      return value > 0;
+    }
+    return true;
+  });
+}
+
+function requiresRuntimeState(task) {
+  const status = String(task?.status || '').trim().toLowerCase();
+
+  if (ACTIVE_RUNTIME_STATUSES.has(status)) {
+    return true;
+  }
+
+  if (status === 'done' || status === 'backlog' || status === 'intake') {
+    return false;
+  }
+
+  return hasRuntimeSignal(task);
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const canonicalFiles = await collectJsonFiles(CANONICAL_TASKS_DIR);
@@ -78,6 +118,10 @@ async function main() {
     }
 
     const task = await readJson(canonicalPath);
+    if (!requiresRuntimeState(task)) {
+      continue;
+    }
+
     actions.push({
       action: 'create_runtime_state',
       project_id: projectId,

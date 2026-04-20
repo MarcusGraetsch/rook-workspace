@@ -1,0 +1,129 @@
+{
+  "task_id": "ops-0049",
+  "project_id": "rook-workspace",
+  "title": "Implement under Diagnostics here in the Dashboard there are some erro...",
+  "description": "Objective:\n- Under Diagnostics here in the Dashboard there are some errors shown, but I do not have information on suggestions on how to fix the errors, or even better: there seems to be no automated fix when an error shows up in the heslth check system. Can we implement to fix those errors and to show the user what has been done or what needs to be done to fix the errors\n\nExecution scope:\n- Convert the request into a concrete implementation change in the selected repository.\n- Keep the scope bounded and directly tied to the requested UI, API, or code behavior.\n- Preserve existing behavior outside the requested change.\n\nContext and constraints:\n- Can we implement to fix those errors and to show the user what has been done or what needs to be done to fix the errors\n\nDefinition of done:\n- The requested change is implemented.\n- Relevant validation or tests are run and recorded.\n- Follow-up risks or open questions are noted in the task.",
+  "intake": {
+    "brief": "Under Diagnostics here in the Dashboard there are some errors shown, but I do not have information on suggestions on how to fix the errors, or even better: there seems to be no automated fix when an error shows up in the heslth check system. Can we implement to fix those errors and to show the user what has been done or what needs to be done to fix the errors.",
+    "refinement_source": "fallback",
+    "refined_at": "2026-04-19T08:10:29.512Z",
+    "refinement_summary": "Structured from the rough brief with the local fallback refiner for engineering work."
+  },
+  "status": "done",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-dashboard",
+  "branch": "main",
+  "commits": [
+    "5bcc053"
+  ],
+  "commit_refs": [
+    "5bcc053"
+  ],
+  "labels": [
+    "bug",
+    "ui"
+  ],
+  "workflow_stage": "done",
+  "blocked_reason": null,
+  "handoff_notes": "Implemented remediation guidance for Diagnostics control-plane findings.\n\nWhat changed:\n- Added server-side remediation mapping in the diagnostics API\n- Added per-finding operator guidance, suggested commands, and automation-level labels in the Diagnostics UI\n- Kept the first step operator-safe: guidance and dry-run recommendations before any destructive automation\n\nValidation:\n- npm run build in engineering/rook-dashboard\n- systemctl --user restart rook-dashboard.service\n- curl http://127.0.0.1:3001/api/control/diagnostics confirmed remediation payloads\n\nFollow-up:\n- extend remediation coverage to integrity and backup findings\n- decide which dry-run fixes are safe enough for explicit dashboard-triggered actions",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [
+    "src/app/api/control/diagnostics/route.ts",
+    "src/app/diagnostics/page.tsx"
+  ],
+  "plan": {
+    "approach": "Implement implement under diagnostics here in the dashboard there are some erro... following existing patterns in the codebase.",
+    "scope": [
+      "Inspect the affected code paths and confirm the concrete change needed for implement under diagnostics here in the dashboard there are some erro..",
+      "Implement the required code and configuration changes in the target repository",
+      "Run the relevant validation or test commands and record the result",
+      "Update task notes with the delivered change and any follow-up risks"
+    ],
+    "out_of_scope": [],
+    "steps": [
+      {
+        "id": "1",
+        "title": "Inspect the affected code paths and confirm the concrete change needed for implement under diagnostics here in the dashboard there are some erro..",
+        "owner": "engineer",
+        "completed": true
+      },
+      {
+        "id": "2",
+        "title": "Implement the required code and configuration changes in the target repository",
+        "owner": "engineer",
+        "completed": true
+      },
+      {
+        "id": "3",
+        "title": "Run the relevant validation or test commands and record the result",
+        "owner": "engineer",
+        "completed": true
+      },
+      {
+        "id": "4",
+        "title": "Update task notes with the delivered change and any follow-up risks",
+        "owner": "engineer",
+        "completed": true
+      }
+    ],
+    "acceptance_criteria": [],
+    "risks": [],
+    "context": "Codebase discovered at MarcusGraetsch/rook-dashboard.",
+    "planned_by": "fallback",
+    "planned_at": "2026-04-19T08:10:43.890Z"
+  },
+  "checklist": [
+    {
+      "title": "Inspect the affected code paths and confirm the concrete change needed for implement under diagnostics here in the dashboard there are some erro..",
+      "completed": true,
+      "position": 0
+    },
+    {
+      "title": "Implement the required code and configuration changes in the target repository",
+      "completed": true,
+      "position": 1
+    },
+    {
+      "title": "Run the relevant validation or test commands and record the result",
+      "completed": true,
+      "position": 2
+    },
+    {
+      "title": "Update task notes with the delivered change and any follow-up risks",
+      "completed": true,
+      "position": 3
+    }
+  ],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "column_name": "Backlog",
+    "task_db_id": "6b3dffd7-86fc-4722-a5b9-b978c508390c",
+    "position": 19,
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 14,
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/issues/14",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-04-19T08:10:52.925Z",
+    "last_error": null,
+    "assignees": null
+  },
+  "timestamps": {
+    "created_at": "2026-04-19T08:10:51.454Z",
+    "updated_at": "2026-04-19T08:21:30.000Z",
+    "started_at": "2026-04-19T08:15:00.000Z",
+    "completed_at": "2026-04-19T08:21:30.000Z",
+    "claimed_at": "2026-04-19T08:15:00.000Z"
+  }
+}
