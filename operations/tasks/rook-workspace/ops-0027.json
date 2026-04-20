@@ -47,9 +47,9 @@
     "number": 33,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/33",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/33 --method PATCH -f title=[task:ops-0027] Feature: Drill-down Charts -f body=## Task\n\nKlick auf Chart-Datenpunkt zeigt Detailansicht. Bar/Line Chart mit Klick auf Datenpunkt offnet Slide-out Panel mit Details.\n\nAcceptance criteria:\n- Click on chart data point opens detail view\n- Slide-out panel with granular data\n- Back button to return to overview\n- Works with existing chart library (Chart.js or D3.js)\n\n## Metadata\n\n- Task ID: `ops-0027`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `high`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0027-feature-drill-down-charts`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `UI`, `Charts`, `MVP`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.987Z",

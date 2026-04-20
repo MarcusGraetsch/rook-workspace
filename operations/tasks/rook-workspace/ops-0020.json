@@ -47,9 +47,9 @@
     "number": 29,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/29",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/29 --method PATCH -f title=[task:ops-0020] Feature: Custom Widget Builder -f body=## Task\n\nDrag-and-Drop fuer eigene Widgets. User kann eigene Widgets zusammenklicken.\n\nAcceptance criteria:\n- Drag and drop widget placement\n- Widget configuration panel\n- Save custom widget layouts\n- Export/import widget configurations\n\n## Metadata\n\n- Task ID: `ops-0020`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `medium`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0020-feature-custom-widget-builder`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `No-Code`, `Builder`, `Phase3`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.965Z",

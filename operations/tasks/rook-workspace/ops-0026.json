@@ -47,9 +47,9 @@
     "number": 35,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/35",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/35 --method PATCH -f title=[task:ops-0026] Feature: Predictive Analytics -f body=## Task\n\nTrend-Vorhersagen basierend auf historischen Daten. Chart zeigt Prognose-Linie mit Konfidenzintervall.\n\nAcceptance criteria:\n- Historical data analysis\n- Forecast line with confidence interval visualization\n- Anomaly detection alerts\n- Based on existing dashboard data\n\n## Metadata\n\n- Task ID: `ops-0026`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `high`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0026-feature-predictive-analytics`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `AI`, `Analytics`, `Phase2`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.995Z",

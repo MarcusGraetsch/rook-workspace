@@ -47,9 +47,9 @@
     "number": 28,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/28",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/28 --method PATCH -f title=[task:ops-0021] Feature: Zero UI Elements -f body=## Task\n\nGesture-based interactions. Wischen, Handgesten zur Navigation.\n\nAcceptance criteria:\n- Gesture recognition on dashboard\n- Swipe to navigate between views\n- Hand gesture controls\n- Works with touch and mouse\n\n## Metadata\n\n- Task ID: `ops-0021`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `low`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0021-feature-zero-ui-elements`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `Gesture`, `UX`, `Phase3`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.956Z",

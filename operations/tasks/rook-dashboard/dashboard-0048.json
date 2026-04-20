@@ -9,7 +9,7 @@
     "refined_at": "2026-04-11T10:00:00.000Z",
     "refinement_summary": "Identified: dashboard-0043 issue #12 stayed open despite task completion."
   },
-  "status": "completed",
+  "status": "done",
   "assigned_agent": "engineer",
   "claimed_by": null,
   "priority": "medium",
@@ -19,8 +19,11 @@
   "branch": "agent/engineer/dashboard-0048-auto-close-github-issues-on-done",
   "commits": [],
   "commit_refs": [],
-  "labels": ["github", "dashboard"],
-  "workflow_stage": "completed",
+  "labels": [
+    "github",
+    "dashboard"
+  ],
+  "workflow_stage": "done",
   "blocked_reason": null,
   "handoff_notes": "Build passes. The auto-close/reopen logic is already correctly implemented in github-issues.ts:\n\n- updateIssue() closes issue when task.status === 'done' && current.state !== 'closed'\n- updateIssue() reopens issue when task.status !== 'done' && current.state === 'closed'\n- Idempotent: checks current state before API call to avoid errors\n- applySyncSuccess() updates canonical.github_issue.state after sync\n\nValidation:\n- npm run build: PASSED (exit code 0)\n- No code changes needed - implementation already correct\n\nThe syncTaskToGithubIssue function properly handles all required state transitions.",
   "last_heartbeat": null,
@@ -35,26 +38,75 @@
       "Update canonical.github_issue.state after API call",
       "Idempotent: no error if already in target state"
     ],
-    "out_of_scope": ["Bulk-closing existing open issues retroactively"],
+    "out_of_scope": [
+      "Bulk-closing existing open issues retroactively"
+    ],
     "steps": [
-      { "id": "1", "title": "Read src/lib/control/github-issues.ts and locate syncTaskToGithubIssue", "owner": "engineer", "completed": true },
-      { "id": "2", "title": "Add close-issue call when status=done and issue.state=open", "owner": "engineer", "completed": true },
-      { "id": "3", "title": "Add reopen-issue call when status!=done and issue.state=closed", "owner": "engineer", "completed": true },
-      { "id": "4", "title": "Update canonical.github_issue.state after each API call", "owner": "engineer", "completed": true },
-      { "id": "5", "title": "Validate build passes, test with dashboard-0043 issue #12", "owner": "engineer", "completed": true }
+      {
+        "id": "1",
+        "title": "Read src/lib/control/github-issues.ts and locate syncTaskToGithubIssue",
+        "owner": "engineer",
+        "completed": true
+      },
+      {
+        "id": "2",
+        "title": "Add close-issue call when status=done and issue.state=open",
+        "owner": "engineer",
+        "completed": true
+      },
+      {
+        "id": "3",
+        "title": "Add reopen-issue call when status!=done and issue.state=closed",
+        "owner": "engineer",
+        "completed": true
+      },
+      {
+        "id": "4",
+        "title": "Update canonical.github_issue.state after each API call",
+        "owner": "engineer",
+        "completed": true
+      },
+      {
+        "id": "5",
+        "title": "Validate build passes, test with dashboard-0043 issue #12",
+        "owner": "engineer",
+        "completed": true
+      }
     ],
     "acceptance_criteria": [],
-    "risks": ["GitHub API rate limits if bulk-syncing many tasks at once"],
+    "risks": [
+      "GitHub API rate limits if bulk-syncing many tasks at once"
+    ],
     "context": "github-issues.ts at /root/.openclaw/workspace/engineering/rook-dashboard/src/lib/control/github-issues.ts",
     "planned_by": "manual",
     "planned_at": "2026-04-11T10:00:00.000Z"
   },
   "checklist": [
-    { "title": "Read github-issues.ts syncTaskToGithubIssue", "completed": true, "position": 0 },
-    { "title": "Close issue on status=done", "completed": true, "position": 1 },
-    { "title": "Reopen issue when status leaves done", "completed": true, "position": 2 },
-    { "title": "Update canonical.github_issue.state", "completed": true, "position": 3 },
-    { "title": "Build passes", "completed": true, "position": 4 }
+    {
+      "title": "Read github-issues.ts syncTaskToGithubIssue",
+      "completed": true,
+      "position": 0
+    },
+    {
+      "title": "Close issue on status=done",
+      "completed": true,
+      "position": 1
+    },
+    {
+      "title": "Reopen issue when status leaves done",
+      "completed": true,
+      "position": 2
+    },
+    {
+      "title": "Update canonical.github_issue.state",
+      "completed": true,
+      "position": 3
+    },
+    {
+      "title": "Build passes",
+      "completed": true,
+      "position": 4
+    }
   ],
   "kanban": null,
   "github_issue": {

@@ -46,9 +46,9 @@
     "number": 7,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/7",
     "state": "open",
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": "2026-03-30T15:42:11.467Z",
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/7 --method PATCH -f state=open\ngh: Validation Failed (HTTP 422)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:09.867Z",

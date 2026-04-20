@@ -47,9 +47,9 @@
     "number": 51,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/51",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/51 --method PATCH -f title=[task:ops-0032] Feature: Natural Language Query (NLQ) for Dashboard -f body=## Task\n\nChat interface for data queries in natural language. User can ask: What sales did we have last quarter? and the AI automatically generates a visualization.\n\nAcceptance criteria:\n- User can enter natural questions in text field\n- AI analyzes question and generates matching visualization (Chart, Table)\n- Works with dashboard data sources\n- No SQL knowledge required\n\nTech: React chat interface, Claude API or OpenAI for NLQ, existing data sources\n\n## Metadata\n\n- Task ID: `ops-0032`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `high`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0032-feature-natural-language-query-nlq-for-dashboard`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `AI`, `NLP`, `MVP`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:42.000Z",

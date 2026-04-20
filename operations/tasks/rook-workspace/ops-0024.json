@@ -46,9 +46,9 @@
     "number": 30,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/30",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/30 --method PATCH -f title=[task:ops-0024] Feature: Team Collaboration -f body=## Task\n\nKommentare und Sharing direkt im Dashboard. User konnen Charts kommentieren, Dashboards teilen.\n\nAcceptance criteria:\n- Comment on charts\n- Share dashboard with permissions\n- Real-time collaboration indicators\n- Mention users in comments\n\n## Metadata\n\n- Task ID: `ops-0024`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `medium`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0024-feature-team-collaboration`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `Collaboration`, `Phase2`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.970Z",

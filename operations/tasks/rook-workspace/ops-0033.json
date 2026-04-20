@@ -47,9 +47,9 @@
     "number": 52,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/52",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/52 --method PATCH -f title=[task:ops-0033] Tokens: distinguish local alert threshold from real provider budget -f body=## Task\n\nThe /tokens page currently shows a daily budget warning based only on a local UI threshold, which can be confused with a real provider/account spending limit. Update the page so it clearly separates local alert threshold from actual provider budget/spend data. If possible, add provider-aware budget visibility or explicitly mark that provider budget is not yet connected.\n\n## Metadata\n\n- Task ID: `ops-0033`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `medium`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0033-tokens-distinguish-local-alert-threshold-from-re`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `dashboard`, `tokens`, `ux`, `billing`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.992Z",

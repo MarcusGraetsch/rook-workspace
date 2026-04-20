@@ -47,9 +47,9 @@
     "number": 31,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/31",
     "state": null,
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": null,
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/31 --method PATCH -f title=[task:ops-0025] Feature: AI Insight Cards -f body=## Task\n\nKI-generierte automatische Erkenntnisse als Widget. System erkennt Anomalien/Trends und zeigt Card an.\n\nAcceptance criteria:\n- Widget displays AI-generated insights\n- Auto-detection of anomalies and trends\n- Click to expand details\n- Configurable sensitivity\n\n## Metadata\n\n- Task ID: `ops-0025`\n- Project: `rook-workspace`\n- Status: `backlog`\n- Priority: `medium`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/ops-0025-feature-ai-insight-cards`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `AI`, `Automation`, `Phase2`, `dashboard`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.967Z",

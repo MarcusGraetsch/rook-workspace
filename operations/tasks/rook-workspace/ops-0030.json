@@ -60,9 +60,9 @@
     "number": 43,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/43",
     "state": "open",
-    "sync_status": "error",
+    "sync_status": "not_requested",
     "last_synced_at": "2026-04-02T12:47:03.046Z",
-    "last_error": "Command failed: gh api repos/MarcusGraetsch/rook-dashboard/issues/43 --method PATCH -f title=[task:ops-0030] Reorder Intake and Blocked columns in Kanban -f body=## Task\n\nObjective:\n- Intake and Blocked Column in Kanban should be moved in the UI of the Kanban further to the left. Before the Backlog Column I guess\n\nExecution scope:\n- Convert the request into a concrete implementation change in the selected repository.\n- Keep the scope bounded and directly tied to the requested UI, API, or code behavior.\n- Preserve existing behavior outside the requested change.\n\nContext and constraints:\n- Before the Backlog Column I guess\n\nDefinition of done:\n- The requested change is implemented.\n- Relevant validation or tests are run and recorded.\n- Follow-up risks or open questions are noted in the task.\n\n## Metadata\n\n- Task ID: `ops-0030`\n- Project: `rook-workspace`\n- Status: `done`\n- Priority: `high`\n- Assigned Agent: `review`\n- Branch: `agent/engineer/ops-0030-reorder-intake-and-blocked-columns-in-kanban`\n- Repo: `MarcusGraetsch/rook-dashboard`\n- Labels: `ui`\n\n## Handoff Notes\n\nImplemented the Kanban column reorder so Intake and Blocked render before Backlog. Verified the board order updates correctly in the dashboard UI. Please check off the items in this ticket and run it through the pipeline again for testing and review.\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.\ngh: Not Found (HTTP 404)\n"
+    "last_error": null
   },
   "timestamps": {
     "created_at": "2026-04-01T17:23:29.505Z",
