@@ -36,6 +36,7 @@ const UNIT_FILES = [
   'rook-runtime-backup.service',
   'rook-runtime-backup.timer',
 ];
+const ACTIVE_RUNTIME_STATUSES = new Set(['in_progress', 'testing', 'review', 'blocked']);
 
 async function readJson(filePath) {
   return JSON.parse(await fs.readFile(filePath, 'utf8'));
@@ -131,6 +132,45 @@ function relativeProjectTaskMap(rootDir, files) {
   }
 
   return mapping;
+}
+
+function hasRuntimeSignal(task) {
+  if (!task || typeof task !== 'object') {
+    return false;
+  }
+
+  if (task.claimed_by || task.last_heartbeat || task.failure_reason) {
+    return true;
+  }
+
+  const dispatch = task.dispatch;
+  if (!dispatch || typeof dispatch !== 'object') {
+    return false;
+  }
+
+  return Object.values(dispatch).some((value) => {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+    if (typeof value === 'number') {
+      return value > 0;
+    }
+    return true;
+  });
+}
+
+function requiresRuntimeState(task) {
+  const status = String(task?.status || '').trim().toLowerCase();
+
+  if (ACTIVE_RUNTIME_STATUSES.has(status)) {
+    return true;
+  }
+
+  if (status === 'done' || status === 'backlog' || status === 'intake') {
+    return false;
+  }
+
+  return hasRuntimeSignal(task);
 }
 
 async function findBackupMatches(relativePath) {
@@ -642,7 +682,19 @@ async function main() {
 
   const canonicalFiles = await collectJsonFiles(TASKS_DIR);
   const runtimeFiles = await collectJsonFiles(RUNTIME_TASK_STATE_DIR);
-  const canonicalMap = relativeProjectTaskMap(TASKS_DIR, canonicalFiles);
+  const canonicalMap = new Map();
+  for (const filePath of canonicalFiles) {
+    const relativePath = path.relative(TASKS_DIR, filePath);
+    const projectId = path.dirname(relativePath);
+    const taskFile = path.basename(relativePath);
+    const task = await readJson(filePath);
+    if (!canonicalMap.has(projectId)) {
+      canonicalMap.set(projectId, new Set());
+    }
+    if (requiresRuntimeState(task)) {
+      canonicalMap.get(projectId).add(taskFile);
+    }
+  }
   const runtimeMap = relativeProjectTaskMap(RUNTIME_TASK_STATE_DIR, runtimeFiles);
   const projectIds = new Set([...canonicalMap.keys(), ...runtimeMap.keys()]);
 
@@ -652,7 +704,7 @@ async function main() {
     const missingInRuntime = [...canonical].filter((taskFile) => !runtime.has(taskFile)).sort();
     const runtimeOnly = [...runtime].filter((taskFile) => !canonical.has(taskFile)).sort();
 
-    if (missingInRuntime.length > 0 || runtimeOnly.length > 0) {
+    if (missingInRuntime.length > 0) {
       findings.push({
         source: 'runtime_state_coverage',
         severity: 'warning',
