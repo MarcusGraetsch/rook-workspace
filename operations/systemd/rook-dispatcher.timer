@@ -1,9 +1,10 @@
 [Unit]
-Description=Dispatch ready canonical tasks every 15 seconds
+Description=Dispatch ready canonical tasks and inspect active hook claims every 2 minutes
+Requires=rook-dispatcher.service
 
 [Timer]
-OnBootSec=15s
-OnUnitActiveSec=15s
+OnBootSec=2min
+OnUnitActiveSec=2min
 Unit=rook-dispatcher.service
 
 [Install]
