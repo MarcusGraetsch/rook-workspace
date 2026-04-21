@@ -244,3 +244,49 @@ Risk: low
 6. Move secrets out of tracked config.
 7. Write disaster recovery runbook.
 
+
+## Kubernetes Lab (2026-04-21)
+
+### 17. Kubernetes Lab aufbauen
+
+Why:
+
+- KI-Agenten als GitOps-Engine für Kubernetes erforschen
+- Beratungs-Kompetenz durch praktische Erfahrung differenzieren
+- Showcases für Cloud-native Kunden bauen
+
+Benefit:
+
+- Echte Kubernetes-GitOps-Experience mit Rook als Operator
+- Forschung: "Kann ein Agent Kubernetes sicher betreiben?"
+- Lokale Entwicklungsumgebung ohne Cloud-Kosten
+
+Structure:
+
+- `engineering/kubernetes-lab/` — kind-Cluster, Flux/ArgoCD, Sample Apps
+- `skills/rook-custom/` — Custom Skills für Kubernetes-Interface
+- Neues GitHub Repo `rook-k8s-lab`
+
+Complexity: medium
+Risk: low
+
+Dependencies:
+
+- kind, kubectl, Flux installieren
+- Erste Cluster-Config und GitOps-Pipeline
+- Rook kann mit kubectl sprechen
+
+### 18. Trennung Engineering / Research / Content
+
+Why:
+
+- Engineering (kubernetes-lab, rook-dashboard, metrics-collector) ≠ Content (Buch, Research, Website)
+- Klare Zuständigkeit für GitHub-Repos und Cron-Jobs
+
+Benefit:
+
+- Keine Vermischung mehr
+- Eigenständige GitHub-Repos pro Bereich
+
+Complexity: medium
+Risk: low
