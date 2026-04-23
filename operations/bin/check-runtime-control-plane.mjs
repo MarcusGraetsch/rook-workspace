@@ -268,9 +268,12 @@ async function findTrackedReferences(agentId, trackedFiles) {
     `${OPENCLAW_DIR}/agents/${agentId}`,
     `agents/${agentId}`,
     `agent:${agentId}:`,
-    `'${agentId}'`,
-    `"${agentId}"`,
   ];
+
+  if (agentId !== 'main') {
+    refPatterns.push(`'${agentId}'`, `"${agentId}"`);
+  }
+
   const refs = [];
 
   for (const filePath of trackedFiles) {
