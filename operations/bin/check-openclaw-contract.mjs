@@ -6,8 +6,8 @@ import path from 'path';
 const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const USER_SYSTEMD_DIR = '/root/.config/systemd/user';
-const REQUIRED_AGENT_IDS = ['rook', 'engineer', 'researcher', 'test', 'review'];
-const REQUIRED_WORKER_AGENT_IDS = ['engineer', 'researcher', 'test', 'review'];
+const REQUIRED_AGENT_IDS = ['rook', 'engineer', 'researcher', 'test', 'review', 'coach', 'health'];
+const REQUIRED_WORKER_AGENT_IDS = ['engineer', 'researcher', 'test', 'review', 'coach', 'health'];
 const REQUIRED_HOOK_PREFIX = 'hook:';
 const MIN_TIMEOUT_SECONDS = 180;
 
