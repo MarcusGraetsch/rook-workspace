@@ -1,0 +1,7 @@
+[Unit]
+Description=Rook dashboard health snapshot refresh
+After=rook-dashboard.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/curl -s -o /dev/null -X POST http://localhost:3001/api/control/health

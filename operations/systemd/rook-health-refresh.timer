@@ -1,0 +1,11 @@
+[Unit]
+Description=Rook dashboard health snapshot refresh — every 30 minutes
+Requires=rook-health-refresh.service
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=30min
+Unit=rook-health-refresh.service
+
+[Install]
+WantedBy=timers.target

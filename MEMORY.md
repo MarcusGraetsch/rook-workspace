@@ -127,3 +127,45 @@
 ---
 
 *Letzte Aktualisierung: 2026-03-27*
+
+### 2026-04-21 - IDP Plattform Build (8 Stunden Session)
+
+**Erfolg:** Komplette IDP auf kind Cluster gebaut + dokumentiert in einem Tag.
+
+**Was installiert:**
+- Flux, ArgoCD, Keycloak, OPA Gatekeeper, Trivy, kube-bench, Polaris
+- Prometheus, Grafana, midPoint
+- SOPS + Age (Secrets Management)
+- GitHub Actions CI/CD Pipeline
+- Ingress NGINX
+
+**Wichtige Learnings:**
+1. **Gatekeeper 3.15.0 buggy** → 3.14.0 nutzen
+2. **kind hat keine LoadBalancer** → Nur NodePorts oder Port-Forwards
+3. **SOPS + Age** ist besser als Sealed Secrets für GitOps
+4. **Repo auf private gestellt** → Flux braucht GitHub Token
+
+**Neue Repos:**
+- `rook-k8s-lab` (IDP Plattform) - private
+- `idp-customer-onboarding` (TODOs) - private
+
+**Dokumente:** 23 Stück in rook-k8s-lab/docs/
+
+**Nächste Schritte:**
+- Flux GitHub Token konfigurieren
+- ArgoCD Keycloak SSO fertigstellen
+- Kundenspezifische Dokumentation
+- Dashboard Widgets (Vulnerabilities)
+
+---
+
+## Aktuelle Projekte
+
+### IDP Plattform (rook-k8s-lab)
+- **Status:** Funktional, braucht noch Flux Token (Repo ist jetzt private)
+- **Doku:** 23 Dokumente, alle mit Compliance-Referenzen (NIS2, BSI, ISO, DSGVO)
+- **Link:** https://github.com/MarcusGraetsch/rook-k8s-lab
+
+### IDP Customer Onboarding (idp-customer-onboarding)
+- **Status:** TODOs erstellt, Workspace begonnen
+- **Link:** https://github.com/MarcusGraetsch/idp-customer-onboarding
