@@ -47,9 +47,8 @@ MigrateToClaw/
 # Memory runtime state (ephemeral recall events and working memory, not session logs)
 memory/.dreams/
 
-# Nested git repositories (tracked in their own GitHub repos; add as submodules if needed)
-# rook-k8s-lab: https://github.com/MarcusGraetsch/rook-k8s-lab
-engineering/kubernetes-lab/
+# Nested git repositories — local working copies not tracked by this repo
+# (canonical versions registered as submodules under engineering/)
 # idp-customer-onboarding: https://github.com/MarcusGraetsch/idp-customer-onboarding
-idp-customer-onboarding/
-projects/idp-customer-onboarding/
+/idp-customer-onboarding/
+/projects/idp-customer-onboarding/

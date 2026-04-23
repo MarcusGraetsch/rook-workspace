@@ -13,3 +13,9 @@
 [submodule "engineering/metrics-collector"]
 	path = engineering/metrics-collector
 	url = https://github.com/MarcusGraetsch/metrics-collector.git
+[submodule "engineering/kubernetes-lab"]
+	path = engineering/kubernetes-lab
+	url = git@github.com:MarcusGraetsch/rook-k8s-lab.git
+[submodule "engineering/idp-customer-onboarding"]
+	path = engineering/idp-customer-onboarding
+	url = https://github.com/MarcusGraetsch/idp-customer-onboarding.git
