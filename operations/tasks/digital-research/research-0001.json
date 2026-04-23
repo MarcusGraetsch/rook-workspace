@@ -9,7 +9,7 @@
     "refined_at": "2026-04-01T14:14:39.443Z",
     "refinement_summary": "Structured from the rough brief with the local fallback refiner for research work."
   },
-  "status": "intake",
+  "status": "ready",
   "assigned_agent": "researcher",
   "claimed_by": null,
   "priority": "medium",
@@ -20,7 +20,7 @@
   "commits": [],
   "commit_refs": [],
   "labels": [],
-  "workflow_stage": "kanban-sync",
+  "workflow_stage": "ready",
   "blocked_reason": null,
   "handoff_notes": "",
   "last_heartbeat": null,
@@ -52,8 +52,8 @@
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "7b8e8c01-43e0-4b3b-a442-1c98cf382fe8",
-    "column_name": "Intake",
+    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
+    "column_name": "Ready",
     "task_db_id": "61f9d1de-7701-489a-ba6a-1c859a65ac78",
     "position": 1,
     "sync_origin": "dashboard-kanban"
@@ -69,7 +69,7 @@
   },
   "timestamps": {
     "created_at": "2026-04-02T12:43:04.241Z",
-    "updated_at": "2026-04-02T12:43:05.749Z",
+    "updated_at": "2026-04-23T12:10:22.000Z",
     "started_at": null,
     "completed_at": null,
     "claimed_at": null
