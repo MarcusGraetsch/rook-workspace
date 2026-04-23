@@ -7,6 +7,8 @@ const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const PROVIDER_ALIASES = new Map([
+  ['kimi-coding', ['kimi-coding', 'kimi']],
+  ['kimi', ['kimi', 'kimi-coding']],
   ['openai-codex', ['openai-codex', 'codex']],
   ['codex', ['codex', 'openai-codex']],
 ]);
@@ -89,6 +91,92 @@ function normalizeProviderName(providerName, providers, modelId = null) {
 
   const withDeclaredModels = candidates.find((candidate) => (providers?.[candidate]?.models || []).length > 0);
   return withDeclaredModels || candidates[0];
+}
+
+function collectPrimaryModelRefs(config) {
+  const refs = [];
+  const addRef = (scope, value) => {
+    const ref = typeof value === 'string' ? value : value?.primary;
+    if (typeof ref === 'string' && ref.includes('/')) {
+      refs.push({ scope, ref });
+    }
+  };
+
+  addRef('agents.defaults.model.primary', config?.agents?.defaults?.model);
+
+  const agents = Array.isArray(config?.agents?.list) ? config.agents.list : [];
+  for (const agent of agents) {
+    if (typeof agent?.id !== 'string' || agent.id.length === 0) {
+      continue;
+    }
+    addRef(`agents.list.${agent.id}.model.primary`, agent.model);
+  }
+
+  return refs;
+}
+
+function inspectOpenClawModelRegistry(config) {
+  const providers = config?.models?.providers || {};
+  const allowlist = config?.agents?.defaults?.models || {};
+  const findings = [];
+
+  for (const { scope, ref } of collectPrimaryModelRefs(config)) {
+    const [providerName, modelId] = ref.split('/');
+    const providerKey = normalizeProviderName(providerName, providers, modelId);
+    const providerConfig = providerKey ? providers?.[providerKey] : null;
+
+    if (!providerConfig) {
+      findings.push({
+        severity: 'error',
+        type: 'primary_model_provider_missing',
+        scope,
+        provider: providerName,
+        model: modelId,
+        details: `${scope}=${ref} has no matching provider in ${path.relative(OPENCLAW_DIR, OPENCLAW_CONFIG_PATH)} models.providers.`,
+      });
+      continue;
+    }
+
+    if (!modelIdSet(providerConfig).has(modelId)) {
+      findings.push({
+        severity: 'error',
+        type: 'primary_model_missing',
+        scope,
+        provider: providerKey,
+        model: modelId,
+        details: `${scope}=${ref} resolves to provider ${providerKey}, but model ${modelId} is not declared in ${path.relative(OPENCLAW_DIR, OPENCLAW_CONFIG_PATH)} models.providers.${providerKey}.models.`,
+      });
+    }
+
+    if (!Object.hasOwn(allowlist, ref)) {
+      findings.push({
+        severity: 'warning',
+        type: 'primary_model_not_allowlisted',
+        scope,
+        provider: providerName,
+        model: modelId,
+        details: `${scope}=${ref} is not listed in agents.defaults.models.`,
+      });
+    }
+
+    const resolvedRef = `${providerKey}/${modelId}`;
+    if (resolvedRef !== ref && !Object.hasOwn(allowlist, resolvedRef)) {
+      findings.push({
+        severity: 'warning',
+        type: 'resolved_primary_model_not_allowlisted',
+        scope,
+        provider: providerKey,
+        model: modelId,
+        details: `${scope}=${ref} resolves to ${resolvedRef}, but the resolved model is not listed in agents.defaults.models.`,
+      });
+    }
+  }
+
+  return {
+    checked_model_refs: collectPrimaryModelRefs(config),
+    provider_count: Object.keys(providers).length,
+    findings,
+  };
 }
 
 async function inspectAgent(config, agentId) {
@@ -204,8 +292,14 @@ async function main() {
     .sort();
 
   const agents = [];
+  const rootModelRegistry = inspectOpenClawModelRegistry(config);
   let ok = true;
   let warningCount = 0;
+
+  for (const finding of rootModelRegistry.findings) {
+    if (finding.severity === 'error') ok = false;
+    if (finding.severity === 'warning') warningCount += 1;
+  }
 
   for (const agentId of configuredAgentIds) {
     const result = await inspectAgent(config, agentId);
@@ -223,6 +317,7 @@ async function main() {
     warning_count: warningCount,
     configured_agent_count: configuredAgentIds.length,
     unbound_agent_dirs: unboundAgentDirs,
+    root_model_registry: rootModelRegistry,
     agents,
   };
 
