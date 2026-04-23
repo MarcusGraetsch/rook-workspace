@@ -44,6 +44,11 @@ function splitModelId(modelId) {
   return { provider, model };
 }
 
+// Providers allowed to differ from agents.defaults.model.primary when used as ROOK_HOOK_MODEL.
+// The dispatcher intentionally uses a cheaper/faster model (e.g. minimax) for orchestration
+// while worker agents use the primary model (e.g. kimi). This is expected and not a bug.
+const ALLOWED_DISPATCH_ONLY_PROVIDERS = new Set(['minimax', 'minimax-portal']);
+
 function areCompatibleHookModels(defaultPrimaryModel, dispatcherHookModel) {
   if (!defaultPrimaryModel || !dispatcherHookModel) {
     return true;
@@ -57,12 +62,24 @@ function areCompatibleHookModels(defaultPrimaryModel, dispatcherHookModel) {
   const dispatcher = splitModelId(dispatcherHookModel);
   const compatibleProviders = new Set(['minimax', 'minimax-portal']);
 
-  return (
+  // Same model, different minimax provider variant (e.g. minimax vs minimax-portal)
+  if (
     defaults.model.length > 0
     && defaults.model === dispatcher.model
     && compatibleProviders.has(defaults.provider)
     && compatibleProviders.has(dispatcher.provider)
-  );
+  ) {
+    return true;
+  }
+
+  // Intentional cross-provider dispatch: dispatcher uses a dedicated orchestration model
+  // while agents use a different primary model. Allowed when dispatcher provider is in the
+  // known dispatch-only set.
+  if (ALLOWED_DISPATCH_ONLY_PROVIDERS.has(dispatcher.provider)) {
+    return true;
+  }
+
+  return false;
 }
 
 async function main() {
