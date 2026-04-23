@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { promises as fs } from 'fs';
+import { promises as fs, writeFileSync } from 'fs';
 import path from 'path';
 
 const OPENCLAW_DIR = '/root/.openclaw';
@@ -226,7 +226,7 @@ async function main() {
     agents,
   };
 
-  process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+  writeFileSync(1, `${JSON.stringify(summary, null, 2)}\n`);
   process.exitCode = ok ? 0 : 1;
 }
 

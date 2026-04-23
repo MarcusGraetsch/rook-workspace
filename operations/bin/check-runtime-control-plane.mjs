@@ -11,6 +11,7 @@ const OPENCLAW_DIR = '/root/.openclaw';
 const WORKSPACE_DIR = path.join(OPENCLAW_DIR, 'workspace');
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const RUNTIME_POSTURE_POLICY_PATH = path.join(WORKSPACE_DIR, 'operations', 'config', 'runtime-posture-policy.json');
+const MODEL_CONFIG_DRIFT_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-model-config-drift.mjs');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
 const TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'tasks');
@@ -47,6 +48,25 @@ async function readOptionalJson(filePath) {
     return await readJson(filePath);
   } catch {
     return null;
+  }
+}
+
+async function runJsonScript(scriptPath) {
+  try {
+    const { stdout } = await execFile('node', [scriptPath], {
+      cwd: WORKSPACE_DIR,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    return JSON.parse(stdout || '{}');
+  } catch (error) {
+    const stdout = Buffer.isBuffer(error?.stdout)
+      ? error.stdout.toString('utf8')
+      : (typeof error?.stdout === 'string' ? error.stdout : '');
+    if (stdout.trim()) {
+      return JSON.parse(stdout);
+    }
+
+    throw error;
   }
 }
 
@@ -476,6 +496,7 @@ async function main() {
   const agentIdList = [...agentIds].sort();
   const checks = [];
   const findings = [];
+  const modelConfigDrift = await runJsonScript(MODEL_CONFIG_DRIFT_SCRIPT);
 
   const recordCheck = (id, label, ok, warningCount = 0, errorCount = 0) => {
     checks.push({ id, label, ok, warning_count: warningCount, error_count: errorCount });
@@ -677,6 +698,21 @@ async function main() {
       ...entry,
     }));
   findings.push(...unitFindings);
+
+  for (const agent of modelConfigDrift?.agents || []) {
+    for (const finding of agent.findings || []) {
+      findings.push({
+        source: 'model_config_drift',
+        severity: finding.severity,
+        type: finding.type,
+        details: finding.details,
+        agent_id: agent.agent_id,
+        agent_dir: agent.agent_dir,
+        provider: finding.provider,
+        model: finding.model,
+      });
+    }
+  }
 
   const dispatcherUnitText = await readText(path.join(USER_SYSTEMD_DIR, 'rook-dispatcher.service'));
   const dispatcherHookModel = getEnvAssignment(dispatcherUnitText, 'ROOK_HOOK_MODEL');
@@ -912,6 +948,13 @@ async function main() {
     !findings.some((finding) => finding.source === 'task_agent_bindings' && finding.severity === 'error'),
     findings.filter((finding) => finding.source === 'task_agent_bindings' && finding.severity === 'warning').length,
     findings.filter((finding) => finding.source === 'task_agent_bindings' && finding.severity === 'error').length
+  );
+  recordCheck(
+    'model_config_drift',
+    'Model config drift',
+    !findings.some((finding) => finding.source === 'model_config_drift' && finding.severity === 'error'),
+    findings.filter((finding) => finding.source === 'model_config_drift' && finding.severity === 'warning').length,
+    findings.filter((finding) => finding.source === 'model_config_drift' && finding.severity === 'error').length
   );
   recordCheck(
     'user_systemd_drift',
