@@ -16,9 +16,12 @@ The local dashboard database may cache or index this data for performance, but i
 ```text
 operations/
 ├── archive/
+├── bin/
+├── config/
 ├── health/
 ├── projects/
 ├── schemas/
+├── sysctl/
 └── tasks/
 ```
 
@@ -33,6 +36,13 @@ operations/
 7. `claimed_by`, `last_heartbeat`, and `failure_reason` should reflect real execution state, not conversational intent.
 8. Dashboard uptime and dispatcher runs must be supervised outside chat.
 9. Hook-dispatched tasks should record `dispatch` metadata so worker session identity survives restart and postmortem analysis.
+10. Host-level runtime requirements that affect OpenClaw reliability should be tracked here as auditable operations artifacts, for example sysctl files under `operations/sysctl/`.
+
+## Host Runtime Policy
+
+- `operations/sysctl/99-openclaw-inotify.conf` raises inotify capacity for the VPS workload. The gateway, dashboard, Kubernetes tooling, and file-watching automation share the same host, so the distro default `fs.inotify.max_user_instances=128` is too low.
+- Validate host watcher capacity with `node operations/bin/check-inotify-capacity.mjs`.
+- The aggregate control-plane check includes this signal through `node operations/bin/check-runtime-control-plane.mjs`.
 
 ## Current Scope
 

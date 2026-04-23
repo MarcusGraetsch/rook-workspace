@@ -12,6 +12,7 @@ const WORKSPACE_DIR = path.join(OPENCLAW_DIR, 'workspace');
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const RUNTIME_POSTURE_POLICY_PATH = path.join(WORKSPACE_DIR, 'operations', 'config', 'runtime-posture-policy.json');
 const MODEL_CONFIG_DRIFT_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-model-config-drift.mjs');
+const INOTIFY_CAPACITY_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-inotify-capacity.mjs');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
 const TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'tasks');
@@ -497,6 +498,7 @@ async function main() {
   const checks = [];
   const findings = [];
   const modelConfigDrift = await runJsonScript(MODEL_CONFIG_DRIFT_SCRIPT);
+  const inotifyCapacity = await runJsonScript(INOTIFY_CAPACITY_SCRIPT);
 
   const recordCheck = (id, label, ok, warningCount = 0, errorCount = 0) => {
     checks.push({ id, label, ok, warning_count: warningCount, error_count: errorCount });
@@ -712,6 +714,18 @@ async function main() {
         model: finding.model,
       });
     }
+  }
+
+  for (const finding of inotifyCapacity?.findings || []) {
+    findings.push({
+      source: 'inotify_capacity',
+      severity: finding.severity,
+      type: finding.type,
+      details: finding.details,
+      name: finding.name,
+      actual: finding.actual,
+      minimum: finding.minimum,
+    });
   }
 
   const dispatcherUnitText = await readText(path.join(USER_SYSTEMD_DIR, 'rook-dispatcher.service'));
@@ -955,6 +969,13 @@ async function main() {
     !findings.some((finding) => finding.source === 'model_config_drift' && finding.severity === 'error'),
     findings.filter((finding) => finding.source === 'model_config_drift' && finding.severity === 'warning').length,
     findings.filter((finding) => finding.source === 'model_config_drift' && finding.severity === 'error').length
+  );
+  recordCheck(
+    'inotify_capacity',
+    'Inotify capacity',
+    !findings.some((finding) => finding.source === 'inotify_capacity' && finding.severity === 'error'),
+    findings.filter((finding) => finding.source === 'inotify_capacity' && finding.severity === 'warning').length,
+    findings.filter((finding) => finding.source === 'inotify_capacity' && finding.severity === 'error').length
   );
   recordCheck(
     'user_systemd_drift',
