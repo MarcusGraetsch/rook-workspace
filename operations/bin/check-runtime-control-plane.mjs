@@ -30,6 +30,7 @@ const REQUIRED_HOOK_PREFIX = 'hook:';
 const MIN_TIMEOUT_SECONDS = 180;
 
 const UNIT_FILES = [
+  'openclaw-gateway.service',
   'rook-dashboard.service',
   'rook-dashboard-watchdog.service',
   'rook-dashboard-watchdog.timer',
@@ -455,6 +456,18 @@ async function evaluateUnitDrift(fileName) {
     readText(repoPath),
     readText(installedPath),
   ]);
+  const forbiddenSecretPattern = /^Environment=.*(?:API_KEY|TOKEN|SECRET|PASSWORD)=/m;
+
+  if (forbiddenSecretPattern.test(repoText) || forbiddenSecretPattern.test(installedText)) {
+    return {
+      unit: fileName,
+      severity: 'error',
+      state: 'secret_inline',
+      repo_exists: true,
+      installed_exists: true,
+      details: `${fileName}: inline secret-like Environment assignments must use EnvironmentFile or a secret store`,
+    };
+  }
 
   if (repoText === installedText) {
     return {

@@ -14,9 +14,9 @@ TimeoutStopSec=30
 TimeoutStartSec=30
 SuccessExitStatus=0 143
 KillMode=control-group
-Environment=BRAVE_API_KEY=BSAMt9sNLncYKoBQjCdf3_5aBeslaox
-Environment=MINIMAX_API_KEY=sk-cp-Cc6fKDX0nX11Ok0sfIjdugaXnXZVrpSPvCXCcNXOj43HfynN0wnn01wYH_2puoNyZG0P8eSUFeO20Yur1fwehEhB3FOQ0isGeintriF4htg6va2NmYzAj8c
-Environment=KIMI_API_KEY=sk-kimi-CdGL7n5qBhyMz7MRuQLUAORAahnCuaBdToDaPXPzBuf0ceJx8x6ZA9vnTPLytAK6
+EnvironmentFile=-/root/.openclaw/.env.d/brave-api-key.txt
+EnvironmentFile=-/root/.openclaw/.env.d/minimax-api-key.txt
+EnvironmentFile=-/root/.openclaw/.env.d/kimi-api-key.txt
 Environment=HOME=/root
 Environment=TMPDIR=/tmp
 Environment=PATH=/usr/bin:/root/.local/bin:/root/.npm-global/bin:/root/bin:/root/.volta/bin:/root/.asdf/shims:/root/.bun/bin:/root/.nvm/current/bin:/root/.fnm/current/bin:/root/.local/share/pnpm:/usr/local/bin:/bin
