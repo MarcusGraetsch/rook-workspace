@@ -11,6 +11,8 @@ const OPENCLAW_DIR = '/root/.openclaw';
 const WORKSPACE_DIR = path.join(OPENCLAW_DIR, 'workspace');
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
 const RUNTIME_POSTURE_POLICY_PATH = path.join(WORKSPACE_DIR, 'operations', 'config', 'runtime-posture-policy.json');
+const MODEL_MODE_POLICY_PATH = path.join(WORKSPACE_DIR, 'operations', 'config', 'model-mode-policy.json');
+const MODEL_MODE_STATE_PATH = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'model-mode-state.json');
 const MODEL_CONFIG_DRIFT_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-model-config-drift.mjs');
 const INOTIFY_CAPACITY_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-inotify-capacity.mjs');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
@@ -506,6 +508,8 @@ function normalizeClaimedBy(value) {
 async function main() {
   const config = await readJson(OPENCLAW_CONFIG_PATH);
   const runtimePolicy = await readOptionalJson(RUNTIME_POSTURE_POLICY_PATH);
+  const modelModePolicy = await readOptionalJson(MODEL_MODE_POLICY_PATH);
+  const modelModeState = await readOptionalJson(MODEL_MODE_STATE_PATH);
   const agentIds = configuredAgentIds(config);
   const agentIdList = [...agentIds].sort();
   const checks = [];
@@ -725,6 +729,33 @@ async function main() {
         agent_dir: agent.agent_dir,
         provider: finding.provider,
         model: finding.model,
+      });
+    }
+  }
+
+  if (modelModePolicy) {
+    const usage = modelModeState?.usage || {};
+    const activeMode = modelModeState?.active_mode || modelModePolicy.active_mode || 'default';
+    const fallbackActive = activeMode === 'fallback';
+
+    findings.push({
+      source: 'model_mode_policy',
+      severity: fallbackActive ? 'warning' : 'info',
+      type: 'model_mode_active',
+      details: `active_mode=${activeMode}; effective_model=${modelModeState?.effective_model || modelModePolicy.default_model}`,
+    });
+
+    for (const windowName of ['hour', 'day', 'week']) {
+      const window = usage[windowName];
+      if (!window) {
+        continue;
+      }
+
+      findings.push({
+        source: 'model_mode_policy',
+        severity: window.ratio >= Number(modelModePolicy.thresholds?.switch_ratio || 0.95) ? 'warning' : 'info',
+        type: `model_mode_${windowName}_usage`,
+        details: `${windowName}=${window.tokens}/${window.limit} (${Math.round((window.ratio || 0) * 100)}%) reset_at=${window.reset_at || 'unknown'}`,
       });
     }
   }

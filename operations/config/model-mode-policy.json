@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "active_mode": "default",
+  "default_model": "kimi-coding/moonshot-k2-6",
+  "fallback_model": "minimax/MiniMax-M2.7",
+  "timezone": "Europe/Berlin",
+  "thresholds": {
+    "hour_tokens": 120000,
+    "day_tokens": 500000,
+    "week_tokens": 1500000,
+    "warning_ratio": 0.8,
+    "switch_ratio": 0.95
+  },
+  "telegram": {
+    "enabled": true,
+    "chat_id": "549758481"
+  }
+}
