@@ -148,7 +148,9 @@ export function advanceStageAfterCompletion(task, executor, launchedStatus, nowI
 
 export async function validateStageCompletion(task, executor, launchedStatus) {
   const stage = String(launchedStatus || task.status || '');
-  const isCodeTask = Boolean(task.related_repo && task.branch);
+  const labels = new Set(Array.isArray(task.labels) ? task.labels : []);
+  const isConsultingTask = task.assigned_agent === 'coach' || labels.has('consulting') || labels.has('coaching');
+  const isCodeTask = Boolean(task.related_repo && task.branch) && !isConsultingTask;
 
   if (stage === 'in_progress') {
     const handoff = String(task.handoff_notes || '').trim();
