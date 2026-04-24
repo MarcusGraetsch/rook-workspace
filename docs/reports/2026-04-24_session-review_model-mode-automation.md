@@ -27,8 +27,34 @@ OpenClaw had no centralized policy layer for model quota pressure. Default worke
 - Added `workspace/operations/bin/model-mode-controller.mjs`.
 - Updated `workspace/operations/bin/dashboard-watchdog.sh` to run the controller.
 - Updated `workspace/operations/bin/check-runtime-control-plane.mjs` to report model-mode state.
+- Updated `engineering/rook-dashboard/src/app/diagnostics/page.tsx` to show the current model mode and reset windows in the dashboard diagnostics view.
 - Added reusable skill `rook-agent/skills/model-mode-guard/SKILL.md`.
 - Runtime config `~/.openclaw/openclaw.json` was switched to the fallback model at runtime by the controller.
+
+## Telegram-Warntexte
+
+Wenn das Default-Modell in die Warnzone kommt, sendet der Controller aktuell diese Nachricht:
+
+```text
+limit fast erreicht!
+Aktives Modell: kimi-coding/moonshot-k2-6
+Stundenlimit: <tokens>/<limit> (<ratio>%)
+Taglimit: <tokens>/<limit> (<ratio>%)
+Wochenlimit: <tokens>/<limit> (<ratio>%)
+Fallback-Modell steht bereit: minimax/MiniMax-M2.7
+```
+
+Wenn die Umschaltung ausgelöst wird, lautet die Nachricht:
+
+```text
+limit bald erreicht!
+Wechsle auf Fallback-Modell: minimax/MiniMax-M2.7
+Default-Modell: kimi-coding/moonshot-k2-6
+Stundenlimit: <tokens>/<limit> (<ratio>%)
+Taglimit: <tokens>/<limit> (<ratio>%)
+Wochenlimit: <tokens>/<limit> (<ratio>%)
+Fallback bleibt aktiv bis mindestens <reset-zeitpunkt>
+```
 
 ## Validierung
 
