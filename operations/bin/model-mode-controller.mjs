@@ -365,7 +365,7 @@ async function persistState(state) {
   return state;
 }
 
-async function applyMode(policy, openclawConfig, mode, reason, usage) {
+async function applyMode(policy, openclawConfig, mode, reason, usage, holdUntil = null) {
   const effectiveModel = mode === 'fallback'
     ? policy.fallback_model
     : policy.default_model;
@@ -381,10 +381,24 @@ async function applyMode(policy, openclawConfig, mode, reason, usage) {
     reason,
     policy_path: path.relative(ROOT_DIR, POLICY_PATH),
     usage,
+    hold_until: holdUntil,
   };
 
   await persistState(state);
   return state;
+}
+
+function maxIsoDate(...values) {
+  const timestamps = values
+    .filter((value) => typeof value === 'string' && value.length > 0)
+    .map((value) => Date.parse(value))
+    .filter((value) => Number.isFinite(value));
+
+  if (timestamps.length === 0) {
+    return null;
+  }
+
+  return new Date(Math.max(...timestamps)).toISOString();
 }
 
 async function computeDecision(policy, openclawConfig, command) {
@@ -411,6 +425,7 @@ async function computeDecision(policy, openclawConfig, command) {
   let nextMode = currentMode;
   let action = 'hold';
   let reason = 'within limits';
+  const holdUntil = maxIsoDate(runtimeState?.hold_until, thresholds.restoreAfter);
 
   if (command === 'force-default') {
     nextMode = 'default';
@@ -428,11 +443,15 @@ async function computeDecision(policy, openclawConfig, command) {
     action = 'warn';
     reason = `usage above warning threshold in ${thresholds.aboveWarning.map(([key]) => key).join(', ')}`;
   } else if (currentMode === 'fallback' && thresholds.aboveWarning.length === 0) {
-    nextMode = 'default';
-    action = 'restore';
-    reason = 'usage below warning threshold after reset window';
+    if (holdUntil && Date.parse(holdUntil) > Date.now()) {
+      reason = `fallback held until ${holdUntil}`;
+    } else {
+      nextMode = 'default';
+      action = 'restore';
+      reason = 'usage below warning threshold after reset window';
+    }
   } else if (currentMode === 'fallback') {
-    reason = 'fallback active until reset window';
+    reason = holdUntil ? `fallback held until ${holdUntil}` : 'fallback active until reset window';
   }
 
   return {
@@ -446,20 +465,22 @@ async function computeDecision(policy, openclawConfig, command) {
     usage,
     thresholds,
     runtime_state: runtimeState,
+    hold_until: (currentMode === 'fallback' || action === 'switch') ? holdUntil : null,
   };
 }
 
 async function executeDecision(policy, openclawConfig, decision) {
   const shouldWrite = decision.action !== 'hold';
   const state = decision.action === 'switch' || decision.action === 'restore'
-    ? await applyMode(policy, openclawConfig, decision.next_mode, decision.reason, decision.usage)
+    ? await applyMode(policy, openclawConfig, decision.next_mode, decision.reason, decision.usage, decision.hold_until)
     : await persistState({
         updated_at: new Date().toISOString(),
-        active_mode: decision.current_mode,
-        effective_model: decision.current_mode === 'fallback' ? policy.fallback_model : policy.default_model,
-        reason: decision.reason,
-        policy_path: path.relative(ROOT_DIR, POLICY_PATH),
-        usage: decision.usage,
+      active_mode: decision.current_mode,
+      effective_model: decision.current_mode === 'fallback' ? policy.fallback_model : policy.default_model,
+      reason: decision.reason,
+      policy_path: path.relative(ROOT_DIR, POLICY_PATH),
+      usage: decision.usage,
+      hold_until: decision.hold_until,
       });
 
   if (shouldWrite) {
