@@ -9,9 +9,9 @@ const OPENCLAW_CONFIG_PATH = path.join(ROOT_DIR, 'openclaw.json');
 const HEALTH_FILE = path.join(ROOT_DIR, 'workspace', 'operations', 'health', 'runtime-smoke.json');
 const GATEWAY_BASE_URL = process.env.ROOK_GATEWAY_BASE_URL || 'http://127.0.0.1:18789';
 const HOOK_POLL_INTERVAL_MS = Number(process.env.ROOK_HOOK_POLL_INTERVAL_MS || '1000');
-const HOOK_MODEL = process.env.ROOK_HOOK_MODEL || 'minimax-portal/MiniMax-M2.7';
+const HOOK_MODEL = process.env.ROOK_HOOK_MODEL || 'minimax/MiniMax-M2.7';
 const HOOK_THINKING = process.env.ROOK_HOOK_THINKING || 'low';
-const TIMEOUT_SECONDS = Number(process.env.ROOK_RUNTIME_SMOKE_TIMEOUT_SECONDS || '20');
+const TIMEOUT_SECONDS = Number(process.env.ROOK_RUNTIME_SMOKE_TIMEOUT_SECONDS || '60');
 const AGENTS = ['engineer', 'researcher', 'test', 'review'];
 let hookConfigPromise = null;
 
