@@ -94,6 +94,8 @@ function setModelPrimary(config, ref) {
     for (const agent of config.agents.list) {
       if (agent && typeof agent.model === 'object' && agent.model !== null && typeof agent.model.primary === 'string') {
         agent.model.primary = ref;
+      } else if (agent && typeof agent.model === 'string') {
+        agent.model = ref;
       }
     }
   }
