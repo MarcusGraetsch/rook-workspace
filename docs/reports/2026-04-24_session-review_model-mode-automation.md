@@ -29,6 +29,7 @@ OpenClaw had no centralized policy layer for model quota pressure. Default worke
 - Updated `workspace/operations/bin/check-runtime-control-plane.mjs` to report model-mode state.
 - Updated `engineering/rook-dashboard/src/app/diagnostics/page.tsx` to show the current model mode and reset windows in the dashboard diagnostics view.
 - Added a live provider probe in `engineering/rook-dashboard/src/lib/control/provider-probe.ts` and exposed it in diagnostics as an authenticated `GET /models` call against the configured provider.
+- Upgraded the live probe to report an explicit quota signal so the dashboard distinguishes provider reachability from quota visibility.
 - Added reusable skill `rook-agent/skills/model-mode-guard/SKILL.md`.
 - Runtime config `~/.openclaw/openclaw.json` was switched to the fallback model at runtime by the controller.
 
@@ -69,6 +70,7 @@ Fallback bleibt aktiv bis mindestens <reset-zeitpunkt>
 
 - Usage estimation is based on local session telemetry, not a provider-side quota API.
 - The live provider probe is a real authenticated request, but the Moonshot/Kimi docs do not currently document a public balance endpoint; if the endpoint does not emit rate-limit headers, the dashboard can only report reachability and returned models.
+- The dashboard still cannot infer a true account balance unless the provider exposes quota headers or a dedicated billing endpoint.
 - Thresholds in `model-mode-policy.json` are heuristic and may need adjustment after real-world observation.
 - If the provider changes its quota window behavior, the local reset calculation will need to be revisited.
 
