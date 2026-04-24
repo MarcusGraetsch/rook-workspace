@@ -202,8 +202,8 @@ function nextWindowReset(now, timeZone, kind) {
 
   if (kind === 'week') {
     const currentStart = new Date(startOfWindow(now, timeZone, 'week'));
-    const wall = new Date(currentStart.getTime());
-    wall.setUTCDate(wall.getUTCDate() + 7);
+    const currentStartParts = wallParts(currentStart, timeZone);
+    const wall = new Date(Date.UTC(currentStartParts.year, currentStartParts.month - 1, currentStartParts.day + 7, 0, 0, 0));
     return wallToUtc({
       year: wall.getUTCFullYear(),
       month: wall.getUTCMonth() + 1,
