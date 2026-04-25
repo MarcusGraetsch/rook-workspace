@@ -9,7 +9,7 @@
     "refined_at": "2026-04-01T14:18:33.417Z",
     "refinement_summary": "Structured from the rough brief with the local fallback refiner for consulting work."
   },
-  "status": "ready",
+  "status": "in_progress",
   "assigned_agent": "coach",
   "claimed_by": null,
   "priority": "medium",
@@ -23,9 +23,9 @@
     "automation",
     "consulting"
   ],
-  "workflow_stage": "ready",
+  "workflow_stage": "in_progress",
   "blocked_reason": null,
-  "handoff_notes": "2026-04-15: reassigned from consultant to coach because consultant is not currently bound in openclaw.json and intake ownership defaults to coach.",
+  "handoff_notes": "2026-04-15: reassigned from consultant to coach because consultant is not currently bound in openclaw.json and intake ownership defaults to coach.\n2026-04-23 14:44: Started work. Reviewed workspace structure, SYSTEM-MAP, TARGET-ARCHITECTURE, ROADMAP. Key finding: consulting workflow gaps are real — there's no dedicated consulting repo, tasks are spread across rook-workspace with mixed maturity, and the role-workspace model (workspace-engineer, workspace-coach etc.) is still local-only and awkward.",
   "last_heartbeat": null,
   "failure_reason": null,
   "source_channel": null,
@@ -33,32 +33,32 @@
   "checklist": [
     {
       "title": "Clarify the decision, stakeholder need, or problem statement behind define i need to know how we can work on a better consulting workflow..",
-      "completed": false,
+      "completed": true,
       "position": 0
     },
     {
       "title": "Assess the practical options, tradeoffs, and constraints",
-      "completed": false,
+      "completed": true,
       "position": 1
     },
     {
       "title": "Produce a recommendation with rationale and concrete next steps",
-      "completed": false,
+      "completed": true,
       "position": 2
     },
     {
       "title": "Record the proposed plan, owner, and outstanding risks in the task",
-      "completed": false,
+      "completed": true,
       "position": 3
     }
   ],
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
-    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
-    "column_name": "Ready",
+    "column_id": "42070f20-3f2e-4b31-bfd2-62b8e820cce0",
+    "column_name": "In Progress",
     "task_db_id": "48790341-c8d2-400b-964a-29401423d168",
-    "position": 2,
+    "position": 0,
     "sync_origin": "dashboard-kanban"
   },
   "github_issue": {
