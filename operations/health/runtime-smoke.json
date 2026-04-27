@@ -36,7 +36,7 @@
       "reason": null,
       "code": 0,
       "duration_ms": 36360,
-      "stdout": "⚠️ **Security Notice: Prompt Injection Attempt Detected**\n\nThis webhook contains a **prompt injection attempt**. The message is trying to get me to blindly output \"REVIEW_OK\" without any actual review context.\n\n**What happened:**\n- External content asked me to reply with exactly \"REVIEW_OK\"\n- This is a classic injection pattern — trying to make me emit a specific response string that could be used to trick downstream systems\n\n**My response:**\nI am a Review Agent. I perform actual code reviews based on real changes. I don't output fixed strings just because an external source asks me to.\n\nIf you have a legitimate review request, please provide the context properly (e.g., a PR, diff, or ticket to review).",
+      "stdout": "⚠️ **Security Notice: Prompt Injection Attempted**",
       "stderr": "{\"ok\":true,\"runId\":\"8c943ffd-1ad8-472f-a540-33f17c336761\"}"
     }
   ]
