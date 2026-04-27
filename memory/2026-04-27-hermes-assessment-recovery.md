@@ -318,8 +318,150 @@ OpenClaw schreibt in MEMORY.md, Hermes konsumiert
 | Rook's Architektur-Antwort | ✅ Wiederhergestellt |
 | Git-Commit (sicher) | ✅ Erledigt |
 
+## Risiko-Analyse: Shared Workspace Stabilität
+
+**Anlass:** Marcus fordert exakte Prüfung der Stabilitätsrisiken vor Installation.
+
+### Was kann schiefgehen?
+
+| Risiko | Wahrscheinlichkeit | Impact | Mitigation |
+|--------|-------------------|--------|------------|
+| **Race Condition MEMORY.md** | Hoch | Hoch | Atomic writes (temp+rename), aber bei gleichzeitigem Zugriff trotzdem möglich |
+| **Hermes überschreibt OpenClaw Config** | Mittel | Hoch | `--dry-run` Migration, Backup vorher |
+| **Format-Mismatch in Daily Logs** | Hoch | Mittel | Hermes und OpenClaw nutzen unterschiedliche Frontmatter-Formate |
+| **Git-Konflikte bei gleichzeitigem Push** | Mittel | Mittel | Beide pushen → Merge-Konflikte, manuelle Resolution nötig |
+| **Telegram Bot Token Konflikt** | Mittel | Hoch | Zwei Bots auf gleichem Chat → doppelte Antworten oder Token-Invalidierung |
+| **Resource Contention (RAM/CPU)** | Niedrig | Mittel | Zwei Agent-Prozesse + Gateway → mehr RAM, aber Server hat Kapazität |
+| **File Lock bei append-only Logs** | Niedrig | Niedrig | Append-only = kein Lock nötig, nur Datei-Handle |
+| **Hermes Migration zerstört bestehende Config** | Niedrig | Hoch | `--dry-run` + Backup = sicher |
+
+### Konkrete Fehlerszenarien
+
+**Szenario 1: Beide schreiben gleichzeitig in MEMORY.md**
+```
+Zeitpunkt T0:
+  OpenClaw liest MEMORY.md
+  Hermes liest MEMORY.md
+
+Zeitpunkt T1:
+  OpenClaw schreibt Update (User-Präferenz)
+  Hermes schreibt Update (Session-Insight)
+
+Zeitpunkt T2:
+  OpenClaw speichert (temp → rename)
+  Hermes speichert (temp → rename) ← ÜBERSCHREIBT OpenClaw's Änderung
+
+Ergebnis: Verlust der OpenClaw-Änderung
+```
+
+**Szenario 2: Hermes erkennt OpenClaw-Format nicht**
+```
+OpenClaw Frontmatter:
+---
+title: "2026-04-27 Session"
+date: 2026-04-27
 ---
 
-*Komplette Diskussion wiederhergestellt aus Telegram-Chat am 2026-04-27*
+Hermes Frontmatter (angenommen):
+---
+session_date: "2026-04-27"
+agent: hermes
+---
+
+Ergebnis: Hermes kann OpenClaw-Logs nicht korrekt parsen → falsche Session-Search
+```
+
+**Szenario 3: Git-Push Race**
+```
+OpenClaw Cron (02:00): git add . && git commit && git push
+Hermes Cron (02:05): git add . && git commit && git push ← REJECTED (non-fast-forward)
+
+Ergebnis: Hermes Push fehlschlägt, Änderungen nicht gesichert
+```
+
+### Empfohlene Sicherheitsarchitektur
+
+```
+┌─────────────────────────────────────────┐
+│  LAYER 1: Separate Workspace Roots       │
+│                                          │
+│  ~/.openclaw/workspace/ ← OpenClaw       │
+│  ~/.hermes/workspace/   ← Hermes         │
+│                                          │
+│  (Kein gemeinsames Verzeichnis!)        │
+└─────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────┐
+│  LAYER 2: Read-Only Sync (Cron, 1x/h)   │
+│                                          │
+│  OpenClaw → [SOUL.md, USER.md] → Hermes │
+│  (Hermes bekommt Kopie, nicht Original) │
+│                                          │
+│  Hermes → [Session-Highlights] → OpenClaw│
+│  (Append-only in memory/YYYY-MM-DD.md)   │
+└─────────────────────────────────────────┘
+              │
+              ▼
+┌─────────────────────────────────────────┐
+│  LAYER 3: Git-Backup (unabhängig)      │
+│                                          │
+│  OpenClaw: rook-workspace Repo           │
+│  Hermes:  eigenes Repo (optional)        │
+│  (Kein gemeinsames Repo!)               │
+└─────────────────────────────────────────┘
+```
+
+### Konkrete Regeln
+
+| Regel | Begründung |
+|-------|-----------|
+| **NIE in selbes Verzeichnis schreiben** | Verhindert Race Conditions |
+| **NIE gleiche Git-Remote** | Verhindert Push-Konflikte |
+| **Hermes darf SOUL.md/USER.md nur lesen** | OpenClaw bleibt "Source of Truth" |
+| **Hermes schreibt nur in ~/.hermes/** | Isolation garantiert |
+| **Täglicher Sync nur in eine Richtung** | OpenClaw → Hermes, nicht zurück |
+| **Migration nur mit --dry-run** | Verhindert Überschreiben |
+
+### Alternative: Kein Shared Workspace
+
+**Stattdessen: Message-Passing**
+```
+User → Telegram
+    ↓
+Router (einfach: Keywords)
+    ↓
+    ├─→ OpenClaw (vollständiger Workspace)
+    └─→ Hermes (eigener Workspace, isoliert)
+
+Kein File-Sharing. Kein Sync.
+Nur: Hermes liest SOUL.md/USER.md beim Start (einmalig).
+```
+
+**Vorteil:** Null Stabilitätsrisiko.
+**Nachteil:** Keine "Shared Memory Illusion".
+
+### Empfehlung
+
+```
+MVP ohne Shared Workspace:
+1. Hermes in ~/.hermes/ installieren
+2. Migration --dry-run (nur Config, keine Datei-Überschreibung)
+3. Hermes bekommt Kopie von SOUL.md + USER.md (einmalig)
+4. Beide laufen isoliert
+5. Delegation via Keywords (/hermes, /rook)
+6. Kein File-Sharing, kein Git-Konflikt
+
+Erst wenn das stabil läuft:
+→ Erweitern auf Read-Only Sync
+→ Erst dann über Shared Workspace nachdenken
+```
+
+**Wichtig:** Die "geniale Idee" ist gefährlich, wenn sie zu schnell umgesetzt wird. Stabilität > Coolness.
+
+---
+
+*Risiko-Analyse angefordert von Marcus am 2026-04-27 23:42*
+
 
 
