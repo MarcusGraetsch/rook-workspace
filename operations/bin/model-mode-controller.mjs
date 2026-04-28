@@ -1,4 +1,14 @@
 #!/usr/bin/env node
+/**
+ * model-mode-controller.mjs — Kimi RPM/TPM Controller
+ * 
+ * Tracks usage based on Kimi's actual rate limits:
+ * - RPM (Requests Per Minute) — max 200 (Tier1 $10)
+ * - TPM (Tokens Per Minute) — max 2,000,000 (Tier1 $10)
+ * 
+ * Uses a rolling 60-second window, updated every minute via cron.
+ * When RPM or TPM exceeds threshold, switches to fallback model (minimax).
+ */
 
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -9,15 +19,23 @@ const POLICY_PATH = path.join(ROOT_DIR, 'workspace', 'operations', 'config', 'mo
 const RUNTIME_STATE_PATH = path.join(ROOT_DIR, 'runtime', 'operations', 'model-mode-state.json');
 const AGENTS_DIR = path.join(ROOT_DIR, 'agents');
 
+// Kimi Tier1 limits ($10 cumulative recharge)
+const KIMI_TIER1 = {
+  rpm: 200,          // requests per minute
+  tpm: 2_000_000,    // tokens per minute
+};
+
+const WINDOW_MS = 60_000; // 1-minute rolling window
+
 function usage() {
   return [
     'Usage: node model-mode-controller.mjs <status|evaluate|force-default|force-fallback>',
     '',
     'Commands:',
-    '  status         Show current policy, model mode, and usage summary.',
-    '  evaluate       Apply warning/switch/restore rules and persist state.',
-    '  force-default  Immediately restore the default model.',
-    '  force-fallback Immediately switch to the fallback model.',
+    '  status         Show current RPM/TPM usage and limits.',
+    '  evaluate       Check usage and auto-switch if thresholds exceeded.',
+    '  force-default  Immediately restore default model (kimi).',
+    '  force-fallback Immediately switch to fallback model (minimax).',
   ].join('\n');
 }
 
@@ -42,8 +60,6 @@ function providerAliases(providerName) {
     'kimi-coding': ['kimi-coding', 'kimi'],
     minimax: ['minimax', 'minimax-portal'],
     'minimax-portal': ['minimax-portal', 'minimax'],
-    codex: ['codex', 'openai-codex'],
-    'openai-codex': ['openai-codex', 'codex'],
   };
   return aliases[providerName] || [providerName];
 }
@@ -56,20 +72,14 @@ function splitModelRef(ref) {
 
 function normalizeModelRef(ref, providers) {
   const { provider, model } = splitModelRef(ref);
-  if (!provider || !model) {
-    return null;
-  }
+  if (!provider || !model) return null;
 
-  const candidates = providerAliases(provider).filter((candidate) => providers?.[candidate]);
-  if (candidates.length === 0) {
-    return `${provider}/${model}`;
-  }
+  const candidates = providerAliases(provider).filter((c) => providers?.[c]);
+  if (candidates.length === 0) return `${provider}/${model}`;
 
-  const providerKey = candidates.find((candidate) => {
-    const providerModels = Array.isArray(providers?.[candidate]?.models)
-      ? providers[candidate].models
-      : [];
-    return providerModels.some((entry) => entry?.id === model);
+  const providerKey = candidates.find((c) => {
+    const models = Array.isArray(providers?.[c]?.models) ? providers[c].models : [];
+    return models.some((e) => e?.id === model);
   }) || candidates[0];
 
   return `${providerKey}/${model}`;
@@ -87,12 +97,11 @@ function setModelPrimary(config, ref) {
     config.agents.defaults = config.agents.defaults || {};
     config.agents.defaults.model = {};
   }
-
   config.agents.defaults.model.primary = ref;
 
   if (Array.isArray(config.agents?.list)) {
     for (const agent of config.agents.list) {
-      if (agent && typeof agent.model === 'object' && agent.model !== null && typeof agent.model.primary === 'string') {
+      if (agent && typeof agent.model === 'object' && agent.model !== null) {
         agent.model.primary = ref;
       } else if (agent && typeof agent.model === 'string') {
         agent.model = ref;
@@ -101,155 +110,26 @@ function setModelPrimary(config, ref) {
   }
 }
 
-function wallParts(date, timeZone) {
-  const formatter = new Intl.DateTimeFormat('en-CA', {
-    timeZone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hourCycle: 'h23',
-  });
-  const parts = Object.fromEntries(
-    formatter.formatToParts(date)
-      .filter((entry) => entry.type !== 'literal')
-      .map((entry) => [entry.type, Number(entry.value)])
-  );
-  return {
-    year: parts.year,
-    month: parts.month,
-    day: parts.day,
-    hour: parts.hour,
-    minute: parts.minute,
-    second: parts.second,
-  };
-}
+/**
+ * Collect RPM and TPM from sessions in the rolling 60-second window.
+ * 
+ * RPM: Count unique requests (sessions) that finished within the window.
+ * TPM: Sum of totalTokens from sessions that finished within the window.
+ */
+async function collectKimiUsage(defaultModelRef, providers) {
+  const now = Date.now();
+  const windowStart = now - WINDOW_MS;
 
-function wallDayIndex(parts) {
-  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay();
-}
+  let rpm = 0;  // requests in window
+  let tpm = 0;  // tokens in window
 
-function wallToUtc(parts, timeZone) {
-  let guess = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second || 0);
-  for (let index = 0; index < 4; index += 1) {
-    const offsetMs = zoneOffsetMs(new Date(guess), timeZone);
-    const resolved = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second || 0) - offsetMs;
-    if (resolved === guess) {
-      return resolved;
-    }
-    guess = resolved;
-  }
-  return guess;
-}
-
-function zoneOffsetMs(date, timeZone) {
-  const parts = wallParts(date, timeZone);
-  const asUtc = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second || 0);
-  return asUtc - date.getTime();
-}
-
-function startOfWindow(now, timeZone, kind) {
-  const parts = wallParts(now, timeZone);
-  if (kind === 'hour') {
-    return wallToUtc({ ...parts, minute: 0, second: 0 }, timeZone);
-  }
-  if (kind === 'day') {
-    return wallToUtc({ ...parts, hour: 0, minute: 0, second: 0 }, timeZone);
-  }
-
-  if (kind === 'week') {
-    const dayIndex = wallDayIndex(parts);
-    const delta = (dayIndex + 6) % 7;
-    const wall = new Date(Date.UTC(parts.year, parts.month - 1, parts.day - delta));
-    return wallToUtc({
-      year: wall.getUTCFullYear(),
-      month: wall.getUTCMonth() + 1,
-      day: wall.getUTCDate(),
-      hour: 0,
-      minute: 0,
-      second: 0,
-    }, timeZone);
-  }
-
-  return null;
-}
-
-function nextWindowReset(now, timeZone, kind) {
-  const parts = wallParts(now, timeZone);
-  if (kind === 'hour') {
-    const wall = new Date(Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour + 1, 0, 0));
-    return wallToUtc({
-      year: wall.getUTCFullYear(),
-      month: wall.getUTCMonth() + 1,
-      day: wall.getUTCDate(),
-      hour: wall.getUTCHours(),
-      minute: wall.getUTCMinutes(),
-      second: wall.getUTCSeconds(),
-    }, timeZone);
-  }
-
-  if (kind === 'day') {
-    const wall = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + 1, 0, 0, 0));
-    return wallToUtc({
-      year: wall.getUTCFullYear(),
-      month: wall.getUTCMonth() + 1,
-      day: wall.getUTCDate(),
-      hour: 0,
-      minute: 0,
-      second: 0,
-    }, timeZone);
-  }
-
-  if (kind === 'week') {
-    const currentStart = new Date(startOfWindow(now, timeZone, 'week'));
-    const currentStartParts = wallParts(currentStart, timeZone);
-    const wall = new Date(Date.UTC(currentStartParts.year, currentStartParts.month - 1, currentStartParts.day + 7, 0, 0, 0));
-    return wallToUtc({
-      year: wall.getUTCFullYear(),
-      month: wall.getUTCMonth() + 1,
-      day: wall.getUTCDate(),
-      hour: 0,
-      minute: 0,
-      second: 0,
-    }, timeZone);
-  }
-
-  return null;
-}
-
-async function collectUsage(defaultModelRef, timeZone, limits, providers) {
-  const windowKeys = ['hour', 'day', 'week'];
-  const now = new Date();
-  const starts = {
-    hour: startOfWindow(now, timeZone, 'hour'),
-    day: startOfWindow(now, timeZone, 'day'),
-    week: startOfWindow(now, timeZone, 'week'),
-  };
-  const resets = {
-    hour: nextWindowReset(now, timeZone, 'hour'),
-    day: nextWindowReset(now, timeZone, 'day'),
-    week: nextWindowReset(now, timeZone, 'week'),
-  };
-  const usage = {
-    hour: 0,
-    day: 0,
-    week: 0,
-  };
-  const sessionsByWindow = {
-    hour: [],
-    day: [],
-    week: [],
-  };
+  const sessions = [];
 
   const agentIds = await fs.readdir(AGENTS_DIR).catch(() => []);
   for (const agentId of agentIds) {
     const sessionsIndexPath = path.join(AGENTS_DIR, agentId, 'sessions', 'sessions.json');
     const sessionsIndex = await readJson(sessionsIndexPath, null);
-    if (!sessionsIndex || typeof sessionsIndex !== 'object') {
-      continue;
-    }
+    if (!sessionsIndex || typeof sessionsIndex !== 'object') continue;
 
     for (const [sessionKey, record] of Object.entries(sessionsIndex)) {
       const ref = normalizeModelRef(
@@ -257,72 +137,26 @@ async function collectUsage(defaultModelRef, timeZone, limits, providers) {
         providers
       );
 
-      if (ref !== defaultModelRef) {
-        continue;
-      }
+      // Only count Kimi sessions
+      if (!ref?.startsWith('kimi')) continue;
 
-      const totalTokens = Number(record?.totalTokens || record?.inputTokens || 0);
-      if (!Number.isFinite(totalTokens) || totalTokens <= 0) {
-        continue;
-      }
+      // Use endedAt if available and recent, otherwise skip
+      const endedAt = Number(record?.endedAt || 0);
+      if (!Number.isFinite(endedAt) || endedAt <= 0) continue;
 
-      const finishedAt = Number(record?.endedAt || record?.updatedAt || record?.startedAt || 0);
-      if (!Number.isFinite(finishedAt) || finishedAt <= 0) {
-        continue;
-      }
+      // Must have finished within the 60-second window
+      if (endedAt < windowStart || endedAt > now) continue;
 
-      for (const key of windowKeys) {
-        if (finishedAt >= starts[key]) {
-          usage[key] += totalTokens;
-          sessionsByWindow[key].push({
-            agentId,
-            sessionKey,
-            totalTokens,
-            finishedAt,
-          });
-        }
-      }
+      const totalTokens = Number(record?.totalTokens || 0);
+      if (!Number.isFinite(totalTokens) || totalTokens <= 0) continue;
+
+      rpm += 1;
+      tpm += totalTokens;
+      sessions.push({ agentId, sessionKey, totalTokens, endedAt });
     }
   }
 
-  const result = {};
-  for (const key of windowKeys) {
-    const limit = Number(limits?.[`${key}_tokens`] || 0);
-    result[key] = {
-      tokens: usage[key],
-      limit,
-      ratio: limit > 0 ? usage[key] / limit : 0,
-      start_at: new Date(starts[key]).toISOString(),
-      reset_at: new Date(resets[key]).toISOString(),
-      sessions: sessionsByWindow[key].length,
-    };
-  }
-
-  return result;
-}
-
-function computeModeFromUsage(usage, policy) {
-  const warningRatio = Number(policy?.thresholds?.warning_ratio ?? 0.8);
-  const switchRatio = Number(policy?.thresholds?.switch_ratio ?? 0.95);
-  const windows = Object.entries(usage);
-  const aboveWarning = windows.filter(([, value]) => value.ratio >= warningRatio);
-  const aboveSwitch = windows.filter(([, value]) => value.ratio >= switchRatio);
-
-  const restoreAfter = aboveWarning.length > 0
-    ? new Date(Math.max(...aboveWarning.map(([, value]) => Date.parse(value.reset_at)))).toISOString()
-    : null;
-  const switchAfter = aboveSwitch.length > 0
-    ? new Date(Math.max(...aboveSwitch.map(([, value]) => Date.parse(value.reset_at)))).toISOString()
-    : null;
-
-  return {
-    warningRatio,
-    switchRatio,
-    aboveWarning,
-    aboveSwitch,
-    restoreAfter,
-    switchAfter,
-  };
+  return { rpm, tpm, sessions, windowStart, windowEnd: now };
 }
 
 async function sendTelegramMessage(policy, text, openclawConfig) {
@@ -340,94 +174,74 @@ async function sendTelegramMessage(policy, text, openclawConfig) {
     const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: String(chatId),
-        text,
-        disable_web_page_preview: true,
-      }),
+      body: JSON.stringify({ chat_id: String(chatId), text, disable_web_page_preview: true }),
     });
 
     if (!response.ok) {
       const body = await response.text().catch(() => '');
       return { ok: false, skipped: false, reason: `telegram HTTP ${response.status}: ${body}` };
     }
-
     return { ok: true, skipped: false };
   } catch (error) {
-    return {
-      ok: false,
-      skipped: false,
-      reason: error instanceof Error ? error.message : String(error),
-    };
+    return { ok: false, skipped: false, reason: error instanceof Error ? error.message : String(error) };
   }
 }
 
-async function persistState(state) {
-  await writeJsonAtomic(RUNTIME_STATE_PATH, state);
-  return state;
-}
-
-async function applyMode(policy, openclawConfig, mode, reason, usage, holdUntil = null) {
-  const effectiveModel = mode === 'fallback'
-    ? policy.fallback_model
-    : policy.default_model;
+async function applyMode(policy, openclawConfig, mode, reason, usage) {
+  const effectiveModel = mode === 'fallback' ? policy.fallback_model : policy.default_model;
   setModelPrimary(openclawConfig, effectiveModel);
-
   await writeJsonAtomic(OPENCLAW_CONFIG_PATH, openclawConfig);
 
-  const nowIso = new Date().toISOString();
   const state = {
-    updated_at: nowIso,
+    updated_at: new Date().toISOString(),
     active_mode: mode,
     effective_model: effectiveModel,
     reason,
     policy_path: path.relative(ROOT_DIR, POLICY_PATH),
     usage,
-    hold_until: holdUntil,
   };
-
-  await persistState(state);
+  await writeJsonAtomic(RUNTIME_STATE_PATH, state);
   return state;
 }
 
-function maxIsoDate(...values) {
-  const timestamps = values
-    .filter((value) => typeof value === 'string' && value.length > 0)
-    .map((value) => Date.parse(value))
-    .filter((value) => Number.isFinite(value));
-
-  if (timestamps.length === 0) {
-    return null;
-  }
-
-  return new Date(Math.max(...timestamps)).toISOString();
-}
-
 async function computeDecision(policy, openclawConfig, command) {
-  const timeZone = String(policy?.timezone || 'Europe/Berlin');
   const providers = openclawConfig?.models?.providers || {};
   const defaultModelRef = normalizeModelRef(policy.default_model, providers);
   const fallbackModelRef = normalizeModelRef(policy.fallback_model, providers);
 
   if (!defaultModelRef || !fallbackModelRef) {
-    throw new Error('policy default/fallback model refs could not be normalized against openclaw.json');
+    throw new Error('could not normalize policy model refs against openclaw.json');
   }
 
-  const usage = await collectUsage(defaultModelRef, timeZone, policy.thresholds || {}, providers);
-  const thresholds = computeModeFromUsage(usage, policy);
+  // Collect Kimi usage in rolling 60-second window
+  const usage = await collectKimiUsage(defaultModelRef, providers);
+
+  // Kimi limits (Tier1)
+  const rpmLimit = KIMI_TIER1.rpm;
+  const tpmLimit = KIMI_TIER1.tpm;
+
+  // Thresholds
+  const warningRatio = Number(policy?.thresholds?.warning_ratio ?? 0.8);
+  const switchRatio = Number(policy?.thresholds?.switch_ratio ?? 0.95);
+
+  const rpmRatio = rpmLimit > 0 ? usage.rpm / rpmLimit : 0;
+  const tpmRatio = tpmLimit > 0 ? usage.tpm / tpmLimit : 0;
+
+  const rpmWarning = rpmRatio >= warningRatio;
+  const rpmSwitch = rpmRatio >= switchRatio;
+  const tpmWarning = tpmRatio >= warningRatio;
+  const tpmSwitch = tpmRatio >= switchRatio;
+
   const runtimeState = await readJson(RUNTIME_STATE_PATH, null);
   const configuredPrimary = getModelPrimary(openclawConfig);
   const inferredMode = configuredPrimary === fallbackModelRef ? 'fallback' : 'default';
-  const currentMode = command === 'force-default'
-    ? 'default'
-    : command === 'force-fallback'
-      ? 'fallback'
-      : String(runtimeState?.active_mode || inferredMode || policy.active_mode || 'default');
+  const currentMode = command === 'force-default' ? 'default'
+    : command === 'force-fallback' ? 'fallback'
+    : String(runtimeState?.active_mode || inferredMode || 'default');
 
   let nextMode = currentMode;
   let action = 'hold';
   let reason = 'within limits';
-  const holdUntil = maxIsoDate(runtimeState?.hold_until, thresholds.restoreAfter);
 
   if (command === 'force-default') {
     nextMode = 'default';
@@ -437,23 +251,25 @@ async function computeDecision(policy, openclawConfig, command) {
     nextMode = 'fallback';
     action = 'switch';
     reason = 'manual override';
-  } else if (currentMode === 'default' && thresholds.aboveSwitch.length > 0) {
+  } else if (currentMode === 'default' && (rpmSwitch || tpmSwitch)) {
     nextMode = 'fallback';
     action = 'switch';
-    reason = `usage above switch threshold in ${thresholds.aboveSwitch.map(([key]) => key).join(', ')}`;
-  } else if (currentMode === 'default' && thresholds.aboveWarning.length > 0) {
+    const exceeded = [];
+    if (rpmSwitch) exceeded.push(`RPM ${usage.rpm}/${rpmLimit} (${Math.round(rpmRatio * 100)}%)`);
+    if (tpmSwitch) exceeded.push(`TPM ${usage.tpm}/${tpmLimit} (${Math.round(tpmRatio * 100)}%)`);
+    reason = `limit exceeded: ${exceeded.join(', ')}`;
+  } else if (currentMode === 'default' && (rpmWarning || tpmWarning)) {
     action = 'warn';
-    reason = `usage above warning threshold in ${thresholds.aboveWarning.map(([key]) => key).join(', ')}`;
-  } else if (currentMode === 'fallback' && thresholds.aboveWarning.length === 0) {
-    if (holdUntil && Date.parse(holdUntil) > Date.now()) {
-      reason = `fallback held until ${holdUntil}`;
-    } else {
-      nextMode = 'default';
-      action = 'restore';
-      reason = 'usage below warning threshold after reset window';
-    }
+    const near = [];
+    if (rpmWarning) near.push(`RPM ${usage.rpm}/${rpmLimit} (${Math.round(rpmRatio * 100)}%)`);
+    if (tpmWarning) near.push(`TPM ${usage.tpm}/${tpmLimit} (${Math.round(tpmRatio * 100)}%)`);
+    reason = `approaching limit: ${near.join(', ')}`;
+  } else if (currentMode === 'fallback' && !rpmWarning && !tpmWarning) {
+    nextMode = 'default';
+    action = 'restore';
+    reason = 'RPM and TPM back below warning threshold';
   } else if (currentMode === 'fallback') {
-    reason = holdUntil ? `fallback held until ${holdUntil}` : 'fallback active until reset window';
+    reason = 'fallback held — limits still above threshold';
   }
 
   return {
@@ -465,72 +281,56 @@ async function computeDecision(policy, openclawConfig, command) {
     next_mode: nextMode,
     effective_model: currentMode === 'fallback' ? policy.fallback_model : policy.default_model,
     usage,
-    thresholds,
-    runtime_state: runtimeState,
-    hold_until: (currentMode === 'fallback' || action === 'switch') ? holdUntil : null,
+    limits: { rpm: rpmLimit, tpm: tpmLimit },
+    ratios: { rpm: rpmRatio, tpm: tpmRatio },
+    warning_ratio: warningRatio,
+    switch_ratio: switchRatio,
   };
 }
 
 async function executeDecision(policy, openclawConfig, decision) {
-  const shouldWrite = decision.action !== 'hold';
   const state = decision.action === 'switch' || decision.action === 'restore'
-    ? await applyMode(policy, openclawConfig, decision.next_mode, decision.reason, decision.usage, decision.hold_until)
-    : await persistState({
+    ? await applyMode(policy, openclawConfig, decision.next_mode, decision.reason, decision.usage)
+    : await writeJsonAtomic(RUNTIME_STATE_PATH, {
         updated_at: new Date().toISOString(),
-      active_mode: decision.current_mode,
-      effective_model: decision.current_mode === 'fallback' ? policy.fallback_model : policy.default_model,
-      reason: decision.reason,
-      policy_path: path.relative(ROOT_DIR, POLICY_PATH),
-      usage: decision.usage,
-      hold_until: decision.hold_until,
+        active_mode: decision.current_mode,
+        effective_model: decision.current_mode === 'fallback' ? policy.fallback_model : policy.default_model,
+        reason: decision.reason,
+        policy_path: path.relative(ROOT_DIR, POLICY_PATH),
+        usage: decision.usage,
       });
 
-  if (shouldWrite) {
-    const alertSignature = [
-      decision.action,
-      decision.next_mode,
-      decision.usage.hour.tokens,
-      decision.usage.day.tokens,
-      decision.usage.week.tokens,
-    ].join(':');
-
-    const text = decision.action === 'switch'
-      ? [
-          'limit bald erreicht!',
-          `Wechsle auf Fallback-Modell: ${policy.fallback_model}`,
-          `Default-Modell: ${policy.default_model}`,
-          `Stundenlimit: ${decision.usage.hour.tokens}/${decision.usage.hour.limit} (${Math.round(decision.usage.hour.ratio * 100)}%)`,
-          `Taglimit: ${decision.usage.day.tokens}/${decision.usage.day.limit} (${Math.round(decision.usage.day.ratio * 100)}%)`,
-          `Wochenlimit: ${decision.usage.week.tokens}/${decision.usage.week.limit} (${Math.round(decision.usage.week.ratio * 100)}%)`,
-          `Fallback bleibt aktiv bis mindestens ${decision.thresholds.restoreAfter || 'unknown'}`,
-        ].join('\n')
-      : decision.action === 'restore'
-        ? [
-            'Default-Modell wieder aktiv.',
-            `Modell: ${policy.default_model}`,
-            `Stunden-Reset: ${decision.usage.hour.reset_at}`,
-            `Tages-Reset: ${decision.usage.day.reset_at}`,
-            `Wochen-Reset: ${decision.usage.week.reset_at}`,
-          ].join('\n')
-        : [
-            'limit fast erreicht!',
-            `Aktives Modell: ${policy.default_model}`,
-            `Stundenlimit: ${decision.usage.hour.tokens}/${decision.usage.hour.limit} (${Math.round(decision.usage.hour.ratio * 100)}%)`,
-            `Taglimit: ${decision.usage.day.tokens}/${decision.usage.day.limit} (${Math.round(decision.usage.day.ratio * 100)}%)`,
-            `Wochenlimit: ${decision.usage.week.tokens}/${decision.usage.week.limit} (${Math.round(decision.usage.week.ratio * 100)}%)`,
-            `Fallback-Modell steht bereit: ${policy.fallback_model}`,
-          ].join('\n');
-
-    state.alert_signature = alertSignature;
-    state.alert_sent_at = new Date().toISOString();
-    state.telegram = await sendTelegramMessage(policy, text, openclawConfig);
-    await persistState(state);
+  // Send Telegram alerts on state changes
+  if (decision.action === 'switch' || decision.action === 'restore' || decision.action === 'warn') {
+    const lines = [];
+    if (decision.action === 'switch') {
+      lines.push(
+        '⚠️ Kimi Limit erreicht!',
+        `Switch → Fallback: ${policy.fallback_model}`,
+        `RPM: ${decision.usage.rpm}/${decision.limits.rpm} (${Math.round(decision.ratios.rpm * 100)}%)`,
+        `TPM: ${decision.usage.tpm}/${decision.limits.tpm} (${Math.round(decision.ratios.tpm * 100)}%)`,
+        `Fallback: ${policy.fallback_model}`
+      );
+    } else if (decision.action === 'restore') {
+      lines.push(
+        '✅ Kimi wieder verfügbar',
+        `Switch → Default: ${policy.default_model}`,
+        `RPM: ${decision.usage.rpm}/${decision.limits.rpm}`,
+        `TPM: ${decision.usage.tpm}/${decision.limits.tpm}`
+      );
+    } else {
+      lines.push(
+        '🔶 Kimi Limit fast erreicht',
+        `RPM: ${decision.usage.rpm}/${decision.limits.rpm} (${Math.round(decision.ratios.rpm * 100)}%)`,
+        `TPM: ${decision.usage.tpm}/${decision.limits.tpm} (${Math.round(decision.ratios.tpm * 100)}%)`,
+        `Warning bei ${Math.round(decision.warning_ratio * 100)}%, Switch bei ${Math.round(decision.switch_ratio * 100)}%`
+      );
+    }
+    state.telegram = await sendTelegramMessage(policy, lines.join('\n'), openclawConfig);
+    await writeJsonAtomic(RUNTIME_STATE_PATH, state);
   }
 
-  return {
-    ...decision,
-    state,
-  };
+  return { ...decision, state };
 }
 
 async function main() {
@@ -541,39 +341,42 @@ async function main() {
   }
 
   const policy = await readJson(POLICY_PATH, null);
-  if (!policy) {
-    throw new Error(`policy file missing: ${POLICY_PATH}`);
-  }
+  if (!policy) throw new Error(`policy file missing: ${POLICY_PATH}`);
 
   const openclawConfig = await readJson(OPENCLAW_CONFIG_PATH, null);
-  if (!openclawConfig) {
-    throw new Error(`config file missing: ${OPENCLAW_CONFIG_PATH}`);
-  }
+  if (!openclawConfig) throw new Error(`config file missing: ${OPENCLAW_CONFIG_PATH}`);
 
   if (command === 'status') {
-    const defaultModelRef = getModelPrimary(openclawConfig);
+    const defaultModelRef = getModelPrimary(openclawConfig) || normalizeModelRef(policy.default_model, openclawConfig?.models?.providers || {});
     const runtimeState = await readJson(RUNTIME_STATE_PATH, null);
-    const usage = await collectUsage(
-      defaultModelRef || policy.default_model,
-      String(policy.timezone || 'Europe/Berlin'),
-      policy.thresholds || {},
-      openclawConfig?.models?.providers || {}
-    );
-    const summary = await computeDecision(policy, openclawConfig, 'evaluate');
-    process.stdout.write(`${JSON.stringify({
+    const usage = await collectKimiUsage(defaultModelRef, openclawConfig?.models?.providers || {});
+    const rpmLimit = KIMI_TIER1.rpm;
+    const tpmLimit = KIMI_TIER1.tpm;
+    process.stdout.write(JSON.stringify({
       ok: true,
       policy,
       runtime_state: runtimeState,
       config_default_model: defaultModelRef,
-      usage,
-      summary,
-    }, null, 2)}\n`);
+      usage: {
+        rpm: usage.rpm,
+        tpm: usage.tpm,
+        sessions_in_window: usage.sessions.length,
+        window_ms: WINDOW_MS,
+        window_start: new Date(usage.windowStart).toISOString(),
+        window_end: new Date(usage.windowEnd).toISOString(),
+      },
+      limits: { rpm: rpmLimit, tpm: tpmLimit },
+      ratios: {
+        rpm: rpmLimit > 0 ? usage.rpm / rpmLimit : 0,
+        tpm: tpmLimit > 0 ? usage.tpm / tpmLimit : 0,
+      },
+    }, null, 2) + '\n');
     return;
   }
 
   const decision = await computeDecision(policy, openclawConfig, command);
   const result = await executeDecision(policy, openclawConfig, decision);
-  process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
 }
 
 main().catch((error) => {
