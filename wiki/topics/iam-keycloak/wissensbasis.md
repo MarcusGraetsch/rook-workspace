@@ -78,3 +78,12 @@ SAMOA = SAFE mit OAuth — Identitätsmanagement-Framework.
 - `Keycloak Deployment Checklist.md`
 - `Keycloak Integration Anforderungen.md`
 - `SAMOA OAuth Erklärung.md`
+
+## Cross-References
+
+- → [[security-access]] — SSO + Security, TLS Zertifikate
+- → [[cloud-kubernetes]] — Keycloak auf K8s, Ingress Config
+- → [[consulting-advisory]] — Keycloak als Beratungsgegenstand
+
+---
+*Zuletzt aktualisiert: 2026-05-01*

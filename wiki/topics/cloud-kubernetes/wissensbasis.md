@@ -121,3 +121,13 @@ spec:
 - [ ] Cloud Exit Strategie finalisieren (Kundenprojekt)
 - [ ] GitOps-Pipeline mit ArgoCD für neuen Kunden
 - [ ] Passkeys/Passwordless Auth evaluieren
+
+## Cross-References
+
+- → [[security-access]] — Network Policies, Pod Security, TLS
+- → [[gitops-cicd]] — ArgoCD GitOps, CI/CD Pipelines
+- → [[database-postgresql]] — Stateful Workloads, Storage Classes
+- → [[monitoring-observability]] — Prometheus, Grafana Stack
+
+---
+*Zuletzt aktualisiert: 2026-05-01*

@@ -74,3 +74,12 @@ vault kv get secret/myapp/database
 - `SSL Certificate Issue Troubleshooting.md`
 - `Cluster Security with Istio.md`
 - `Cloud Security Basics..md`
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — K8s Network Policies, Pod Security
+- → [[iam-keycloak]] — SSO Integration, Keycloak als IdP
+- → [[gitops-cicd]] — Security in CI/CD Pipelines
+
+---
+*Zuletzt aktualisiert: 2026-05-01*

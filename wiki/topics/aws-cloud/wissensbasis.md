@@ -49,3 +49,12 @@ prowler aws -c NIST
 
 - `AWS Secure Messaging Solution.md`
 - `Automate AWS Compliance Reports.md`
+
+## Cross-References
+
+- → [[networking]] — VPC, Subnets, Route 53
+- → [[cloud-kubernetes]] — EKS, Cloud-Native Architektur
+- → [[security-access]] — IAM Policies, Security Groups
+
+---
+*Zuletzt aktualisiert: 2026-05-01*

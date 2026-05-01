@@ -38,8 +38,11 @@ Fokus: Kubernetes, Cloud-Native, IT Service Management, KI-Integration
 - Sichtbarkeit: LinkedIn-Profil pflegen
 - Netzwerk: Konferenzen, Meetups
 
-## Relevant Conversations
+## Cross-References
 
-- `New Job HiSolutions AG.md`
-- `Karriereziele mit 51.md`
-- `Cloud Strategie Bewerbung.md`
+- → [[consulting-advisory]] — Tagessätze, Rates, Kundenprojekte
+- → [[project-management]] — PM-Erfahrung, Left Forum, Meuterei
+- → [[cloud-kubernetes]] — K8s als Kernkompetenz
+
+---
+*Zuletzt aktualisiert: 2026-05-01*

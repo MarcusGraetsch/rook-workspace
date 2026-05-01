@@ -71,3 +71,12 @@ git push origin main
 - `GitLab Funktionen und Alternativen.md`
 - `Docker Run Invalid Reference..md`
 - `GitHub Push Anleitung.md`
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — ArgoCD Sync, K8s Deployment
+- → [[security-access]] — Pipeline Security, Secrets Scanning
+- → [[linux-devops]] — Docker, Bash, Automation
+
+---
+*Zuletzt aktualisiert: 2026-05-01*

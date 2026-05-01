@@ -67,3 +67,12 @@ Phase 4: Rollout (3-12 Monate) — Stufenweise Migration, Schulungen
 - `Kubernetes Beratungsplan Europa.md`
 - `Cloud Exit Strategien Beratung.md`
 - `T-Profile in Consulting.md`
+
+## Cross-References
+
+- → [[career-professional]] — Tagessätze, T-Profile, Positionierung
+- → [[cloud-kubernetes]] — K8s als Beratungsgegenstand
+- → [[ai-ml]] — AI im Consulting, neue Opportunities
+
+---
+*Zuletzt aktualisiert: 2026-05-01*
