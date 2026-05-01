@@ -43,6 +43,40 @@
 
 ## Lessons Learned
 
+## Wiki-System (aktiv)
+
+### Wiki-Lint Cron-Job
+- **ID:** `dc1ddcd4-17fd-4e49-b736-a5ff16110e7f`
+- **Name:** "Wiki Bi-Monthly Lint"
+- **Schedule:** Am 1. jedes ungeraden Monats um 10:00 Berlin (`0 10 1 1,3,5,7,9,11 *`)
+- **Was es tut:** Health Check → Report in `wiki/wiki-lint-report.md`
+- **Auto-Repair:** Der Cron repariert Orphan Topics und Cross-References automatisch
+
+### Wiki-Lint Script
+- **Ort:** `/root/.openclaw/workspace/operations/bin/wiki-lint.js`
+- **Prüft:** Orphan Pages (<30 Zeilen), fehlende Cross-Refs, veraltete Info (>90 Tage)
+- **Report:** `wiki/wiki-lint-report.md`
+
+### Wiki-Struktur
+- 30 Topics in `wiki/topics/`
+- Jedes Topic: `wissensbasis.md` (Hauptsynthese)
+- Cross-References: `→ [[topic-name]]` Syntax
+- Schema: `wiki/WIKI-SCHEMA.md`
+
+---
+
+## Lessons Learned
+
+### 2026-05-01 - Wiki Lint Auto-Repair
+- Wiki Bi-Monthly Cron existierte bereits (seit 2026-03-26)
+- Cron triggerte um 11:05 am 1. Mai — Marcus hatte vergessen dass er das aufgesetzt hat
+- **Lektion:** Systematisches Erinnern ist wichtig — MEMORY.md pflegen!
+- Der Cron-Job macht jetzt automatische Reparatur der Kritikpunkte:
+  - Orphan Topics erweitern auf 30+ Zeilen
+  - Cross-References automatisch setzen
+  - Report aktualisieren
+- **Nächste Schritte:** Cron auf sonntags 02:00 verschieben (besserer Zeitpunkt)
+
 ### 2026-03-26 - Große Workspace-Reorganisation
 - Monolithischen Workspace in rollenbasierte Struktur umgebaut
 - Problem: Alles lag auf einer Ebene (Research + System + Website + Buch)

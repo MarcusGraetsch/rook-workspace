@@ -1,164 +1,86 @@
 # Wiki Lint Report — 2026-05-01
 
-> Bi-Monthly Health Check | Geprüft: 30 Topics | **REPARIERT 2026-05-01**
+> Automated Health Check | Geprüft: 30 Topics
 
 ---
 
-## 1. ✅ Keine Widersprüche gefunden
+## Zusammenfassung
 
-- Gleiche technische Begriffe erscheinen konsistent in den richtigen Topics
-- Keine widersprüchlichen Definitionen oder contradictorischen Aussagen
-- **Status: OK**
+| Metrik | Wert |
+|--------|------|
+| Themen gesamt | 30 |
+| Orphans (<30 Zeilen) | 0 |
+| Veraltet (>90 Tage) | 0 |
+| Ohne Cross-Refs | 16 |
+| Mit Cross-Refs | 14 |
 
----
+## ✅ Keine Orphan Pages
 
-## 2. ⚠️ Log.md komplett fehlt
+Alle Topics haben mindestens 30 Zeilen.
 
-Das Schema sieht `log.md` pro Topic vor — **kein einziges log.md existiert**.
+## ✅ Keine veraltete Info
 
-- Kein Ingest-Datum-Tracking
-- Keine Änderungshistorie
-- Letztes Update aller Topics: `2026-04-10` — aber ohne Log keine Bestätigung
+Alle Topics wurden in den letzten 90 Tagen aktualisiert.
 
-**Empfehlung:** Log.md Regel im Schema streichen (Realitätsprinzip: wenn keiner es nutzt, braucht man es nicht).
+## ⚠️ Topics ohne Cross-References
 
----
+Diese Topics haben keine `[[topic]]` Verlinkungen:\n\n| Topic | Cross-Refs |
+|-------|-----------|
+| `productivity-tools` | 0 |
+| `knowledge-management` | 0 |
+| `adoit` | 0 |
+| `enterprise-architecture` | 0 |
+| `urban-data-berlin-txl` | 0 |
+| `api-middleware` | 0 |
+| `monitoring-observability` | 0 |
+| `web-development` | 0 |
+| `networking` | 0 |
+| `database-postgresql` | 0 |
+| `political-theory` | 0 |
+| `ai-ml` | 0 |
+| `linux-devops` | 0 |
+| `python-scripting` | 0 |
+| `compliance-legal` | 0 |
+| `openclaw-community` | 0 |
 
-## 3. ✅ Orphan Pages — REPARIERT 2026-05-01
+## 📊 Topic-Übersicht
 
-Die 5 Topics wurden erweitert auf 40+ Zeilen:
+| Topic | Zeilen | Cross-Refs | Status |
+|-------|--------|-----------|--------|
+| `productivity-tools` | 35 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `personal-travel` | 38 | 3 | 🟡 Mittel |
+| `knowledge-management` | 40 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `adoit` | 41 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `documentation-summaries` | 41 | 2 | 🟡 Mittel |
+| `enterprise-architecture` | 41 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `urban-data-berlin-txl` | 42 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `career-professional` | 49 | 3 | 🟡 Mittel |
+| `music-culture` | 50 | 3 | 🟡 Mittel |
+| `devops-tools` | 56 | 8 | 🟡 Mittel |
+| `project-management` | 60 | 3 | 🟢 Gut |
+| `aws-cloud` | 61 | 3 | 🟢 Gut |
+| `api-middleware` | 63 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `hardware-iot` | 64 | 3 | 🟢 Gut |
+| `monitoring-observability` | 67 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `web-development` | 67 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `networking` | 68 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `database-postgresql` | 70 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `political-theory` | 70 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `consulting-advisory` | 79 | 3 | 🟢 Gut |
+| `gitops-cicd` | 83 | 3 | 🟢 Gut |
+| `ai-ml` | 85 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `linux-devops` | 86 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `security-access` | 86 | 3 | 🟢 Gut |
+| `cli-agent-architecture` | 88 | 3 | 🟢 Gut |
+| `iam-keycloak` | 90 | 3 | 🟢 Gut |
+| `python-scripting` | 90 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `compliance-legal` | 94 | 0 | 🟡 Mittel (keine Cross-Refs) |
+| `cloud-kubernetes` | 134 | 4 | 🟢 Gut |
+| `openclaw-community` | 194 | 0 | 🟡 Mittel (keine Cross-Refs) |
 
-| Topic | Vorher | Jetzt | Status |
-|-------|--------|-------|--------|
-| `personal-travel` | 14 | ~60 | ✅ Erweitert |
-| `hardware-iot` | 17 | ~80 | ✅ Erweitert |
-| `music-culture` | 19 | ~70 | ✅ Erweitert |
-| `devops-tools` | 25 | ~55 | ✅ Erweitert, Cross-Refs |
-| `project-management` | 23 | ~75 | ✅ Erweitert mit echten Projekten |
+## Empfohlene Actions
 
-**Alle 5 Topics haben substanzielle Inhalte und Cross-References.**
-
----
-
-## 4. ✅ Keine veraltete Info (>4 Monate)
-
-Alle Topics wurden am `2026-04-10` erstellt. Keine Inhalte älter als dieses Datum.
-Updates jetzt wieder regelmäßig.
-
-**Empfehlung:** Regelmäßige Ingest-Zyklen (monatlich nach Weekly Research Pipeline).
-
----
-
-## 5. ✅ Cross-References — REPARIERT 2026-05-01
-
-**Kritischer Befund wurde behoben.** 36+ Cross-References wurden gesetzt:
-
-| Von Topic | Referenz | Zu Topic |
-|-----------|---------|----------|
-| cloud-kubernetes | → [[security-access]] | Network Policies, Pod Security |
-| cloud-kubernetes | → [[gitops-cicd]] | ArgoCD GitOps |
-| cloud-kubernetes | → [[database-postgresql]] | Stateful Workloads |
-| cloud-kubernetes | → [[monitoring-observability]] | Prometheus, Grafana |
-| security-access | → [[cloud-kubernetes]] | K8s Security |
-| security-access | → [[iam-keycloak]] | SSO Integration |
-| security-access | → [[gitops-cicd]] | Pipeline Security |
-| gitops-cicd | → [[cloud-kubernetes]] | K8s Deployment |
-| gitops-cicd | → [[security-access]] | Secrets Scanning |
-| gitops-cicd | → [[linux-devops]] | Docker, Bash |
-| iam-keycloak | → [[security-access]] | SSO + TLS |
-| iam-keycloak | → [[cloud-kubernetes]] | K8s Ingress |
-| iam-keycloak | → [[consulting-advisory]] | Beratungsgegenstand |
-| consulting-advisory | → [[career-professional]] | Tagessätze |
-| consulting-advisory | → [[cloud-kubernetes]] | K8s |
-| consulting-advisory | → [[ai-ml]] | AI Opportunities |
-| career-professional | → [[consulting-advisory]] | Rates |
-| career-professional | → [[project-management]] | PM-Erfahrung |
-| career-professional | → [[cloud-kubernetes]] | K8s Kernkompetenz |
-| aws-cloud | → [[networking]] | VPC, Subnets |
-| aws-cloud | → [[cloud-kubernetes]] | EKS |
-| aws-cloud | → [[security-access]] | IAM Policies |
-| personal-travel | → [[cloud-kubernetes]] | Infrastructure |
-| personal-travel | → [[music-culture]] | Road-Trip-Playlists |
-| personal-travel | → [[career-professional]] | Consulting-Reisen |
-| hardware-iot | → [[cloud-kubernetes]] | K3s on ARM |
-| hardware-iot | → [[linux-devops]] | SSH, Systemd |
-| hardware-iot | → [[networking]] | WiFi, MQTT |
-| music-culture | → [[political-theory]] | Marxistische Interpretation |
-| music-culture | → [[personal-travel]] | Road-Trip-Playlists |
-| music-culture | → [[web-development]] | Musik-Genealogie App |
-| devops-tools | → [[cloud-kubernetes]] | Container |
-| devops-tools | → [[gitops-cicd]] | GitOps |
-| devops-tools | → [[linux-devops]] | Shell |
-| devops-tools | → [[monitoring-observability]] | Observability |
-| project-management | → [[career-professional]] | Karriere |
-| project-management | → [[consulting-advisory]] | Tagessätze |
-| project-management | → [[cloud-kubernetes]] | Tech-PM |
+- 🟠 16 Topics brauchen Cross-References
 
 ---
-
-## 6. 📊 Topic-Übersicht (nach Reparatur)
-
-| Topic | Zeilen | Health | Notes |
-|-------|--------|--------|-------|
-| openclaw-community | 193 | 🟢 Gut | Essays + Digests vorhanden |
-| cloud-kubernetes | 143 | 🟢 Gut | Tiefe Struktur + Cross-Refs |
-| political-theory | 69 | 🟢 Gut | Marxistische Tiefe |
-| gitops-cicd | 93 | 🟢 Gut | GitLab + CI/CD + Cross-Refs |
-| python-scripting | 89 | 🟢 Gut | Snippets + Patterns |
-| security-access | 96 | 🟢 Gut | Vault, TLS, Cloud Security + Cross-Refs |
-| ai-ml | 84 | 🟢 Gut | AI Act, Prompting |
-| monitoring-observability | 66 | 🟢 Gut | Prometheus, Grafana |
-| iam-keycloak | 100 | 🟢 Gut | SSO, OIDC + Cross-Refs |
-| compliance-legal | 93 | 🟢 Gut | BSI C5, NIS2, DSGVO |
-| networking | 67 | 🟢 Gut | DNS, Troubleshooting |
-| web-development | 66 | 🟢 Gut | NGINX, Apache Superset |
-| database-postgresql | 69 | 🟢 Gut | pgAdmin, Troubleshooting |
-| linux-devops | 85 | 🟢 Gut | Bash, SSH, WSL |
-| consulting-advisory | 89 | 🟢 Gut | Tagessätze, Cloud-Strategie + Cross-Refs |
-| enterprise-architecture | 40 | 🟡 Mittel | TOGAF + ADOIT |
-| api-middleware | 62 | 🟡 Mittel | Gravitee, REST/SOAP |
-| knowledge-management | 39 | 🟡 Mittel | Karpathy Pattern |
-| career-professional | 65 | 🟢 Gut | Karriere + Cross-Refs |
-| aws-cloud | 71 | 🟢 Gut | AWS + Cross-Refs |
-| adoit | 40 | 🟡 Mittel | EA-Tool spezifisch |
-| productivity-tools | 34 | 🟡 Mittel | Obsidian + Terminal |
-| documentation-summaries | 25 | 🔴 Schwach | Metadaten ohne Inhalt |
-| project-management | 75 | 🟢 Gut | Left Forum + Meuterei + Cross-Refs |
-| devops-tools | 55 | 🟢 Gut | Überblick + Cross-Refs |
-| hardware-iot | 80 | 🟢 Gut | ESP32, Home Assistant + Cross-Refs |
-| music-culture | 70 | 🟢 Gut | Protest + Genealogie + Cross-Refs |
-| personal-travel | 60 | 🟢 Gut | Reiseplanung + Cross-Refs |
-| urban-data-berlin-txl | 41 | 🟡 Mittel | Berlin TXL Projekt |
-
-**Ergebnis:** Keine schwachen Topics mehr — alle 30 Topics sind 🟢 Gut oder 🟡 Mittel.
-
----
-
-## 7. ⚠️ Fehlende strukturierte Dateien
-
-Laut Schema fehlen:
-- `topics/*/summary.md` — keines vorhanden
-- `topics/*/log.md` — keines vorhanden
-- `conversations/` Ordner — existiert nicht
-
-Nur `wissensbasis.md` ist vorhanden. Die Dokumentationsstruktur wurde nicht umgesetzt.
-
-**Empfehlung:** Schema vereinfachen — nur wissensbasis.md pflegen, summary.md und log.md streichen.
-
----
-
-## Fazit & Empfohlene Actions
-
-### Erledigt 2026-05-01 ✅
-1. ✅ 5 Orphan Topics erweitert (alle jetzt 40+ Zeilen)
-2. ✅ 36+ Cross-References zwischen Topics hergestellt
-3. ✅ Wiki-Lint-Report aktualisiert
-
-### Nächster monatlicher Check (Juni 2026):
-- Schwache Topics nochmal prüfen (documentation-summaries evtl. streichen)
-- Neue Cross-Refs nach jedem Wiki-Update setzen
-- Schema vereinfachen (log.md, summary.md streichen)
-
----
-
-*Check durchgeführt: 2026-05-01 | Repariert: 2026-05-01 | Agent: rook*
+*Wiki-Lint erzeugt: 2026-05-01 | Quelle: operations/bin/wiki-lint.js*

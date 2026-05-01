@@ -32,3 +32,7 @@ units                         # Unit Conversion
 ## Relevant Conversations
 
 - Obsidian-related conversations in workspace
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

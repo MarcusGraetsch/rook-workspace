@@ -191,3 +191,7 @@ Agent-to-Agent Delegation, Sessions, Skills, Schedules — das macht aus einem C
 ---
 
 *Zuletzt aktualisiert: 2026-04-10*
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

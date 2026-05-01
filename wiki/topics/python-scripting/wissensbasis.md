@@ -87,3 +87,7 @@ def safe_api_call(url, max_retries=3):
 
 - `Python JSON Manipulation.md`
 - `Python Code Assistance.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

@@ -64,3 +64,7 @@ curl -O https://github.com/grafana/alloy/releases/latest/download/alloy-linux-am
 - `Prometheus Benutzerkonzept entwickeln.md`
 - `Grafana Alloy neben Prometheus.md`
 - `Benutzerkonzept Monitoring Logging.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

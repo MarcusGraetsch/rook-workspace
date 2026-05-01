@@ -67,3 +67,7 @@ Drei Grenzüberschreitungen:
 - `Arbeit und Kapital Zusammenfassung.md`
 - `Hegels Einfluss auf Informatik.md`
 - `Comprehensive Analysis of Das Kapital.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

@@ -38,3 +38,7 @@ Siehe `adoit/wissensbasis.md`
 
 - `Enterprise Architecture Overview.md`
 - `TOGAF Summary.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

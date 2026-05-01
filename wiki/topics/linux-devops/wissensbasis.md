@@ -83,3 +83,7 @@ scp C:\local\file.txt user@server:/remote/path/
 - `SSH Connection Error Analysis.md`
 - `WSL Dev Setup Guide.md`
 - `Ubuntu setup script.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

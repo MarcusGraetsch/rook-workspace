@@ -39,3 +39,7 @@ gdal_translate -of COG input.tif output_cog.tif
 - `GeoServer Setup and Services.md`
 - `CKAN to Geoserver Migration..md`
 - `INSPIRE standard explained..md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

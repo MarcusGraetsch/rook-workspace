@@ -91,3 +91,7 @@ Monitoring
 - `Cloud Richtlinie Compliance Hinweise.md`
 - `BSI-200 Compliance Matrix.md`
 - `ISO 27001 Zweck und Nutzen.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

@@ -38,3 +38,7 @@ Python-basiertes Tool um CSV/SAM-Daten nach ADOIT zu syncen.
 
 - `ADOIT Setup IONOS Cloud.md`
 - `Python ADOIT Integration Plan.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

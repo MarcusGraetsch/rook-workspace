@@ -65,3 +65,7 @@ lshw -C network
 
 - `DNS Troubleshooting Guide.md`
 - `Cloud Network Design- Basics.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

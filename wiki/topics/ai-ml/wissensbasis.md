@@ -82,3 +82,7 @@ LangChain, LlamaIndex, AutoGen
 - `EU AI Act Summary.md`
 - `AI Agents Learning Roadmap.md`
 - `ChatGPT Cheat Sheet.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

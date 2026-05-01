@@ -60,3 +60,7 @@ Features: API-Lebenszyklus-Management, Developer Portal, Analytics, Policy Engin
 
 - `API-Gateway- Funktionalität und Implementierung.md`
 - `API Call- Wetterdaten Fetch.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)

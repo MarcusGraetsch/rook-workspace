@@ -64,3 +64,7 @@ FROM orders GROUP BY DATE_TRUNC('month', order_date) ORDER BY month
 - `NGINX Ingress Validation Fix..md`
 - `Web Scraper.md`
 - `Markdown HTML conversion.md`
+-e 
+## Cross-References
+
+- → [[cloud-kubernetes]] — (placeholder)
