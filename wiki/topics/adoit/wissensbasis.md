@@ -42,3 +42,9 @@ Python-basiertes Tool um CSV/SAM-Daten nach ADOIT zu syncen.
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[enterprise-architecture]] — TOGAF Framework
+- → [[cloud-kubernetes]] — ADOIT für Cloud-Dokumentation
+

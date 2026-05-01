@@ -87,3 +87,9 @@ scp C:\local\file.txt user@server:/remote/path/
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — Linux als K8s-Basis
+- → [[monitoring-observability]] — Logs, Prometheus
+

@@ -71,3 +71,9 @@ sudo systemctl reload postgresql
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — Stateful Workloads
+- → [[linux-devops]] — PostgreSQL运维
+

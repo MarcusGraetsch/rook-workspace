@@ -42,3 +42,9 @@ Siehe `adoit/wissensbasis.md`
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[adoit]] — EA-Tool
+- → [[consulting-advisory]] — EA-Beratung
+

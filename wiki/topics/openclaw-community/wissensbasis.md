@@ -195,3 +195,9 @@ Agent-to-Agent Delegation, Sessions, Skills, Schedules — das macht aus einem C
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[ai-ml]] — OpenClaw + AI Integration
+- → [[productivity-tools]] — OpenClaw als Productivity Tool
+

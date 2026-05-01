@@ -68,3 +68,9 @@ FROM orders GROUP BY DATE_TRUNC('month', order_date) ORDER BY month
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[networking]] — HTTP, DNS
+- → [[cloud-kubernetes]] — Web-Apps auf K8s
+

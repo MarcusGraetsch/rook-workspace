@@ -95,3 +95,9 @@ Monitoring
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[security-access]] — BSI C5, NIS2 Security Controls
+- → [[consulting-advisory]] — Compliance-Beratung
+

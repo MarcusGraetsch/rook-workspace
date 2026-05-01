@@ -69,3 +69,9 @@ lshw -C network
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — Netzwerk-Policies, CNI
+- → [[security-access]] — Firewall, TLS
+

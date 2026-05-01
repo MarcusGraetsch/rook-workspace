@@ -43,3 +43,9 @@ gdal_translate -of COG input.tif output_cog.tif
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — K8s für Urban Data
+- → [[database-postgresql]] — PostGIS, GeoDaten
+

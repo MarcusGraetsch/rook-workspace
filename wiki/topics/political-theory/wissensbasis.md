@@ -71,3 +71,9 @@ Drei Grenzüberschreitungen:
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[music-culture]] — Protestmusik und Politik
+- → [[consulting-advisory]] — Kritische Theorie im Consulting
+

@@ -68,3 +68,9 @@ curl -O https://github.com/grafana/alloy/releases/latest/download/alloy-linux-am
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — Monitoring Stack auf K8s
+- → [[security-access]] — Security Monitoring
+

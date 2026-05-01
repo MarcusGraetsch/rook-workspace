@@ -91,3 +91,9 @@ def safe_api_call(url, max_retries=3):
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[linux-devops]] — Python für Automation
+- → [[cloud-kubernetes]] — K8s Python Clients
+

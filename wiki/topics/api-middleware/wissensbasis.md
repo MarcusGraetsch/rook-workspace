@@ -64,3 +64,9 @@ Features: API-Lebenszyklus-Management, Developer Portal, Analytics, Policy Engin
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — Ingress, API-Gateways in K8s
+- → [[networking]] — API-Endpoints, DNS
+

@@ -86,3 +86,9 @@ LangChain, LlamaIndex, AutoGen
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[cloud-kubernetes]] — AI/ML on K8s
+- → [[consulting-advisory]] — AI im Consulting
+

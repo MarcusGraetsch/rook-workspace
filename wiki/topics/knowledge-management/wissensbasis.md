@@ -37,3 +37,9 @@ Wissensmanagement, LLM Wiki Pattern nach Karpathy.
 - `wiki/WIKI-SCHEMA.md` — Betriebsanleitung
 - `skills/custom/wiki-maintenance/` — Skill für Wiki-Pflege
 - Karpathy Gist: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
+
+## Cross-References
+
+- → [[ai-ml]] — Knowledge Management + AI
+- → [[productivity-tools]] — Obsidian als KM-Tool
+

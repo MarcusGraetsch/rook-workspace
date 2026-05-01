@@ -36,3 +36,9 @@ units                         # Unit Conversion
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+
+## Cross-References
+
+- → [[knowledge-management]] — Obsidian als KM-Tool
+- → [[linux-devops]] — Terminal-Tools
+
