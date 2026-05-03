@@ -444,6 +444,8 @@ async function runAgent(agentId, task, dispatchMode, model = HOOK_MODEL) {
     ROOK_AGENT_MESSAGE: summarizeTask(task, agentId),
     ROOK_AGENT_TIMEOUT: String(DEFAULT_TIMEOUT_SECONDS),
     ROOK_AGENT_LOCAL_FLAG: dispatchMode === 'local' ? '--local' : '',
+    OPENCLAW_AGENT_ID: agentId,
+    OPENCLAW_TASK_ID: task.task_id,
   };
   const command = [
     'exec openclaw agent',
