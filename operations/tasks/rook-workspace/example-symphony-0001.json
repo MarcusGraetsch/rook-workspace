@@ -1,0 +1,61 @@
+{
+  "task_id": "example-symphony-0001",
+  "project_id": "rook-workspace",
+  "title": "Symphony-Style Task mit neuen Features",
+  "description": "Beispiel-Task, der die neuen Symphony-Inspirierten Felder zeigt: retry, artifacts, parent_task",
+  "status": "review",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "parent_task": null,
+  "related_repo": "MarcusGraetsch/rook-workspace",
+  "branch": "agent/engineer/example-symphony-0001-symphony-style-task-mit-neuen",
+  "commits": ["a1b2c3d"],
+  "commit_refs": ["a1b2c3d"],
+  "labels": ["symphony", "example"],
+  "workflow_stage": "review",
+  "blocked_reason": null,
+  "handoff_notes": "Task implementiert. Siehe artifacts für Proof of Work.",
+  "failure_reason": null,
+  "source_channel": "telegram",
+  "artifacts": [
+    {
+      "type": "pr_link",
+      "url": "https://github.com/MarcusGraetsch/rook-workspace/pull/42",
+      "status": "open",
+      "description": "Auto-created PR with task changes"
+    },
+    {
+      "type": "test_results",
+      "summary": "15 passed, 0 failed, 2 skipped",
+      "description": "All tests passing after changes"
+    },
+    {
+      "type": "complexity_analysis",
+      "summary": "+124/-45 lines, 3 files touched",
+      "description": "Low risk change, well isolated"
+    }
+  ],
+  "retry": {
+    "attempt": 0,
+    "max_attempts": 2,
+    "backoff_ms": 60000,
+    "last_error": null,
+    "next_retry_at": null,
+    "history": []
+  },
+  "checklist": [
+    { "title": "Implement feature", "completed": true, "position": 0 },
+    { "title": "Write tests", "completed": true, "position": 1 },
+    { "title": "Update docs", "completed": false, "position": 2 }
+  ],
+  "timestamps": {
+    "created_at": "2026-05-05T12:00:00Z",
+    "updated_at": "2026-05-05T12:30:00Z",
+    "started_at": "2026-05-05T12:05:00Z",
+    "completed_at": null,
+    "claimed_at": null
+  }
+}

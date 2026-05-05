@@ -26,9 +26,26 @@ archive/
 - `ready`
 - `in_progress`
 - `review`
+- `rework`        ← changes requested, back to engineer
+- `human_review`  ← explicit handoff state (like Symphony's "Human Review")
+- `merging`       ← PR approved, being merged
 - `testing`
 - `blocked`
 - `done`
+
+### Symphony-Style State Machine
+
+```
+backlog → intake → ready → in_progress ───────→ review → human_review → merging → done
+                              ↓                      ↓         ↓
+                          cancelled                rework ←────┘
+                              ↓
+                           failed
+```
+
+- **rework**: Task was in review, changes were requested. Returns to in_progress.
+- **human_review**: Explicit handoff state where a human must approve before merging.
+- **merging**: PR is approved, final merge step before done.
 
 ## Assignment
 

@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Task v1.1 — Symphony-Enhanced",
+  "description": "Canonical task file schema with Symphony-inspired upgrades: retry, artifacts, parent_task",
+  "type": "object",
+  "required": ["task_id", "project_id", "title", "status", "assigned_agent", "priority"],
+  "properties": {
+    "task_id": { "type": "string" },
+    "project_id": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["backlog", "intake", "ready", "in_progress", "review", "rework", "human_review", "merging", "testing", "blocked", "done", "cancelled", "failed", "archived"]
+    },
+    "assigned_agent": { "type": "string" },
+    "claimed_by": { "type": ["string", "null"] },
+    "priority": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "blocked_by": { "type": "array", "items": { "type": "string" } },
+    "parent_task": {
+      "type": ["string", "null"],
+      "description": "ID of parent task (for auto-created sub-tasks)"
+    },
+    "related_repo": { "type": "string" },
+    "branch": { "type": "string" },
+    "commits": { "type": "array", "items": { "type": "string" } },
+    "commit_refs": { "type": "array", "items": { "type": "string" } },
+    "labels": { "type": "array", "items": { "type": "string" } },
+    "workflow_stage": { "type": "string" },
+    "blocked_reason": { "type": ["string", "null"] },
+    "handoff_notes": { "type": "string" },
+    "failure_reason": { "type": ["string", "null"] },
+    "source_channel": { "type": ["string", "null"] },
+    "artifacts": {
+      "type": "array",
+      "description": "Proof of work artifacts (Symphony-style)",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["pr_link", "test_results", "complexity_analysis", "video_walkthrough", "code_change", "documentation", "screenshot", "other"]
+          },
+          "url": { "type": "string" },
+          "file": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      }
+    },
+    "retry": {
+      "type": ["object", "null"],
+      "description": "Retry state for failed tasks (Symphony-style)",
+      "properties": {
+        "attempt": { "type": "integer", "minimum": 0 },
+        "max_attempts": { "type": "integer", "minimum": 0, "maximum": 5 },
+        "backoff_ms": { "type": "integer", "minimum": 1000 },
+        "last_error": { "type": ["string", "null"] },
+        "next_retry_at": { "type": ["string", "null"], "format": "date-time" },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "attempt": { "type": "integer" },
+              "error": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+    "checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "completed": { "type": "boolean" },
+          "position": { "type": "integer" }
+        }
+      }
+    },
+    "kanban": {
+      "type": ["object", "null"],
+      "properties": {
+        "board_id": { "type": "string" },
+        "board_name": { "type": "string" },
+        "column_id": { "type": "string" },
+        "column_name": { "type": "string" },
+        "task_db_id": { "type": "string" },
+        "position": { "type": "integer" },
+        "sync_origin": { "type": "string" }
+      }
+    },
+    "github_issue": {
+      "type": ["object", "null"],
+      "properties": {
+        "repo": { "type": "string" },
+        "number": { "type": ["integer", "null"] },
+        "url": { "type": ["string", "null"] },
+        "state": { "type": ["string", "null"] },
+        "sync_status": { "type": "string" },
+        "last_synced_at": { "type": ["string", "null"] },
+        "last_error": { "type": ["string", "null"] }
+      }
+    },
+    "github_pull_request": {
+      "type": ["object", "null"],
+      "properties": {
+        "repo": { "type": "string" },
+        "number": { "type": ["integer", "null"] },
+        "url": { "type": ["string", "null"] },
+        "state": { "type": ["string", "null"] },
+        "sync_status": { "type": "string" },
+        "last_synced_at": { "type": ["string", "null"] },
+        "last_error": { "type": ["string", "null"] }
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "properties": {
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "started_at": { "type": ["string", "null"], "format": "date-time" },
+        "completed_at": { "type": ["string", "null"], "format": "date-time" },
+        "claimed_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "intake": {
+      "type": ["object", "null"],
+      "properties": {
+        "brief": { "type": "string" },
+        "refinement_source": { "type": "string" },
+        "refined_at": { "type": "string", "format": "date-time" },
+        "refinement_summary": { "type": "string" }
+      }
+    },
+    "plan": {
+      "type": ["object", "null"]
+    },
+    "last_heartbeat": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

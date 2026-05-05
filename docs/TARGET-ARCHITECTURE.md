@@ -101,6 +101,9 @@ Recommended additional fields:
 - `labels`
 - `handoff_notes`
 - `blocked_reason`
+- `retry`
+- `artifacts`
+- `parent_task`
 
 ## Task Lifecycle
 
@@ -111,6 +114,9 @@ Primary visible Kanban lifecycle:
 - `in_progress`
 - `testing`
 - `review`
+- `rework`
+- `human_review`
+- `merging`
 - `done`
 
 Operational lifecycle additions:
