@@ -233,6 +233,122 @@ Wie Symphony's Phoenix Service:
 - `operations/schemas/task-v1.json` — Neue Felder: `retry`, `artifacts`, `parent_task`
 - `docs/TARGET-ARCHITECTURE.md` — Symphony-Learnings integrieren
 
+### Dashboard UI Changes (rook-dashboard repo)
+
+#### Kanban Board Columns
+
+| Current Columns | New Columns | Notes |
+|-----------------|-------------|-------|
+| backlog | backlog | unchanged |
+| ready | ready | unchanged |
+| in_progress | in_progress | unchanged |
+| review | **review** | handoff state |
+| — | **rework** ← | NEW: after changes requested |
+| — | **human_review** ← | NEW: explicit human approval gate |
+| — | **merging** ← | NEW: PR approved, merge in progress |
+| testing | testing | unchanged |
+| done | done | unchanged |
+
+**Column Color Coding:**
+- `rework`: 🟠 Orange (attention needed, back to engineer)
+- `human_review`: 🔵 Blue (waiting for human)
+- `merging`: 🟣 Purple (automated final step)
+
+#### Task Detail Panel Erweiterungen
+
+**1. Proof of Work Artifacts Section**
+```tsx
+interface ArtifactsPanel {
+  artifacts: Array<{
+    type: 'pr_link' | 'test_results' | 'complexity_analysis' | 'video_walkthrough' | 'code_change';
+    url?: string;
+    file?: string;
+    description: string;
+    status?: string;
+    summary?: string;
+  }>;
+}
+```
+
+UI: Collapsible section "Proof of Work" with icons per type:
+- 📝 PR Link → clickable link
+- ✅ Test Results → badge with pass/fail count
+- 📊 Complexity → lines changed, files touched
+- 🎥 Video → embedded or link
+
+**2. Retry Status Badge**
+```tsx
+{task.retry && task.retry.attempt > 0 && (
+  <Badge variant="warning">
+    Retry {task.retry.attempt}/{task.retry.max_attempts}
+    {task.retry.next_retry_at && ` · Next: ${formatTime(task.retry.next_retry_at)}`}
+  </Badge>
+)}
+```
+
+**3. Parent/Child Task Links**
+```tsx
+{task.parent_task && (
+  <div className="text-sm text-muted">
+    ↳ Sub-task of <Link href={`/kanban?task=${task.parent_task}`}>{task.parent_task}</Link>
+  </div>
+)}
+
+{childTasks.length > 0 && (
+  <div className="mt-2">
+    <div className="text-sm font-medium">Auto-created follow-ups:</div>
+    {childTasks.map(child => (
+      <Link key={child.task_id} href={`/kanban?task=${child.task_id}`}>
+        <Badge variant="outline">{child.status}</Badge> {child.title}
+      </Link>
+    ))}
+  </div>
+)}
+```
+
+**4. Workflow Badge**
+```tsx
+{task.workflow_stage && (
+  <Badge variant="secondary">{task.workflow_stage}</Badge>
+)}
+```
+
+#### API Endpoint Changes
+
+**`/api/control/tasks` (GET):**
+- Include `retry`, `artifacts`, `parent_task` in response
+- Filter by `workflow_stage` query param
+
+**`/api/control/tasks` (PATCH):**
+- Accept `artifacts` append operation
+- Accept `retry` reset operation (when manually retrying)
+- Validate `status` against extended enum (rework, human_review, merging)
+
+**`/api/control/health` (GET):**
+- Include `running_sessions_count` vs `max_concurrent` per agent
+- Include `retry_queue_depth` (tasks with `next_retry_at` in future)
+
+#### Agent Health Page (`/agents`) Erweiterungen
+
+**Queue & Blockers Panel:**
+- Show `rework` tasks in engineer queue
+- Show `human_review` tasks as "waiting for human"
+- Color-code by state
+
+**New Metrics:**
+- `proof_of_work_coverage`: % of done tasks with artifacts
+- `retry_rate`: % of tasks that needed retry
+- `auto_created_tasks`: count of tasks spawned by agents
+
+### Dashboard Files to Modify (rook-dashboard)
+
+- `src/lib/control/tasks.ts` — Task model types erweitern
+- `src/app/api/control/tasks/route.ts` — PATCH/GET handler
+- `src/app/kanban/page.tsx` — Neue Spalten, Badges
+- `src/app/kanban/TaskDetail.tsx` — Artifacts, Retry, Parent sections
+- `src/app/agents/page.tsx` — Queue-Panel erweitern
+- `src/lib/control/health.ts` — Agent-Health mit Concurrency-Metrics
+
 ## Risk Analysis
 
 | Risk | Mitigation |
