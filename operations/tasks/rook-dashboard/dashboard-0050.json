@@ -38,10 +38,19 @@
     { "title": "Extend agent health page with new metrics", "completed": false, "position": 5 },
     { "title": "Regression test existing Kanban functionality", "completed": false, "position": 6 }
   ],
+  "kanban": {
+    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
+    "board_name": "Rook System",
+    "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
+    "column_name": "Ready",
+    "task_db_id": null,
+    "position": 0,
+    "sync_origin": "rook-agent"
+  },
   "timestamps": {
     "created_at": "2026-05-05T12:45:00Z",
     "updated_at": "2026-05-05T12:45:00Z",
-    "started_at": null,
+    "started_at": "2026-05-05T10:25:00Z",
     "completed_at": null,
     "claimed_at": null
   }
