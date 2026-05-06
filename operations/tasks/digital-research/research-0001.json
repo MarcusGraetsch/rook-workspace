@@ -9,23 +9,25 @@
     "refined_at": "2026-04-01T14:14:39.443Z",
     "refinement_summary": "Structured from the rough brief with the local fallback refiner for research work."
   },
-  "status": "backlog",
+  "status": "blocked",
   "assigned_agent": "researcher",
   "claimed_by": null,
   "priority": "medium",
   "dependencies": [],
-  "blocked_by": [],
+  "blocked_by": [
+    "agent:missing-handoff"
+  ],
   "related_repo": "MarcusGraetsch/digital-capitalism-research",
   "branch": "agent/researcher/research-0001-research-the-latest-development-in-digital-capit",
   "commits": [],
   "commit_refs": [],
   "labels": [],
-  "workflow_stage": "backlog",
+  "workflow_stage": "ready",
   "blocked_reason": null,
-  "handoff_notes": "2026-05-01 (maintenance): Stale in_progress — claimed_by=researcher but started_at=null, no heartbeat, checklist 0/4. Claim never executed. Reset to backlog.",
-  "last_heartbeat": null,
-  "failure_reason": null,
-  "source_channel": null,
+  "handoff_notes": "",
+  "last_heartbeat": "2026-04-23T12:13:12.268Z",
+  "failure_reason": "research-0001 completed but is missing handoff_notes. All agents must document what was done.",
+  "source_channel": "system:dispatcher",
   "artifacts": [],
   "checklist": [
     {
@@ -64,14 +66,31 @@
     "url": "https://github.com/MarcusGraetsch/digital-capitalism-research/issues/1",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-04-02T12:43:05.749Z",
-    "last_error": null
+    "last_synced_at": "2026-05-05T13:59:29.688Z",
+    "last_error": null,
+    "assignees": null
   },
   "timestamps": {
     "created_at": "2026-04-02T12:43:04.241Z",
-    "updated_at": "2026-05-01T14:45:00.000Z",
-    "started_at": null,
+    "updated_at": "2026-05-05T13:59:29.688Z",
+    "started_at": "2026-04-23T12:10:44.997Z",
     "completed_at": null,
     "claimed_at": null
+  },
+  "dispatch": {
+    "mode": "hook",
+    "executor": "researcher",
+    "attempts": 1,
+    "total_attempts": 1,
+    "launched_at": "2026-04-23T12:10:44.997Z",
+    "last_checked_at": "2026-04-23T12:15:43.339Z",
+    "model": "minimax/MiniMax-M2.7",
+    "thinking": "low",
+    "session_key": "hook:dispatcher:task:research-0001:1577987b",
+    "session_id": "73b7136a-006f-46d9-ae79-8116de771271",
+    "dispatched_status": "in_progress",
+    "dispatched_owner": "researcher",
+    "last_result": "completed",
+    "last_error": "research-0001 completed but is missing handoff_notes. All agents must document what was done."
   }
 }

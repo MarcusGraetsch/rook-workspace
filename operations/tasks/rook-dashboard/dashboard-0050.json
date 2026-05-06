@@ -3,55 +3,112 @@
   "project_id": "rook-dashboard",
   "title": "Symphony UI upgrades: Kanban columns rework/human_review/merging + Artifacts + Retry badges",
   "description": "Integrate the Symphony-inspired state machine and proof-of-work artifacts into the dashboard Kanban UI.\n\n## Background\nThe pipeline now supports new Symphony-style states (rework, human_review, merging) and proof-of-work artifacts (pr_link, test_results, complexity_analysis, video_walkthrough). The dashboard Kanban UI must reflect these changes so humans can manage work at a higher level without supervising individual agent sessions.\n\n## Scope\n\n### 1. Kanban Board Columns\nAdd three new columns to the Kanban board:\n- rework (🟠 Orange) – task returned from review with changes requested\n- human_review (🔵 Blue) – explicit handoff state waiting for human approval\n- merging (🟣 Purple) – PR approved, automated merge in progress\n\nColumn order:\nbacklog → ready → in_progress → review → rework → human_review → merging → testing → done\n\n### 2. Task Detail Panel Extensions\nAdd new collapsible sections to the task detail slide-over/card:\n\n**Proof of Work Artifacts**\nRender task.artifacts[] with type-specific UI:\n- pr_link: clickable link icon + URL\n- test_results: badge with pass/fail/skip counts\n- complexity_analysis: lines changed, files touched, risk score\n- video_walkthrough: embedded or external link\n- code_change: file path + description\n\n**Retry Status Badge**\nIf task.retry.attempt > 0, show warning badge:\n\"Retry {attempt}/{max_attempts} · Next: {time}\"\n\n**Parent / Child Task Links**\n- If task.parent_task: show \"↳ Sub-task of {parent}\" with link\n- Query and show auto-created child tasks (tasks with parent_task = this.task_id)\n\n**Workflow Stage Badge**\nShow task.workflow_stage as a secondary badge next to status\n\n### 3. API Endpoint Updates\n\nGET /api/control/tasks\n- Include retry, artifacts, parent_task in response payload\n- Support ?workflow_stage= filter query param\n\nPATCH /api/control/tasks\n- Accept artifacts append operation (push to array, don't replace)\n- Accept retry reset (when human manually retries a failed task)\n- Validate status against extended enum including rework, human_review, merging\n\nGET /api/control/health\n- Add running_sessions_count vs max_concurrent per agent\n- Add retry_queue_depth (count of tasks with next_retry_at in the future)\n\n### 4. Agent Health Page (/agents) Extensions\n\nQueue & Blockers Panel:\n- Show rework tasks in engineer queue\n- Show human_review tasks as \"Waiting for human\"\n- Color-code by state\n\nNew Metrics:\n- proof_of_work_coverage: % of done tasks that have artifacts\n- retry_rate: % of tasks that required at least one retry\n- auto_created_tasks: count of tasks where parent_task is not null\n\n## Technical Details\n\nFiles to modify (rook-dashboard repo):\n- src/lib/control/tasks.ts – extend Task model type\n- src/app/api/control/tasks/route.ts – GET/PATCH handlers\n- src/app/kanban/page.tsx – add columns, color coding\n- src/app/kanban/TaskDetail.tsx – new sections\n- src/app/agents/page.tsx – Queue & Blockers extensions\n- src/lib/control/health.ts – new health snapshot fields\n\nSchema reference:\n- operations/schemas/task-v1.1.json (in rook-workspace repo)\n- docs/SYMPHONY-UPGRADE.md for full specification\n\n## Definition of Done\n- [ ] All three new Kanban columns render correctly with color coding\n- [ ] Task detail shows artifacts section when present\n- [ ] Retry badge renders with correct attempt count and next retry time\n- [ ] Parent/child links are clickable and navigate to correct task\n- [ ] API endpoints handle new fields without breaking existing tasks\n- [ ] Agent health page shows new metrics and queue state\n- [ ] All existing Kanban functionality still works (regression test)\n- [ ] Changes committed and pushed to branch",
-  "status": "ready",
+  "intake": {
+    "brief": "Integrate the Symphony-inspired state machine and proof-of-work artifacts into the dashboard Kanban UI.\n\n## Background\nThe pipeline now supports new Symphony-style states (rework, human_review, merging) and proof-of-work artifacts (pr_link, test_results, complexity_analysis, video_walkthrough). The dashboard Kanban UI must reflect these changes so humans can manage work at a higher level without supervising individual agent sessions.\n\n## Scope\n\n### 1. Kanban Board Columns\nAdd three new columns to the Kanban board:\n- rework (🟠 Orange) – task returned from review with changes requested\n- human_review (🔵 Blue) – explicit handoff state waiting for human approval\n- merging (🟣 Purple) – PR approved, automated merge in progress\n\nColumn order:\nbacklog → ready → in_progress → review → rework → human_review → merging → testing → done\n\n### 2. Task Detail Panel Extensions\nAdd new collapsible sections to the task detail slide-over/card:\n\n**Proof of Work Artifacts**\nRender task.artifacts[] with type-specific UI:\n- pr_link: clickable link icon + URL\n- test_results: badge with pass/fail/skip counts\n- complexity_analysis: lines changed, files touched, risk score\n- video_walkthrough: embedded or external link\n- code_change: file path + description\n\n**Retry Status Badge**\nIf task.retry.attempt > 0, show warning badge:\n\"Retry {attempt}/{max_attempts} · Next: {time}\"\n\n**Parent / Child Task Links**\n- If task.parent_task: show \"↳ Sub-task of {parent}\" with link\n- Query and show auto-created child tasks (tasks with parent_task = this.task_id)\n\n**Workflow Stage Badge**\nShow task.workflow_stage as a secondary badge next to status\n\n### 3. API Endpoint Updates\n\nGET /api/control/tasks\n- Include retry, artifacts, parent_task in response payload\n- Support ?workflow_stage= filter query param\n\nPATCH /api/control/tasks\n- Accept artifacts append operation (push to array, don't replace)\n- Accept retry reset (when human manually retries a failed task)\n- Validate status against extended enum including rework, human_review, merging\n\nGET /api/control/health\n- Add running_sessions_count vs max_concurrent per agent\n- Add retry_queue_depth (count of tasks with next_retry_at in the future)\n\n### 4. Agent Health Page (/agents) Extensions\n\nQueue & Blockers Panel:\n- Show rework tasks in engineer queue\n- Show human_review tasks as \"Waiting for human\"\n- Color-code by state\n\nNew Metrics:\n- proof_of_work_coverage: % of done tasks that have artifacts\n- retry_rate: % of tasks that required at least one retry\n- auto_created_tasks: count of tasks where parent_task is not null\n\n## Technical Details\n\nFiles to modify (rook-dashboard repo):\n- src/lib/control/tasks.ts – extend Task model type\n- src/app/api/control/tasks/route.ts – GET/PATCH handlers\n- src/app/kanban/page.tsx – add columns, color coding\n- src/app/kanban/TaskDetail.tsx – new sections\n- src/app/agents/page.tsx – Queue & Blockers extensions\n- src/lib/control/health.ts – new health snapshot fields\n\nSchema reference:\n- operations/schemas/task-v1.1.json (in rook-workspace repo)\n- docs/SYMPHONY-UPGRADE.md for full specification\n\n## Definition of Done\n- [ ] All three new Kanban columns render correctly with color coding\n- [ ] Task detail shows artifacts section when present\n- [ ] Retry badge renders with correct attempt count and next retry time\n- [ ] Parent/child links are clickable and navigate to correct task\n- [ ] API endpoints handle new fields without breaking existing tasks\n- [ ] Agent health page shows new metrics and queue state\n- [ ] All existing Kanban functionality still works (regression test)\n- [ ] Changes committed and pushed to branch",
+    "refinement_source": null,
+    "refined_at": null,
+    "refinement_summary": null
+  },
+  "status": "in_progress",
   "assigned_agent": "engineer",
-  "claimed_by": null,
+  "claimed_by": "dispatcher:engineer",
   "priority": "high",
   "dependencies": [],
   "blocked_by": [],
-  "parent_task": null,
   "related_repo": "MarcusGraetsch/rook-dashboard",
   "branch": "agent/engineer/dashboard-0050-symphony-ui-upgrades-kanban",
   "commits": [],
   "commit_refs": [],
-  "labels": ["dashboard", "ui", "symphony", "kanban"],
+  "labels": [
+    "dashboard",
+    "ui",
+    "symphony",
+    "kanban"
+  ],
   "workflow_stage": "ready",
   "blocked_reason": null,
   "handoff_notes": "",
+  "last_heartbeat": "2026-05-05T14:11:41.872Z",
   "failure_reason": null,
   "source_channel": "telegram",
   "artifacts": [],
-  "retry": {
-    "attempt": 0,
-    "max_attempts": 2,
-    "backoff_ms": 60000,
-    "last_error": null,
-    "next_retry_at": null,
-    "history": []
-  },
   "checklist": [
-    { "title": "Add rework, human_review, merging columns to Kanban", "completed": false, "position": 0 },
-    { "title": "Implement Proof of Work artifacts section in TaskDetail", "completed": false, "position": 1 },
-    { "title": "Add retry status badge to task cards/detail", "completed": false, "position": 2 },
-    { "title": "Add parent/child task links in task detail", "completed": false, "position": 3 },
-    { "title": "Update API endpoints for new task fields", "completed": false, "position": 4 },
-    { "title": "Extend agent health page with new metrics", "completed": false, "position": 5 },
-    { "title": "Regression test existing Kanban functionality", "completed": false, "position": 6 }
+    {
+      "title": "Add rework, human_review, merging columns to Kanban",
+      "completed": false,
+      "position": 0
+    },
+    {
+      "title": "Implement Proof of Work artifacts section in TaskDetail",
+      "completed": false,
+      "position": 1
+    },
+    {
+      "title": "Add retry status badge to task cards/detail",
+      "completed": false,
+      "position": 2
+    },
+    {
+      "title": "Add parent/child task links in task detail",
+      "completed": false,
+      "position": 3
+    },
+    {
+      "title": "Update API endpoints for new task fields",
+      "completed": false,
+      "position": 4
+    },
+    {
+      "title": "Extend agent health page with new metrics",
+      "completed": false,
+      "position": 5
+    },
+    {
+      "title": "Regression test existing Kanban functionality",
+      "completed": false,
+      "position": 6
+    }
   ],
   "kanban": {
     "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
     "board_name": "Rook System",
     "column_id": "aa3a9cf7-aa58-4aa9-9052-7ed3946fd3ad",
     "column_name": "Ready",
-    "task_db_id": null,
+    "task_db_id": "5b0ed63f-962b-4280-9569-371f06c2d19b",
     "position": 0,
-    "sync_origin": "rook-agent"
+    "sync_origin": "dashboard-kanban"
+  },
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-dashboard",
+    "number": 15,
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/issues/15",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-05-05T14:12:32.427Z",
+    "last_error": null,
+    "assignees": null
   },
   "timestamps": {
     "created_at": "2026-05-05T12:45:00Z",
-    "updated_at": "2026-05-05T12:45:00Z",
+    "updated_at": "2026-05-05T14:12:32.427Z",
     "started_at": "2026-05-05T10:25:00Z",
     "completed_at": null,
-    "claimed_at": null
+    "claimed_at": "2026-05-05T14:11:41.872Z"
+  },
+  "dispatch": {
+    "mode": "hook",
+    "executor": "engineer",
+    "attempts": 0,
+    "total_attempts": 0,
+    "launched_at": "2026-05-05T14:11:41.872Z",
+    "last_checked_at": "2026-05-05T14:11:41.872Z",
+    "model": "minimax-portal/MiniMax-M2.7",
+    "thinking": "low",
+    "session_key": null,
+    "session_id": null,
+    "dispatched_status": "in_progress",
+    "dispatched_owner": "engineer",
+    "last_result": "launching",
+    "last_error": null
   }
 }

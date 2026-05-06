@@ -2,7 +2,7 @@
   "task_id": "ops-0005",
   "project_id": "rook-workspace",
   "title": "Ecology: Methodology & Hover-Explainability",
-  "description": "F\u00fcr /ecology Kacheln (Energie, CO2, Wasser, Hardware) eine Methodology-Struktur einf\u00fchren und per Hover/Info-Icon kurz erkl\u00e4ren, wie die Werte gesch\u00e4tzt werden (Formel, Inputs, Quellen, Confidence). Optionale Methodology-Seite analog zu Labor.",
+  "description": "Für /ecology Kacheln (Energie, CO2, Wasser, Hardware) eine Methodology-Struktur einführen und per Hover/Info-Icon kurz erklären, wie die Werte geschätzt werden (Formel, Inputs, Quellen, Confidence). Optionale Methodology-Seite analog zu Labor.",
   "intake": {
     "brief": null,
     "refinement_source": null,
@@ -45,26 +45,18 @@
   "github_issue": {
     "repo": "MarcusGraetsch/rook-dashboard",
     "number": 4,
-    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/4",
-    "state": "open",
-    "sync_status": "not_requested",
-    "last_synced_at": "2026-03-30T15:42:06.956Z",
-    "last_error": null
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/pull/4",
+    "state": "closed",
+    "sync_status": "synced",
+    "last_synced_at": "2026-05-05T13:58:55.694Z",
+    "last_error": null,
+    "assignees": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:05.608Z",
-    "updated_at": "2026-04-10T15:13:44.793Z",
+    "updated_at": "2026-05-05T13:58:55.694Z",
     "started_at": null,
     "completed_at": null,
     "claimed_at": null
-  },
-  "github_pull_request": {
-    "repo": "MarcusGraetsch/rook-dashboard",
-    "number": null,
-    "url": null,
-    "state": null,
-    "title": null,
-    "last_synced_at": null,
-    "last_error": null
   }
 }

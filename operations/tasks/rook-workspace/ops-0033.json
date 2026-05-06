@@ -47,13 +47,13 @@
     "number": 52,
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/52",
     "state": null,
-    "sync_status": "not_requested",
+    "sync_status": "error",
     "last_synced_at": null,
-    "last_error": null
+    "last_error": "cannot iterate over: null"
   },
   "timestamps": {
     "created_at": "2026-04-10T15:09:41.992Z",
-    "updated_at": "2026-04-10T15:09:43.002Z",
+    "updated_at": "2026-05-05T13:59:07.674Z",
     "started_at": null,
     "completed_at": null,
     "claimed_at": null

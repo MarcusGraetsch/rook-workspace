@@ -47,12 +47,13 @@
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/15",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-04-10T15:09:43.925Z",
-    "last_error": null
+    "last_synced_at": "2026-05-05T13:59:11.605Z",
+    "last_error": null,
+    "assignees": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:21.402Z",
-    "updated_at": "2026-04-10T15:09:43.925Z",
+    "updated_at": "2026-05-05T13:59:11.605Z",
     "started_at": "2026-03-30T15:42:21.402Z",
     "completed_at": null,
     "claimed_at": null

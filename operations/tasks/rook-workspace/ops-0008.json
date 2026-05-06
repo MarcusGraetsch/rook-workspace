@@ -44,15 +44,16 @@
   "github_issue": {
     "repo": "MarcusGraetsch/rook-dashboard",
     "number": 7,
-    "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/7",
-    "state": "open",
-    "sync_status": "not_requested",
-    "last_synced_at": "2026-03-30T15:42:11.467Z",
-    "last_error": null
+    "url": "https://github.com/MarcusGraetsch/rook-dashboard/pull/7",
+    "state": "closed",
+    "sync_status": "synced",
+    "last_synced_at": "2026-05-05T13:58:57.501Z",
+    "last_error": null,
+    "assignees": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:09.867Z",
-    "updated_at": "2026-04-10T15:13:05.326Z",
+    "updated_at": "2026-05-05T13:58:57.501Z",
     "started_at": null,
     "completed_at": null,
     "claimed_at": null

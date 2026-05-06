@@ -3,13 +3,22 @@
   "project_id": "rook-workspace",
   "title": "Academic Alerting erweitern",
   "description": "Weitere Autoren: Cybernetics pioneers, German critical theory, classical political economy.",
+  "intake": {
+    "brief": "Weitere Autoren: Cybernetics pioneers, German critical theory, classical political economy.",
+    "refinement_source": null,
+    "refined_at": null,
+    "refinement_summary": null
+  },
   "status": "backlog",
   "assigned_agent": "researcher",
+  "claimed_by": null,
   "priority": "medium",
   "dependencies": [],
+  "blocked_by": [],
   "related_repo": "MarcusGraetsch/rook-workspace",
   "branch": "agent/researcher/ops-0006-academic-alerting-erweitern",
   "commits": [],
+  "commit_refs": [],
   "labels": [
     "research",
     "academic"
@@ -17,13 +26,18 @@
   "workflow_stage": "kanban-sync",
   "blocked_reason": null,
   "handoff_notes": "",
+  "last_heartbeat": null,
+  "failure_reason": null,
+  "source_channel": null,
+  "artifacts": [],
+  "checklist": [],
   "kanban": {
-    "board_id": "995cdcf8-3eda-4bb8-8ce2-c85a10791d95",
-    "board_name": "Rook System",
-    "column_id": "61aa5f4b-36fb-4be6-acdd-a6bab9ffbb9d",
+    "board_id": "6b108e3e-e19e-4c64-994e-0a4704c5baf5",
+    "board_name": "Digital Capitalism Research",
+    "column_id": "4b743f6b-7329-4dd2-bd27-b84d5761104f",
     "column_name": "Backlog",
     "task_db_id": "cb2dac81-6311-4ecb-8689-80f73bf10e11",
-    "position": 4,
+    "position": 3,
     "sync_origin": "dashboard-kanban"
   },
   "github_issue": {
@@ -32,13 +46,15 @@
     "url": "https://github.com/MarcusGraetsch/rook-workspace/issues/5",
     "state": "open",
     "sync_status": "synced",
-    "last_synced_at": "2026-03-30T15:42:08.396Z",
-    "last_error": null
+    "last_synced_at": "2026-05-05T13:58:46.571Z",
+    "last_error": null,
+    "assignees": null
   },
   "timestamps": {
     "created_at": "2026-03-30T15:42:06.964Z",
-    "updated_at": "2026-03-30T15:42:08.396Z",
+    "updated_at": "2026-05-05T13:58:46.571Z",
     "started_at": null,
-    "completed_at": null
+    "completed_at": null,
+    "claimed_at": null
   }
 }
