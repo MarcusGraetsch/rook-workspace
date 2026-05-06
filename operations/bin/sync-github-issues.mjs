@@ -92,6 +92,11 @@ async function fetchPRState(repo, number) {
   }
 }
 
+async function closeGitHubIssue(repo, number) {
+  const result = await runGh(['issue', 'close', String(number), '--repo', repo]);
+  return result.code === 0;
+}
+
 // ---------------------------------------------------------------------------
 // Task file scanner
 // ---------------------------------------------------------------------------
@@ -123,16 +128,31 @@ async function syncTask(filePath) {
     return { action: 'skip', reason: 'unreadable' };
   }
 
-  // Only process tasks that are not already done/archived
-  if (['done', 'archived'].includes(task.status)) {
-    return { action: 'skip', reason: 'already_terminal' };
-  }
-
   const ghIssue = task.github_issue;
   const ghPR = task.github_pull_request;
 
   if (!ghIssue?.repo && !ghPR?.repo) {
     return { action: 'skip', reason: 'no_github_link' };
+  }
+
+  // Rückfluss: wenn Task bereits done, linked Issue aber noch open → Issue schließen
+  if (['done', 'archived'].includes(task.status)) {
+    if (ghIssue?.repo && ghIssue?.number && ghIssue?.state === 'open') {
+      log({
+        action: 'close_issue_for_done_task',
+        task_id: task.task_id,
+        repo: ghIssue.repo,
+        issue: ghIssue.number,
+        dry_run: DRY_RUN,
+      });
+      if (!DRY_RUN) {
+        const closed = await closeGitHubIssue(ghIssue.repo, ghIssue.number);
+        if (closed) {
+          return { action: 'issue_closed', reason: `task already done, closed issue #${ghIssue.number}` };
+        }
+      }
+    }
+    return { action: 'skip', reason: 'already_terminal' };
   }
 
   const nowIso = new Date().toISOString();
@@ -217,6 +237,7 @@ async function main() {
   let total = 0;
   let synced = 0;
   let done = 0;
+  let closed = 0;
   let skipped = 0;
   let errors = 0;
 
@@ -227,6 +248,7 @@ async function main() {
       if (result.action === 'skip') skipped += 1;
       else if (result.action === 'marked_done') { done += 1; synced += 1; }
       else if (result.action === 'state_synced') synced += 1;
+      else if (result.action === 'issue_closed') closed += 1;
     } catch (err) {
       errors += 1;
       log({ action: 'task_error', file: filePath, error: err.message });
@@ -238,12 +260,13 @@ async function main() {
     total,
     synced,
     done,
+    closed,
     skipped,
     errors,
     dry_run: DRY_RUN,
   });
 
-  console.error(`sync-github-issues: ${total} tasks checked, ${done} marked done, ${synced - done} state-synced, ${errors} errors`);
+  console.error(`sync-github-issues: ${total} tasks checked, ${done} marked done, ${closed} issues closed, ${synced - done} state-synced, ${errors} errors`);
 }
 
 main().catch((err) => {

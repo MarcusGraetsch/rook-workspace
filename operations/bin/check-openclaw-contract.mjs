@@ -2,6 +2,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import http from 'http';
 
 const OPENCLAW_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(OPENCLAW_DIR, 'openclaw.json');
@@ -181,6 +182,30 @@ async function main() {
     dashboardUnit.includes('start-dashboard.sh'),
     'expected ExecStart to use start-dashboard.sh'
   );
+
+  // ---------------------------------------------------------------------------
+  // claude-mem health checks
+  // ---------------------------------------------------------------------------
+  const CLAUDE_MEM_DB = path.join(process.env.HOME || '/root', '.claude-mem', 'claude-mem.db');
+  const CLAUDE_MEM_CHROMA = path.join(process.env.HOME || '/root', '.claude-mem', 'chroma');
+  const CLAUDE_MEM_WORKER_URL = 'http://localhost:37777/health';
+
+  const dbExists = await fs.access(CLAUDE_MEM_DB).then(() => true).catch(() => false);
+  record('claude-mem.db', dbExists, dbExists ? CLAUDE_MEM_DB : `missing: ${CLAUDE_MEM_DB}`, 'warning');
+
+  const chromaExists = await fs.access(CLAUDE_MEM_CHROMA).then(() => true).catch(() => false);
+  record('claude-mem.chroma', chromaExists, chromaExists ? CLAUDE_MEM_CHROMA : `missing: ${CLAUDE_MEM_CHROMA}`, 'warning');
+
+  const workerAlive = await new Promise((resolve) => {
+    const req = http.request(CLAUDE_MEM_WORKER_URL, { timeout: 3000 }, (res) => {
+      res.resume();
+      resolve(res.statusCode >= 200 && res.statusCode < 500);
+    });
+    req.on('error', () => resolve(false));
+    req.on('timeout', () => { req.destroy(); resolve(false); });
+    req.end();
+  });
+  record('claude-mem.worker', workerAlive, workerAlive ? `responding at ${CLAUDE_MEM_WORKER_URL}` : `not responding at ${CLAUDE_MEM_WORKER_URL}`, 'warning');
 
   const summary = {
     checked_at: new Date().toISOString(),

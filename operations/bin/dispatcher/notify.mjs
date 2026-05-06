@@ -11,6 +11,10 @@ const NOTIFY_RETRY_DELAY_MS = Number(process.env.ROOK_NOTIFY_RETRY_DELAY_MS || '
 const NOTIFY_CHANNEL = process.env.ROOK_NOTIFY_CHANNEL || 'discord';
 const NOTIFY_TARGET = process.env.ROOK_NOTIFY_TARGET || 'channel:1487786269542056071';
 const NOTIFY_ENABLED = process.env.ROOK_NOTIFY_ENABLED !== '0';
+// Telegram mirror for critical events (blocked, stale, max-attempts, no-executor)
+const NOTIFY_TELEGRAM_ENABLED = process.env.ROOK_NOTIFY_TELEGRAM_ENABLED === '1';
+const NOTIFY_TELEGRAM_TARGET = process.env.ROOK_NOTIFY_TELEGRAM_TARGET || 'user:549758481';
+const CRITICAL_EVENTS = new Set(['dispatch_blocked', 'max_attempts_exceeded', 'stale_claim_released', 'no_executor']);
 const CHILD_GRACE_MS = 30_000;
 const MAX_LOG_BYTES = 4000;
 
@@ -22,22 +26,14 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function sendNotification(message) {
-  if (!NOTIFY_ENABLED || !message.trim()) {
-    return { ok: true, skipped: true };
-  }
-
+function spawnNotification(channel, target, message) {
   return new Promise((resolve) => {
     let settled = false;
     const child = spawn('openclaw', [
-      'message',
-      'send',
-      '--channel',
-      NOTIFY_CHANNEL,
-      '--target',
-      NOTIFY_TARGET,
-      '--message',
-      message,
+      'message', 'send',
+      '--channel', channel,
+      '--target', target,
+      '--message', message,
     ], {
       cwd: '/root/.openclaw',
       env: process.env,
@@ -77,6 +73,25 @@ export async function sendNotification(message) {
       settle({ code: code ?? 1, stdout, stderr });
     });
   });
+}
+
+export async function sendNotification(message) {
+  if (!NOTIFY_ENABLED || !message.trim()) {
+    return { ok: true, skipped: true };
+  }
+  const result = await spawnNotification(NOTIFY_CHANNEL, NOTIFY_TARGET, message);
+  return { ...result, ok: result.code === 0 };
+}
+
+export async function sendTelegramNotification(message) {
+  if (!NOTIFY_TELEGRAM_ENABLED || !message.trim()) {
+    return { ok: true, skipped: true };
+  }
+  // Strip Discord markdown bold (**) — Telegram uses the same syntax but
+  // Telegram markdown is more strict; plain text is always safe.
+  const plain = message.replace(/\*\*/g, '*');
+  const result = await spawnNotification('telegram', NOTIFY_TELEGRAM_TARGET, plain);
+  return { ...result, ok: result.code === 0 };
 }
 
 // ---------------------------------------------------------------------------
@@ -137,6 +152,11 @@ export async function notifyAndRecord(task, event, message) {
         await sleep(NOTIFY_RETRY_DELAY_MS);
       }
     }
+  }
+
+  // Mirror critical events to Telegram (fire-and-forget, never blocks the main flow)
+  if (CRITICAL_EVENTS.has(event) && message.trim()) {
+    sendTelegramNotification(message).catch(() => {});
   }
 
   const alert = {
