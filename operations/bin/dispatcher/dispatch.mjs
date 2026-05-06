@@ -868,7 +868,15 @@ export async function dispatchTask(entry, options, nowIso) {
     await notifyAndRecord(
       task,
       'dispatch_blocked',
-      `[dispatcher] blocked ${task.task_id}: ${task.failure_reason}`
+      formatLifecycleMessage(task, 'dispatch_blocked', { executor })
+    );
+  } else {
+    // Re-read canonical task so we get the final status written by the agent
+    const finalTask = await readJson(filePath).catch(() => task);
+    await notifyAndRecord(
+      finalTask,
+      'worker_completed',
+      formatLifecycleMessage(finalTask, 'worker_completed', { executor })
     );
   }
 

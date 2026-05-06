@@ -167,29 +167,56 @@ export async function notifyAndRecord(task, event, message) {
 // Lifecycle message formatting
 // ---------------------------------------------------------------------------
 
+const EVENT_EMOJI = {
+  dispatch_started: '▶',
+  worker_completed: '✅',
+  dispatch_blocked: '🚫',
+  stale_claim_released: '♻',
+  no_executor: '⚠',
+  max_attempts_exceeded: '🔴',
+  pr_opened: '🔀',
+  pr_merged: '🎉',
+  task_done: '✔',
+};
+
 export function formatLifecycleMessage(task, event, extra = {}) {
   const executor = extra.executor || task.dispatch?.executor || task.claimed_by || task.assigned_agent;
-  const parts = [`${task.task_id}`];
+  const emoji = EVENT_EMOJI[event] || '•';
+  const title = task.title ? ` "${task.title}"` : '';
+  const header = `${emoji} **${task.task_id}**${title}`;
+  const lines = [header];
 
   if (event === 'dispatch_started') {
-    parts.push(`started by ${executor}`);
+    lines.push(`Started by ${executor}`);
   } else if (event === 'worker_completed') {
-    parts.push(`completed by ${executor}`);
-    parts.push(`status=${task.status}`);
+    const statusLabel = task.status === 'done' ? '✔ done' : task.status;
+    lines.push(`Completed by ${executor} — ${statusLabel}`);
   } else if (event === 'stale_claim_released') {
-    parts.push(`stale claim released`);
+    lines.push(`Stale claim released`);
+    if (task.failure_reason) lines.push(task.failure_reason.slice(0, 200));
+  } else if (event === 'dispatch_blocked') {
+    lines.push(`Blocked: ${(task.failure_reason || extra.reason || 'unknown reason').slice(0, 200)}`);
+  } else if (event === 'no_executor') {
+    lines.push(`No executor mapping — manual assignment required`);
+  } else if (event === 'max_attempts_exceeded') {
+    lines.push(`Max dispatch attempts exceeded — manual intervention required`);
+  } else if (event === 'pr_opened') {
+    const prNum = extra.prNumber || task.github_pull_request?.number;
+    const prUrl = extra.prUrl || task.github_pull_request?.url || '';
+    lines.push(`PR #${prNum} opened${prUrl ? `: ${prUrl}` : ''}`);
+  } else if (event === 'pr_merged') {
+    const prNum = extra.prNumber || task.github_pull_request?.number;
+    lines.push(`PR #${prNum} merged — task done`);
+  } else if (event === 'task_done') {
+    lines.push(`Marked done${extra.reason ? `: ${extra.reason}` : ''}`);
   }
 
-  if (task.branch) {
-    parts.push(`branch=${task.branch}`);
+  if (task.branch && !['pr_opened', 'pr_merged', 'task_done'].includes(event)) {
+    lines.push(`Branch: \`${task.branch}\``);
   }
-  if (task.github_pull_request?.number) {
-    parts.push(`pr=#${task.github_pull_request.number}`);
-  }
-
-  if (event === 'stale_claim_released' && task.failure_reason) {
-    parts.push(task.failure_reason);
+  if (task.github_pull_request?.number && !['pr_opened', 'pr_merged'].includes(event)) {
+    lines.push(`PR: #${task.github_pull_request.number}`);
   }
 
-  return `[dispatcher] ${parts.join(' | ')}`;
+  return lines.join('\n');
 }

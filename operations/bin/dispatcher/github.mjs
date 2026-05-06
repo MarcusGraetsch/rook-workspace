@@ -2,6 +2,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { promises as fs } from 'fs';
 import { ensureDir } from './loader.mjs';
+import { notifyAndRecord, formatLifecycleMessage } from './notify.mjs';
 
 // -----------------------------------------------------------------------
 // Constants
@@ -362,6 +363,12 @@ export async function maybePushAndCreatePR(task, executor) {
     task.github_pull_request.last_synced_at = new Date().toISOString();
     task.github_pull_request.last_error = null;
     result.prCreated = true;
+
+    await notifyAndRecord(
+      task,
+      'pr_opened',
+      formatLifecycleMessage(task, 'pr_opened', { prNumber, prUrl })
+    ).catch(() => {});
   }
 
   return result;
