@@ -100,6 +100,7 @@ Reference schema:
 - `operations/templates/rook-hermes-bridge-message.example.json`
 - `operations/bin/validate-rook-hermes-bridge-message.py`
 - `operations/bin/review-rook-hermes-bridge-message.sh`
+- `operations/config/rook-hermes-bridge-reviewers.json`
 - `docs/BRIDGE-REVIEW-POLICY.md`
 
 ## Persistence Rules
@@ -180,3 +181,5 @@ Duplicate archival by `message_id` should be treated as suspicious by default an
 Reviewed bridge archives should have an explicit retention policy. A reasonable baseline is 30 days minimum retention, with extension to 90 days where auditability or architectural traceability is useful.
 
 Archive review and pruning should follow a plan-first operator workflow with explicit ownership, not unattended deletion.
+
+Reviewer identity should be constrained by a maintained allowlist so archival approval is tied to stable operator roles rather than arbitrary free-text names.

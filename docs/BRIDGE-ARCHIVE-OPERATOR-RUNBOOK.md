@@ -41,6 +41,24 @@ python3 /root/.openclaw/workspace/operations/bin/inspect-rook-hermes-bridge-arch
 
 3. Check whether reviewed payloads still belong in durable shared context.
 
+## Canonical Workflow Candidate
+
+Recommended candidate for mandatory archival approval:
+
+- any payload promoted into the reviewed bridge archive should go through
+  `archive-reviewed-rook-hermes-bridge-message.sh`
+- that flow already passes through
+  `gate-rook-hermes-bridge-archive.sh`
+- the gate should use the reviewer allowlist from
+  `operations/config/rook-hermes-bridge-reviewers.json`
+
+This is the best current candidate because:
+
+- it is operationally real
+- it is narrow in scope
+- it does not rewrite live delivery paths
+- it upgrades archival trust without destabilizing runtime behavior
+
 ## Monthly Retention Review
 
 1. Generate a prune plan:

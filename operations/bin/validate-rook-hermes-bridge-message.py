@@ -17,7 +17,24 @@ def fail(message: str) -> None:
     raise SystemExit(1)
 
 
-def validate(payload: dict, require_review_approved: bool = False) -> None:
+def load_allowed_reviewers(path: Path) -> set[str]:
+    try:
+        config = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        fail(f"invalid reviewer allowlist json: {exc}")
+    if not isinstance(config, dict):
+        fail("reviewer allowlist must be a JSON object")
+    reviewers = config.get("allowed_reviewers")
+    if not isinstance(reviewers, list) or not all(isinstance(v, str) and v.strip() for v in reviewers):
+        fail("reviewer allowlist must contain `allowed_reviewers` as a non-empty string array")
+    return {value.strip() for value in reviewers}
+
+
+def validate(
+    payload: dict,
+    require_review_approved: bool = False,
+    allowed_reviewers: set[str] | None = None,
+) -> None:
     required = [
         "message_id",
         "source_system",
@@ -81,6 +98,8 @@ def validate(payload: dict, require_review_approved: bool = False) -> None:
             fail("reviewed payloads must include non-empty `reviewed_by`")
         if not isinstance(reviewed_at, str) or not ISO_8601_UTC.match(reviewed_at):
             fail("reviewed payloads must include `reviewed_at` as YYYY-MM-DDTHH:MM:SSZ")
+        if allowed_reviewers is not None and reviewed_by.strip() not in allowed_reviewers:
+            fail("`reviewed_by` is not present in the configured reviewer allowlist")
 
     if review_notes is not None and not isinstance(review_notes, str):
         fail("`review_notes` must be a string when present")
@@ -92,14 +111,29 @@ def validate(payload: dict, require_review_approved: bool = False) -> None:
 def main() -> None:
     args = sys.argv[1:]
     require_review_approved = False
+    reviewer_allowlist_path = None
 
     if "--require-review-approved" in args:
         require_review_approved = True
         args.remove("--require-review-approved")
 
+    if "--reviewer-allowlist" in args:
+        index = args.index("--reviewer-allowlist")
+        try:
+            reviewer_allowlist_path = Path(args[index + 1])
+        except IndexError:
+            print(
+                "Usage: validate-rook-hermes-bridge-message.py "
+                "[--require-review-approved] [--reviewer-allowlist <json-file>] <json-file>",
+                file=sys.stderr,
+            )
+            raise SystemExit(2)
+        del args[index:index + 2]
+
     if len(args) != 1:
         print(
-            "Usage: validate-rook-hermes-bridge-message.py [--require-review-approved] <json-file>",
+            "Usage: validate-rook-hermes-bridge-message.py "
+            "[--require-review-approved] [--reviewer-allowlist <json-file>] <json-file>",
             file=sys.stderr,
         )
         raise SystemExit(2)
@@ -116,7 +150,17 @@ def main() -> None:
     if not isinstance(payload, dict):
         fail("top-level JSON must be an object")
 
-    validate(payload, require_review_approved=require_review_approved)
+    allowed_reviewers = None
+    if reviewer_allowlist_path is not None:
+        if not reviewer_allowlist_path.is_file():
+            fail(f"reviewer allowlist file not found: {reviewer_allowlist_path}")
+        allowed_reviewers = load_allowed_reviewers(reviewer_allowlist_path)
+
+    validate(
+        payload,
+        require_review_approved=require_review_approved,
+        allowed_reviewers=allowed_reviewers,
+    )
     print(f"VALID: {path}")
 
 

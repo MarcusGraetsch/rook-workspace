@@ -58,6 +58,15 @@ Review wrapper:
   /path/to/bridge-message.json
 ```
 
+Reviewer allowlist:
+
+```bash
+python3 /root/.openclaw/workspace/operations/bin/validate-rook-hermes-bridge-message.py \
+  --require-review-approved \
+  --reviewer-allowlist /root/.openclaw/workspace/operations/config/rook-hermes-bridge-reviewers.json \
+  /path/to/bridge-message.json
+```
+
 Archive gate:
 
 ```bash
@@ -111,6 +120,7 @@ This means:
 - operators can archive approved payloads through an explicit copy-based flow without changing live bridge delivery
 - reviewed archives can carry a small JSONL manifest for later audit and indexing
 - duplicate `message_id` archival is blocked by default per archive target
+- reviewer identity can be constrained through a dedicated allowlist file
 
 ## Future Tightening Path
 
@@ -146,6 +156,12 @@ Recommended cadence:
 - weekly review of newly archived bridge payloads where bridge traffic is active
 - monthly retention review for reviewed archive targets
 - ad hoc review after incidents, architecture changes, or boundary mistakes
+
+Reviewer identity baseline:
+
+- keep reviewer identities in `operations/config/rook-hermes-bridge-reviewers.json`
+- use stable role-style reviewer IDs, not ad hoc free-text names
+- add new reviewer IDs intentionally and review them like any other governance change
 
 Pruning stance:
 

@@ -8,11 +8,17 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VALIDATOR="$SCRIPT_DIR/validate-rook-hermes-bridge-message.py"
+REVIEWER_ALLOWLIST="${ROOK_HERMES_BRIDGE_REVIEWER_ALLOWLIST:-$SCRIPT_DIR/../config/rook-hermes-bridge-reviewers.json}"
 
 if [ ! -x "$VALIDATOR" ]; then
   echo "Validator missing or not executable: $VALIDATOR" >&2
   exit 1
 fi
 
-python3 "$VALIDATOR" --require-review-approved "$1"
+VALIDATOR_ARGS=(--require-review-approved)
+if [ -f "$REVIEWER_ALLOWLIST" ]; then
+  VALIDATOR_ARGS+=(--reviewer-allowlist "$REVIEWER_ALLOWLIST")
+fi
+
+python3 "$VALIDATOR" "${VALIDATOR_ARGS[@]}" "$1"
 echo "ARCHIVE_GATE_OK: $1"

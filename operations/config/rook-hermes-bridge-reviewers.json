@@ -1,0 +1,7 @@
+{
+  "allowed_reviewers": [
+    "rook-operator",
+    "hermes-operator",
+    "control-plane-operator"
+  ]
+}
