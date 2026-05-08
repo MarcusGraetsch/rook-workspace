@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  archive-reviewed-rook-hermes-bridge-message.sh [--dry-run] <json-file>
+  archive-reviewed-rook-hermes-bridge-message.sh [--dry-run] [--allow-duplicate-message-id] <json-file>
 
 Validates that a bridge payload is approved for archival and then copies it
 into the configured archive directory and updates a small archive manifest.
@@ -12,11 +12,33 @@ EOF
 }
 
 DRY_RUN=false
+ALLOW_DUPLICATE=false
 
-if [ "$#" -eq 2 ] && [ "$1" = "--dry-run" ]; then
-  DRY_RUN=true
-  shift
-elif [ "$#" -ne 1 ]; then
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --dry-run)
+      DRY_RUN=true
+      shift
+      ;;
+    --allow-duplicate-message-id)
+      ALLOW_DUPLICATE=true
+      shift
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    --*)
+      usage
+      exit 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ "$#" -ne 1 ]; then
   usage
   exit 2
 fi
@@ -41,13 +63,67 @@ if [ ! -x "$GATE_SCRIPT" ]; then
 fi
 
 "$GATE_SCRIPT" "$SOURCE_FILE" >/dev/null
+MESSAGE_ID="$(python3 - "$SOURCE_FILE" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+payload = json.loads(Path(sys.argv[1]).read_text())
+value = payload.get("message_id")
+if not isinstance(value, str) or not value.strip():
+    raise SystemExit("missing message_id")
+print(value)
+PY
+)"
 
 echo "=== Bridge Archive Flow ==="
 echo "Source: $SOURCE_FILE"
 echo "Archive dir: $ARCHIVE_DIR"
 echo "Manifest: $MANIFEST_FILE"
 echo "Dry run: $DRY_RUN"
+echo "Allow duplicate message_id: $ALLOW_DUPLICATE"
+echo "Message ID: $MESSAGE_ID"
 echo
+
+if [ "$ALLOW_DUPLICATE" = false ] && [ -f "$MANIFEST_FILE" ]; then
+  set +e
+  duplicate_output="$(
+    python3 - "$MANIFEST_FILE" "$MESSAGE_ID" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = Path(sys.argv[1])
+message_id = sys.argv[2]
+
+for raw_line in manifest.read_text().splitlines():
+    if not raw_line.strip():
+        continue
+    try:
+        entry = json.loads(raw_line)
+    except json.JSONDecodeError:
+        continue
+    if entry.get("message_id") == message_id:
+        print(entry.get("archived_file", ""))
+        raise SystemExit(10)
+raise SystemExit(0)
+PY
+  )"
+  duplicate_status="$?"
+  set -e
+  if [ "$duplicate_status" -eq 10 ]; then
+    if [ -n "$duplicate_output" ]; then
+      echo "Duplicate message_id blocked: $MESSAGE_ID" >&2
+      echo "Existing archived file: $duplicate_output" >&2
+    else
+      echo "Duplicate message_id blocked: $MESSAGE_ID" >&2
+    fi
+    exit 1
+  fi
+  if [ "$duplicate_status" -ne 0 ]; then
+    exit "$duplicate_status"
+  fi
+fi
 
 if [ "$DRY_RUN" = true ]; then
   echo "Would copy approved payload to: $TARGET_FILE"

@@ -174,3 +174,5 @@ Conservative archival flow:
 This flow copies approved payloads into a reviewed archive path and does not mutate live bridge delivery state.
 
 The archive directory can also maintain a lightweight `archive-manifest.jsonl` for audit-friendly indexing of approved payloads.
+
+Duplicate archival by `message_id` should be treated as suspicious by default and only bypassed deliberately.

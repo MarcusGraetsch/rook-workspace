@@ -73,6 +73,13 @@ Archive flow:
   /path/to/bridge-message.json
 ```
 
+Manifest inspection:
+
+```bash
+python3 /root/.openclaw/workspace/operations/bin/inspect-rook-hermes-bridge-archive-manifest.py \
+  /path/to/archive-manifest.jsonl
+```
+
 For safe testing against a temporary archive target:
 
 ```bash
@@ -95,6 +102,7 @@ This means:
 - operators can already use an explicit archival gate that requires approved review metadata
 - operators can archive approved payloads through an explicit copy-based flow without changing live bridge delivery
 - reviewed archives can carry a small JSONL manifest for later audit and indexing
+- duplicate `message_id` archival is blocked by default per archive target
 
 ## Future Tightening Path
 
