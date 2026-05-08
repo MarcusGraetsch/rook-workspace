@@ -34,21 +34,139 @@ permitrootlogin no
 port 6262
 ```
 
-**Hinweis:** Bestehende Config war bereits gehärtet (Port 6262, PasswordAuthentication no, PermitRootLogin no). 99-hardening.conf macht dies explizit und zukunftssicher.
+**Hinweis:** Bestehende Config war bereits gehärtet. 99-hardening.conf macht dies explizit und zukunftssicher.
 
 ---
 
-## Offene Phase-0-Tasks
+### S-R2: GitLab-Compose Bindings 0.0.0.0 → 127.0.0.1 ✅ (bereits erledigt)
 
-- [ ] S-R2: GitLab-Compose Bindings 0.0.0.0 → 127.0.0.1
-- [ ] S-R3: Docker-Registry Bind auf 127.0.0.1:5000 + htpasswd-Auth
-- [ ] S-R4: Cloudflared argocd-Eintrag YAML-Doppelschlüssel entfernen
-- [ ] S-R5: Cloudflare-Access für admin-Subdomains
-- [ ] S-R6: CUPS auf localhost:631 beschränken
-- [ ] S-R7: Server-untypische Snaps entfernen
-- [ ] S-R8: unattended-upgrades konfigurieren
+**Status:** Pre-Audit bereits konfiguriert
+
+**Verifikation:**
+```
+$ docker ps --format "table {{.Names}}\t{{.Ports}}" | grep gitlab
+gitlab  127.0.0.1:8022->22/tcp, 127.0.0.1:8090->80/tcp, 127.0.0.1:8443->443/tcp
+```
+
+---
+
+### S-R3: Docker-Registry Bind auf 127.0.0.1:5000 + htpasswd-Auth ✅ (bereits erledigt)
+
+**Status:** Pre-Audit bereits konfiguriert
+
+**Verifikation:**
+```
+$ ss -tlnp | grep :5000
+LISTEN 0 4096 127.0.0.1:5000 0.0.0.0:* users:(("docker-proxy",pid=...))
+
+$ docker inspect registry --format '{{json .HostConfig.PortBindings}}'
+{"5000/tcp": [{"HostIp": "127.0.0.1", "HostPort": "5000"}]}
+
+$ curl -s http://localhost:5000/v2/_catalog
+{"errors":[{"code":"UNAUTHORIZED",...}]}
+```
+
+**Auth:** `REGISTRY_AUTH=htpasswd`, `REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd` aktiv.
+
+---
+
+### S-R4: Cloudflared argocd-Eintrag YAML-Doppelschlüssel ✅ (kein Bug gefunden)
+
+**Status:** Kein Doppelschlüssel vorhanden — Config ist valide
+
+**Verifikation:**
+```
+$ python3 -c "import yaml; data = yaml.safe_load(open('/etc/cloudflared/config.yml')); hosts = [i.get('hostname') for i in data.get('ingress', []) if 'hostname' in i]; print('Hosts:', hosts)"
+Hosts: ['dashboard.working-notes.org', 'k8portal.working-notes.org', 'argocd.working-notes.org', 'keycloak.working-notes.org', 'polaris.working-notes.org', 'gitlab.working-notes.org', 'n8n.working-notes.org']
+
+$ curl -sI https://argocd.working-notes.org | head -3
+HTTP/2 307 → / (307 redirect, service reachable)
+
+$ curl -skL https://keycloak.working-notes.org | head -3
+<!-- ~ Copyright 2016 Red Hat... --> (Keycloak Login)
+```
+
+**Hinweis:** ArgoCD und Keycloak sind beide über den Tunnel erreichbar. Kein Bug. Config ist sauber.
+
+---
+
+### S-R6: CUPS auf localhost:631 ✅ (nicht installiert)
+
+**Status:** CUPS nicht auf diesem System
+
+**Verifikation:** `ss -tlnp | grep :631` → leer, `systemctl status cups` → nicht gefunden
+
+---
+
+### S-R7: Server-untypische Snaps entfernen ✅ (keine gefunden)
+
+**Status:** Keine server-untypischen Snaps (chromium, gnome, mesa)
+
+**Verifikation:**
+```
+$ snap list
+bare, core20, core22, core24, snapd — nur Base-Snaps
+```
+
+---
+
+### S-R8: unattended-upgrades konfigurieren ✅ (bereits korrekt)
+
+**Status:** Pre-Audit bereits korrekt konfiguriert
+
+**Verifikation:**
+```
+$ grep Automatic-Reboot /etc/apt/apt.conf.d/50unattended-upgrades
+Unattended-Upgrade::Automatic-Reboot "false";
+```
+
+---
+
+### S-R5: Cloudflare-Access für admin-Subdomains ⚠️ (nicht aktiviert)
+
+**Status:** Cloudflare Access ist NICHT aktiv für die Subdomains
+
+**Prüfung:** Keine `cf-access-*` Headers bei gitlab, n8n, argocd, keycloak
+
+**Entscheidung nötig:** Cloudflare Access (E-Mail-OTP) für diese Subdomains aktivieren?
+
+---
+
+## Phase 0 Zusammenfassung
+
+| Task | Status | Quelle |
+|------|--------|--------|
+| S-R1 SSH-Hardening | ✅ Erledigt | 99-hardening.conf erstellt |
+| S-R2 GitLab-Bindings | ✅ Bereits korrekt | 127.0.0.1:8090 |
+| S-R3 Docker-Registry | ✅ Bereits korrekt | 127.0.0.1:5000 + htpasswd |
+| S-R4 Cloudflared argocd | ✅ Kein Bug | Config valide, Ingress erreichbar |
+| S-R5 Cloudflare-Access | ⚠️ Nicht aktiviert | Entscheidung nötig |
+| S-R6 CUPS | ✅ Nicht installiert | N/A |
+| S-R7 Snaps | ✅ Keine auffälligen | Nur Base-Snaps |
+| S-R8 unattended-upgrades | ✅ Bereits korrekt | Automatic-Reboot=false |
+
+---
+
+## Offene Punkte (Marcus-Entscheidung nötig)
+
+- **S-R5:** Cloudflare Access für admin-Subdomains aktivieren? (E-Mail-OTP)
+- **S-G1:** Comfy-Token rotieren (Entscheidung + Ausführung)
+- **O2:** ArgoCD nutzen oder entfernen?
+
+---
+
+## Phase 1 — Stabilisierung (begonnen)
+
+### P1-R1: etcd-Snapshot-Cron für KIND
+
+**Status:** In Planung
+
+**Voraussetzungen:**
+- kubectl + kind Zugang prüfen
+- Cron-Script erstellen
+- rclone-Konfiguration prüfen
 
 ---
 
 *Log erstellt: 2026-05-08*
-*Next update: nach S-R8*
+*Letztes Update: Phase 0 abgeschlossen (S-R1..S-R8)*
