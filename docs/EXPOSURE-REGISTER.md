@@ -85,3 +85,7 @@ Every exposed endpoint should answer:
    - `retain but harden`
    - `disable`
 3. Separate lab hostnames from publication hostnames in documentation and operations.
+
+Machine-readable artifact:
+
+- `docs/data/exposure-inventory.v1.json`

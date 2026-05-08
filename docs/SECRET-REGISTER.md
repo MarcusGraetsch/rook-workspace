@@ -103,6 +103,10 @@ No secret should remain without a named owner and rotation path.
   - `backup_allowed`
   - `notes`
 
+Current machine-readable artifact:
+
+- `docs/data/secret-inventory.v1.json`
+
 ### Priority 3
 
 - Move Kubernetes lab secret management to one explicit operating pattern.

@@ -144,7 +144,21 @@ Check:
 
 ## Required Follow-Up Work
 
-1. Define a real Hermes backup script.
+1. Use `operations/bin/backup-hermes-runtime.sh` as the baseline backup path.
 2. Separate restricted auth backup from general runtime backup.
 3. Add restore test cadence.
 4. Add retention policy for session and snapshot folders.
+
+## Baseline Backup Command
+
+Core runtime only:
+
+```bash
+/root/.openclaw/workspace/operations/bin/backup-hermes-runtime.sh
+```
+
+Core runtime plus restricted auth set:
+
+```bash
+/root/.openclaw/workspace/operations/bin/backup-hermes-runtime.sh --include-sensitive-auth
+```

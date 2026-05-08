@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-08",
+  "hostnames": [
+    {
+      "hostname": "dashboard.working-notes.org",
+      "backend": "http://localhost:3001",
+      "class": "public-hostname",
+      "system": "rook-dashboard",
+      "purpose": "operator dashboard ui",
+      "risk": "high",
+      "recommended_state": "retain-but-verify-auth"
+    },
+    {
+      "hostname": "gitlab.working-notes.org",
+      "backend": "http://localhost:8090",
+      "class": "public-hostname",
+      "system": "gitlab",
+      "purpose": "gitlab ui",
+      "risk": "high",
+      "recommended_state": "retain-only-if-active"
+    },
+    {
+      "hostname": "n8n.working-notes.org",
+      "backend": "http://localhost:5678",
+      "class": "public-hostname",
+      "system": "n8n",
+      "purpose": "automation ui/api",
+      "risk": "critical",
+      "recommended_state": "review-immediately"
+    },
+    {
+      "hostname": "k8portal.working-notes.org",
+      "backend": "http://172.18.0.2:31439",
+      "class": "public-hostname",
+      "system": "kubernetes-lab",
+      "purpose": "portal ingress",
+      "risk": "high",
+      "recommended_state": "lab-only"
+    },
+    {
+      "hostname": "argocd.working-notes.org",
+      "backend": "http://172.18.0.2:30080",
+      "class": "public-hostname",
+      "system": "kubernetes-lab",
+      "purpose": "argocd ui",
+      "risk": "critical",
+      "recommended_state": "lab-only-restricted"
+    },
+    {
+      "hostname": "keycloak.working-notes.org",
+      "backend": "http://172.18.0.2:30081",
+      "class": "public-hostname",
+      "system": "kubernetes-lab",
+      "purpose": "keycloak ui",
+      "risk": "critical",
+      "recommended_state": "restrict-or-disable"
+    },
+    {
+      "hostname": "polaris.working-notes.org",
+      "backend": "http://172.18.0.2:31439",
+      "class": "public-hostname",
+      "system": "kubernetes-lab",
+      "purpose": "polaris dashboard path",
+      "risk": "medium",
+      "recommended_state": "lab-only"
+    }
+  ],
+  "ports": [
+    {
+      "port": 80,
+      "protocol": "tcp",
+      "service": "nginx",
+      "class": "host-open-port",
+      "notes": "reverse proxy entrypoint"
+    },
+    {
+      "port": 6262,
+      "protocol": "tcp",
+      "service": "sshd",
+      "class": "host-open-port",
+      "notes": "administrative access"
+    },
+    {
+      "port": 5000,
+      "protocol": "tcp",
+      "service": "registry",
+      "class": "host-open-port",
+      "notes": "privileged infrastructure service"
+    },
+    {
+      "port": 8022,
+      "protocol": "tcp",
+      "service": "gitlab-ssh",
+      "class": "host-open-port",
+      "notes": "gitlab ssh"
+    },
+    {
+      "port": 8090,
+      "protocol": "tcp",
+      "service": "gitlab-http",
+      "class": "host-open-port",
+      "notes": "gitlab http"
+    },
+    {
+      "port": 8443,
+      "protocol": "tcp",
+      "service": "gitlab-https",
+      "class": "host-open-port",
+      "notes": "gitlab https"
+    },
+    {
+      "port": 5678,
+      "protocol": "tcp",
+      "service": "n8n",
+      "bind": "127.0.0.1",
+      "class": "local-only",
+      "notes": "also published via cloudflared"
+    },
+    {
+      "port": 18789,
+      "protocol": "tcp",
+      "service": "openclaw-gateway",
+      "bind": "127.0.0.1",
+      "class": "local-only",
+      "notes": "control-plane api"
+    },
+    {
+      "port": 3001,
+      "protocol": "tcp",
+      "service": "rook-dashboard",
+      "bind": "127.0.0.1",
+      "class": "local-only",
+      "notes": "also published via cloudflared"
+    }
+  ]
+}

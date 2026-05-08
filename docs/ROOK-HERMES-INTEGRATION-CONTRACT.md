@@ -91,6 +91,11 @@ Recommended fields for every bridge artifact:
 }
 ```
 
+Reference schema:
+
+- `operations/schemas/rook-hermes-bridge-message.schema.json`
+- `operations/templates/rook-hermes-bridge-message.example.json`
+
 ## Persistence Rules
 
 Bridge storage locations such as `rook-phoenix-comm` and `sync-bridge` are durable.

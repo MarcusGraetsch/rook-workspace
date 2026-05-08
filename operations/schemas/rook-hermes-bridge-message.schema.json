@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook-workspace.local/schemas/rook-hermes-bridge-message.schema.json",
+  "title": "RookHermesBridgeMessage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "message_id",
+    "source_system",
+    "target_system",
+    "created_at",
+    "classification",
+    "topic",
+    "purpose",
+    "allowed_consumers",
+    "ttl_hours",
+    "body"
+  ],
+  "properties": {
+    "message_id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "source_system": {
+      "type": "string",
+      "enum": ["rook", "hermes"]
+    },
+    "target_system": {
+      "type": "string",
+      "enum": ["rook", "hermes"]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["bridge-safe"]
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1
+    },
+    "purpose": {
+      "type": "string",
+      "enum": ["question", "summary", "request", "handoff"]
+    },
+    "allowed_consumers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["rook", "hermes"]
+      }
+    },
+    "ttl_hours": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 720
+    },
+    "body": {
+      "type": "string",
+      "minLength": 1
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  }
+}

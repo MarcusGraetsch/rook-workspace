@@ -1,0 +1,16 @@
+{
+  "message_id": "2026-05-08T15-00-00Z-rook-001",
+  "source_system": "rook",
+  "target_system": "hermes",
+  "created_at": "2026-05-08T15:00:00Z",
+  "classification": "bridge-safe",
+  "topic": "weekly-planning",
+  "purpose": "question",
+  "allowed_consumers": ["hermes"],
+  "ttl_hours": 72,
+  "body": "Sanitized summary for cross-system discussion.",
+  "references": [
+    "ops-0049",
+    "docs/ROOK-HERMES-INTEGRATION-CONTRACT.md"
+  ]
+}
