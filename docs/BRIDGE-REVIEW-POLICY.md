@@ -73,6 +73,14 @@ Archive flow:
   /path/to/bridge-message.json
 ```
 
+For safe testing against a temporary archive target:
+
+```bash
+ROOK_HERMES_BRIDGE_ARCHIVE_DIR=/tmp/rook-hermes-bridge-archive-test \
+/root/.openclaw/workspace/operations/bin/archive-reviewed-rook-hermes-bridge-message.sh \
+  /path/to/bridge-message.json
+```
+
 ## Policy Level
 
 Current enforcement level:
@@ -86,6 +94,7 @@ This means:
 - the runtime is not yet hard-blocking unreviewed payloads globally
 - operators can already use an explicit archival gate that requires approved review metadata
 - operators can archive approved payloads through an explicit copy-based flow without changing live bridge delivery
+- reviewed archives can carry a small JSONL manifest for later audit and indexing
 
 ## Future Tightening Path
 
