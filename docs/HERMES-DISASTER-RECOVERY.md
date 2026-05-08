@@ -162,3 +162,20 @@ Core runtime plus restricted auth set:
 ```bash
 /root/.openclaw/workspace/operations/bin/backup-hermes-runtime.sh --include-sensitive-auth
 ```
+
+## Baseline Restore Command
+
+Core runtime and bridge state only:
+
+```bash
+/root/.openclaw/workspace/operations/bin/restore-hermes-runtime.sh \
+  --from-local /root/backups/hermes-runtime/<timestamp>
+```
+
+Core runtime, bridge state, and restricted auth set:
+
+```bash
+/root/.openclaw/workspace/operations/bin/restore-hermes-runtime.sh \
+  --from-local /root/backups/hermes-runtime/<timestamp> \
+  --include-sensitive-auth
+```

@@ -95,6 +95,7 @@ Reference schema:
 
 - `operations/schemas/rook-hermes-bridge-message.schema.json`
 - `operations/templates/rook-hermes-bridge-message.example.json`
+- `operations/bin/validate-rook-hermes-bridge-message.py`
 
 ## Persistence Rules
 
@@ -130,3 +131,10 @@ Therefore:
 2. Add `classification`, `message_id`, and `ttl_hours` to all new bridge payloads.
 3. Distinguish `personal-reflection` from `technical-handoff` in filenames or metadata.
 4. Add periodic review of bridge archives.
+
+## Validation Command
+
+```bash
+python3 /root/.openclaw/workspace/operations/bin/validate-rook-hermes-bridge-message.py \
+  /root/.openclaw/workspace/operations/templates/rook-hermes-bridge-message.example.json
+```
