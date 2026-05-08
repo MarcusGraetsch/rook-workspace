@@ -188,6 +188,16 @@ Dry-run the restore plan first:
   --dry-run
 ```
 
+For rehearsal without touching the live Hermes tree, override the restore base:
+
+```bash
+HERMES_ROOT=/tmp/hermes-restore-test/.hermes \
+RESTORE_ROOT_HOME=/tmp/hermes-restore-test \
+/root/.openclaw/workspace/operations/bin/restore-hermes-runtime.sh \
+  --from-local /root/backups/hermes-runtime/<timestamp> \
+  --dry-run
+```
+
 ## Snapshot Smoke Check
 
 Validate that a backup snapshot has the expected baseline structure before restore:
@@ -204,3 +214,22 @@ If the restricted auth archive is expected too:
   /root/backups/hermes-runtime/<timestamp> \
   --require-sensitive-auth
 ```
+
+## Disposable Restore Rehearsal
+
+Run an end-to-end rehearsal on a synthetic Hermes-like tree:
+
+```bash
+/root/.openclaw/workspace/operations/bin/rehearse-hermes-restore.sh
+```
+
+What it does:
+
+1. creates a disposable Hermes-like source tree under `/tmp`
+2. runs the baseline backup helper against that tree
+3. verifies the resulting snapshot structure
+4. runs a dry-run restore plan
+5. restores into a disposable target root
+6. checks that expected runtime and bridge files are present after restore
+
+This is the preferred safe validation path before trusting changes to backup or restore tooling.

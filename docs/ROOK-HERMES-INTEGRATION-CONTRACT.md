@@ -97,6 +97,7 @@ Reference schema:
 - `operations/templates/rook-hermes-bridge-message.example.json`
 - `operations/bin/validate-rook-hermes-bridge-message.py`
 - `operations/bin/review-rook-hermes-bridge-message.sh`
+- `docs/BRIDGE-REVIEW-POLICY.md`
 
 ## Persistence Rules
 
@@ -146,3 +147,8 @@ Review-hook style wrapper:
 /root/.openclaw/workspace/operations/bin/review-rook-hermes-bridge-message.sh \
   /path/to/bridge-message.json
 ```
+
+Operator review policy:
+
+- see [BRIDGE-REVIEW-POLICY.md](./BRIDGE-REVIEW-POLICY.md)
+- use the review wrapper before archival or promotion into durable shared context

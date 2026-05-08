@@ -52,7 +52,7 @@ fi
 
 RESTORE_DIR="$SOURCE"
 HERMES_ROOT="${HERMES_ROOT:-/root/.hermes}"
-ROOT_HOME="/root"
+ROOT_HOME="${RESTORE_ROOT_HOME:-/root}"
 
 if [ ! -d "$RESTORE_DIR" ]; then
   echo "Restore source not found: $RESTORE_DIR" >&2
@@ -95,7 +95,7 @@ if [ "$DRY_RUN" = true ]; then
 else
   tar xzf "$BRIDGE_ARCHIVE" -C "$ROOT_HOME"
 fi
-echo "    Restored bridge directories under /root"
+echo "    Restored bridge directories under $ROOT_HOME"
 
 if [ "$INCLUDE_SENSITIVE" = true ]; then
   if [ ! -f "$SENSITIVE_ARCHIVE" ]; then

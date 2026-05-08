@@ -31,6 +31,10 @@ SYNC_BRIDGE_ROOT="${HERMES_SYNC_BRIDGE_ROOT:-/root/sync-bridge}"
 BACKUP_ROOT="${HERMES_BACKUP_ROOT:-/root/backups/hermes-runtime}"
 RUN_DIR="$BACKUP_ROOT/$DATE_UTC"
 RETENTION_DAYS="${HERMES_RUNTIME_BACKUP_RETENTION_DAYS:-14}"
+BRIDGE_PARENT="$(dirname "$BRIDGE_ROOT")"
+BRIDGE_NAME="$(basename "$BRIDGE_ROOT")"
+SYNC_BRIDGE_PARENT="$(dirname "$SYNC_BRIDGE_ROOT")"
+SYNC_BRIDGE_NAME="$(basename "$SYNC_BRIDGE_ROOT")"
 
 mkdir -p "$RUN_DIR/core"
 mkdir -p "$RUN_DIR/bridge"
@@ -49,8 +53,8 @@ tar czf "$RUN_DIR/core/runtime-core.tar.gz" \
 echo "[1/3] Created core/runtime-core.tar.gz"
 
 tar czf "$RUN_DIR/bridge/bridge-state.tar.gz" \
-  -C /root \
-  rook-phoenix-comm sync-bridge
+  -C "$BRIDGE_PARENT" "$BRIDGE_NAME" \
+  -C "$SYNC_BRIDGE_PARENT" "$SYNC_BRIDGE_NAME"
 echo "[2/3] Created bridge/bridge-state.tar.gz"
 
 if [ "$INCLUDE_SENSITIVE" = true ]; then
