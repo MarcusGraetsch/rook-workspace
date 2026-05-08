@@ -62,6 +62,21 @@
       "type": "string",
       "minLength": 1
     },
+    "review_status": {
+      "type": "string",
+      "enum": ["unreviewed", "approved", "rejected"]
+    },
+    "reviewed_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_notes": {
+      "type": "string"
+    },
     "references": {
       "type": "array",
       "items": {
@@ -69,5 +84,42 @@
       },
       "default": []
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "review_status": {
+            "enum": ["approved", "rejected"]
+          }
+        },
+        "required": ["review_status"]
+      },
+      "then": {
+        "required": ["reviewed_by", "reviewed_at"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "review_status": {
+            "const": "unreviewed"
+          }
+        },
+        "required": ["review_status"]
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": ["reviewed_by"]
+            },
+            {
+              "required": ["reviewed_at"]
+            }
+          ]
+        }
+      }
+    }
+  ]
 }

@@ -8,6 +8,7 @@ from pathlib import Path
 ALLOWED_SYSTEMS = {"rook", "hermes"}
 ALLOWED_CLASSIFICATIONS = {"bridge-safe"}
 ALLOWED_PURPOSES = {"question", "summary", "request", "handoff"}
+ALLOWED_REVIEW_STATUSES = {"unreviewed", "approved", "rejected"}
 ISO_8601_UTC = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 
@@ -16,7 +17,7 @@ def fail(message: str) -> None:
     raise SystemExit(1)
 
 
-def validate(payload: dict) -> None:
+def validate(payload: dict, require_review_approved: bool = False) -> None:
     required = [
         "message_id",
         "source_system",
@@ -64,13 +65,46 @@ def validate(payload: dict) -> None:
     if not isinstance(references, list) or not all(isinstance(v, str) for v in references):
         fail("`references` must be an array of strings when present")
 
+    review_status = payload.get("review_status", "unreviewed")
+    if review_status not in ALLOWED_REVIEW_STATUSES:
+        fail("`review_status` must be `unreviewed`, `approved`, or `rejected`")
+
+    reviewed_by = payload.get("reviewed_by")
+    reviewed_at = payload.get("reviewed_at")
+    review_notes = payload.get("review_notes")
+
+    if review_status == "unreviewed":
+        if reviewed_by is not None or reviewed_at is not None:
+            fail("`reviewed_by` and `reviewed_at` are only valid after review")
+    else:
+        if not isinstance(reviewed_by, str) or not reviewed_by.strip():
+            fail("reviewed payloads must include non-empty `reviewed_by`")
+        if not isinstance(reviewed_at, str) or not ISO_8601_UTC.match(reviewed_at):
+            fail("reviewed payloads must include `reviewed_at` as YYYY-MM-DDTHH:MM:SSZ")
+
+    if review_notes is not None and not isinstance(review_notes, str):
+        fail("`review_notes` must be a string when present")
+
+    if require_review_approved and review_status != "approved":
+        fail("payload must have `review_status=approved` for archival gate")
+
 
 def main() -> None:
-    if len(sys.argv) != 2:
-        print("Usage: validate-rook-hermes-bridge-message.py <json-file>", file=sys.stderr)
+    args = sys.argv[1:]
+    require_review_approved = False
+
+    if "--require-review-approved" in args:
+        require_review_approved = True
+        args.remove("--require-review-approved")
+
+    if len(args) != 1:
+        print(
+            "Usage: validate-rook-hermes-bridge-message.py [--require-review-approved] <json-file>",
+            file=sys.stderr,
+        )
         raise SystemExit(2)
 
-    path = Path(sys.argv[1])
+    path = Path(args[0])
     if not path.is_file():
         fail(f"file not found: {path}")
 
@@ -82,7 +116,7 @@ def main() -> None:
     if not isinstance(payload, dict):
         fail("top-level JSON must be an object")
 
-    validate(payload)
+    validate(payload, require_review_approved=require_review_approved)
     print(f"VALID: {path}")
 
 

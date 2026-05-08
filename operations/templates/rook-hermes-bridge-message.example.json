@@ -9,6 +9,10 @@
   "allowed_consumers": ["hermes"],
   "ttl_hours": 72,
   "body": "Sanitized summary for cross-system discussion.",
+  "review_status": "approved",
+  "reviewed_by": "rook-operator",
+  "reviewed_at": "2026-05-08T15:05:00Z",
+  "review_notes": "Schema valid and suitable for durable bridge context.",
   "references": [
     "ops-0049",
     "docs/ROOK-HERMES-INTEGRATION-CONTRACT.md"

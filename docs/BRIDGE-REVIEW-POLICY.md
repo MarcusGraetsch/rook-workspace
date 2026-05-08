@@ -37,6 +37,10 @@ Review is strongly recommended before:
    - raw private session dumps
    - excessive transcript spill
 5. Confirm that `topic` and `purpose` are specific enough to audit later.
+6. If the payload is meant for durable archival, set:
+   - `review_status=approved`
+   - `reviewed_by`
+   - `reviewed_at`
 
 ## Review Commands
 
@@ -54,16 +58,25 @@ Review wrapper:
   /path/to/bridge-message.json
 ```
 
+Archive gate:
+
+```bash
+/root/.openclaw/workspace/operations/bin/gate-rook-hermes-bridge-archive.sh \
+  /path/to/bridge-message.json
+```
+
 ## Policy Level
 
 Current enforcement level:
 
 - `recommended`
+- `optional-gate` for archival readiness
 
 This means:
 
 - operators should review structured payloads before promoting them into durable shared context
-- the runtime is not yet hard-blocking unreviewed payloads
+- the runtime is not yet hard-blocking unreviewed payloads globally
+- operators can already use an explicit archival gate that requires approved review metadata
 
 ## Future Tightening Path
 

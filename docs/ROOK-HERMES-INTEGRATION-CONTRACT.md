@@ -87,6 +87,9 @@ Recommended fields for every bridge artifact:
   "allowed_consumers": ["rook"] ,
   "ttl_hours": 72,
   "body": "sanitized content",
+  "review_status": "unreviewed|approved|rejected",
+  "reviewed_by": "operator-id-if-reviewed",
+  "reviewed_at": "ISO-8601-if-reviewed",
   "references": []
 }
 ```
@@ -152,3 +155,10 @@ Operator review policy:
 
 - see [BRIDGE-REVIEW-POLICY.md](./BRIDGE-REVIEW-POLICY.md)
 - use the review wrapper before archival or promotion into durable shared context
+
+Optional archival gate:
+
+```bash
+/root/.openclaw/workspace/operations/bin/gate-rook-hermes-bridge-archive.sh \
+  /path/to/bridge-message.json
+```
