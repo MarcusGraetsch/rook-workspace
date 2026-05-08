@@ -28,6 +28,13 @@ The weakest remaining parts are:
 - secrets/config hygiene
 - Discord and runtime policy documentation
 
+Follow-up governance documents:
+
+- `docs/SECRET-REGISTER.md`
+- `docs/EXPOSURE-REGISTER.md`
+- `docs/ROOK-HERMES-INTEGRATION-CONTRACT.md`
+- `docs/HERMES-DISASTER-RECOVERY.md`
+
 ## Directory Map
 
 ### Runtime Home: `/root/.openclaw`

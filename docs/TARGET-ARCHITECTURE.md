@@ -10,6 +10,7 @@
 4. Rook is the orchestrator.
 5. Specialists execute bounded work against tasks, repos, and branches.
 6. No critical work state should exist only in local runtime memory.
+7. Hermes remains a separate reflection/care system and should integrate through explicit contracts, not silent state sharing.
 
 ## System Layers
 
@@ -74,6 +75,28 @@ Primary UI:
 Messaging layer:
 
 - Discord
+
+## Dual-System Boundary
+
+The broader VM now contains two important AI systems with different responsibilities:
+
+- `Rook/OpenClaw`
+  - technical orchestration, execution, delivery, operations
+- `Hermes/Phoenix`
+  - reflective, personal, creative, and care-oriented support
+
+The target architecture should preserve that distinction.
+
+Required guardrails:
+
+- no uncontrolled full-context sharing
+- explicit data classification for cross-system exchange
+- durable operational truth remains with `rook-workspace`
+- private reflective truth remains with Hermes unless explicitly released
+
+Reference contract:
+
+- `docs/ROOK-HERMES-INTEGRATION-CONTRACT.md`
 
 ## Task Model
 
@@ -261,4 +284,3 @@ A full recovery should be possible by:
 4. rebuilding dashboard projection state from canonical files
 
 This goal is partially met for tasks and archives, but not yet complete for the entire runtime.
-

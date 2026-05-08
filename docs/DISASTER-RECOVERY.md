@@ -23,6 +23,7 @@ Not yet fully recoverable:
 - all runtime message/session state
 - all local config/secrets without separate backup
 - OAuth-backed cloud credentials unless `rclone` config is restored or re-authorized
+- Hermes/Phoenix local runtime unless restored through its own runbook
 
 ## Runtime Backup Coverage
 
@@ -143,3 +144,4 @@ Restore while the dashboard and dispatcher are stopped, then restart them and ve
 - move secrets fully out of tracked config
 - document exact backup locations for auth material
 - reduce remaining local-only runtime state
+- maintain a separate Hermes/Phoenix runbook: `docs/HERMES-DISASTER-RECOVERY.md`

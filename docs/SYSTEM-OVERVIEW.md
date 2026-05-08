@@ -17,6 +17,12 @@ The Rook system is an OpenClaw-first coordinator-specialist environment with fou
 
 The system is not meant to be a free-form group chat. It is meant to move a bounded task from intake to execution, persist the result, and surface failure honestly.
 
+This repo now also has to coexist with a second important AI runtime on the same VM:
+
+- `Hermes / Phoenix`
+
+That system is not the technical control plane for delivery work. It should be treated as a separate reflection and personal-support system with explicit integration boundaries.
+
 ## Source Of Truth
 
 The source of truth is:
@@ -174,5 +180,13 @@ The remaining weak spots are narrower than before:
 - long-running worker stability is still provider/runtime-sensitive
 - official OpenClaw updates can still rewrite live model or timeout defaults if they are not re-checked
 - runtime and docs can drift after official OpenClaw updates unless checked explicitly
+- secret and exposure governance now need stronger, explicit artifacts across the broader VM
+- Rook/Hermes collaboration needs a documented contract instead of ad-hoc bridging alone
 
 That means the system is no longer imaginary, but it is not yet “fire and forget.”
+
+See also:
+
+- `docs/SECRET-REGISTER.md`
+- `docs/EXPOSURE-REGISTER.md`
+- `docs/ROOK-HERMES-INTEGRATION-CONTRACT.md`
