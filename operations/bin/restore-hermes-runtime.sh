@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
-  restore-hermes-runtime.sh --from-local <backup_dir> [--include-sensitive-auth]
+  restore-hermes-runtime.sh --from-local <backup_dir> [--include-sensitive-auth] [--dry-run]
 
 This restores Hermes runtime data from a snapshot created by:
   operations/bin/backup-hermes-runtime.sh
@@ -13,10 +13,11 @@ Default behavior:
   - restores core runtime archive
   - restores bridge archive
   - does not restore restricted auth files unless --include-sensitive-auth is set
+  - prints planned steps only when --dry-run is set
 EOF
 }
 
-if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+if [ "$#" -lt 2 ] || [ "$#" -gt 4 ]; then
   usage
   exit 1
 fi
@@ -24,13 +25,25 @@ fi
 MODE="$1"
 SOURCE="$2"
 INCLUDE_SENSITIVE=false
+DRY_RUN=false
 
-if [ "${3:-}" = "--include-sensitive-auth" ]; then
-  INCLUDE_SENSITIVE=true
-elif [ "${3:-}" != "" ]; then
-  usage
-  exit 1
-fi
+for arg in "${3:-}" "${4:-}"; do
+  if [ "$arg" = "" ]; then
+    continue
+  fi
+  case "$arg" in
+    --include-sensitive-auth)
+      INCLUDE_SENSITIVE=true
+      ;;
+    --dry-run)
+      DRY_RUN=true
+      ;;
+    *)
+      usage
+      exit 1
+      ;;
+  esac
+done
 
 if [ "$MODE" != "--from-local" ]; then
   usage
@@ -63,16 +76,25 @@ fi
 echo "=== Hermes Runtime Restore ==="
 echo "Source: $RESTORE_DIR"
 echo "Include sensitive auth: $INCLUDE_SENSITIVE"
+echo "Dry run: $DRY_RUN"
 echo
 
 mkdir -p "$HERMES_ROOT"
 
 echo "[1/3] Restoring Hermes core runtime..."
-tar xzf "$CORE_ARCHIVE" -C "$HERMES_ROOT"
+if [ "$DRY_RUN" = true ]; then
+  echo "    Would extract $CORE_ARCHIVE into $HERMES_ROOT"
+else
+  tar xzf "$CORE_ARCHIVE" -C "$HERMES_ROOT"
+fi
 echo "    Restored core runtime data into $HERMES_ROOT"
 
 echo "[2/3] Restoring bridge state..."
-tar xzf "$BRIDGE_ARCHIVE" -C "$ROOT_HOME"
+if [ "$DRY_RUN" = true ]; then
+  echo "    Would extract $BRIDGE_ARCHIVE into $ROOT_HOME"
+else
+  tar xzf "$BRIDGE_ARCHIVE" -C "$ROOT_HOME"
+fi
 echo "    Restored bridge directories under /root"
 
 if [ "$INCLUDE_SENSITIVE" = true ]; then
@@ -81,7 +103,11 @@ if [ "$INCLUDE_SENSITIVE" = true ]; then
     exit 1
   fi
   echo "[3/3] Restoring restricted auth files..."
-  tar xzf "$SENSITIVE_ARCHIVE" -C "$HERMES_ROOT"
+  if [ "$DRY_RUN" = true ]; then
+    echo "    Would extract $SENSITIVE_ARCHIVE into $HERMES_ROOT"
+  else
+    tar xzf "$SENSITIVE_ARCHIVE" -C "$HERMES_ROOT"
+  fi
   echo "    Restored restricted auth files into $HERMES_ROOT"
 else
   echo "[3/3] Restricted auth restore skipped"

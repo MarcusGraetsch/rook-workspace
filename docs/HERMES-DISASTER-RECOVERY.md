@@ -179,3 +179,28 @@ Core runtime, bridge state, and restricted auth set:
   --from-local /root/backups/hermes-runtime/<timestamp> \
   --include-sensitive-auth
 ```
+
+Dry-run the restore plan first:
+
+```bash
+/root/.openclaw/workspace/operations/bin/restore-hermes-runtime.sh \
+  --from-local /root/backups/hermes-runtime/<timestamp> \
+  --dry-run
+```
+
+## Snapshot Smoke Check
+
+Validate that a backup snapshot has the expected baseline structure before restore:
+
+```bash
+/root/.openclaw/workspace/operations/bin/check-hermes-restore-snapshot.sh \
+  /root/backups/hermes-runtime/<timestamp>
+```
+
+If the restricted auth archive is expected too:
+
+```bash
+/root/.openclaw/workspace/operations/bin/check-hermes-restore-snapshot.sh \
+  /root/backups/hermes-runtime/<timestamp> \
+  --require-sensitive-auth
+```

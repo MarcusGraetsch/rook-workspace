@@ -96,6 +96,7 @@ Reference schema:
 - `operations/schemas/rook-hermes-bridge-message.schema.json`
 - `operations/templates/rook-hermes-bridge-message.example.json`
 - `operations/bin/validate-rook-hermes-bridge-message.py`
+- `operations/bin/review-rook-hermes-bridge-message.sh`
 
 ## Persistence Rules
 
@@ -137,4 +138,11 @@ Therefore:
 ```bash
 python3 /root/.openclaw/workspace/operations/bin/validate-rook-hermes-bridge-message.py \
   /root/.openclaw/workspace/operations/templates/rook-hermes-bridge-message.example.json
+```
+
+Review-hook style wrapper:
+
+```bash
+/root/.openclaw/workspace/operations/bin/review-rook-hermes-bridge-message.sh \
+  /path/to/bridge-message.json
 ```
