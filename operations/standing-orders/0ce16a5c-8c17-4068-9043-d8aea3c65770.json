@@ -1,0 +1,12 @@
+{
+  "id": "0ce16a5c-8c17-4068-9043-d8aea3c65770",
+  "rule": "Keine destruktiven Aktionen ohne explizite Bestätigung von Marcus",
+  "priority": "critical",
+  "scopes": [
+    "all"
+  ],
+  "status": "active",
+  "expires_at": null,
+  "note": "Sicherheitsregel — gilt immer",
+  "created_at": "2026-05-06T22:44:37.220684+00:00"
+}

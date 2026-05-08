@@ -1,0 +1,39 @@
+{
+  "task_id": "agent-0002",
+  "project_id": "rook-agent",
+  "title": "[task:agent-0001] Implement in our Ecology Dashboard http://localhost:3001/ecology I se...",
+  "description": "## Task\n\nObjective:\n- In our Ecology Dashboard http://localhost:3001/ecology I see that the numbers in there are all zero that cannnot be true. So please fix this. But before you fix this overthink this first do we have with this design a good way of taking care of our major intent, the major intent is to let the user of this mulit-agent AI enhanced system know what the ecological footprint if of the usage/ the running of the system as such. We should not only focus on AI usage but also about the usage of ressources which are consumed and processed by the infrastructure which is underneath the VM (or any other system a user might use and where the multi-agen is running on)\n\nExecution scope:\n- Convert the request into a concrete implementation change in the selected repository.\n- Keep the scope bounded and directly tied to the requested UI, API, or code behavior.\n- Preserve existing behavior outside the requested change.\n\nContext and constraints:\n- So please fix this\n- But before you fix this overthink this first do we have with this design a good way of taking care of our major intent, the major intent is to let the user of this mulit-agent AI enhanced system know what the ecological footprint if of the usage/ the running of the system as such\n- We should not only focus on AI usage but also about the usage of ressources which are consumed and processed by the infrastructure which is underneath the VM (or any other system a user might use and where the multi-agen is running on)\n\nDefinition of done:\n- The requested change is implemented.\n- Relevant validation or tests are run and recorded.\n- Follow-up risks or open questions are noted in the task.\n\n## Metadata\n\n- Task ID: `agent-0001`\n- Project: `rook-agent`\n- Status: `ready`\n- Priority: `high`\n- Assigned Agent: `engineer`\n- Branch: `agent/engineer/agent-0001-implement-in-our-ecology-dashboard-http-localhos`\n- Repo: `MarcusGraetsch/rook-agent`\n- Labels: `bug`, `ui`, `automation`\n\n## Canonical Record\n\nThis issue is mirrored from the Rook canonical task system.",
+  "status": "backlog",
+  "assigned_agent": "engineer",
+  "claimed_by": null,
+  "priority": "medium",
+  "dependencies": [],
+  "blocked_by": [],
+  "related_repo": "MarcusGraetsch/rook-agent",
+  "branch": null,
+  "commits": [],
+  "labels": [],
+  "workflow_stage": "backlog",
+  "blocked_reason": null,
+  "handoff_notes": "",
+  "failure_reason": null,
+  "artifacts": [],
+  "github_issue": {
+    "repo": "MarcusGraetsch/rook-agent",
+    "number": 2,
+    "url": "https://github.com/MarcusGraetsch/rook-agent/issues/2",
+    "state": "open",
+    "sync_status": "synced",
+    "last_synced_at": "2026-05-06T22:59:35.975111+00:00",
+    "last_error": null,
+    "assignees": []
+  },
+  "source_channel": "github:issue",
+  "timestamps": {
+    "created_at": "2026-04-03T12:54:31Z",
+    "updated_at": "2026-05-06T22:59:35.975239+00:00",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}

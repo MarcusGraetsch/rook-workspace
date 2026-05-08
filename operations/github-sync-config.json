@@ -1,0 +1,66 @@
+{
+  "_comment": "GitHub Sync config \u2014 maps repos to OpenClaw projects",
+  "repos": {
+    "MarcusGraetsch/rook-dashboard": {
+      "project": "rook-dashboard",
+      "task_prefix": "dashboard",
+      "default_agent": "engineer",
+      "default_priority": "medium",
+      "sync_enabled": true,
+      "push_status_to_github": true,
+      "close_issue_on_done": false
+    },
+    "MarcusGraetsch/rook-agent": {
+      "project": "rook-agent",
+      "task_prefix": "agent",
+      "default_agent": "engineer",
+      "default_priority": "medium",
+      "sync_enabled": true,
+      "push_status_to_github": true,
+      "close_issue_on_done": false
+    },
+    "MarcusGraetsch/digital-capitalism-research": {
+      "project": "digital-research",
+      "task_prefix": "research",
+      "default_agent": "researcher",
+      "default_priority": "medium",
+      "sync_enabled": true,
+      "push_status_to_github": true,
+      "close_issue_on_done": false
+    },
+    "MarcusGraetsch/rook-workspace": {
+      "project": "rook-workspace",
+      "task_prefix": "workspace",
+      "default_agent": "rook",
+      "default_priority": "medium",
+      "sync_enabled": true,
+      "push_status_to_github": true,
+      "close_issue_on_done": false
+    }
+  },
+  "label_to_priority": {
+    "critical": "critical",
+    "urgent": "urgent",
+    "high": "high",
+    "medium": "medium",
+    "low": "low",
+    "bug": "high",
+    "enhancement": "medium",
+    "documentation": "low",
+    "question": "low"
+  },
+  "label_to_agent": {
+    "engineer": "engineer",
+    "researcher": "researcher",
+    "rook": "rook",
+    "coach": "coach",
+    "health": "health",
+    "consultant": "consultant"
+  },
+  "status_labels": {
+    "in_progress": "in-progress",
+    "blocked": "blocked",
+    "done": "done",
+    "backlog": "backlog"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "timestamp": "2026-05-06T22:23:54.936935+00:00",
+  "command": "analyze",
+  "description": "ConnectionRefusedError: [Errno 111] Connection refused to localhost:5432",
+  "category": "network"
+}

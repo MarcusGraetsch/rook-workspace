@@ -1,0 +1,98 @@
+[
+  {
+    "id": "https://openalex.org/W4360620450",
+    "title": "Opinion Paper: “So what if ChatGPT wrote it?” Multidisciplinary perspectives on opportunities, challenges and implications of generative conversational AI for research, practice and policy",
+    "doi": "https://doi.org/10.1016/j.ijinfomgt.2023.102642",
+    "year": 2023,
+    "cited_by": 3487,
+    "authors": [
+      "Yogesh K. Dwivedi",
+      "Nir Kshetri",
+      "Laurie Hughes"
+    ],
+    "source": "International Journal of Information Management",
+    "abstract": "Transformative artificially intelligent tools, such as ChatGPT, designed to generate sophisticated text indistinguishable from that produced by a human, are applicable across a wide range of contexts. The technology presents opportunities as well as, often ethical and legal, challenges, and has the potential for both positive and negative impacts for organisations, society, and individuals. Offering multi-disciplinary insight into some of these, this article brings together 43 contributions from experts in fields such as computer science, marketing, information systems, education, policy, hospitality and tourism, management, publishing, and nursing. The contributors acknowledge ChatGPT’s capabilities to enhance productivity and suggest that it is likely to offer significant gains in the banking, hospitality and tourism, and information technology industries, and enhance business activities, such as management and marketing. Nevertheless, they also consider its limitations, disruptions ",
+    "pdf_url": "https://linkinghub.elsevier.com/science/article/pii/S0268401223000233/pdfft?md5=492895056a2fa29b1cb81876a1c57544&pid=1-s2.0-S0268401223000233-main.pdf",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4386958277",
+    "title": "Revolutionizing healthcare: the role of artificial intelligence in clinical practice",
+    "doi": "https://doi.org/10.1186/s12909-023-04698-z",
+    "year": 2023,
+    "cited_by": 2679,
+    "authors": [
+      "Shuroug A. Alowais",
+      "Sahar S. Alghamdi",
+      "Nada Alsuhebany"
+    ],
+    "source": "BMC Medical Education",
+    "abstract": "INTRODUCTION: Healthcare systems are complex and challenging for all stakeholders, but artificial intelligence (AI) has transformed various fields, including healthcare, with the potential to improve patient care and quality of life. Rapid AI advancements can revolutionize healthcare by integrating it into clinical practice. Reporting AI's role in clinical practice is crucial for successful implementation by equipping healthcare providers with essential knowledge and tools. RESEARCH SIGNIFICANCE: This review article provides a comprehensive and up-to-date overview of the current state of AI in clinical practice, including its potential applications in disease diagnosis, treatment recommendations, and patient engagement. It also discusses the associated challenges, covering ethical and legal considerations and the need for human expertise. By doing so, it enhances understanding of AI's significance in healthcare and supports healthcare organizations in effectively adopting AI technologi",
+    "pdf_url": "https://bmcmededuc.biomedcentral.com/counter/pdf/10.1186/s12909-023-04698-z",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4403733501",
+    "title": "Inorganic Chemistry: Principles of Structure and Reactivity",
+    "doi": "https://doi.org/10.62906/bs.book.181",
+    "year": 2024,
+    "cited_by": 2395,
+    "authors": [
+      "Haneen Mohammed Abbas Kasar",
+      "Zainab Najib Badr",
+      "Zahraa Sattar Jaber Khnyab"
+    ],
+    "source": "Bright Sky Publications eBooks",
+    "abstract": "Buy Inorganic Chemistry: Principles of Structure and Reactivity edited by Haneen Mohammed Abbas Kasar, Zainab Najib Badr Abd, Zahraa Sattar Jaber Khnyab and Yasser Ammar Habib Daoud Al-Samarrai at low price.",
+    "pdf_url": "https://www.bspublications.com/book-pdf/1729246550-inorganic-chemistry-principles-of-structure-and-reactivity.pdf",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4327810158",
+    "title": "GPT-4 Technical Report",
+    "doi": "https://doi.org/10.4230/lipics.cosit.2024.11",
+    "year": 2023,
+    "cited_by": 2304,
+    "authors": [
+      "Wijegunarathna, Kalana",
+      "Stock, Kristin",
+      "Jones, Christopher B."
+    ],
+    "source": "arXiv (Cornell University)",
+    "abstract": "Abstract—Large Language Models (LLMs) suffer from inherent stochasticity, limiting their utility in high-stakes enterprise environments where determinism and auditability are required. This paper introduces the MFOUR Vibe Framework (MVF), a platform-agnostic architectural standard that transforms probabilistic natural language intent into deterministic software artifacts. We define a five-layer topology, comprising the Kernel Identity, Synaptic Routing, Interface Contracts, Context Anchoring, and the Mirror Test. Furthermore, we introduce The Vibe Integrity Score (VIS), a quantitative metric for evaluating the structural adherence of generative outputs. This specification provides the foundational schema and logic protocols for building \"Glass Box\" AI systems that are observable, secure, and commercially viable.",
+    "pdf_url": "https://arxiv.org/pdf/2303.08774",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4288039037",
+    "title": "Scientific Machine Learning Through Physics–Informed Neural Networks: Where we are and What’s Next",
+    "doi": "https://doi.org/10.1007/s10915-022-01939-z",
+    "year": 2022,
+    "cited_by": 2133,
+    "authors": [
+      "Salvatore Cuomo",
+      "Vincenzo Schiano Di Cola",
+      "Fabio Giampaolo"
+    ],
+    "source": "Journal of Scientific Computing",
+    "abstract": "Abstract Physics-Informed Neural Networks (PINN) are neural networks (NNs) that encode model equations, like Partial Differential Equations (PDE), as a component of the neural network itself. PINNs are nowadays used to solve PDEs, fractional equations, integral-differential equations, and stochastic PDEs. This novel methodology has arisen as a multi-task learning framework in which a NN must fit observed data while reducing a PDE residual. This article provides a comprehensive review of the literature on PINNs: while the primary goal of the study was to characterize these networks and their related advantages and disadvantages. The review also attempts to incorporate publications on a broader range of collocation-based physics informed neural networks, which stars form the vanilla PINN, as well as many other variants, such as physics-constrained neural networks (PCNN), variational hp-VPINN, and conservative PINN (CPINN). The study indicates that most research has focused on customizing",
+    "pdf_url": "https://link.springer.com/content/pdf/10.1007/s10915-022-01939-z.pdf",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4368358104",
+    "title": "Proksee: in-depth characterization and visualization of bacterial genomes",
+    "doi": "https://doi.org/10.1093/nar/gkad326",
+    "year": 2023,
+    "cited_by": 1611,
+    "authors": [
+      "Jason R. Grant",
+      "Eric Enns",
+      "Eric Marinier"
+    ],
+    "source": "Nucleic Acids Research",
+    "abstract": "Proksee (https://proksee.ca) provides users with a powerful, easy-to-use, and feature-rich system for assembling, annotating, analysing, and visualizing bacterial genomes. Proksee accepts Illumina sequence reads as compressed FASTQ files or pre-assembled contigs in raw, FASTA, or GenBank format. Alternatively, users can supply a GenBank accession or a previously generated Proksee map in JSON format. Proksee then performs assembly (for raw sequence data), generates a graphical map, and provides an interface for customizing the map and launching further analysis jobs. Notable features of Proksee include unique and informative assembly metrics provided via a custom reference database of assemblies; a deeply integrated high-performance genome browser for viewing and comparing analysis results at individual base resolution (developed specifically for Proksee); an ever-growing list of embedded analysis tools whose results can be seamlessly added to the map or searched and explored in other f",
+    "pdf_url": "https://academic.oup.com/nar/advance-article-pdf/doi/10.1093/nar/gkad326/50195722/gkad326.pdf",
+    "is_oa": true
+  }
+]

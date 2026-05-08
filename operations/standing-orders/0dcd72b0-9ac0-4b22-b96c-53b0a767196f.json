@@ -1,0 +1,12 @@
+{
+  "id": "0dcd72b0-9ac0-4b22-b96c-53b0a767196f",
+  "rule": "Kein direktes Push auf main — immer über Branch und PR",
+  "priority": "high",
+  "scopes": [
+    "all"
+  ],
+  "status": "active",
+  "expires_at": "2026-06-05T22:44:58.025388+00:00",
+  "note": "",
+  "created_at": "2026-05-06T22:44:58.025513+00:00"
+}

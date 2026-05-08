@@ -1,0 +1,1 @@
+{"ts": "2026-05-06T23:10:07.081977+00:00", "agent": "test-agent", "level": "info", "event": "skill.run", "msg": "Test skill execution — done in 0.053s", "data": {"elapsed_s": 0.053}}

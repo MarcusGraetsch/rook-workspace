@@ -1,0 +1,93 @@
+[
+  {
+    "id": "https://openalex.org/W4225117352",
+    "title": "Algorithmic Management Reimagined For Workers and By Workers: Centering Worker Well-Being in Gig Work",
+    "doi": "https://doi.org/10.1145/3491102.3501866",
+    "year": 2022,
+    "cited_by": 148,
+    "authors": [
+      "Angie Zhang",
+      "Alexander Boltz",
+      "Chun Wei Wang"
+    ],
+    "source": "CHI Conference on Human Factors in Computing Systems",
+    "abstract": "Prior research has studied the detrimental impact of algorithmic management on gig workers and strategies that workers devise in response. However, little work has investigated alternative platform designs to promote worker well-being, particularly from workers’ own perspectives. We use a participatory design approach wherein workers explore their algorithmic imaginaries to co-design interventions that center their lived experiences, preferences, and well-being in algorithmic management. Our interview and participatory design sessions highlight how various design dimensions of algorithmic management, including information asymmetries and unfair, manipulative incentives, hurt worker well-being. Workers generate designs to address these issues while considering competing interests of the platforms, customers, and themselves, such as information translucency, incentives co-configured by workers and platforms, worker-centered data-driven insights for well-being, and collective driver data ",
+    "pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3491102.3501866",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4214569357",
+    "title": "Algorithmic domination in the gig economy",
+    "doi": "https://doi.org/10.1177/14748851221082078",
+    "year": 2022,
+    "cited_by": 102,
+    "authors": [
+      "James Muldoon",
+      "Paul Rækstad"
+    ],
+    "source": "European Journal of Political Theory",
+    "abstract": "Digital platforms and application software have changed how people work in a range of industries. Empirical studies of the gig economy have raised concerns about new systems of algorithmic management exercised over workers and how these alter the structural conditions of their work. Drawing on the republican literature, we offer a theoretical account of algorithmic domination and a framework for understanding how it can be applied to ride hail and food delivery services in the on-demand economy. We argue that certain algorithms can facilitate new relationships of domination by sustaining a socio-technical system in which the owners and managers of a company dominate workers. This analysis has implications for the growing use of algorithms throughout the gig economy and broader labor market.",
+    "pdf_url": "https://journals.sagepub.com/doi/pdf/10.1177/14748851221082078",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4408098882",
+    "title": "House of gigs. Domestic workers, algorithmic management and the Platform Work Directive",
+    "doi": "https://doi.org/10.2139/ssrn.5161650",
+    "year": 2025,
+    "cited_by": 2,
+    "authors": [
+      "Antonio Aloisi",
+      "Nastazja Potocka-Sionek"
+    ],
+    "source": "SSRN Electronic Journal",
+    "abstract": "",
+    "pdf_url": "https://doi.org/10.2139/ssrn.5161650",
+    "is_oa": false
+  },
+  {
+    "id": "https://openalex.org/W4402322682",
+    "title": "Algorithmic management in the gig economy: A systematic review and research integration",
+    "doi": "https://doi.org/10.1002/job.2831",
+    "year": 2024,
+    "cited_by": 74,
+    "authors": [
+      "Imran Kadolkar",
+      "Sven Kepes",
+      "Mahesh Subramony"
+    ],
+    "source": "Journal of Organizational Behavior",
+    "abstract": "Summary Rapid growth in the gig economy has been facilitated by the increased use of algorithmic management (AM) in online platforms (OPs) coordinating gig work. There has been a concomitant increase in scholarship related to AM across scientific domains (e.g., computer science, engineering, operations management, management, sociology, and law). However, this literature is fragmented with scholars disagreeing on the conceptualization and measurement of AM, as well as a lack of consensus on the dimensions of AM influencing various gig worker‐related outcomes, the mechanisms through which these influences are exerted, and the relevant boundary conditions. To address these issues, we systematically reviewed the academic literature across scientific disciplines related to the AM of gig workers using natural language processing (NLP)‐based topic modeling. Our analysis yielded 12 topics, which we integrate using an input‐process‐output (IPO) framework to illustrate differing effects of AM o",
+    "pdf_url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/job.2831",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4392855331",
+    "title": "The Making of the “Good Bad” Job: How Algorithmic Management Manufactures Consent Through Constant and Confined Choices",
+    "doi": "https://doi.org/10.1177/00018392241236163",
+    "year": 2024,
+    "cited_by": 93,
+    "authors": [
+      "Lindsey Cameron"
+    ],
+    "source": "Administrative Science Quarterly",
+    "abstract": "This research explores how a new relation of production—the shift from human managers to algorithmic managers on digital platforms—manufactures workplace consent. While most research has argued that the task standardization and surveillance that accompany algorithmic management will give rise to the quintessential “bad job” (Kalleberg, Reskin, and Hudson, 2000; Kalleberg, 2011), I find that, surprisingly, many workers report liking and finding choice while working under algorithmic management. Drawing on a seven-year qualitative study of the largest sector in the gig economy, the ride-hailing industry, I describe how workers navigate being managed by an algorithm. I begin by showing how algorithms segment the work at multiple sites of human–algorithm interactions and how this configuration of the work process allows for more-frequent and narrow choice. I find that workers use two sets of tactics. In engagement tactics, individuals generally follow the algorithmic nudges and do not try ",
+    "pdf_url": "https://journals.sagepub.com/doi/pdf/10.1177/00018392241236163",
+    "is_oa": true
+  },
+  {
+    "id": "https://openalex.org/W4388273876",
+    "title": "Gig Worker Response to Algorithmic and Other Management Practices in India: A Study of Drivers from Ride-Hailing Platforms",
+    "doi": "https://doi.org/10.2139/ssrn.4585952",
+    "year": 2023,
+    "cited_by": 2,
+    "authors": [
+      "Ipshita Chakraborty",
+      "Richard Heeks"
+    ],
+    "source": "SSRN Electronic Journal",
+    "abstract": "",
+    "pdf_url": "https://doi.org/10.2139/ssrn.4585952",
+    "is_oa": false
+  }
+]

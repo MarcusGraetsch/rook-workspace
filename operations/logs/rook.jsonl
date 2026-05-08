@@ -1,0 +1,4 @@
+{"ts": "2026-05-06T23:10:00.453417+00:00", "agent": "rook", "level": "info", "event": "system.boot", "msg": "OpenClaw structured logging initialized"}
+{"ts": "2026-05-06T23:10:00.670991+00:00", "agent": "rook", "level": "error", "event": "agent.error", "msg": "Health snapshot missing", "data": {"agent": "coach"}}
+{"ts": "2026-05-06T23:12:08.140506+00:00", "agent": "rook", "level": "info", "event": "system.boot", "msg": "F2 structured logging active"}
+{"ts": "2026-05-06T23:12:08.266246+00:00", "agent": "rook", "level": "info", "event": "task.done", "msg": "F2 structured-logging delivered"}
