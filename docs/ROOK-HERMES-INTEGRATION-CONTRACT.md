@@ -176,3 +176,5 @@ This flow copies approved payloads into a reviewed archive path and does not mut
 The archive directory can also maintain a lightweight `archive-manifest.jsonl` for audit-friendly indexing of approved payloads.
 
 Duplicate archival by `message_id` should be treated as suspicious by default and only bypassed deliberately.
+
+Reviewed bridge archives should have an explicit retention policy. A reasonable baseline is 30 days minimum retention, with extension to 90 days where auditability or architectural traceability is useful.

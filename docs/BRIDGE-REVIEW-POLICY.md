@@ -80,6 +80,14 @@ python3 /root/.openclaw/workspace/operations/bin/inspect-rook-hermes-bridge-arch
   /path/to/archive-manifest.jsonl
 ```
 
+Filter by `message_id` or reviewer:
+
+```bash
+python3 /root/.openclaw/workspace/operations/bin/inspect-rook-hermes-bridge-archive-manifest.py \
+  --message-id 2026-05-08T15-00-00Z-rook-001 \
+  /path/to/archive-manifest.jsonl
+```
+
 For safe testing against a temporary archive target:
 
 ```bash
@@ -114,3 +122,13 @@ Possible next steps:
    - `reviewed_by`
    - `reviewed_at`
    - `review_status`
+
+## Retention Baseline
+
+Recommended baseline for reviewed bridge archives:
+
+- keep reviewed payload files and `archive-manifest.jsonl` together in the same archive target
+- retain at least 30 days for routine operational review
+- retain up to 90 days where architectural or audit traceability matters
+- review and prune intentionally; do not silently delete ad hoc
+- if pruning payload files, keep enough manifest history to preserve minimal audit traceability
