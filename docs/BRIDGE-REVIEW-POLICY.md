@@ -132,3 +132,40 @@ Recommended baseline for reviewed bridge archives:
 - retain up to 90 days where architectural or audit traceability matters
 - review and prune intentionally; do not silently delete ad hoc
 - if pruning payload files, keep enough manifest history to preserve minimal audit traceability
+
+## Ownership And Cadence
+
+Recommended operational ownership:
+
+- `reviewed_by` identifies the approving operator for the payload itself
+- bridge archive hygiene should be owned by the technical control plane operator role
+- private-context boundary questions should be escalated before archival or pruning, not after
+
+Recommended cadence:
+
+- weekly review of newly archived bridge payloads where bridge traffic is active
+- monthly retention review for reviewed archive targets
+- ad hoc review after incidents, architecture changes, or boundary mistakes
+
+Pruning stance:
+
+- use a plan-first workflow
+- inspect candidates before any deletion or relocation
+- do not automate deletion until retention ownership is stable
+
+## Prune Planning
+
+Generate a non-destructive prune plan from an archive target:
+
+```bash
+python3 /root/.openclaw/workspace/operations/bin/plan-rook-hermes-bridge-archive-prune.py \
+  /path/to/reviewed-archive-dir
+```
+
+Override the retention window for planning:
+
+```bash
+python3 /root/.openclaw/workspace/operations/bin/plan-rook-hermes-bridge-archive-prune.py \
+  --retain-days 45 \
+  /path/to/reviewed-archive-dir
+```

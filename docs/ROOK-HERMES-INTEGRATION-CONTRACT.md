@@ -178,3 +178,5 @@ The archive directory can also maintain a lightweight `archive-manifest.jsonl` f
 Duplicate archival by `message_id` should be treated as suspicious by default and only bypassed deliberately.
 
 Reviewed bridge archives should have an explicit retention policy. A reasonable baseline is 30 days minimum retention, with extension to 90 days where auditability or architectural traceability is useful.
+
+Archive review and pruning should follow a plan-first operator workflow with explicit ownership, not unattended deletion.
