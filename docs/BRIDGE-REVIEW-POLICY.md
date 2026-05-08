@@ -163,6 +163,13 @@ Reviewer identity baseline:
 - use stable role-style reviewer IDs, not ad hoc free-text names
 - add new reviewer IDs intentionally and review them like any other governance change
 
+Allowlist governance baseline:
+
+- changes to `operations/config/rook-hermes-bridge-reviewers.json` should be treated as governance changes
+- prefer focused review and separate commits for allowlist edits
+- document the reason whenever a reviewer ID is added or removed
+- avoid one-off personal aliases when a stable operator role ID is sufficient
+
 Pruning stance:
 
 - use a plan-first workflow

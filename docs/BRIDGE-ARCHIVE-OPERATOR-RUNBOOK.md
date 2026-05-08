@@ -22,6 +22,13 @@ It is intentionally:
 - escalation owner for boundary mistakes:
   - the same operator role, with private-context escalation before any pruning decision
 
+## Reviewer Allowlist Governance
+
+- reviewer IDs live in `operations/config/rook-hermes-bridge-reviewers.json`
+- treat allowlist changes as explicit governance changes
+- keep those edits focused and reviewable
+- record why a reviewer ID was added or removed in the same change set or report
+
 ## Weekly Review
 
 1. Inspect the manifest summary:
