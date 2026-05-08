@@ -162,3 +162,13 @@ Optional archival gate:
 /root/.openclaw/workspace/operations/bin/gate-rook-hermes-bridge-archive.sh \
   /path/to/bridge-message.json
 ```
+
+Conservative archival flow:
+
+```bash
+/root/.openclaw/workspace/operations/bin/archive-reviewed-rook-hermes-bridge-message.sh \
+  --dry-run \
+  /path/to/bridge-message.json
+```
+
+This flow copies approved payloads into a reviewed archive path and does not mutate live bridge delivery state.

@@ -65,6 +65,14 @@ Archive gate:
   /path/to/bridge-message.json
 ```
 
+Archive flow:
+
+```bash
+/root/.openclaw/workspace/operations/bin/archive-reviewed-rook-hermes-bridge-message.sh \
+  --dry-run \
+  /path/to/bridge-message.json
+```
+
 ## Policy Level
 
 Current enforcement level:
@@ -77,6 +85,7 @@ This means:
 - operators should review structured payloads before promoting them into durable shared context
 - the runtime is not yet hard-blocking unreviewed payloads globally
 - operators can already use an explicit archival gate that requires approved review metadata
+- operators can archive approved payloads through an explicit copy-based flow without changing live bridge delivery
 
 ## Future Tightening Path
 
