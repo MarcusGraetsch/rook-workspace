@@ -5,9 +5,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
-def parse_args() -> tuple[int, Path]:
+def parse_args() -> tuple[int, str | None, str | None, Path]:
     args = sys.argv[1:]
     retain_days = 30
+    reviewed_by = None
+    message_id = None
 
     while args and args[0].startswith("--"):
         flag = args.pop(0)
@@ -20,19 +22,29 @@ def parse_args() -> tuple[int, Path]:
                 raise SystemExit("retain-days must be an integer") from exc
             if retain_days < 1:
                 raise SystemExit("retain-days must be >= 1")
+        elif flag == "--reviewed-by":
+            if not args:
+                raise SystemExit("Missing value for --reviewed-by")
+            reviewed_by = args.pop(0)
+        elif flag == "--message-id":
+            if not args:
+                raise SystemExit("Missing value for --message-id")
+            message_id = args.pop(0)
         else:
             raise SystemExit(
                 "Usage: plan-rook-hermes-bridge-archive-prune.py "
-                "[--retain-days <days>] <reviewed-archive-dir>"
+                "[--retain-days <days>] [--reviewed-by <name>] [--message-id <id>] "
+                "<reviewed-archive-dir>"
             )
 
     if len(args) != 1:
         raise SystemExit(
             "Usage: plan-rook-hermes-bridge-archive-prune.py "
-            "[--retain-days <days>] <reviewed-archive-dir>"
+            "[--retain-days <days>] [--reviewed-by <name>] [--message-id <id>] "
+            "<reviewed-archive-dir>"
         )
 
-    return retain_days, Path(args[0])
+    return retain_days, reviewed_by, message_id, Path(args[0])
 
 
 def parse_manifest_line(raw_line: str, line_number: int) -> dict:
@@ -56,7 +68,7 @@ def parse_archived_at(value: str) -> datetime | None:
 
 def main() -> None:
     try:
-        retain_days, archive_dir = parse_args()
+        retain_days, filter_reviewed_by, filter_message_id, archive_dir = parse_args()
     except SystemExit as exc:
         if isinstance(exc.code, str):
             print(exc.code, file=sys.stderr)
@@ -82,6 +94,10 @@ def main() -> None:
             continue
         total_entries += 1
         entry = parse_manifest_line(raw_line, line_number)
+        if filter_reviewed_by and entry.get("reviewed_by") != filter_reviewed_by:
+            continue
+        if filter_message_id and entry.get("message_id") != filter_message_id:
+            continue
         archived_at = parse_archived_at(entry.get("archived_at"))
         archived_file = entry.get("archived_file")
         if archived_at is None or not isinstance(archived_file, str):
@@ -106,6 +122,10 @@ def main() -> None:
         "retain_days": retain_days,
         "cutoff_utc": cutoff.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "total_manifest_entries": total_entries,
+        "filters": {
+            "reviewed_by": filter_reviewed_by,
+            "message_id": filter_message_id,
+        },
         "prune_candidate_count": len(candidates),
         "prune_candidates": candidates,
         "note": "Plan only. No files were deleted or modified.",
