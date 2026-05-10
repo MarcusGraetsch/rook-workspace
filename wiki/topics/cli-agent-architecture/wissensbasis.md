@@ -78,6 +78,7 @@ kubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase
 - → [[ai-ml]] — AI-Agenten, LLM-Integration
 - → [[python-scripting]] — Python-Wrapper für CLI-Tools
 - → [[linux-devops]] — Shell, Bash, CLI-Tools
+- → [[rook-hermes-bridge]] — Rook/OpenClaw als technische Kontrollebene, Bridge-Governance
 
 ## Relevant Sources
 

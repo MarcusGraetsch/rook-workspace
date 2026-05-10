@@ -80,6 +80,7 @@ vault kv get secret/myapp/database
 - → [[cloud-kubernetes]] — K8s Network Policies, Pod Security
 - → [[iam-keycloak]] — SSO Integration, Keycloak als IdP
 - → [[gitops-cicd]] — Security in CI/CD Pipelines
+- → [[rook-hermes-bridge]] — Secrets Register, Exposure Register, Bridge Allowlist, Identity Constraints
 
 ---
 *Zuletzt aktualisiert: 2026-05-01*

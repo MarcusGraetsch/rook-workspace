@@ -28,9 +28,9 @@ Main delivered outcomes:
 
 Main unresolved decisions:
 
-1. whether reviewed archive promotion should now be mandatory policy
-2. who must approve changes to the reviewer allowlist
-3. whether live delivery should ever be gated later, or remain outside the enforcement scope
+1. ✅ reviewed archive promotion is now mandatory policy
+2. ✅ allowlist changes require explicit `human-marcus` approval via separate commit/PR
+3. ✅ live delivery stays out of scope for gating
 
 ## Arbeitsplan
 

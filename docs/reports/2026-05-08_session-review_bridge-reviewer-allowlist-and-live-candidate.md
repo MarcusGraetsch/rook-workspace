@@ -51,11 +51,12 @@ Not checked:
 ## Open Risks
 
 - reviewer identity is role-constrained but still file-backed, not identity-provider backed
-- the candidate mandatory workflow remains a recommendation until formally adopted
-- allowlist maintenance needs human discipline
+- the mandatory workflow is now formally adopted for archive promotion
+- allowlist maintenance needs human discipline and explicit `human-marcus` approval
+- live delivery remains out of scope for gating
 
 ## Nächste Schritte
 
-1. decide whether reviewed archive promotion should become the first mandatory gated workflow
-2. define who may update the reviewer allowlist
-3. keep live delivery gating out of scope until there is stronger operational confidence
+1. ✅ reviewed archive promotion is now formally mandatory gated workflow
+2. ✅ allowlist changes require explicit `human-marcus` approval via separate commit/PR
+3. ✅ live delivery stays out of scope until there is stronger operational confidence

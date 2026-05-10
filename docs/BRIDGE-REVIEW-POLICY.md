@@ -109,18 +109,35 @@ ROOK_HERMES_BRIDGE_ARCHIVE_DIR=/tmp/rook-hermes-bridge-archive-test \
 
 Current enforcement level:
 
-- `recommended`
-- `optional-gate` for archival readiness
+- `mandatory` for reviewed archive promotion
+- `recommended` for all other bridge payloads
+- `out-of-scope` for live delivery gating
 
 This means:
 
-- operators should review structured payloads before promoting them into durable shared context
-- the runtime is not yet hard-blocking unreviewed payloads globally
-- operators can already use an explicit archival gate that requires approved review metadata
-- operators can archive approved payloads through an explicit copy-based flow without changing live bridge delivery
-- reviewed archives can carry a small JSONL manifest for later audit and indexing
-- duplicate `message_id` archival is blocked by default per archive target
-- reviewer identity can be constrained through a dedicated allowlist file
+- any structured payload promoted into durable shared context MUST carry `review_status=approved`, a valid `reviewed_by` identity, and pass the reviewer allowlist check
+- the archival gate (`gate-rook-hermes-bridge-archive.sh`) now enforces this by default and will reject unreviewed or unapproved payloads
+- live delivery itself remains intentionally ungated; review and archival happen before the delivery boundary, not at runtime
+- operators can still use the review wrapper and validator for optional pre-checks on non-archival payloads
+- if a payload is reviewed but the reviewer identity is not on the allowlist, the gate will reject it
+
+### Allowlist Governance
+
+Changes to `operations/config/rook-hermes-bridge-reviewers.json` are governance changes and require:
+
+1. a separate commit with a clear rationale in the commit message
+2. explicit approval by `human-marcus` (the only current allowlist authority)
+3. no self-approval by the party proposing the change
+
+Process:
+
+- open a change proposal (commit or PR)
+- describe why the reviewer ID is being added or removed
+- wait for explicit ack from `human-marcus`
+- merge only after ack
+- backport to any other environments that share the same allowlist baseline
+
+This keeps reviewer identity human-governed even though the runtime check is now automatic.
 
 ## Future Tightening Path
 

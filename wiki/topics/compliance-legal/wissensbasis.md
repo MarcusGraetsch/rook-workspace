@@ -100,4 +100,5 @@ Monitoring
 
 - → [[security-access]] — BSI C5, NIS2 Security Controls
 - → [[consulting-advisory]] — Compliance-Beratung
+- → [[rook-hermes-bridge]] — Review- und Approval-Prozesse, Allowlist-Governance
 

@@ -42,4 +42,5 @@ Wissensmanagement, LLM Wiki Pattern nach Karpathy.
 
 - → [[ai-ml]] — Knowledge Management + AI
 - → [[productivity-tools]] — Obsidian als KM-Tool
+- → [[rook-hermes-bridge]] — Archive, Manifest, Deduplizierung, Prune Planning
 

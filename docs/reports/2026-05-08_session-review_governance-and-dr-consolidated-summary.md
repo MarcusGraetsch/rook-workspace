@@ -75,6 +75,7 @@ Confidence comes from repeated:
 
 ## Nächste Schritte
 
-1. decide whether reviewed archive promotion is now the first formally mandatory gated workflow
-2. define who approves reviewer allowlist changes
+1. ✅ reviewed archive promotion is now the first formally mandatory gated workflow
+2. ✅ allowlist changes require explicit `human-marcus` approval via separate commit/PR
 3. continue preferring review-first, non-destructive governance changes over fast automation
+4. set up a central TODO list with recurring review process (requested 2026-05-10)
