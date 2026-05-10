@@ -16,7 +16,22 @@ if [[ ! -d node_modules ]]; then
   exit 1
 fi
 
-build_is_complete() {
+# ── Kanban DB startup guard ────────────────────────────────────────────────────
+# Validates or restores the SQLite board state before the dashboard process starts.
+# If the DB is empty or missing, it attempts restore from the latest backup,
+# then falls back to the empty-default DB.  This ensures the board cannot come up
+# blank after a service restart.
+log() {
+  echo "start-dashboard: $*">&2
+}
+DB_GUARD="$(dirname "$0")/dashboard-startup-guard.sh"
+if [[ -x "$DB_GUARD" ]]; then
+  log "running Kanban DB startup guard"
+  bash "$DB_GUARD" || log "DB guard returned non-zero; continuing anyway"
+fi
+
+# ── Build integrity check ─────────────────────────────────────────────────────
+
   local required_files=(
     ".next/BUILD_ID"
     ".next/build-manifest.json"
