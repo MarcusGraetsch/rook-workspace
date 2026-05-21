@@ -32,6 +32,7 @@ fi
 
 # ── Build integrity check ─────────────────────────────────────────────────────
 
+build_is_complete() {
   local required_files=(
     ".next/BUILD_ID"
     ".next/build-manifest.json"
