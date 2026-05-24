@@ -29,7 +29,7 @@
 |---|------|--------|--------|---------|
 | 3 | Bridge/DR Governance-Doku ins Wiki überführen | Session-Review 2026-05-08 | `[x]` | Topic `rook-hermes-bridge` angelegt, Cross-Refs gesetzt |
 | 4 | Health Agent: Coaching Workflow fertigbauen | TODO-2026-04-10 | `[ ]` | CLI existiert, kein strukturierter Workflow |
-| 5 | Kanban startup hardening (DB restore handling) | TODO-2026-04-02 | `[ ]` | Board darf nicht leer starten |
+| 5 | Kanban startup hardening (DB restore handling) | TODO-2026-04-02 | `[x]` | `dashboard-startup-guard.sh` + Startup Guard in `start-dashboard.sh` |
 
 ## 🟢 Offen / Backlog
 

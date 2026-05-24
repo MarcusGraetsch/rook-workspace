@@ -155,16 +155,54 @@ Unattended-Upgrade::Automatic-Reboot "false";
 
 ---
 
-## Phase 1 — Stabilisierung (begonnen)
+## Phase 1 — Stabilisierung
 
-### P1-R1: etcd-Snapshot-Cron für KIND
+### P1-R1: etcd-Snapshot-Cron für KIND ✅ (abgeschlossen, Restore-Test geplant)
 
-**Status:** In Planung
+**Durchgeführt:** 2026-05-08 ~18:20
 
-**Voraussetzungen:**
-- kubectl + kind Zugang prüfen
-- Cron-Script erstellen
-- rclone-Konfiguration prüfen
+**Aktionen:**
+- etcdctl v3.5.15 installiert (`/usr/local/bin/etcdctl-v3`)
+- etcd-Zertifikate vom KIND-Container auf Host kopiert
+- Snapshot-Script erstellt: `operations/bin/backup-etcd-kind.sh`
+- Cron eingerichtet: Täglich 02:00
+- Retention: 14 Tage (lokal + remote)
+- Off-site: rclone → `gdrive:DigitalCapitalismBackups/etcd-kind`
+
+**Verifikation:**
+```
+$ etcdctl snapshot save → 64MB Snapshot
+$ rclone copy → Upload abgeschlossen
+$ crontab -l | grep backup-etcd-kind
+0 2 * * * /root/.openclaw/workspace/operations/bin/backup-etcd-kind.sh
+```
+
+**Restore-Test:** Geplant (separater Cluster-Test nötig)
+
+---
+
+## Offene Phase-1-Tasks
+
+- [ ] P1-R2: Postgres-Dumps für 3 DBs
+- [ ] P1-R3: Cloudflare-Tunnel-Creds + .env* als age-Tar
+- [ ] P1-R4: gitlab-secrets.json + gitlab.rb in Backup
+- [ ] P1-R5: n8n N8N_ENCRYPTION_KEY exportieren
+- [ ] P1-R7: Keycloak 17.0.1-LEGACY → ≥24.x migrieren
+- [ ] P1-R8: Alle :latest-Tags pinnen
+- [ ] P1-R9: ArgoCD-Entscheidung
+- [ ] P1-R10: nginx tote Upstreams entfernen
+- [ ] P1-R11: nginx Security-Header
+- [ ] P1-R14: SECURITY/XXX-Markierungen → GitHub Issues
+- [ ] P1-R15: weekly_backup.log debuggen
+- [ ] P1-R16: Healthchecks.io-Heartbeats
+
+---
+
+## Offene Punkte (Marcus-Entscheidung nötig)
+
+- **S-R5:** Cloudflare Access für admin-Subdomains aktivieren? (E-Mail-OTP)
+- **S-G1:** Comfy-Token rotieren (Entscheidung + Ausführung)
+- **O2:** ArgoCD nutzen oder entfernen?
 
 ---
 

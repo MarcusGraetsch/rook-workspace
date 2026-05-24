@@ -1,0 +1,15 @@
+📊 *Weekly Research Briefing*
+_2026-05-17_
+
+📈 *This Week:*
+- *131* new articles collected
+- *0* research tasks with new material
+- *2* topics underrepresented (see gaps section)
+
+📚 *Top Articles:*
+1. *Golem* (golem.de)
+2. *Wenn KI Gefühle erkennt – das gefährliche Dilemma der nächsten Marketing-Revolution - WELT* (welt.de)
+3. *Künstliche Intelligenz und Cybersecurity: Willkommen in der Apokalypse - Wirtschaft - SZ.de* (sueddeutsche.de)
+
+📄 *Full briefing with all details:*
+GitHub: github.com/MarcusGraetsch/digital-capitalism-research/blob/master/briefings/latest.md

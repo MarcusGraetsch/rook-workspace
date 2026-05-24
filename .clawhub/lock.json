@@ -7,19 +7,27 @@
     },
     "xiucheng-self-improving-agent": {
       "version": "1.0.0",
-      "installedAt": 1773486723127
+      "installedAt": 1778852353537
     },
     "ontology": {
       "version": "1.0.4",
-      "installedAt": 1773486730598
+      "installedAt": 1778928095656
     },
     "proactive-agent-lite": {
       "version": "1.0.0",
-      "installedAt": 1773486784414
+      "installedAt": 1778928107954
     },
     "multi-search-engine": {
       "version": "2.0.1",
       "installedAt": 1773486787414
+    },
+    "blogwatcher": {
+      "version": "1.0.0",
+      "installedAt": 1778835363768
+    },
+    "gog": {
+      "version": "1.0.0",
+      "installedAt": 1778928081933
     }
   }
 }

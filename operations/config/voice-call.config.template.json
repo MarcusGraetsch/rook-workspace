@@ -1,0 +1,36 @@
+{
+  "plugins": {
+    "entries": {
+      "voice-call": {
+        "enabled": true,
+        "config": {
+          "provider": "telnyx",
+          "telnyx": {
+            "apiKey": "YOUR_TELNYX_API_KEY",
+            "connectionId": "YOUR_TELNYX_CONNECTION_ID"
+          },
+          "fromNumber": "+49YOUR_GERMAN_NUMBER",
+          "webhook": {
+            "url": "https://your-domain-or-tailscale/webhook/voice-call",
+            "secret": "YOUR_WEBHOOK_SECRET"
+          },
+          "audio": {
+            "mode": "streaming",
+            "speechToText": {
+              "provider": "deepgram",
+              "model": "nova-2"
+            },
+            "textToSpeech": {
+              "provider": "elevenlabs",
+              "voiceId": "YOUR_VOICE_ID"
+            }
+          },
+          "inbound": {
+            "enabled": true,
+            "allowlist": ["+49YOUR_MOBILE_NUMBER"]
+          }
+        }
+      }
+    }
+  }
+}
