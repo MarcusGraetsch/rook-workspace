@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "enabled": true,
+  "dry_run": false,
+  "channel": "telegram",
+  "target": "user:549758481",
+  "telegram_enabled": false,
+  "telegram_target": "user:549758481",
+  "max_message_length": 1800
+}

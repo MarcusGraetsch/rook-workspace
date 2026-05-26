@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "max_dirty_repos": 6,
+  "max_bridge_inbox_files": 300,
+  "max_bridge_outbox_files": 300,
+  "max_bridge_discussion_files": 300,
+  "max_bridge_response_files": 500,
+  "require_runtime_posture_ok": true,
+  "require_control_plane_ok": true
+}
