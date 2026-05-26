@@ -12,6 +12,9 @@ Default behavior:
 
 Sensitive auth files are included only with:
   --include-sensitive-auth
+
+Environment overrides:
+  HERMES_RUNTIME_GDRIVE_REMOTE (default: gdrive:DigitalCapitalismBackups/hermes-runtime/<host>)
 EOF
 }
 
@@ -31,6 +34,7 @@ SYNC_BRIDGE_ROOT="${HERMES_SYNC_BRIDGE_ROOT:-/root/sync-bridge}"
 BACKUP_ROOT="${HERMES_BACKUP_ROOT:-/root/backups/hermes-runtime}"
 RUN_DIR="$BACKUP_ROOT/$DATE_UTC"
 RETENTION_DAYS="${HERMES_RUNTIME_BACKUP_RETENTION_DAYS:-14}"
+GDRIVE_REMOTE="${HERMES_RUNTIME_GDRIVE_REMOTE:-gdrive:DigitalCapitalismBackups/hermes-runtime/$HOSTNAME_SHORT}"
 BRIDGE_PARENT="$(dirname "$BRIDGE_ROOT")"
 BRIDGE_NAME="$(basename "$BRIDGE_ROOT")"
 SYNC_BRIDGE_PARENT="$(dirname "$SYNC_BRIDGE_ROOT")"
@@ -45,6 +49,7 @@ echo "Timestamp: $DATE_UTC"
 echo "Host: $HOSTNAME_SHORT"
 echo "Include sensitive auth: $INCLUDE_SENSITIVE"
 echo "Output: $RUN_DIR"
+echo "GDrive remote: $GDRIVE_REMOTE"
 echo
 
 tar czf "$RUN_DIR/core/runtime-core.tar.gz" \
@@ -71,6 +76,7 @@ hermes_root=$HERMES_ROOT
 bridge_root=$BRIDGE_ROOT
 sync_bridge_root=$SYNC_BRIDGE_ROOT
 include_sensitive_auth=$INCLUDE_SENSITIVE
+gdrive_remote=$GDRIVE_REMOTE
 EOF
 
 {
@@ -83,7 +89,15 @@ EOF
 } > "$RUN_DIR/manifests/git-state.txt"
 
 du -sh "$RUN_DIR" > "$RUN_DIR/manifests/size.txt" 2>/dev/null || true
-echo "[3/3] Wrote manifests"
+echo "[3/4] Wrote manifests"
+
+echo "[4/4] Syncing to Google Drive..."
+if command -v rclone >/dev/null 2>&1 && rclone listremotes 2>/dev/null | grep -qx 'gdrive:'; then
+  rclone copy "$RUN_DIR" "$GDRIVE_REMOTE/$DATE_UTC" --create-empty-src-dirs
+  echo "    Synced to $GDRIVE_REMOTE/$DATE_UTC"
+else
+  echo "    Google Drive sync skipped: rclone or gdrive remote not available."
+fi
 
 find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -mtime +"$RETENTION_DAYS" -exec rm -rf {} +
 

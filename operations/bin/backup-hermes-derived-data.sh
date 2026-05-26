@@ -10,6 +10,9 @@ Backs up derived Hermes/PKS artifacts only.
 Excluded by design:
   - raw import staging under /root/.openclaw/Schleuse
   - raw corpus drops under professional_corpus/originals and professional_corpus/inbox
+
+Environment overrides:
+  HERMES_DERIVED_GDRIVE_REMOTE (default: gdrive:DigitalCapitalismBackups/hermes-derived/<host>)
 EOF
 }
 
@@ -28,6 +31,7 @@ HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname)"
 BACKUP_ROOT="${HERMES_DERIVED_BACKUP_ROOT:-/root/backups/hermes-derived}"
 RUN_DIR="$BACKUP_ROOT/$DATE_UTC"
 RETENTION_DAYS="${HERMES_DERIVED_BACKUP_RETENTION_DAYS:-21}"
+GDRIVE_REMOTE="${HERMES_DERIVED_GDRIVE_REMOTE:-gdrive:DigitalCapitalismBackups/hermes-derived/$HOSTNAME_SHORT}"
 
 HERMES_DATA_ROOT="${HERMES_DATA_ROOT:-/root/.hermes/data}"
 PKS_ROOT="${PKS_ROOT:-/root/pks}"
@@ -38,6 +42,7 @@ echo "=== Hermes Derived Data Backup ==="
 echo "Timestamp: $DATE_UTC"
 echo "Host: $HOSTNAME_SHORT"
 echo "Output: $RUN_DIR"
+echo "GDrive remote: $GDRIVE_REMOTE"
 echo
 
 if [ ! -d "$HERMES_DATA_ROOT" ]; then
@@ -76,6 +81,7 @@ pks_root=$PKS_ROOT
 excluded=/root/.openclaw/Schleuse
 excluded=professional_corpus/collections/*/originals
 excluded=professional_corpus/collections/*/inbox
+gdrive_remote=$GDRIVE_REMOTE
 EOF
 
 {
@@ -86,7 +92,15 @@ EOF
   ls -lh "$RUN_DIR/hermes-data" "$RUN_DIR/pks-derived" 2>/dev/null || true
 } > "$RUN_DIR/manifests/size.txt"
 
-echo "[3/3] Wrote manifests"
+echo "[3/4] Wrote manifests"
+
+echo "[4/4] Syncing to Google Drive..."
+if command -v rclone >/dev/null 2>&1 && rclone listremotes 2>/dev/null | grep -qx 'gdrive:'; then
+  rclone copy "$RUN_DIR" "$GDRIVE_REMOTE/$DATE_UTC" --create-empty-src-dirs
+  echo "    Synced to $GDRIVE_REMOTE/$DATE_UTC"
+else
+  echo "    Google Drive sync skipped: rclone or gdrive remote not available."
+fi
 
 find "$BACKUP_ROOT" -mindepth 1 -maxdepth 1 -type d -mtime +"$RETENTION_DAYS" -exec rm -rf {} +
 

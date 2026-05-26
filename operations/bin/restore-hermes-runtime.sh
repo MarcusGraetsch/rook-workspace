@@ -5,6 +5,7 @@ usage() {
   cat <<'EOF'
 Usage:
   restore-hermes-runtime.sh --from-local <backup_dir> [--include-sensitive-auth] [--dry-run]
+  restore-hermes-runtime.sh --from-gdrive <host>/<timestamp> [--include-sensitive-auth] [--dry-run]
 
 This restores Hermes runtime data from a snapshot created by:
   operations/bin/backup-hermes-runtime.sh
@@ -26,6 +27,10 @@ MODE="$1"
 SOURCE="$2"
 INCLUDE_SENSITIVE=false
 DRY_RUN=false
+TMP_ROOT="${HERMES_RUNTIME_RESTORE_TMP:-/tmp/hermes-runtime-restore}"
+GDRIVE_BASE="${HERMES_RUNTIME_GDRIVE_BASE:-gdrive:DigitalCapitalismBackups/hermes-runtime}"
+HERMES_ROOT="${HERMES_ROOT:-/root/.hermes}"
+ROOT_HOME="${RESTORE_ROOT_HOME:-/root}"
 
 for arg in "${3:-}" "${4:-}"; do
   if [ "$arg" = "" ]; then
@@ -45,14 +50,38 @@ for arg in "${3:-}" "${4:-}"; do
   esac
 done
 
-if [ "$MODE" != "--from-local" ]; then
-  usage
-  exit 1
-fi
-
-RESTORE_DIR="$SOURCE"
-HERMES_ROOT="${HERMES_ROOT:-/root/.hermes}"
-ROOT_HOME="${RESTORE_ROOT_HOME:-/root}"
+case "$MODE" in
+  --from-local)
+    RESTORE_DIR="$SOURCE"
+    ;;
+  --from-gdrive)
+    if ! command -v rclone >/dev/null 2>&1; then
+      echo "rclone is required for --from-gdrive restores." >&2
+      exit 1
+    fi
+    mkdir -p "$TMP_ROOT"
+    RESTORE_DIR="$TMP_ROOT/$(basename "$SOURCE")"
+    rm -rf "$RESTORE_DIR"
+    mkdir -p "$RESTORE_DIR"
+    if [ "$DRY_RUN" = true ]; then
+      echo "=== Hermes Runtime Restore ==="
+      echo "Source mode: gdrive"
+      echo "Dry run: true"
+      echo "Would copy from $GDRIVE_BASE/$SOURCE to $RESTORE_DIR"
+      echo "Would restore runtime into $HERMES_ROOT and bridge into $ROOT_HOME"
+      if [ "$INCLUDE_SENSITIVE" = true ]; then
+        echo "Would include sensitive auth restore"
+      fi
+      exit 0
+    else
+      rclone copy "$GDRIVE_BASE/$SOURCE" "$RESTORE_DIR" --create-empty-src-dirs
+    fi
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac
 
 if [ ! -d "$RESTORE_DIR" ]; then
   echo "Restore source not found: $RESTORE_DIR" >&2
