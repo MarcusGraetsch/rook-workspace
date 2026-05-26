@@ -47,6 +47,9 @@ MigrateToClaw/
 # Memory runtime state (ephemeral recall events and working memory, not session logs)
 memory/.dreams/
 
+# VM ops runtime noise
+operations/logs/vm-ops-notify-pending.jsonl
+
 # Nested git repositories — local working copies not tracked by this repo
 # (canonical versions registered as submodules under engineering/)
 # idp-customer-onboarding: https://github.com/MarcusGraetsch/idp-customer-onboarding
