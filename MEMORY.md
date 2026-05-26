@@ -67,15 +67,20 @@
 
 ## Lessons Learned
 
-### 2026-05-01 - Wiki Lint Auto-Repair
-- Wiki Bi-Monthly Cron existierte bereits (seit 2026-03-26)
-- Cron triggerte um 11:05 am 1. Mai — Marcus hatte vergessen dass er das aufgesetzt hat
-- **Lektion:** Systematisches Erinnern ist wichtig — MEMORY.md pflegen!
-- Der Cron-Job macht jetzt automatische Reparatur der Kritikpunkte:
-  - Orphan Topics erweitern auf 30+ Zeilen
-  - Cross-References automatisch setzen
-  - Report aktualisieren
-- **Nächste Schritte:** Cron auf sonntags 02:00 verschieben (besserer Zeitpunkt)
+### 2026-05-26 - Cron-Job Crash & Update-Skill Fix
+- **Problem:** Rook hat direkt `npm install -g openclaw@latest` ausgeführt → Session gecrasht
+- **Fix:** Phoenix (Hermes Agent) hat Session-Datei gelöscht, Gateway + Node neu gestartet
+- **Ursache:** CVE-Skill oder manueller Befehl hat direkt npm install ausgeführt, ohne openclaw-update Skill zu nutzen
+- **Lösung:**
+  1. `openclaw-update` Skill verfeinert: Pre-Flight Checks, Graceful Shutdown, Retry-Logik
+  2. Cron-Jobs zeitlich auseinandergezogen:
+     - Daily Research: 7:30 Uhr (vorher 8:30)
+     - Community Intelligence: 10:00 Uhr (Di/Fr)
+     - Wiki Weekly: 10:00 Uhr (Sonntag)
+     - Wiki Bi-Monthly: 10:00 Uhr (1. ungerader Monat)
+  3. Failure Alerts für Cron-Jobs konfiguriert (nach 2 Fehlern, 1h Cooldown)
+- **Regel:** NIE `npm install -g openclaw` direkt ausführen — immer openclaw-update Skill nutzen
+- **Regel:** Mindestens 30 Minuten Abstand zwischen Updates und Cron-Jobs
 
 ### 2026-03-26 - Große Workspace-Reorganisation
 - Monolithischen Workspace in rollenbasierte Struktur umgebaut
