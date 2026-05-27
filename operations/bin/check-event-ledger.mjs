@@ -8,6 +8,7 @@ import { processQueue } from './process-events.mjs';
 import { emitTaskEvent } from './emit-task-event.mjs';
 import { getEventLedgerStatus } from './summarize-events.mjs';
 import { ackEvent } from './ack-event.mjs';
+import { dispatchQueue } from './dispatch-events.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -180,6 +181,32 @@ async function checkReceiptWriter() {
   }
 }
 
+async function checkDispatcher() {
+  const ledger = await makeLedger();
+  try {
+    await cp(path.join(FIXTURES_DIR, 'valid-event.json'), path.join(ledger, 'outbox', 'valid-event.json'));
+    const summary = await dispatchQueue({
+      queue: 'outbox',
+      dryRun: false,
+      limit: Infinity,
+      eventsDir: ledger,
+    });
+
+    assert(summary.ok === true, 'dispatcher should return ok for valid outbox event');
+    assert(summary.processing.archived === 1, 'dispatcher should archive one event');
+    assert(summary.delivered === 1, 'dispatcher should write one delivered receipt');
+    assert(summary.deliveries[0].target_system === 'hermes', 'dispatcher should deliver to fixture target system');
+
+    const status = await getEventLedgerStatus({ eventsDir: ledger, receiptLimit: 5 });
+    assert(status.totals.pending === 0, 'dispatcher should drain pending outbox event');
+    assert(status.totals.archived === 1, 'dispatcher should leave one archived event');
+    assert(status.totals.receipts === 1, 'dispatcher should leave one receipt');
+    assert(status.recent_receipts[0].state === 'delivered', 'dispatcher receipt should be delivered state');
+  } finally {
+    await rm(ledger, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const schema = await readJson(DEFAULT_SCHEMA, 'schema');
   await validateFixtures(schema);
@@ -188,6 +215,7 @@ async function main() {
   await checkTaskEventProducer(schema);
   await checkEventSummary();
   await checkReceiptWriter();
+  await checkDispatcher();
   console.log(JSON.stringify({
     ok: true,
     checked: [
@@ -199,6 +227,7 @@ async function main() {
       'task event producer outbox write',
       'event ledger status summary',
       'event receipt writer',
+      'event dispatcher delivered receipt',
     ],
   }, null, 2));
 }

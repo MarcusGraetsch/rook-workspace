@@ -73,6 +73,13 @@ node operations/bin/ack-event.mjs \
   --state acked
 ```
 
+Dispatch a queue by archiving valid events and writing delivered receipts:
+
+```bash
+node operations/bin/dispatch-events.mjs --queue outbox --dry-run
+node operations/bin/dispatch-events.mjs --queue outbox
+```
+
 Emit a task-state event into the outbox:
 
 ```bash
