@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rook-sandbox-PLACEHOLDER
+  namespace: platform-dev
+  labels:
+    app.kubernetes.io/name: rook-sandbox
+    app.kubernetes.io/part-of: sovereign-agent-system
+    rook.openclaw.dev/runtime: sandbox
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  enableServiceLinks: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: runner
+      image: node:22-alpine
+      imagePullPolicy: IfNotPresent
+      command: ["sh", "-c", "sleep 3600"]
+      workingDir: /workspace
+      env:
+        - name: NO_PROXY
+          value: "127.0.0.1,localhost,.svc,.cluster.local"
+        - name: HTTP_PROXY
+          value: ""
+        - name: HTTPS_PROXY
+          value: ""
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "64Mi"
+        limits:
+          cpu: "500m"
+          memory: "256Mi"
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: workspace
+          mountPath: /workspace
+        - name: tmp
+          mountPath: /tmp
+  volumes:
+    - name: workspace
+      emptyDir:
+        medium: Memory
+        sizeLimit: 64Mi
+    - name: tmp
+      emptyDir:
+        medium: Memory
+        sizeLimit: 32Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: rook-sandbox-PLACEHOLDER-deny-egress
+  namespace: platform-dev
+  labels:
+    app.kubernetes.io/name: rook-sandbox
+    app.kubernetes.io/part-of: sovereign-agent-system
+spec:
+  podSelector:
+    matchLabels:
+      rook.openclaw.dev/runtime: sandbox
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress: []
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

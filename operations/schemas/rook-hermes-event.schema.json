@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook-workspace.local/schemas/rook-hermes-event.schema.json",
+  "title": "RookHermesEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "schema_version",
+    "source_system",
+    "target_system",
+    "event_type",
+    "correlation_id",
+    "idempotency_key",
+    "classification",
+    "created_at",
+    "ttl_hours",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "minLength": 8,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "rook-hermes-event.v1"
+    },
+    "source_system": {
+      "type": "string",
+      "enum": ["rook", "hermes", "openclaw", "dashboard", "n8n", "gitlab"]
+    },
+    "target_system": {
+      "type": "string",
+      "enum": ["rook", "hermes", "openclaw", "dashboard", "n8n", "gitlab"]
+    },
+    "event_type": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["bridge-safe", "ops-internal", "private-redacted"]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ttl_hours": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 720
+    },
+    "payload": {
+      "type": "object"
+    },
+    "acks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["system", "acknowledged_at"],
+        "properties": {
+          "system": {
+            "type": "string",
+            "enum": ["rook", "hermes", "openclaw", "dashboard", "n8n", "gitlab"]
+          },
+          "acknowledged_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "attempts"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": ["pending", "delivered", "acked", "failed", "dead-lettered"]
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "next_attempt_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_error": {
+          "type": ["string", "null"]
+        }
+      }
+    }
+  }
+}
