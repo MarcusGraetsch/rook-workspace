@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_SCHEMA, readJson, validateEvent, ValidationError } from './validate-event.mjs';
 import { processQueue } from './process-events.mjs';
+import { emitTaskEvent } from './emit-task-event.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -100,11 +101,36 @@ async function checkDuplicateIdempotency() {
   }
 }
 
+async function checkTaskEventProducer(schema) {
+  const ledger = await makeLedger();
+  try {
+    const result = await emitTaskEvent({
+      taskId: 'ops-0049',
+      statusBefore: 'review',
+      statusAfter: 'done',
+      target: 'hermes',
+      eventType: 'task_state.changed',
+      classification: 'bridge-safe',
+      ttlHours: 168,
+      summary: 'Synthetic producer regression check.',
+      dryRun: false,
+      eventsDir: ledger,
+    });
+    validateEvent(schema, result.event);
+    const written = await readJsonFile(result.target);
+    assert(written.event_id === result.event.event_id, 'producer should write event to outbox');
+    assert(written.payload.summary === 'Synthetic producer regression check.', 'producer should preserve summary');
+  } finally {
+    await rm(ledger, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const schema = await readJson(DEFAULT_SCHEMA, 'schema');
   await validateFixtures(schema);
   await checkArchiveAndDeadLetter();
   await checkDuplicateIdempotency();
+  await checkTaskEventProducer(schema);
   console.log(JSON.stringify({
     ok: true,
     checked: [
@@ -113,6 +139,7 @@ async function main() {
       'archive movement',
       'dead-letter movement',
       'duplicate idempotency rejection',
+      'task event producer outbox write',
     ],
   }, null, 2));
 }

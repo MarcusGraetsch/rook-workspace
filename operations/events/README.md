@@ -55,3 +55,22 @@ Run fixture-based regression checks:
 ```bash
 node operations/bin/check-event-ledger.mjs
 ```
+
+Emit a task-state event into the outbox:
+
+```bash
+node operations/bin/emit-task-event.mjs \
+  --task-id ops-0049 \
+  --status-before in_progress \
+  --status-after review
+```
+
+Preview without writing:
+
+```bash
+node operations/bin/emit-task-event.mjs \
+  --task-id ops-0049 \
+  --status-before review \
+  --status-after done \
+  --dry-run
+```

@@ -42,6 +42,7 @@ operations/
 10. Host-level runtime requirements that affect OpenClaw reliability should be tracked here as auditable operations artifacts, for example sysctl files under `operations/sysctl/`.
 11. Cross-system coordination events must use JSON under `operations/events/` and validate with `node operations/bin/validate-event.mjs`.
 12. Event ledger changes should be covered by `node operations/bin/check-event-ledger.mjs`.
+13. Task status events should be emitted with `node operations/bin/emit-task-event.mjs` so payloads stay schema-valid and bridge-safe.
 
 ## Host Runtime Policy
 
