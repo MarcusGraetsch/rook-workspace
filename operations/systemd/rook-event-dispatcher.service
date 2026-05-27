@@ -1,0 +1,11 @@
+[Unit]
+Description=Rook event ledger dispatcher
+After=rook-dispatcher.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/.openclaw/workspace
+Environment=ROOK_EVENTS_DIR=/root/.openclaw/workspace/operations/events
+TimeoutStartSec=120
+KillMode=control-group
+ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/dispatch-events.mjs --queue outbox --limit 10

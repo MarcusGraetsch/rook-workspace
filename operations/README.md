@@ -43,6 +43,7 @@ operations/
 11. Cross-system coordination events must use JSON under `operations/events/` and validate with `node operations/bin/validate-event.mjs`.
 12. Event ledger changes should be covered by `node operations/bin/check-event-ledger.mjs`.
 13. Task status events should be emitted with `node operations/bin/emit-task-event.mjs` so payloads stay schema-valid and bridge-safe.
+14. Event outbox delivery should use `node operations/bin/dispatch-events.mjs`; supervised operation is documented in `operations/docs/runbooks/event-dispatcher.md`.
 
 ## Host Runtime Policy
 

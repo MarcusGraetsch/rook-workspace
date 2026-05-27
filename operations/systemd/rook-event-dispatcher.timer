@@ -1,0 +1,11 @@
+[Unit]
+Description=Dispatch Rook event ledger outbox every 5 minutes
+Requires=rook-event-dispatcher.service
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+Unit=rook-event-dispatcher.service
+
+[Install]
+WantedBy=timers.target
