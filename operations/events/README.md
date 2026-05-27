@@ -56,6 +56,12 @@ Run fixture-based regression checks:
 node operations/bin/check-event-ledger.mjs
 ```
 
+Summarize queue status:
+
+```bash
+node operations/bin/summarize-events.mjs
+```
+
 Emit a task-state event into the outbox:
 
 ```bash

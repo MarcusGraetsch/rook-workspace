@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { DEFAULT_SCHEMA, readJson, validateEvent, ValidationError } from './validate-event.mjs';
 import { processQueue } from './process-events.mjs';
 import { emitTaskEvent } from './emit-task-event.mjs';
+import { getEventLedgerStatus } from './summarize-events.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -125,12 +126,28 @@ async function checkTaskEventProducer(schema) {
   }
 }
 
+async function checkEventSummary() {
+  const ledger = await makeLedger();
+  try {
+    await cp(path.join(FIXTURES_DIR, 'valid-event.json'), path.join(ledger, 'inbox', 'valid-event.json'));
+    await cp(path.join(FIXTURES_DIR, 'duplicate-event.json'), path.join(ledger, 'outbox', 'duplicate-event.json'));
+    const status = await getEventLedgerStatus({ eventsDir: ledger, deadLetterLimit: 5 });
+    assert(status.ok === true, 'event summary should be ok');
+    assert(status.queues.inbox.file_count === 1, 'event summary should count inbox files');
+    assert(status.queues.outbox.file_count === 1, 'event summary should count outbox files');
+    assert(status.totals.pending === 2, 'event summary should count pending files');
+  } finally {
+    await rm(ledger, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const schema = await readJson(DEFAULT_SCHEMA, 'schema');
   await validateFixtures(schema);
   await checkArchiveAndDeadLetter();
   await checkDuplicateIdempotency();
   await checkTaskEventProducer(schema);
+  await checkEventSummary();
   console.log(JSON.stringify({
     ok: true,
     checked: [
@@ -140,6 +157,7 @@ async function main() {
       'dead-letter movement',
       'duplicate idempotency rejection',
       'task event producer outbox write',
+      'event ledger status summary',
     ],
   }, null, 2));
 }
