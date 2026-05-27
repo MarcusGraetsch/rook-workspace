@@ -7,6 +7,7 @@ import { DEFAULT_SCHEMA, readJson, validateEvent, ValidationError } from './vali
 import { processQueue } from './process-events.mjs';
 import { emitTaskEvent } from './emit-task-event.mjs';
 import { getEventLedgerStatus } from './summarize-events.mjs';
+import { ackEvent } from './ack-event.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +26,7 @@ async function makeLedger() {
     mkdir(path.join(root, 'outbox'), { recursive: true }),
     mkdir(path.join(root, 'archive'), { recursive: true }),
     mkdir(path.join(root, 'dead-letter'), { recursive: true }),
+    mkdir(path.join(root, 'receipts'), { recursive: true }),
   ]);
   return root;
 }
@@ -141,6 +143,43 @@ async function checkEventSummary() {
   }
 }
 
+async function checkReceiptWriter() {
+  const ledger = await makeLedger();
+  try {
+    const eventFile = path.join(ledger, 'archive', 'valid-event.json');
+    await cp(path.join(FIXTURES_DIR, 'valid-event.json'), eventFile);
+    const result = await ackEvent({
+      eventFile,
+      system: 'hermes',
+      state: 'acked',
+      notes: 'Synthetic receipt regression check.',
+      dryRun: false,
+      eventsDir: ledger,
+    });
+    assert(result.ok === true, 'receipt writer should return ok');
+    assert(result.duplicate === false, 'first receipt write should not be duplicate');
+    const written = await readJsonFile(result.target);
+    assert(written.event_id === 'evt_20260527_fixture_valid_0001', 'receipt should reference fixture event');
+    assert(written.acknowledged_by === 'hermes', 'receipt should record acknowledging system');
+
+    const duplicate = await ackEvent({
+      eventFile,
+      system: 'hermes',
+      state: 'acked',
+      notes: 'Synthetic receipt regression check.',
+      dryRun: false,
+      eventsDir: ledger,
+    });
+    assert(duplicate.duplicate === true, 'second identical receipt should be idempotent');
+
+    const status = await getEventLedgerStatus({ eventsDir: ledger, receiptLimit: 5 });
+    assert(status.totals.receipts === 1, 'event summary should count receipts');
+    assert(status.recent_receipts[0].event_id === 'evt_20260527_fixture_valid_0001', 'event summary should include recent receipt');
+  } finally {
+    await rm(ledger, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const schema = await readJson(DEFAULT_SCHEMA, 'schema');
   await validateFixtures(schema);
@@ -148,6 +187,7 @@ async function main() {
   await checkDuplicateIdempotency();
   await checkTaskEventProducer(schema);
   await checkEventSummary();
+  await checkReceiptWriter();
   console.log(JSON.stringify({
     ok: true,
     checked: [
@@ -158,6 +198,7 @@ async function main() {
       'duplicate idempotency rejection',
       'task event producer outbox write',
       'event ledger status summary',
+      'event receipt writer',
     ],
   }, null, 2));
 }

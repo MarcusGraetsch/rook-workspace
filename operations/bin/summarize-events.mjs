@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OPERATIONS_DIR = path.resolve(__dirname, '..');
 const EVENTS_DIR = process.env.ROOK_EVENTS_DIR || path.join(OPERATIONS_DIR, 'events');
-const QUEUES = ['inbox', 'outbox', 'archive', 'dead-letter'];
+const QUEUES = ['inbox', 'outbox', 'archive', 'dead-letter', 'receipts'];
 
 async function walkJsonFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
@@ -68,9 +68,27 @@ async function recentDeadLetters(eventsDir, limit) {
   }));
 }
 
+async function recentReceipts(eventsDir, limit) {
+  const files = await walkJsonFiles(path.join(eventsDir, 'receipts'));
+  const recent = files.sort((a, b) => b.mtime_ms - a.mtime_ms).slice(0, limit);
+  return Promise.all(recent.map(async (file) => {
+    const payload = await readJsonIfPossible(file.path);
+    return {
+      path: file.path,
+      receipt_id: payload?.receipt_id || null,
+      event_id: payload?.event_id || null,
+      acknowledged_by: payload?.acknowledged_by || null,
+      state: payload?.state || null,
+      acknowledged_at: payload?.acknowledged_at || null,
+      mtime: new Date(file.mtime_ms).toISOString(),
+    };
+  }));
+}
+
 export async function getEventLedgerStatus(options = {}) {
   const eventsDir = options.eventsDir || EVENTS_DIR;
   const deadLetterLimit = Number.isInteger(options.deadLetterLimit) ? options.deadLetterLimit : 10;
+  const receiptLimit = Number.isInteger(options.receiptLimit) ? options.receiptLimit : 10;
   const queues = await Promise.all(QUEUES.map((queue) => summarizeQueue(eventsDir, queue)));
   const queueMap = Object.fromEntries(queues.map((queue) => [queue.queue, queue]));
 
@@ -83,8 +101,10 @@ export async function getEventLedgerStatus(options = {}) {
       pending: (queueMap.inbox?.file_count || 0) + (queueMap.outbox?.file_count || 0),
       archived: queueMap.archive?.file_count || 0,
       dead_lettered: queueMap['dead-letter']?.file_count || 0,
+      receipts: queueMap.receipts?.file_count || 0,
     },
     recent_dead_letters: await recentDeadLetters(eventsDir, deadLetterLimit),
+    recent_receipts: await recentReceipts(eventsDir, receiptLimit),
   };
 }
 

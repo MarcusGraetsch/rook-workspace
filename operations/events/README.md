@@ -15,6 +15,7 @@ events/
 ├── archive/
 ├── inbox/
 ├── outbox/
+├── receipts/
 └── dead-letter/
 ```
 
@@ -27,6 +28,7 @@ events/
 5. Event consumers must treat `idempotency_key` as the deduplication key.
 6. Failed events move to `dead-letter/` with failure metadata; they are never silently deleted.
 7. Processed valid events move to `archive/YYYY/MM/` and remain replayable.
+8. Delivery and consumption acknowledgements are written as immutable receipt files under `receipts/YYYY/MM/`; original events are not modified after emission.
 
 ## Processing
 
@@ -60,6 +62,15 @@ Summarize queue status:
 
 ```bash
 node operations/bin/summarize-events.mjs
+```
+
+Write an acknowledgement receipt for an archived or queued event:
+
+```bash
+node operations/bin/ack-event.mjs \
+  --event-id evt_20260527_fixture_valid_0001 \
+  --system hermes \
+  --state acked
 ```
 
 Emit a task-state event into the outbox:
