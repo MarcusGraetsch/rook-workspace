@@ -1,0 +1,22 @@
+{
+  "event_id": "evt_20260527_fixture_valid_0001",
+  "schema_version": "rook-hermes-event.v1",
+  "source_system": "rook",
+  "target_system": "hermes",
+  "event_type": "task_state.changed",
+  "task_id": "ops-0049",
+  "correlation_id": "corr_ops-0049_fixture",
+  "idempotency_key": "task_state.changed:ops-0049:fixture-valid",
+  "classification": "bridge-safe",
+  "created_at": "2026-05-27T09:30:00Z",
+  "ttl_hours": 168,
+  "payload": {
+    "summary": "Synthetic fixture event for event ledger checks."
+  },
+  "acks": [],
+  "delivery": {
+    "state": "pending",
+    "attempts": 0,
+    "next_attempt_at": "2026-05-27T09:30:00Z"
+  }
+}

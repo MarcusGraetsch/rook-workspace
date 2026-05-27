@@ -49,3 +49,9 @@ node operations/bin/process-events.mjs --queue inbox
 ```
 
 For isolated tests, set `ROOK_EVENTS_DIR` to a temporary directory with `inbox/`, `outbox/`, `archive/`, and `dead-letter/` children.
+
+Run fixture-based regression checks:
+
+```bash
+node operations/bin/check-event-ledger.mjs
+```

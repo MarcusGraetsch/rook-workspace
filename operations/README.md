@@ -18,10 +18,13 @@ operations/
 ├── archive/
 ├── bin/
 ├── config/
+├── events/
 ├── health/
 ├── projects/
 ├── schemas/
 ├── sysctl/
+├── templates/
+├── tests/
 └── tasks/
 ```
 
@@ -37,6 +40,8 @@ operations/
 8. Dashboard uptime and dispatcher runs must be supervised outside chat.
 9. Hook-dispatched tasks should record `dispatch` metadata so worker session identity survives restart and postmortem analysis.
 10. Host-level runtime requirements that affect OpenClaw reliability should be tracked here as auditable operations artifacts, for example sysctl files under `operations/sysctl/`.
+11. Cross-system coordination events must use JSON under `operations/events/` and validate with `node operations/bin/validate-event.mjs`.
+12. Event ledger changes should be covered by `node operations/bin/check-event-ledger.mjs`.
 
 ## Host Runtime Policy
 
