@@ -5,9 +5,13 @@ import path from 'path';
 
 const OPENCLAW_DIR = '/root/.openclaw';
 const CANONICAL_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace', 'operations', 'tasks');
+const ARCHIVE_TASKS_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'tasks');
 
 async function collectJsonFiles(dirPath) {
-  const entries = await fs.readdir(dirPath, { withFileTypes: true });
+  const entries = await fs.readdir(dirPath, { withFileTypes: true }).catch((error) => {
+    if (error?.code === 'ENOENT') return [];
+    throw error;
+  });
   const files = [];
 
   for (const entry of entries) {
@@ -30,76 +34,111 @@ async function readJson(filePath) {
 }
 
 async function main() {
-  const files = await collectJsonFiles(CANONICAL_TASKS_DIR);
+  const roots = [
+    { scope: 'active', dir: CANONICAL_TASKS_DIR },
+    { scope: 'archive', dir: ARCHIVE_TASKS_DIR },
+  ];
+  const filesByRoot = await Promise.all(
+    roots.map(async (root) => ({
+      ...root,
+      files: await collectJsonFiles(root.dir),
+    })),
+  );
   const duplicates = new Map();
   const mismatches = [];
 
-  for (const filePath of files) {
-    const relativePath = path.relative(CANONICAL_TASKS_DIR, filePath);
-    const expectedProjectId = path.dirname(relativePath);
-    const expectedTaskId = path.basename(relativePath, '.json');
+  for (const root of filesByRoot) {
+    for (const filePath of root.files) {
+      const relativePath = path.relative(root.dir, filePath);
+      const expectedProjectId = path.dirname(relativePath);
+      const expectedTaskId = path.basename(relativePath, '.json');
 
-    let parsed;
-    try {
-      parsed = await readJson(filePath);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      mismatches.push({
-        file: filePath,
-        problem: `json_parse_error: ${message}`,
-      });
-      continue;
+      let parsed;
+      try {
+        parsed = await readJson(filePath);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        mismatches.push({
+          scope: root.scope,
+          file: filePath,
+          problem: `json_parse_error: ${message}`,
+        });
+        continue;
+      }
+
+      if (!parsed?.task_id) {
+        mismatches.push({
+          scope: root.scope,
+          file: filePath,
+          problem: 'missing_task_id',
+        });
+        continue;
+      }
+
+      if (!parsed?.project_id) {
+        mismatches.push({
+          scope: root.scope,
+          file: filePath,
+          problem: 'missing_project_id',
+        });
+      }
+
+      if (parsed.task_id !== expectedTaskId) {
+        mismatches.push({
+          scope: root.scope,
+          file: filePath,
+          problem: `task_id_filename_mismatch: expected ${expectedTaskId}, got ${parsed.task_id}`,
+        });
+      }
+
+      if (parsed.project_id !== expectedProjectId) {
+        mismatches.push({
+          scope: root.scope,
+          file: filePath,
+          problem: `project_id_path_mismatch: expected ${expectedProjectId}, got ${parsed.project_id}`,
+        });
+      }
+
+      const existing = duplicates.get(parsed.task_id) || [];
+      existing.push({ scope: root.scope, file: filePath });
+      duplicates.set(parsed.task_id, existing);
     }
-
-    if (!parsed?.task_id) {
-      mismatches.push({
-        file: filePath,
-        problem: 'missing_task_id',
-      });
-      continue;
-    }
-
-    if (!parsed?.project_id) {
-      mismatches.push({
-        file: filePath,
-        problem: 'missing_project_id',
-      });
-    }
-
-    if (parsed.task_id !== expectedTaskId) {
-      mismatches.push({
-        file: filePath,
-        problem: `task_id_filename_mismatch: expected ${expectedTaskId}, got ${parsed.task_id}`,
-      });
-    }
-
-    if (parsed.project_id !== expectedProjectId) {
-      mismatches.push({
-        file: filePath,
-        problem: `project_id_path_mismatch: expected ${expectedProjectId}, got ${parsed.project_id}`,
-      });
-    }
-
-    const existing = duplicates.get(parsed.task_id) || [];
-    existing.push(filePath);
-    duplicates.set(parsed.task_id, existing);
   }
 
   const duplicateEntries = [...duplicates.entries()]
-    .filter(([, paths]) => paths.length > 1)
+    .filter(([, entries]) => entries.length > 1)
     .sort(([left], [right]) => left.localeCompare(right))
-    .map(([taskId, paths]) => ({
+    .map(([taskId, entries]) => ({
       task_id: taskId,
-      files: paths.sort(),
+      files: entries
+        .sort((left, right) => left.file.localeCompare(right.file))
+        .map((entry) => ({
+          scope: entry.scope,
+          file: entry.file,
+        })),
     }));
+  const blockingDuplicates = duplicateEntries.filter((entry) => {
+    const activeCount = entry.files.filter((file) => file.scope === 'active').length;
+    return activeCount > 1;
+  });
+  const activeMismatches = mismatches.filter((entry) => entry.scope === 'active');
 
   const summary = {
     checked_at: new Date().toISOString(),
     canonical_tasks_dir: CANONICAL_TASKS_DIR,
-    ok: duplicateEntries.length === 0 && mismatches.length === 0,
-    duplicates: duplicateEntries,
-    mismatches: mismatches.sort((left, right) => left.file.localeCompare(right.file)),
-    task_file_count: files.length,
+    archive_tasks_dir: ARCHIVE_TASKS_DIR,
+    ok: blockingDuplicates.length === 0 && activeMismatches.length === 0,
+    duplicates: blockingDuplicates,
+    mismatches: activeMismatches.sort((left, right) => left.file.localeCompare(right.file)),
+    warnings: {
+      active_archive_duplicate_task_ids: duplicateEntries.filter((entry) => entry.files.some((file) => file.scope === 'archive')),
+      archive_mismatches: mismatches
+        .filter((entry) => entry.scope === 'archive')
+        .sort((left, right) => left.file.localeCompare(right.file)),
+    },
+    task_file_count: filesByRoot.reduce((count, root) => count + root.files.length, 0),
+    active_task_file_count: filesByRoot.find((root) => root.scope === 'active')?.files.length || 0,
+    archived_task_file_count: filesByRoot.find((root) => root.scope === 'archive')?.files.length || 0,
   };
 
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
