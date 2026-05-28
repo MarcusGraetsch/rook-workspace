@@ -15,6 +15,7 @@ function usage() {
     'Usage: emit-task-event.mjs --task-id <id> --status-before <status> --status-after <status> [options]',
     '',
     'Options:',
+    '  --source <system>          Source system, default: rook',
     '  --target <system>          Target system, default: hermes',
     '  --event-type <type>        Event type, default: task_state.changed',
     '  --classification <class>   bridge-safe|ops-internal|private-redacted, default: bridge-safe',
@@ -29,6 +30,7 @@ function parseArgs(argv) {
     taskId: null,
     statusBefore: null,
     statusAfter: null,
+    source: 'rook',
     target: 'hermes',
     eventType: 'task_state.changed',
     classification: 'bridge-safe',
@@ -45,6 +47,8 @@ function parseArgs(argv) {
       options.statusBefore = argv[++index];
     } else if (arg === '--status-after') {
       options.statusAfter = argv[++index];
+    } else if (arg === '--source') {
+      options.source = argv[++index];
     } else if (arg === '--target') {
       options.target = argv[++index];
     } else if (arg === '--event-type') {
@@ -129,7 +133,7 @@ function buildEvent({ task, taskPath, options, now }) {
   return {
     event_id: `evt_${compactTime}_${safeName(task.task_id)}_${safeName(options.statusAfter)}`,
     schema_version: 'rook-hermes-event.v1',
-    source_system: 'rook',
+    source_system: options.source || 'rook',
     target_system: options.target,
     event_type: options.eventType,
     task_id: task.task_id,
