@@ -8,6 +8,8 @@ const CANONICAL_TASKS_DIR = process.env.ROOK_CANONICAL_TASKS_DIR
   || path.join(OPENCLAW_DIR, 'workspace', 'operations', 'tasks');
 const ARCHIVE_TASKS_DIR = process.env.ROOK_ARCHIVE_TASKS_DIR
   || path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'tasks');
+const WORKSPACE_ARCHIVE_TASKS_DIR = process.env.ROOK_WORKSPACE_ARCHIVE_TASKS_DIR
+  || path.join(OPENCLAW_DIR, 'workspace', 'operations', 'archive', 'tasks');
 const QUARANTINE_ROOT = process.env.ROOK_ARCHIVE_TASK_QUARANTINE_DIR
   || path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'task-collisions');
 
@@ -90,6 +92,7 @@ async function loadRecords() {
   const roots = [
     { scope: 'active', dir: CANONICAL_TASKS_DIR },
     { scope: 'archive', dir: ARCHIVE_TASKS_DIR },
+    { scope: 'workspace_archive', dir: WORKSPACE_ARCHIVE_TASKS_DIR },
   ];
   const records = [];
   const parse_errors = [];
@@ -141,7 +144,7 @@ function buildPlan(records, parseErrors) {
 
   for (const [taskId, entries] of [...byTaskId.entries()].sort(([left], [right]) => left.localeCompare(right))) {
     const activeEntries = entries.filter((entry) => entry.scope === 'active');
-    const archiveEntries = entries.filter((entry) => entry.scope === 'archive');
+    const archiveEntries = entries.filter((entry) => entry.scope !== 'active');
 
     if (activeEntries.length > 0 && archiveEntries.length > 0) {
       for (const archive of archiveEntries) {
@@ -177,7 +180,7 @@ function buildPlan(records, parseErrors) {
     }
   }
 
-  for (const record of records.filter((entry) => entry.scope === 'archive')) {
+  for (const record of records.filter((entry) => entry.scope !== 'active')) {
     if (record.task_id && record.expected_task_id && record.task_id !== record.expected_task_id) {
       actions.push({
         action: 'review_archive_filename_mismatch',
@@ -227,13 +230,14 @@ async function main() {
     ok: true,
     canonical_tasks_dir: CANONICAL_TASKS_DIR,
     archive_tasks_dir: ARCHIVE_TASKS_DIR,
+    workspace_archive_tasks_dir: WORKSPACE_ARCHIVE_TASKS_DIR,
     quarantine_root: QUARANTINE_ROOT,
     filters: {
       task_id: options.taskId,
       project_id: options.projectId,
     },
     active_task_file_count: filteredRecords.filter((record) => record.scope === 'active').length,
-    archived_task_file_count: filteredRecords.filter((record) => record.scope === 'archive').length,
+    archived_task_file_count: filteredRecords.filter((record) => record.scope !== 'active').length,
     action_count: actions.length,
     actions,
   };

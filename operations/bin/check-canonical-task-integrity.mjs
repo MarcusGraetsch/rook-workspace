@@ -6,6 +6,7 @@ import path from 'path';
 const OPENCLAW_DIR = '/root/.openclaw';
 const CANONICAL_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace', 'operations', 'tasks');
 const ARCHIVE_TASKS_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'tasks');
+const WORKSPACE_ARCHIVE_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace', 'operations', 'archive', 'tasks');
 
 async function collectJsonFiles(dirPath) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true }).catch((error) => {
@@ -37,6 +38,7 @@ async function main() {
   const roots = [
     { scope: 'active', dir: CANONICAL_TASKS_DIR },
     { scope: 'archive', dir: ARCHIVE_TASKS_DIR },
+    { scope: 'workspace_archive', dir: WORKSPACE_ARCHIVE_TASKS_DIR },
   ];
   const filesByRoot = await Promise.all(
     roots.map(async (root) => ({
@@ -127,18 +129,21 @@ async function main() {
     checked_at: new Date().toISOString(),
     canonical_tasks_dir: CANONICAL_TASKS_DIR,
     archive_tasks_dir: ARCHIVE_TASKS_DIR,
+    workspace_archive_tasks_dir: WORKSPACE_ARCHIVE_TASKS_DIR,
     ok: blockingDuplicates.length === 0 && activeMismatches.length === 0,
     duplicates: blockingDuplicates,
     mismatches: activeMismatches.sort((left, right) => left.file.localeCompare(right.file)),
     warnings: {
-      active_archive_duplicate_task_ids: duplicateEntries.filter((entry) => entry.files.some((file) => file.scope === 'archive')),
+      active_archive_duplicate_task_ids: duplicateEntries.filter((entry) => entry.files.some((file) => file.scope !== 'active')),
       archive_mismatches: mismatches
-        .filter((entry) => entry.scope === 'archive')
+        .filter((entry) => entry.scope !== 'active')
         .sort((left, right) => left.file.localeCompare(right.file)),
     },
     task_file_count: filesByRoot.reduce((count, root) => count + root.files.length, 0),
     active_task_file_count: filesByRoot.find((root) => root.scope === 'active')?.files.length || 0,
-    archived_task_file_count: filesByRoot.find((root) => root.scope === 'archive')?.files.length || 0,
+    archived_task_file_count: filesByRoot
+      .filter((root) => root.scope !== 'active')
+      .reduce((count, root) => count + root.files.length, 0),
   };
 
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
