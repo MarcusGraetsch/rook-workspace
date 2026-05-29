@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 import { processQueue } from './process-events.mjs';
@@ -9,6 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OPERATIONS_DIR = path.resolve(__dirname, '..');
 const EVENTS_DIR = process.env.ROOK_EVENTS_DIR || path.join(OPERATIONS_DIR, 'events');
+const RUNTIME_DIR = process.env.ROOK_EVENT_DISPATCHER_RUNTIME_DIR || '/root/.openclaw/runtime/operations/events/dispatcher';
 
 function usage() {
   console.error([
@@ -60,7 +61,52 @@ async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, 'utf8'));
 }
 
+function compactTimestamp(value) {
+  return value.replace(/[-:.]/g, '').replace('T', '_').replace('Z', 'Z');
+}
+
+async function writeRunMetadata({ summary, startedAt, finishedAt, runStateDir }) {
+  const startedMs = Date.parse(startedAt);
+  const finishedMs = Date.parse(finishedAt);
+  const runId = `dispatch_${compactTimestamp(startedAt)}`;
+  const deliveryStates = summary.deliveries.reduce((counts, delivery) => {
+    counts[delivery.state] = (counts[delivery.state] || 0) + 1;
+    return counts;
+  }, {});
+  const failures = summary.deliveries.filter((delivery) => (
+    delivery.state === 'delivery-failed'
+    || delivery.state === 'not-delivered'
+    || typeof delivery.reason === 'string'
+  ));
+  const record = {
+    run_id: runId,
+    started_at: startedAt,
+    finished_at: finishedAt,
+    duration_ms: Number.isFinite(startedMs) && Number.isFinite(finishedMs) ? Math.max(0, finishedMs - startedMs) : null,
+    queue: summary.queue,
+    dry_run: summary.dry_run,
+    ok: summary.ok,
+    checked: summary.processing.checked,
+    archived: summary.processing.archived,
+    dead_lettered: summary.processing.dead_lettered,
+    delivered: summary.delivered,
+    delivery_failures: summary.delivery_failures,
+    delivery_states: deliveryStates,
+    last_error: failures[0]?.reason || null,
+    failures: failures.slice(0, 10),
+  };
+
+  const targetDir = runStateDir || RUNTIME_DIR;
+  const latestPath = path.join(targetDir, 'latest.json');
+  const historyPath = path.join(targetDir, `${startedAt.slice(0, 7)}.jsonl`);
+  await mkdir(targetDir, { recursive: true, mode: 0o700 });
+  await writeFile(latestPath, `${JSON.stringify(record, null, 2)}\n`, { mode: 0o600 });
+  await appendFile(historyPath, `${JSON.stringify(record)}\n`, { mode: 0o600 });
+  return { latest_path: latestPath, history_path: historyPath, record };
+}
+
 export async function dispatchQueue(options) {
+  const startedAt = new Date().toISOString();
   const eventsDir = options.eventsDir || EVENTS_DIR;
   const processing = await processQueue({
     queue: options.queue || 'outbox',
@@ -116,7 +162,7 @@ export async function dispatchQueue(options) {
   }
 
   const deliveryFailures = deliveries.filter((delivery) => delivery.state === 'delivery-failed').length;
-  return {
+  const summary = {
     ok: processing.dead_lettered === 0 && deliveryFailures === 0,
     dry_run: options.dryRun || false,
     queue: options.queue || 'outbox',
@@ -125,6 +171,30 @@ export async function dispatchQueue(options) {
     delivery_failures: deliveryFailures,
     deliveries,
   };
+
+  const finishedAt = new Date().toISOString();
+  try {
+    const metadata = await writeRunMetadata({
+      summary,
+      startedAt,
+      finishedAt,
+      runStateDir: options.runStateDir,
+    });
+    return {
+      ...summary,
+      run_metadata: {
+        latest_path: metadata.latest_path,
+        history_path: metadata.history_path,
+        run_id: metadata.record.run_id,
+      },
+    };
+  } catch (error) {
+    return {
+      ...summary,
+      ok: false,
+      run_metadata_error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 async function main() {

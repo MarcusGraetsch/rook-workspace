@@ -7,6 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const OPERATIONS_DIR = path.resolve(__dirname, '..');
 const EVENTS_DIR = process.env.ROOK_EVENTS_DIR || path.join(OPERATIONS_DIR, 'events');
+const DISPATCHER_RUNTIME_DIR = process.env.ROOK_EVENT_DISPATCHER_RUNTIME_DIR || '/root/.openclaw/runtime/operations/events/dispatcher';
 const QUEUES = ['inbox', 'outbox', 'archive', 'dead-letter', 'receipts'];
 const PENDING_QUEUES = ['inbox', 'outbox'];
 const EXPIRING_SOON_MS = 24 * 60 * 60 * 1000;
@@ -87,6 +88,19 @@ async function recentReceipts(eventsDir, limit) {
   }));
 }
 
+async function latestDispatcherRun(runStateDir) {
+  const latestPath = path.join(runStateDir, 'latest.json');
+  const payload = await readJsonIfPossible(latestPath);
+  if (!payload) {
+    return null;
+  }
+
+  return {
+    ...payload,
+    path: latestPath,
+  };
+}
+
 function eventTiming(payload, file, nowMs) {
   const createdMs = Date.parse(payload?.created_at || '');
   const ttlHours = payload?.ttl_hours;
@@ -147,6 +161,7 @@ async function pendingDiagnostics(eventsDir) {
 
 export async function getEventLedgerStatus(options = {}) {
   const eventsDir = options.eventsDir || EVENTS_DIR;
+  const runStateDir = options.runStateDir || DISPATCHER_RUNTIME_DIR;
   const deadLetterLimit = Number.isInteger(options.deadLetterLimit) ? options.deadLetterLimit : 10;
   const receiptLimit = Number.isInteger(options.receiptLimit) ? options.receiptLimit : 10;
   const queues = await Promise.all(QUEUES.map((queue) => summarizeQueue(eventsDir, queue)));
@@ -164,6 +179,10 @@ export async function getEventLedgerStatus(options = {}) {
       receipts: queueMap.receipts?.file_count || 0,
     },
     pending: await pendingDiagnostics(eventsDir),
+    dispatcher: {
+      runtime_dir: runStateDir,
+      latest_run: await latestDispatcherRun(runStateDir),
+    },
     recent_dead_letters: await recentDeadLetters(eventsDir, deadLetterLimit),
     recent_receipts: await recentReceipts(eventsDir, receiptLimit),
   };

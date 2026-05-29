@@ -235,24 +235,29 @@ async function checkReceiptWriter() {
 async function checkDispatcher() {
   const ledger = await makeLedger();
   try {
+    const runStateDir = path.join(ledger, 'runtime', 'dispatcher');
     await writeFreshFixture('valid-event.json', path.join(ledger, 'outbox', 'valid-event.json'));
     const summary = await dispatchQueue({
       queue: 'outbox',
       dryRun: false,
       limit: Infinity,
       eventsDir: ledger,
+      runStateDir,
     });
 
     assert(summary.ok === true, 'dispatcher should return ok for valid outbox event');
     assert(summary.processing.archived === 1, 'dispatcher should archive one event');
     assert(summary.delivered === 1, 'dispatcher should write one delivered receipt');
     assert(summary.deliveries[0].target_system === 'hermes', 'dispatcher should deliver to fixture target system');
+    assert(summary.run_metadata?.run_id, 'dispatcher should report run metadata id');
 
-    const status = await getEventLedgerStatus({ eventsDir: ledger, receiptLimit: 5 });
+    const status = await getEventLedgerStatus({ eventsDir: ledger, receiptLimit: 5, runStateDir });
     assert(status.totals.pending === 0, 'dispatcher should drain pending outbox event');
     assert(status.totals.archived === 1, 'dispatcher should leave one archived event');
     assert(status.totals.receipts === 1, 'dispatcher should leave one receipt');
     assert(status.recent_receipts[0].state === 'delivered', 'dispatcher receipt should be delivered state');
+    assert(status.dispatcher.latest_run?.delivered === 1, 'event summary should expose latest dispatcher delivery count');
+    assert(status.dispatcher.latest_run?.ok === true, 'event summary should expose latest dispatcher status');
   } finally {
     await rm(ledger, { recursive: true, force: true });
   }
@@ -283,6 +288,7 @@ async function main() {
       'pending expiry status summary',
       'event receipt writer',
       'event dispatcher delivered receipt',
+      'event dispatcher run metadata',
     ],
   }, null, 2));
 }
