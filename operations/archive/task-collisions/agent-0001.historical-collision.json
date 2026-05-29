@@ -1,0 +1,31 @@
+{
+  "manifest_version": 1,
+  "collision_type": "historical_task_id_collision",
+  "status": "accepted",
+  "reviewed_at": "2026-05-29T12:40:00+02:00",
+  "reviewed_by": "codex",
+  "task_id": "agent-0001",
+  "reason": "The active task and Git-backed archived task share task_id=agent-0001 but describe different historical work. Preserve both records as evidence and do not quarantine the workspace archive automatically.",
+  "active_task": {
+    "relative_path": "tasks/rook-agent/agent-0001.json",
+    "project_id": "rook-agent",
+    "title": "[task:ops-0001] Replace prompt heartbeats with structured health snapshots",
+    "related_repo": "MarcusGraetsch/rook-agent",
+    "branch": "agent/rook/agent-0001-health-snapshots",
+    "sha256": "34056fabdb1f959d9bd9c4c29720258ae18fb1b169aff82d10b0f548456dcb4d"
+  },
+  "archived_task": {
+    "relative_path": "archive/tasks/rook-agent/agent-0001.json",
+    "project_id": "rook-agent",
+    "title": "Implement in our Ecology Dashboard http://localhost:3001/ecology I se...",
+    "related_repo": "MarcusGraetsch/rook-dashboard",
+    "branch": "agent/engineer/agent-0001-implement-in-our-ecology-dashboard-http-localhos",
+    "sha256": "169df68e216c3f93d2501690f5a3249bb5639c8bbf9519ad570308215301e859"
+  },
+  "operator_policy": {
+    "preserve_active_task": true,
+    "preserve_archived_task": true,
+    "suppress_cleanup_action_when_hashes_match": true,
+    "migration_required_before_move": true
+  }
+}

@@ -72,6 +72,8 @@ node operations/bin/plan-archive-task-cleanup.mjs --allow-reviewed --apply
 
 Apply mode only moves reviewed runtime archive duplicates into `/root/.openclaw/runtime/operations/archive/task-collisions/`. It refuses Git-backed workspace archive records unless a separate migration note exists, checks for a fresh local runtime backup under `/root/backups/rook-runtime/`, and writes a `.manifest.json` file next to every moved archive record.
 
+Accepted historical task-id collisions are documented under `operations/archive/task-collisions/`. These manifests must include the active task path, archived task path, and SHA-256 for both records. `check-canonical-task-integrity.mjs` and `plan-archive-task-cleanup.mjs` only suppress the warning/action while the manifest still matches the current file hashes.
+
 ## Host Runtime Policy
 
 - `operations/sysctl/99-openclaw-inotify.conf` raises inotify capacity for the VPS workload. The gateway, dashboard, Kubernetes tooling, and file-watching automation share the same host, so the distro default `fs.inotify.max_user_instances=128` is too low.

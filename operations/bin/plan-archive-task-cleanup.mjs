@@ -11,6 +11,10 @@ const ARCHIVE_TASKS_DIR = process.env.ROOK_ARCHIVE_TASKS_DIR
   || path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'tasks');
 const WORKSPACE_ARCHIVE_TASKS_DIR = process.env.ROOK_WORKSPACE_ARCHIVE_TASKS_DIR
   || path.join(OPENCLAW_DIR, 'workspace', 'operations', 'archive', 'tasks');
+const WORKSPACE_OPERATIONS_DIR = process.env.ROOK_WORKSPACE_OPERATIONS_DIR
+  || path.join(OPENCLAW_DIR, 'workspace', 'operations');
+const HISTORICAL_COLLISION_MANIFESTS_DIR = process.env.ROOK_HISTORICAL_COLLISION_MANIFESTS_DIR
+  || path.join(WORKSPACE_OPERATIONS_DIR, 'archive', 'task-collisions');
 const QUARANTINE_ROOT = process.env.ROOK_ARCHIVE_TASK_QUARANTINE_DIR
   || path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'task-collisions');
 const BACKUP_ROOT = process.env.ROOK_RUNTIME_BACKUP_ROOT || '/root/backups/rook-runtime';
@@ -200,6 +204,78 @@ async function readTaskFile(filePath, scope, rootDir) {
   };
 }
 
+async function readJsonFile(filePath) {
+  return JSON.parse(await fs.readFile(filePath, 'utf8'));
+}
+
+function approvedCollisionKey(taskId, archivedFile, activeFile) {
+  return `${taskId}\0${path.resolve(archivedFile)}\0${path.resolve(activeFile)}`;
+}
+
+async function loadApprovedHistoricalCollisions() {
+  const files = await collectJsonFiles(HISTORICAL_COLLISION_MANIFESTS_DIR);
+  const approved = new Set();
+  const manifests = [];
+  const manifest_errors = [];
+
+  for (const file of files) {
+    try {
+      const manifest = await readJsonFile(file);
+      const activeRelativePath = manifest?.active_task?.relative_path;
+      const archivedRelativePath = manifest?.archived_task?.relative_path;
+      const activeFile = activeRelativePath ? path.join(WORKSPACE_OPERATIONS_DIR, activeRelativePath) : null;
+      const archivedFile = archivedRelativePath ? path.join(WORKSPACE_OPERATIONS_DIR, archivedRelativePath) : null;
+      const expectedActiveSha = manifest?.active_task?.sha256;
+      const expectedArchivedSha = manifest?.archived_task?.sha256;
+      const issues = [];
+
+      if (manifest?.manifest_version !== 1) issues.push('manifest_version must be 1');
+      if (manifest?.collision_type !== 'historical_task_id_collision') issues.push('collision_type must be historical_task_id_collision');
+      if (manifest?.status !== 'accepted') issues.push('status must be accepted');
+      if (!manifest?.task_id) issues.push('task_id is required');
+      if (!activeFile) issues.push('active_task.relative_path is required');
+      if (!archivedFile) issues.push('archived_task.relative_path is required');
+      if (!expectedActiveSha) issues.push('active_task.sha256 is required');
+      if (!expectedArchivedSha) issues.push('archived_task.sha256 is required');
+
+      if (activeFile && !isInside(activeFile, WORKSPACE_OPERATIONS_DIR)) {
+        issues.push('active_task.relative_path must stay inside workspace operations');
+      }
+      if (archivedFile && !isInside(archivedFile, WORKSPACE_OPERATIONS_DIR)) {
+        issues.push('archived_task.relative_path must stay inside workspace operations');
+      }
+
+      if (issues.length === 0) {
+        const [activeSha, archivedSha] = await Promise.all([
+          sha256File(activeFile),
+          sha256File(archivedFile),
+        ]);
+        if (activeSha !== expectedActiveSha) issues.push('active_task.sha256 does not match current file');
+        if (archivedSha !== expectedArchivedSha) issues.push('archived_task.sha256 does not match current file');
+      }
+
+      if (issues.length === 0) {
+        approved.add(approvedCollisionKey(manifest.task_id, archivedFile, activeFile));
+      }
+
+      manifests.push({
+        file,
+        task_id: manifest?.task_id || null,
+        status: manifest?.status || null,
+        ok: issues.length === 0,
+        issues,
+      });
+    } catch (error) {
+      manifest_errors.push({
+        file,
+        problem: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  return { approved, manifests, manifest_errors };
+}
+
 async function loadRecords() {
   const roots = [
     { scope: 'active', dir: CANONICAL_TASKS_DIR },
@@ -243,7 +319,14 @@ function filterRecords(records, options) {
   });
 }
 
-function buildPlan(records, parseErrors) {
+function hasApprovedHistoricalCollision(approvedHistoricalCollisions, taskId, archiveEntry, activeEntries) {
+  if (archiveEntry.scope !== 'workspace_archive') return false;
+  return activeEntries.some((activeEntry) => (
+    approvedHistoricalCollisions.has(approvedCollisionKey(taskId, archiveEntry.file, activeEntry.file))
+  ));
+}
+
+function buildPlan(records, parseErrors, approvedHistoricalCollisions, manifestErrors) {
   const byTaskId = new Map();
   for (const record of records) {
     if (!record.task_id) continue;
@@ -260,6 +343,9 @@ function buildPlan(records, parseErrors) {
 
     if (activeEntries.length > 0 && archiveEntries.length > 0) {
       for (const archive of archiveEntries) {
+        if (hasApprovedHistoricalCollision(approvedHistoricalCollisions, taskId, archive, activeEntries)) {
+          continue;
+        }
         actions.push({
           action: 'quarantine_archive_duplicate',
           task_id: taskId,
@@ -317,6 +403,18 @@ function buildPlan(records, parseErrors) {
       risk: error.scope === 'active' ? 'high' : 'medium',
       problem: error.problem,
       operator_note: 'Fix parse errors before attempting archive cleanup.',
+    });
+  }
+
+  for (const error of manifestErrors) {
+    actions.push({
+      action: 'review_invalid_historical_collision_manifest',
+      reason: 'historical collision manifest could not be parsed',
+      dry_run: true,
+      source_file: error.file,
+      risk: 'medium',
+      problem: error.problem,
+      operator_note: 'Fix manifest parse errors before relying on historical collision suppression.',
     });
   }
 
@@ -447,12 +545,18 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   assertApplyOptions(options);
   const { records, parse_errors } = await loadRecords();
+  const historicalCollisions = await loadApprovedHistoricalCollisions();
   const filteredRecords = filterRecords(records, options);
   const filteredParseErrors = parse_errors.filter((error) => {
     if (options.projectId && !error.file.includes(`/${options.projectId}/`)) return false;
     return true;
   });
-  const actions = buildPlan(filteredRecords, filteredParseErrors);
+  const actions = buildPlan(
+    filteredRecords,
+    filteredParseErrors,
+    historicalCollisions.approved,
+    historicalCollisions.manifest_errors
+  );
   const applyResult = options.apply ? await applyActions(actions, options) : null;
   const summary = {
     checked_at: new Date().toISOString(),
@@ -461,6 +565,7 @@ async function main() {
     canonical_tasks_dir: CANONICAL_TASKS_DIR,
     archive_tasks_dir: ARCHIVE_TASKS_DIR,
     workspace_archive_tasks_dir: WORKSPACE_ARCHIVE_TASKS_DIR,
+    historical_collision_manifests_dir: HISTORICAL_COLLISION_MANIFESTS_DIR,
     quarantine_root: QUARANTINE_ROOT,
     runtime_backup_root: BACKUP_ROOT,
     runtime_backup_max_age_hours: BACKUP_MAX_AGE_HOURS,
@@ -471,6 +576,9 @@ async function main() {
     },
     active_task_file_count: filteredRecords.filter((record) => record.scope === 'active').length,
     archived_task_file_count: filteredRecords.filter((record) => record.scope !== 'active').length,
+    approved_historical_collision_count: historicalCollisions.manifests.filter((manifest) => manifest.ok).length,
+    historical_collision_manifest_errors: historicalCollisions.manifest_errors,
+    historical_collision_manifests: historicalCollisions.manifests,
     action_count: applyResult ? applyResult.results.length : actions.length,
     applied_count: applyResult?.applied_count || 0,
     skipped_count: applyResult?.skipped_count || 0,
