@@ -15,6 +15,7 @@ const MODEL_MODE_POLICY_PATH = path.join(WORKSPACE_DIR, 'operations', 'config', 
 const MODEL_MODE_STATE_PATH = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'model-mode-state.json');
 const MODEL_CONFIG_DRIFT_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-model-config-drift.mjs');
 const INOTIFY_CAPACITY_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-inotify-capacity.mjs');
+const EVENT_LEDGER_SUMMARY_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'summarize-events.mjs');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
 const TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'tasks');
@@ -516,6 +517,7 @@ async function main() {
   const findings = [];
   const modelConfigDrift = await runJsonScript(MODEL_CONFIG_DRIFT_SCRIPT);
   const inotifyCapacity = await runJsonScript(INOTIFY_CAPACITY_SCRIPT);
+  const eventLedger = await runJsonScript(EVENT_LEDGER_SUMMARY_SCRIPT);
 
   const recordCheck = (id, label, ok, warningCount = 0, errorCount = 0) => {
     checks.push({ id, label, ok, warning_count: warningCount, error_count: errorCount });
@@ -772,6 +774,77 @@ async function main() {
     });
   }
 
+  if (eventLedger?.pending?.expired_count > 0) {
+    findings.push({
+      source: 'event_ledger',
+      severity: 'error',
+      type: 'event_ledger_expired_pending',
+      details: `expired_pending=${eventLedger.pending.expired_count}`,
+      expired_count: eventLedger.pending.expired_count,
+      oldest_pending_age_hours: eventLedger.pending.oldest_pending_age_hours ?? null,
+      oldest_pending_file: eventLedger.pending.oldest_pending_file ?? null,
+      expired: Array.isArray(eventLedger.pending.expired) ? eventLedger.pending.expired : [],
+      remediation: {
+        summary: 'Expired events are still queued and will not be delivered safely.',
+        operator_action: 'Run the event dispatcher or inspect the listed queue files; expired events should move to dead-letter with failure metadata.',
+        command: 'node operations/bin/dispatch-events.mjs --queue outbox --limit 10',
+        automation_level: 'guided',
+      },
+    });
+  }
+
+  if (eventLedger?.pending?.invalid_timing_count > 0) {
+    findings.push({
+      source: 'event_ledger',
+      severity: 'error',
+      type: 'event_ledger_invalid_pending_timing',
+      details: `invalid_timing=${eventLedger.pending.invalid_timing_count}`,
+      invalid_timing_count: eventLedger.pending.invalid_timing_count,
+      remediation: {
+        summary: 'Queued events are missing valid timing metadata.',
+        operator_action: 'Validate queued event JSON and repair or dead-letter malformed records.',
+        command: 'node operations/bin/process-events.mjs --queue inbox --dry-run',
+        automation_level: 'dry-run',
+      },
+    });
+  }
+
+  if (eventLedger?.pending?.expiring_soon_count > 0) {
+    findings.push({
+      source: 'event_ledger',
+      severity: 'warning',
+      type: 'event_ledger_pending_expiring_soon',
+      details: `expiring_soon=${eventLedger.pending.expiring_soon_count}; next_expiry_at=${eventLedger.pending.next_expiry_at || 'unknown'}`,
+      expiring_soon_count: eventLedger.pending.expiring_soon_count,
+      next_expiry_at: eventLedger.pending.next_expiry_at ?? null,
+      next_expiry_file: eventLedger.pending.next_expiry_file ?? null,
+      expiring_soon: Array.isArray(eventLedger.pending.expiring_soon) ? eventLedger.pending.expiring_soon : [],
+      remediation: {
+        summary: 'Queued events are close to TTL expiry.',
+        operator_action: 'Check dispatcher health and drain the queue before events expire.',
+        command: 'node operations/bin/dispatch-events.mjs --queue outbox --limit 10',
+        automation_level: 'guided',
+      },
+    });
+  }
+
+  if (eventLedger?.totals?.dead_lettered > 0) {
+    findings.push({
+      source: 'event_ledger',
+      severity: 'warning',
+      type: 'event_ledger_dead_letters_present',
+      details: `dead_lettered=${eventLedger.totals.dead_lettered}`,
+      dead_lettered: eventLedger.totals.dead_lettered,
+      recent_dead_letters: Array.isArray(eventLedger.recent_dead_letters) ? eventLedger.recent_dead_letters : [],
+      remediation: {
+        summary: 'Dead-lettered events require operator review before trusting bridge delivery.',
+        operator_action: 'Inspect recent dead letters and fix the emitting or dispatching path.',
+        command: 'node operations/bin/summarize-events.mjs',
+        automation_level: 'manual',
+      },
+    });
+  }
+
   const dispatcherUnitText = await readText(path.join(USER_SYSTEMD_DIR, 'rook-dispatcher.service'));
   const dispatcherHookModel = getEnvAssignment(dispatcherUnitText, 'ROOK_HOOK_MODEL');
   if (
@@ -1020,6 +1093,13 @@ async function main() {
     !findings.some((finding) => finding.source === 'inotify_capacity' && finding.severity === 'error'),
     findings.filter((finding) => finding.source === 'inotify_capacity' && finding.severity === 'warning').length,
     findings.filter((finding) => finding.source === 'inotify_capacity' && finding.severity === 'error').length
+  );
+  recordCheck(
+    'event_ledger',
+    'Event ledger',
+    !findings.some((finding) => finding.source === 'event_ledger' && finding.severity === 'error'),
+    findings.filter((finding) => finding.source === 'event_ledger' && finding.severity === 'warning').length,
+    findings.filter((finding) => finding.source === 'event_ledger' && finding.severity === 'error').length
   );
   recordCheck(
     'user_systemd_drift',
