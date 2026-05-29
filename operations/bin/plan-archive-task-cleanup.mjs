@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { promises as fs } from 'fs';
+import crypto from 'crypto';
 import path from 'path';
 
 const OPENCLAW_DIR = process.env.OPENCLAW_DIR || '/root/.openclaw';
@@ -12,18 +13,37 @@ const WORKSPACE_ARCHIVE_TASKS_DIR = process.env.ROOK_WORKSPACE_ARCHIVE_TASKS_DIR
   || path.join(OPENCLAW_DIR, 'workspace', 'operations', 'archive', 'tasks');
 const QUARANTINE_ROOT = process.env.ROOK_ARCHIVE_TASK_QUARANTINE_DIR
   || path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'task-collisions');
+const BACKUP_ROOT = process.env.ROOK_RUNTIME_BACKUP_ROOT || '/root/backups/rook-runtime';
+const BACKUP_MAX_AGE_HOURS = Number(process.env.ROOK_RUNTIME_BACKUP_MAX_AGE_HOURS || '24');
+const REVIEWED_RUNTIME_DUPLICATES = new Set([
+  'dashboard-0043',
+  'ops-0013',
+  'ops-0018',
+  'ops-0019',
+  'ops-0028',
+  'ops-0036',
+]);
+const REQUIRED_BACKUP_FILES = [
+  'operations/tasks.tar.gz',
+  'operations/runtime-state.tar.gz',
+  'manifests/backup-manifest.txt',
+  'manifests/git-heads.txt',
+  'manifests/git-status.txt',
+];
 
 function usage() {
   console.error([
-    'Usage: plan-archive-task-cleanup.mjs [--task-id <id>] [--project <project-id>]',
+    'Usage: plan-archive-task-cleanup.mjs [--task-id <id>] [--project <project-id>] [--apply] [--allow-reviewed]',
     '',
-    'Prints a read-only maintenance plan for historical task archive collisions.',
-    'No files are modified.',
+    'Prints a maintenance plan for historical task archive collisions.',
+    'Default mode is read-only. Apply mode is limited to reviewed runtime archive duplicates.',
   ].join('\n'));
 }
 
 function parseArgs(argv) {
   const options = {
+    apply: false,
+    allowReviewed: false,
     taskId: null,
     projectId: null,
   };
@@ -34,6 +54,10 @@ function parseArgs(argv) {
       options.taskId = argv[++index];
     } else if (arg === '--project') {
       options.projectId = argv[++index];
+    } else if (arg === '--apply') {
+      options.apply = true;
+    } else if (arg === '--allow-reviewed') {
+      options.allowReviewed = true;
     } else if (arg === '--help' || arg === '-h') {
       usage();
       process.exit(0);
@@ -44,6 +68,38 @@ function parseArgs(argv) {
   }
 
   return options;
+}
+
+function assertApplyOptions(options) {
+  if (!options.apply) return;
+  if (!options.taskId && !options.allowReviewed) {
+    throw new Error('Refusing --apply without --task-id or --allow-reviewed.');
+  }
+}
+
+async function pathExists(targetPath) {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isInside(childPath, parentPath) {
+  const relativePath = path.relative(parentPath, childPath);
+  return relativePath && !relativePath.startsWith('..') && !path.isAbsolute(relativePath);
+}
+
+async function sha256File(filePath) {
+  const hash = crypto.createHash('sha256');
+  hash.update(await fs.readFile(filePath));
+  return hash.digest('hex');
+}
+
+async function writeJson(filePath, data) {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 }
 
 async function collectJsonFiles(dirPath) {
@@ -65,6 +121,62 @@ async function collectJsonFiles(dirPath) {
   }
 
   return files;
+}
+
+async function listBackupDirs(rootDir) {
+  try {
+    const entries = await fs.readdir(rootDir, { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => path.join(rootDir, entry.name))
+      .sort();
+  } catch {
+    return [];
+  }
+}
+
+async function statFile(targetPath) {
+  try {
+    return await fs.stat(targetPath);
+  } catch {
+    return null;
+  }
+}
+
+async function checkFreshRuntimeBackup() {
+  const backupDirs = await listBackupDirs(BACKUP_ROOT);
+  const latestBackup = backupDirs.at(-1) || null;
+  const issues = [];
+
+  if (!latestBackup) {
+    issues.push(`no backup directories found under ${BACKUP_ROOT}`);
+  } else {
+    const backupStat = await statFile(latestBackup);
+    const ageMs = backupStat ? Date.now() - backupStat.mtimeMs : Number.POSITIVE_INFINITY;
+    const maxAgeMs = BACKUP_MAX_AGE_HOURS * 60 * 60 * 1000;
+
+    if (!backupStat || !backupStat.isDirectory()) {
+      issues.push(`${latestBackup} is not a readable directory`);
+    } else if (ageMs > maxAgeMs) {
+      issues.push(`${latestBackup} is older than ${BACKUP_MAX_AGE_HOURS} hours`);
+    }
+
+    for (const relativeFile of REQUIRED_BACKUP_FILES) {
+      const targetPath = path.join(latestBackup, relativeFile);
+      const fileStat = await statFile(targetPath);
+      if (!fileStat?.isFile() || fileStat.size === 0) {
+        issues.push(`${targetPath} missing or empty`);
+      }
+    }
+  }
+
+  return {
+    ok: issues.length === 0,
+    backup_root: BACKUP_ROOT,
+    latest_backup: latestBackup,
+    max_age_hours: BACKUP_MAX_AGE_HOURS,
+    issues,
+  };
 }
 
 async function readTaskFile(filePath, scope, rootDir) {
@@ -215,8 +327,125 @@ function buildPlan(records, parseErrors) {
   });
 }
 
+function canApplyAction(action, options) {
+  if (action.action !== 'quarantine_archive_duplicate') {
+    return {
+      ok: false,
+      reason: `unsupported apply action ${action.action}`,
+    };
+  }
+  if (!isInside(action.source_file, ARCHIVE_TASKS_DIR)) {
+    return {
+      ok: false,
+      reason: 'refusing non-runtime archive source; workspace archive records require a migration note',
+    };
+  }
+  if (options.allowReviewed && !REVIEWED_RUNTIME_DUPLICATES.has(action.task_id)) {
+    return {
+      ok: false,
+      reason: `${action.task_id} is not in the reviewed runtime duplicate allowlist`,
+    };
+  }
+  return { ok: true, reason: null };
+}
+
+async function applyActions(actions, options) {
+  const backup = await checkFreshRuntimeBackup();
+  const results = [];
+
+  if (!backup.ok) {
+    return {
+      applied_count: 0,
+      skipped_count: actions.length,
+      backup,
+      results: actions.map((action) => ({
+        ...action,
+        applied: false,
+        refusal: 'fresh runtime backup preflight failed',
+      })),
+    };
+  }
+
+  for (const action of actions) {
+    const allowed = canApplyAction(action, options);
+    if (!allowed.ok) {
+      results.push({
+        ...action,
+        applied: false,
+        refusal: allowed.reason,
+      });
+      continue;
+    }
+
+    if (!await pathExists(action.source_file)) {
+      results.push({
+        ...action,
+        applied: false,
+        refusal: 'source file no longer exists',
+      });
+      continue;
+    }
+
+    const targetFile = action.proposed_target_file;
+    if (await pathExists(targetFile)) {
+      results.push({
+        ...action,
+        applied: false,
+        refusal: 'target file already exists',
+      });
+      continue;
+    }
+
+    const manifestFile = `${targetFile}.manifest.json`;
+    if (await pathExists(manifestFile)) {
+      results.push({
+        ...action,
+        applied: false,
+        refusal: 'target manifest already exists',
+      });
+      continue;
+    }
+
+    const sha256 = await sha256File(action.source_file);
+    await fs.mkdir(path.dirname(targetFile), { recursive: true });
+    await fs.rename(action.source_file, targetFile);
+
+    const manifest = {
+      manifest_version: 1,
+      action: action.action,
+      task_id: action.task_id,
+      project_id: action.project_id,
+      original_path: action.source_file,
+      target_path: targetFile,
+      source_sha256: sha256,
+      reason: action.reason,
+      reviewed_at: '2026-05-29T12:13:00+02:00',
+      moved_at: new Date().toISOString(),
+      backup_preflight: backup,
+    };
+    await writeJson(manifestFile, manifest);
+
+    results.push({
+      ...action,
+      dry_run: false,
+      applied: true,
+      target_file: targetFile,
+      manifest_file: manifestFile,
+      source_sha256: sha256,
+    });
+  }
+
+  return {
+    applied_count: results.filter((result) => result.applied).length,
+    skipped_count: results.filter((result) => !result.applied).length,
+    backup,
+    results,
+  };
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  assertApplyOptions(options);
   const { records, parse_errors } = await loadRecords();
   const filteredRecords = filterRecords(records, options);
   const filteredParseErrors = parse_errors.filter((error) => {
@@ -224,22 +453,29 @@ async function main() {
     return true;
   });
   const actions = buildPlan(filteredRecords, filteredParseErrors);
+  const applyResult = options.apply ? await applyActions(actions, options) : null;
   const summary = {
     checked_at: new Date().toISOString(),
-    mode: 'dry-run',
-    ok: true,
+    mode: options.apply ? 'apply' : 'dry-run',
+    ok: !applyResult || applyResult.skipped_count === 0,
     canonical_tasks_dir: CANONICAL_TASKS_DIR,
     archive_tasks_dir: ARCHIVE_TASKS_DIR,
     workspace_archive_tasks_dir: WORKSPACE_ARCHIVE_TASKS_DIR,
     quarantine_root: QUARANTINE_ROOT,
+    runtime_backup_root: BACKUP_ROOT,
+    runtime_backup_max_age_hours: BACKUP_MAX_AGE_HOURS,
     filters: {
       task_id: options.taskId,
       project_id: options.projectId,
+      allow_reviewed: options.allowReviewed,
     },
     active_task_file_count: filteredRecords.filter((record) => record.scope === 'active').length,
     archived_task_file_count: filteredRecords.filter((record) => record.scope !== 'active').length,
-    action_count: actions.length,
-    actions,
+    action_count: applyResult ? applyResult.results.length : actions.length,
+    applied_count: applyResult?.applied_count || 0,
+    skipped_count: applyResult?.skipped_count || 0,
+    backup_preflight: applyResult?.backup || null,
+    actions: applyResult ? applyResult.results : actions,
   };
 
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
