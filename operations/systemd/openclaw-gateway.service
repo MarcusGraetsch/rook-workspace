@@ -25,7 +25,7 @@ Environment=OPENCLAW_SYSTEMD_UNIT=openclaw-gateway.service
 Environment="OPENCLAW_WINDOWS_TASK_NAME=OpenClaw Gateway"
 Environment=OPENCLAW_SERVICE_MARKER=openclaw
 Environment=OPENCLAW_SERVICE_KIND=gateway
-Environment=OPENCLAW_SERVICE_VERSION=2026.4.15
+Environment=OPENCLAW_SERVICE_VERSION=2026.4.27
 
 [Install]
 WantedBy=default.target
