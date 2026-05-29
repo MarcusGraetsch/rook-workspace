@@ -105,6 +105,27 @@ async function checkDuplicateIdempotency() {
   }
 }
 
+async function checkExpiredTtlDeadLetter() {
+  const ledger = await makeLedger();
+  try {
+    await cp(path.join(FIXTURES_DIR, 'expired-event.json'), path.join(ledger, 'inbox', 'expired-event.json'));
+
+    const summary = await processQueue({
+      queue: 'inbox',
+      dryRun: false,
+      limit: Infinity,
+      eventsDir: ledger,
+    });
+    assert(summary.ok === false, 'expired event processing should not be ok');
+    assert(summary.checked === 1, 'expired check should process one queued event');
+    assert(summary.archived === 0, 'expired event should not be archived');
+    assert(summary.dead_lettered === 1, 'expired event should be dead-lettered');
+    assert(summary.results[0].reason.includes('event TTL expired'), 'expired reason should mention TTL');
+  } finally {
+    await rm(ledger, { recursive: true, force: true });
+  }
+}
+
 async function checkTaskEventProducer(schema) {
   const ledger = await makeLedger();
   try {
@@ -212,6 +233,7 @@ async function main() {
   await validateFixtures(schema);
   await checkArchiveAndDeadLetter();
   await checkDuplicateIdempotency();
+  await checkExpiredTtlDeadLetter();
   await checkTaskEventProducer(schema);
   await checkEventSummary();
   await checkReceiptWriter();
@@ -224,6 +246,7 @@ async function main() {
       'archive movement',
       'dead-letter movement',
       'duplicate idempotency rejection',
+      'expired TTL dead-letter path',
       'task event producer outbox write',
       'event ledger status summary',
       'event receipt writer',

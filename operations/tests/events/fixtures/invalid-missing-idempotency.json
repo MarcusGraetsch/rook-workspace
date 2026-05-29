@@ -1,5 +1,6 @@
 {
   "event_id": "evt_20260527_fixture_invalid_0001",
+  "message_id": "evt_20260527_fixture_invalid_0001",
   "schema_version": "rook-hermes-event.v1",
   "source_system": "rook",
   "target_system": "hermes",

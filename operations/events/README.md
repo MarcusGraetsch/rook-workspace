@@ -22,13 +22,15 @@ events/
 ## Rules
 
 1. Events must validate against `operations/schemas/rook-hermes-event.schema.json`.
-2. Every event requires `event_id`, `correlation_id`, `idempotency_key`, and `classification`.
+2. Every event requires `event_id`, `message_id`, `correlation_id`, `idempotency_key`, `classification`, and `ttl_hours`.
 3. Only `bridge-safe`, `ops-internal`, or `private-redacted` events may enter this ledger.
 4. Health, psyche, and private journaling material must not be copied into bridge payloads.
 5. Event consumers must treat `idempotency_key` as the deduplication key.
-6. Failed events move to `dead-letter/` with failure metadata; they are never silently deleted.
-7. Processed valid events move to `archive/YYYY/MM/` and remain replayable.
-8. Delivery and consumption acknowledgements are written as immutable receipt files under `receipts/YYYY/MM/`; original events are not modified after emission.
+6. `message_id` currently mirrors `event_id`; both are required so message-oriented bridges and event-oriented tooling refer to the same immutable record.
+7. Expired events move to `dead-letter/` instead of being archived or dispatched.
+8. Failed events move to `dead-letter/` with failure metadata; they are never silently deleted.
+9. Processed valid events move to `archive/YYYY/MM/` and remain replayable.
+10. Delivery and consumption acknowledgements are written as immutable receipt files under `receipts/YYYY/MM/`; original events are not modified after emission.
 
 ## Processing
 

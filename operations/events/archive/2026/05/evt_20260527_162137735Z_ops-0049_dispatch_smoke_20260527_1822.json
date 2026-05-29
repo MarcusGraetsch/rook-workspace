@@ -1,5 +1,6 @@
 {
   "event_id": "evt_20260527_162137735Z_ops-0049_dispatch_smoke_20260527_1822",
+  "message_id": "evt_20260527_162137735Z_ops-0049_dispatch_smoke_20260527_1822",
   "schema_version": "rook-hermes-event.v1",
   "source_system": "rook",
   "target_system": "dashboard",

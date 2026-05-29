@@ -1,5 +1,6 @@
 {
   "event_id": "evt_20260528_083536109Z_ops-0052_backlog",
+  "message_id": "evt_20260528_083536109Z_ops-0052_backlog",
   "schema_version": "rook-hermes-event.v1",
   "source_system": "dashboard",
   "target_system": "rook",

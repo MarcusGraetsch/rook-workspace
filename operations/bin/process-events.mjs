@@ -162,6 +162,13 @@ async function processFile({ file, schema, seen, dryRun, archiveDir, deadLetterD
     return { file, state: 'dead-lettered', reason: error.message, target };
   }
 
+  const expiresAt = new Date(new Date(event.created_at).getTime() + event.ttl_hours * 60 * 60 * 1000);
+  if (Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() <= Date.now()) {
+    const reason = `event TTL expired at ${Number.isNaN(expiresAt.getTime()) ? 'invalid-date' : expiresAt.toISOString()}`;
+    const target = await writeDeadLetter({ source: file, reason, event, raw, dryRun, deadLetterDir });
+    return { file, state: 'dead-lettered', reason, target };
+  }
+
   if (seen.has(event.idempotency_key)) {
     const reason = `duplicate idempotency_key already seen at ${seen.get(event.idempotency_key)}`;
     const target = await writeDeadLetter({ source: file, reason, event, raw, dryRun, deadLetterDir });

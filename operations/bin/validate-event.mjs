@@ -88,7 +88,7 @@ export function validateEvent(schema, event) {
     }
   }
 
-  for (const key of ['event_id', 'correlation_id', 'idempotency_key', 'classification']) {
+  for (const key of ['event_id', 'message_id', 'correlation_id', 'idempotency_key', 'classification']) {
     validateRequiredString(event, key);
   }
 
@@ -100,6 +100,10 @@ export function validateEvent(schema, event) {
 
   if (event.source_system === event.target_system) {
     invalid('source_system and target_system must differ');
+  }
+
+  if (event.message_id !== event.event_id) {
+    invalid('message_id must match event_id for event-ledger messages');
   }
 
   if (typeof event.event_type !== 'string' || !/^[a-z][a-z0-9._-]*$/.test(event.event_type)) {

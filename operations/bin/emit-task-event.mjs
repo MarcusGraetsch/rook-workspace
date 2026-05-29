@@ -130,8 +130,11 @@ function buildEvent({ task, taskPath, options, now }) {
     task.timestamps?.updated_at || task.timestamps?.completed_at || timestamp,
   ].join(':');
 
+  const eventId = `evt_${compactTime}_${safeName(task.task_id)}_${safeName(options.statusAfter)}`;
+
   return {
-    event_id: `evt_${compactTime}_${safeName(task.task_id)}_${safeName(options.statusAfter)}`,
+    event_id: eventId,
+    message_id: eventId,
     schema_version: 'rook-hermes-event.v1',
     source_system: options.source || 'rook',
     target_system: options.target,
