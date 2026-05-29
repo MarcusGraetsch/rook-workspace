@@ -138,7 +138,10 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - Dispatcher alert snapshots are written under `/root/.openclaw/runtime/operations/health/dispatcher-alerts.json`, even if Discord notification fails.
 - Discord dispatch bridge state is written under `/root/.openclaw/runtime/operations/health/discord-dispatch-state.json`.
 - Runtime task overlays are written under `/root/.openclaw/runtime/operations/task-state/` and should be treated as live execution state, not reviewable source history.
-- Archived tasks live under `/root/.openclaw/runtime/operations/archive/tasks/`.
+- Archived tasks can be resolved from two roots:
+  - Git-backed legacy workspace archive: `/root/.openclaw/workspace/operations/archive/tasks/`
+  - Mutable runtime archive: `/root/.openclaw/runtime/operations/archive/tasks/`
+  Canonical lookups and Kanban integrity checks must consider both roots. Active queues should still read only `/root/.openclaw/workspace/operations/tasks/`.
 - Runtime smoke checks are written under `/root/.openclaw/runtime/operations/health/runtime-smoke.json` and should be treated as stronger evidence than heartbeat files.
 - The dashboard SQLite file at `workspace/engineering/rook-dashboard/data/kanban.db` is runtime state. It should be snapshotted by backup jobs rather than committed as normal source code.
 - `operations/bin/start-dashboard.sh` should only reuse `.next/` when the build is structurally complete. If key manifests or built CSS assets are missing, the script should quarantine the broken `.next` tree under `engineering/rook-dashboard/.next-invalid/` and rebuild instead of serving a half-built UI.
@@ -147,6 +150,7 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
   - dashboard SQLite state
   - canonical tasks and project registry from the tracked workspace
   - archived tasks from `/root/.openclaw/runtime/operations/archive/tasks/`
+  - Git-backed archive history already present under `/root/.openclaw/workspace/operations/archive/tasks/`
   - health snapshots, task overlays, and dispatcher logs from `/root/.openclaw/runtime/operations/`
 - Runtime backups are stored locally under `/root/backups/rook-runtime/`.
 - If `rclone` is configured with the `gdrive:` remote, runtime backups should sync to `gdrive:DigitalCapitalismBackups/rook-runtime/<host>/`.

@@ -10,7 +10,7 @@ The current Rook system is now centered on a hybrid task model:
 - The dashboard Kanban is the primary human task interface.
 - Canonical task records live in Git-backed files under `workspace/operations/tasks/`.
 - Repo-linked work can mirror to GitHub Issues.
-- Archived work moves to `workspace/operations/archive/tasks/`.
+- Archived work can be resolved from the Git-backed legacy archive at `workspace/operations/archive/tasks/` and the mutable runtime archive at `/root/.openclaw/runtime/operations/archive/tasks/`.
 - Agent health is moving from prompt-based heartbeats to structured snapshots under `workspace/operations/health/`.
 
 The strongest parts of the system are now:
@@ -90,7 +90,7 @@ Key paths:
 - `tasks/`
   - one JSON file per active task
 - `archive/tasks/`
-  - archived canonical tasks
+  - Git-backed legacy archived canonical tasks
 - `health/`
   - one JSON file per agent health snapshot
 - `projects/`

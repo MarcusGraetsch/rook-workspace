@@ -45,6 +45,24 @@ operations/
 13. Task status events should be emitted with `node operations/bin/emit-task-event.mjs` so payloads stay schema-valid and bridge-safe.
 14. Event outbox delivery should use `node operations/bin/dispatch-events.mjs`; supervised operation is documented in `operations/docs/runbooks/event-dispatcher.md`.
 
+## Canonical Task Archive Roots
+
+Active canonical tasks live under `operations/tasks/<project_id>/<task_id>.json`.
+
+Archived task records can exist in two valid locations:
+
+- `operations/archive/tasks/<project_id>/<task_id>.json` is the Git-backed legacy workspace archive. These records remain valid lookup targets for completed or retired Kanban cards, but they should not be counted as active work.
+- `/root/.openclaw/runtime/operations/archive/tasks/<project_id>/<task_id>.json` is the mutable runtime archive used by dashboard/archive flows and runtime restore tooling.
+
+Readers that validate Kanban links or resolve an individual canonical task must check both archive roots. Bulk active-work views should read only `operations/tasks/` unless they explicitly present archive history. New archive writes should prefer the runtime archive unless a Git-backed historical artifact is intentionally required.
+
+Use these checks before changing archive files:
+
+```bash
+node operations/bin/check-canonical-task-integrity.mjs
+node operations/bin/plan-archive-task-cleanup.mjs
+```
+
 ## Host Runtime Policy
 
 - `operations/sysctl/99-openclaw-inotify.conf` raises inotify capacity for the VPS workload. The gateway, dashboard, Kubernetes tooling, and file-watching automation share the same host, so the distro default `fs.inotify.max_user_instances=128` is too low.
@@ -60,4 +78,4 @@ The dashboard now follows a hybrid workflow:
 - The Kanban remains the primary UI for creating and updating work.
 - Kanban task changes should mirror into canonical task files under `operations/tasks/`.
 - Canonical task files preserve durable state, board linkage, and future GitHub issue metadata.
-- Archived tasks should move to `operations/archive/tasks/` instead of being hard-deleted.
+- Archived task records should be preserved in one of the documented archive roots instead of being hard-deleted.
