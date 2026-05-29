@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rook-workspace.local/schemas/rook-hermes-receipt.schema.json",
+  "title": "RookHermesReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_id",
+    "schema_version",
+    "event_id",
+    "event_type",
+    "correlation_id",
+    "idempotency_key",
+    "source_system",
+    "target_system",
+    "acknowledged_by",
+    "state",
+    "acknowledged_at",
+    "event_file",
+    "event_digest_sha256",
+    "classification",
+    "notes"
+  ],
+  "properties": {
+    "receipt_id": {
+      "type": "string",
+      "minLength": 8,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "rook-hermes-receipt.v1"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 8,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "event_type": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8
+    },
+    "source_system": {
+      "type": "string",
+      "enum": ["rook", "hermes", "openclaw", "dashboard", "n8n", "gitlab"]
+    },
+    "target_system": {
+      "type": "string",
+      "enum": ["rook", "hermes", "openclaw", "dashboard", "n8n", "gitlab"]
+    },
+    "acknowledged_by": {
+      "type": "string",
+      "enum": ["rook", "hermes", "openclaw", "dashboard", "n8n", "gitlab"]
+    },
+    "state": {
+      "type": "string",
+      "enum": ["delivered", "acked", "failed"]
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "event_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_digest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "classification": {
+      "type": "string",
+      "enum": ["bridge-safe", "ops-internal", "private-redacted"]
+    },
+    "notes": {
+      "type": ["string", "null"]
+    }
+  }
+}

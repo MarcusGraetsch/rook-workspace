@@ -31,6 +31,7 @@ events/
 8. Failed events move to `dead-letter/` with failure metadata; they are never silently deleted.
 9. Processed valid events move to `archive/YYYY/MM/` and remain replayable.
 10. Delivery and consumption acknowledgements are written as immutable receipt files under `receipts/YYYY/MM/`; original events are not modified after emission.
+11. Receipts must conform to `operations/schemas/rook-hermes-receipt.schema.json` and replay cleanly against archived events via `operations/bin/check-event-replay-integrity.mjs`.
 
 ## Processing
 
@@ -58,6 +59,12 @@ Run fixture-based regression checks:
 
 ```bash
 node operations/bin/check-event-ledger.mjs
+```
+
+Validate archive and receipt replay integrity:
+
+```bash
+node operations/bin/check-event-replay-integrity.mjs
 ```
 
 Summarize queue status:
