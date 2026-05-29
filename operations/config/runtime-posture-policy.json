@@ -1,5 +1,8 @@
 {
   "version": 1,
+  "event_dispatcher": {
+    "max_stale_minutes": 15
+  },
   "acknowledged_findings": {
     "telegram_group_allowlist_empty": {
       "enabled": true,

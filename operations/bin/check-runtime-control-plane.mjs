@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import { execFile as execFileCallback } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
+import { getEventLedgerStatus } from './summarize-events.mjs';
 
 const execFile = promisify(execFileCallback);
 
@@ -15,7 +16,6 @@ const MODEL_MODE_POLICY_PATH = path.join(WORKSPACE_DIR, 'operations', 'config', 
 const MODEL_MODE_STATE_PATH = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'model-mode-state.json');
 const MODEL_CONFIG_DRIFT_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-model-config-drift.mjs');
 const INOTIFY_CAPACITY_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'check-inotify-capacity.mjs');
-const EVENT_LEDGER_SUMMARY_SCRIPT = path.join(WORKSPACE_DIR, 'operations', 'bin', 'summarize-events.mjs');
 const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
 const TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'tasks');
@@ -31,6 +31,7 @@ const REQUIRED_AGENT_IDS = ['rook', 'engineer', 'researcher', 'test', 'review'];
 const REQUIRED_WORKER_AGENT_IDS = ['engineer', 'researcher', 'test', 'review'];
 const REQUIRED_HOOK_PREFIX = 'hook:';
 const MIN_TIMEOUT_SECONDS = 180;
+const DEFAULT_EVENT_DISPATCHER_MAX_STALE_MINUTES = 15;
 
 const UNIT_FILES = [
   'openclaw-gateway.service',
@@ -506,6 +507,14 @@ function normalizeClaimedBy(value) {
   return value;
 }
 
+function eventDispatcherMaxStaleMinutes(policy) {
+  const configured = Number(policy?.event_dispatcher?.max_stale_minutes);
+  if (Number.isFinite(configured) && configured > 0) {
+    return configured;
+  }
+  return DEFAULT_EVENT_DISPATCHER_MAX_STALE_MINUTES;
+}
+
 async function main() {
   const config = await readJson(OPENCLAW_CONFIG_PATH);
   const runtimePolicy = await readOptionalJson(RUNTIME_POSTURE_POLICY_PATH);
@@ -517,7 +526,8 @@ async function main() {
   const findings = [];
   const modelConfigDrift = await runJsonScript(MODEL_CONFIG_DRIFT_SCRIPT);
   const inotifyCapacity = await runJsonScript(INOTIFY_CAPACITY_SCRIPT);
-  const eventLedger = await runJsonScript(EVENT_LEDGER_SUMMARY_SCRIPT);
+  const eventLedger = await getEventLedgerStatus();
+  const eventDispatcherMaxStaleMinutesValue = eventDispatcherMaxStaleMinutes(runtimePolicy);
 
   const recordCheck = (id, label, ok, warningCount = 0, errorCount = 0) => {
     checks.push({ id, label, ok, warning_count: warningCount, error_count: errorCount });
@@ -843,6 +853,75 @@ async function main() {
         automation_level: 'manual',
       },
     });
+  }
+
+  const latestDispatcherRun = eventLedger?.dispatcher?.latest_run || null;
+  if (!latestDispatcherRun) {
+    findings.push({
+      source: 'event_ledger',
+      severity: 'warning',
+      type: 'event_dispatcher_run_missing',
+      details: `No dispatcher run metadata found under ${eventLedger?.dispatcher?.runtime_dir || 'unknown runtime dir'}`,
+      runtime_dir: eventLedger?.dispatcher?.runtime_dir || null,
+      remediation: {
+        summary: 'The event dispatcher has not written runtime run metadata yet.',
+        operator_action: 'Run the event dispatcher once and verify the timer is active.',
+        command: 'node operations/bin/dispatch-events.mjs --queue outbox --limit 10',
+        automation_level: 'guided',
+      },
+    });
+  } else {
+    const finishedAtMs = Date.parse(latestDispatcherRun.finished_at || '');
+    const ageMinutes = Number.isFinite(finishedAtMs)
+      ? Number(((Date.now() - finishedAtMs) / (60 * 1000)).toFixed(1))
+      : null;
+
+    if (latestDispatcherRun.ok !== true) {
+      findings.push({
+        source: 'event_ledger',
+        severity: 'error',
+        type: 'event_dispatcher_last_run_failed',
+        details: `last_run=${latestDispatcherRun.run_id || 'unknown'}; last_error=${latestDispatcherRun.last_error || 'unknown'}`,
+        run_id: latestDispatcherRun.run_id || null,
+        finished_at: latestDispatcherRun.finished_at || null,
+        last_error: latestDispatcherRun.last_error || null,
+        delivery_failures: latestDispatcherRun.delivery_failures ?? null,
+        remediation: {
+          summary: 'The latest event dispatcher run failed.',
+          operator_action: 'Inspect latest dispatcher runtime metadata and rerun after fixing the failure.',
+          command: 'node operations/bin/dispatch-events.mjs --queue outbox --limit 10',
+          automation_level: 'guided',
+        },
+      });
+    }
+
+    if (ageMinutes === null) {
+      findings.push({
+        source: 'event_ledger',
+        severity: 'error',
+        type: 'event_dispatcher_finished_at_invalid',
+        details: `latest_run=${latestDispatcherRun.run_id || 'unknown'} has invalid finished_at=${latestDispatcherRun.finished_at || 'missing'}`,
+        run_id: latestDispatcherRun.run_id || null,
+        finished_at: latestDispatcherRun.finished_at || null,
+      });
+    } else if (ageMinutes > eventDispatcherMaxStaleMinutesValue) {
+      findings.push({
+        source: 'event_ledger',
+        severity: 'warning',
+        type: 'event_dispatcher_run_stale',
+        details: `last_run_age_minutes=${ageMinutes}; max_stale_minutes=${eventDispatcherMaxStaleMinutesValue}`,
+        run_id: latestDispatcherRun.run_id || null,
+        finished_at: latestDispatcherRun.finished_at || null,
+        age_minutes: ageMinutes,
+        max_stale_minutes: eventDispatcherMaxStaleMinutesValue,
+        remediation: {
+          summary: 'The event dispatcher has not run recently enough.',
+          operator_action: 'Check rook-event-dispatcher.timer and the latest service logs.',
+          command: 'systemctl --user status rook-event-dispatcher.timer',
+          automation_level: 'manual',
+        },
+      });
+    }
   }
 
   const dispatcherUnitText = await readText(path.join(USER_SYSTEMD_DIR, 'rook-dispatcher.service'));

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -193,7 +193,7 @@ async function main() {
   console.log(JSON.stringify(status, null, 2));
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && path.basename(process.argv[1]) === 'summarize-events.mjs') {
   main().catch((error) => {
     console.error(`SUMMARIZE_EVENTS_FAILED: ${error.message}`);
     process.exit(1);
