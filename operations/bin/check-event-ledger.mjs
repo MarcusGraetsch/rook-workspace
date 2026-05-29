@@ -9,6 +9,7 @@ import { emitTaskEvent } from './emit-task-event.mjs';
 import { getEventLedgerStatus } from './summarize-events.mjs';
 import { ackEvent } from './ack-event.mjs';
 import { dispatchQueue } from './dispatch-events.mjs';
+import { checkEventReplayIntegrity } from './check-event-replay-integrity.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -263,6 +264,30 @@ async function checkDispatcher() {
   }
 }
 
+async function checkReplayIntegrity() {
+  const ledger = await makeLedger();
+  try {
+    const eventFile = path.join(ledger, 'archive', 'valid-event.json');
+    await writeFreshFixture('valid-event.json', eventFile);
+    await ackEvent({
+      eventFile,
+      system: 'hermes',
+      state: 'delivered',
+      notes: 'Synthetic replay integrity regression check.',
+      dryRun: false,
+      eventsDir: ledger,
+    });
+
+    const summary = await checkEventReplayIntegrity({ eventsDir: ledger });
+    assert(summary.ok === true, 'replay integrity should pass for matching archive and receipt');
+    assert(summary.archive_event_count === 1, 'replay integrity should count archived event');
+    assert(summary.receipt_count === 1, 'replay integrity should count receipt');
+    assert(summary.error_count === 0, 'replay integrity should not report errors');
+  } finally {
+    await rm(ledger, { recursive: true, force: true });
+  }
+}
+
 async function main() {
   const schema = await readJson(DEFAULT_SCHEMA, 'schema');
   await validateFixtures(schema);
@@ -274,6 +299,7 @@ async function main() {
   await checkPendingExpirySummary();
   await checkReceiptWriter();
   await checkDispatcher();
+  await checkReplayIntegrity();
   console.log(JSON.stringify({
     ok: true,
     checked: [
@@ -289,6 +315,7 @@ async function main() {
       'event receipt writer',
       'event dispatcher delivered receipt',
       'event dispatcher run metadata',
+      'event archive receipt replay integrity',
     ],
   }, null, 2));
 }

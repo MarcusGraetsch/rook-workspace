@@ -5,6 +5,7 @@ import { execFile as execFileCallback } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import { getEventLedgerStatus } from './summarize-events.mjs';
+import { checkEventReplayIntegrity } from './check-event-replay-integrity.mjs';
 
 const execFile = promisify(execFileCallback);
 
@@ -527,6 +528,7 @@ async function main() {
   const modelConfigDrift = await runJsonScript(MODEL_CONFIG_DRIFT_SCRIPT);
   const inotifyCapacity = await runJsonScript(INOTIFY_CAPACITY_SCRIPT);
   const eventLedger = await getEventLedgerStatus();
+  const eventReplayIntegrity = await checkEventReplayIntegrity();
   const eventDispatcherMaxStaleMinutesValue = eventDispatcherMaxStaleMinutes(runtimePolicy);
 
   const recordCheck = (id, label, ok, warningCount = 0, errorCount = 0) => {
@@ -850,6 +852,24 @@ async function main() {
         summary: 'Dead-lettered events require operator review before trusting bridge delivery.',
         operator_action: 'Inspect recent dead letters and fix the emitting or dispatching path.',
         command: 'node operations/bin/summarize-events.mjs',
+        automation_level: 'manual',
+      },
+    });
+  }
+
+  if (eventReplayIntegrity?.ok !== true) {
+    findings.push({
+      source: 'event_ledger',
+      severity: 'error',
+      type: 'event_replay_integrity_failed',
+      details: `archive_events=${eventReplayIntegrity.archive_event_count || 0}; receipts=${eventReplayIntegrity.receipt_count || 0}; errors=${eventReplayIntegrity.error_count || 0}`,
+      archive_event_count: eventReplayIntegrity.archive_event_count || 0,
+      receipt_count: eventReplayIntegrity.receipt_count || 0,
+      replay_findings: Array.isArray(eventReplayIntegrity.findings) ? eventReplayIntegrity.findings.slice(0, 10) : [],
+      remediation: {
+        summary: 'Event receipts no longer replay cleanly against archived events.',
+        operator_action: 'Run the replay integrity checker and repair missing or mismatched archive/receipt records.',
+        command: 'node operations/bin/check-event-replay-integrity.mjs',
         automation_level: 'manual',
       },
     });

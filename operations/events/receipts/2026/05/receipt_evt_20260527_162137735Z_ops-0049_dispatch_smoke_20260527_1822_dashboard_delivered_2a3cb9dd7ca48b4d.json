@@ -1,5 +1,5 @@
 {
-  "receipt_id": "receipt_evt_20260527_162137735Z_ops-0049_dispatch_smoke_20260527_1822_dashboard_delivered_7e659c70a561d51c",
+  "receipt_id": "receipt_evt_20260527_162137735Z_ops-0049_dispatch_smoke_20260527_1822_dashboard_delivered_2a3cb9dd7ca48b4d",
   "schema_version": "rook-hermes-receipt.v1",
   "event_id": "evt_20260527_162137735Z_ops-0049_dispatch_smoke_20260527_1822",
   "event_type": "task_state.dispatch_smoke",
@@ -11,7 +11,7 @@
   "state": "delivered",
   "acknowledged_at": "2026-05-27T16:22:12.950Z",
   "event_file": "/root/.openclaw/workspace/operations/events/archive/2026/05/evt_20260527_162137735Z_ops-0049_dispatch_smoke_20260527_1822.json",
-  "event_digest_sha256": "7e659c70a561d51ccb9bc8dd9ac44e5861e0559e6e737ee9adcb88a13c33c2d0",
+  "event_digest_sha256": "2a3cb9dd7ca48b4db9480465f13634df2c39d1a7984e0993215aec4f9a182632",
   "classification": "ops-internal",
   "notes": "Dispatcher delivered evt_20260527_162137735Z_ops-0049_dispatch_smoke_20260527_1822 from outbox to dashboard."
 }

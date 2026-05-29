@@ -1,5 +1,5 @@
 {
-  "receipt_id": "receipt_evt_20260528_083536109Z_ops-0052_backlog_rook_delivered_9e40b8fa9796299b",
+  "receipt_id": "receipt_evt_20260528_083536109Z_ops-0052_backlog_rook_delivered_fe0efad30ccac037",
   "schema_version": "rook-hermes-receipt.v1",
   "event_id": "evt_20260528_083536109Z_ops-0052_backlog",
   "event_type": "task_state.changed",
@@ -11,7 +11,7 @@
   "state": "delivered",
   "acknowledged_at": "2026-05-28T08:35:58.753Z",
   "event_file": "/root/.openclaw/workspace/operations/events/archive/2026/05/evt_20260528_083536109Z_ops-0052_backlog.json",
-  "event_digest_sha256": "9e40b8fa9796299b7fa8cce71214d0c357a82a44eb9bde225428826750c73334",
+  "event_digest_sha256": "fe0efad30ccac037c408cb2ed168dc66c7a6d9ece6593d021d324f3e49e3d9c8",
   "classification": "ops-internal",
   "notes": "Dispatcher delivered evt_20260528_083536109Z_ops-0052_backlog from outbox to rook."
 }
