@@ -67,6 +67,10 @@ Validate archive and receipt replay integrity:
 node operations/bin/check-event-replay-integrity.mjs
 ```
 
+Replay failure and warning remediation is documented in:
+
+- `operations/docs/runbooks/event-replay-integrity.md`
+
 Summarize queue status:
 
 ```bash

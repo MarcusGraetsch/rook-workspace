@@ -37,6 +37,12 @@ Run regression checks:
 node operations/bin/check-event-ledger.mjs
 ```
 
+Validate archive/receipt replay integrity:
+
+```bash
+node operations/bin/check-event-replay-integrity.mjs
+```
+
 ## User systemd Units
 
 Unit templates live in `operations/systemd/`:
@@ -72,3 +78,4 @@ systemctl --user list-timers rook-event-dispatcher.timer
 - If a bad event appears, inspect `operations/events/dead-letter/` and fix the producing system before replaying.
 - Do not edit archived event files in place.
 - If delivery needs to be acknowledged manually, use `operations/bin/ack-event.mjs` to write a separate receipt.
+- For archive/receipt replay failures, follow `operations/docs/runbooks/event-replay-integrity.md`.
