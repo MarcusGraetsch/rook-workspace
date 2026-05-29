@@ -874,6 +874,25 @@ async function main() {
       },
     });
   }
+  if ((eventReplayIntegrity?.warning_count || 0) > 0) {
+    findings.push({
+      source: 'event_ledger',
+      severity: 'warning',
+      type: 'event_replay_integrity_warnings',
+      details: `archive_events=${eventReplayIntegrity.archive_event_count || 0}; receipts=${eventReplayIntegrity.receipt_count || 0}; warnings=${eventReplayIntegrity.warning_count || 0}`,
+      archive_event_count: eventReplayIntegrity.archive_event_count || 0,
+      receipt_count: eventReplayIntegrity.receipt_count || 0,
+      replay_findings: Array.isArray(eventReplayIntegrity.findings)
+        ? eventReplayIntegrity.findings.filter((finding) => finding.severity === 'warning').slice(0, 10)
+        : [],
+      remediation: {
+        summary: 'Event receipts replay successfully but have non-blocking consistency warnings.',
+        operator_action: 'Review replay integrity warnings and normalize receipt metadata when practical.',
+        command: 'node operations/bin/check-event-replay-integrity.mjs',
+        automation_level: 'manual',
+      },
+    });
+  }
 
   const latestDispatcherRun = eventLedger?.dispatcher?.latest_run || null;
   if (!latestDispatcherRun) {

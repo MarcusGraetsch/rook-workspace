@@ -46,6 +46,10 @@ function receiptFieldsMatch(receipt, event) {
     }));
 }
 
+function normalizePathForCompare(filePath) {
+  return path.resolve(String(filePath || ''));
+}
+
 function failReceipt(message) {
   throw new Error(message);
 }
@@ -184,6 +188,17 @@ export async function checkEventReplayIntegrity(options = {}) {
         event_id: eventId,
         receipt_digest_sha256: receipt.event_digest_sha256 || null,
         archive_digest_sha256: archived.digest,
+        archive_file: archived.file,
+      });
+    }
+
+    if (normalizePathForCompare(receipt.event_file) !== normalizePathForCompare(archived.file)) {
+      findings.push({
+        severity: 'warning',
+        type: 'receipt_event_file_path_mismatch',
+        file,
+        event_id: eventId,
+        receipt_event_file: receipt.event_file,
         archive_file: archived.file,
       });
     }
