@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cp, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,6 +36,24 @@ async function readJsonFile(filePath) {
   return JSON.parse(await readFile(filePath, 'utf8'));
 }
 
+function freshEvent(event) {
+  const createdAt = new Date().toISOString();
+  return {
+    ...event,
+    created_at: createdAt,
+    delivery: {
+      ...(event.delivery || {}),
+      next_attempt_at: createdAt,
+    },
+  };
+}
+
+async function writeFreshFixture(sourceName, targetPath) {
+  const event = freshEvent(await readJsonFile(path.join(FIXTURES_DIR, sourceName)));
+  await writeFile(targetPath, `${JSON.stringify(event, null, 2)}\n`);
+  return event;
+}
+
 async function validateFixtures(schema) {
   const valid = await readJsonFile(path.join(FIXTURES_DIR, 'valid-event.json'));
   validateEvent(schema, valid);
@@ -53,7 +71,7 @@ async function validateFixtures(schema) {
 async function checkArchiveAndDeadLetter() {
   const ledger = await makeLedger();
   try {
-    await cp(path.join(FIXTURES_DIR, 'valid-event.json'), path.join(ledger, 'inbox', 'valid-event.json'));
+    await writeFreshFixture('valid-event.json', path.join(ledger, 'inbox', 'valid-event.json'));
     await cp(
       path.join(FIXTURES_DIR, 'invalid-missing-idempotency.json'),
       path.join(ledger, 'inbox', 'invalid-missing-idempotency.json'),
@@ -70,8 +88,7 @@ async function checkArchiveAndDeadLetter() {
     assert(summary.archived === 1, 'processor should archive one valid event');
     assert(summary.dead_lettered === 1, 'processor should dead-letter one invalid event');
 
-    const archived = path.join(ledger, 'archive', '2026', '05', 'evt_20260527_fixture_valid_0001.json');
-    const archivedEvent = await readJsonFile(archived);
+    const archivedEvent = await readJsonFile(summary.results.find((result) => result.state === 'archived').target);
     assert(archivedEvent.event_id === 'evt_20260527_fixture_valid_0001', 'archived event should match fixture');
   } finally {
     await rm(ledger, { recursive: true, force: true });
@@ -83,11 +100,8 @@ async function checkDuplicateIdempotency() {
   try {
     const archiveDir = path.join(ledger, 'archive', '2026', '05');
     await mkdir(archiveDir, { recursive: true });
-    await cp(
-      path.join(FIXTURES_DIR, 'valid-event.json'),
-      path.join(archiveDir, 'evt_20260527_fixture_valid_0001.json'),
-    );
-    await cp(path.join(FIXTURES_DIR, 'duplicate-event.json'), path.join(ledger, 'inbox', 'duplicate-event.json'));
+    await writeFreshFixture('valid-event.json', path.join(archiveDir, 'evt_20260527_fixture_valid_0001.json'));
+    await writeFreshFixture('duplicate-event.json', path.join(ledger, 'inbox', 'duplicate-event.json'));
 
     const summary = await processQueue({
       queue: 'inbox',
@@ -153,13 +167,29 @@ async function checkTaskEventProducer(schema) {
 async function checkEventSummary() {
   const ledger = await makeLedger();
   try {
-    await cp(path.join(FIXTURES_DIR, 'valid-event.json'), path.join(ledger, 'inbox', 'valid-event.json'));
-    await cp(path.join(FIXTURES_DIR, 'duplicate-event.json'), path.join(ledger, 'outbox', 'duplicate-event.json'));
+    await writeFreshFixture('valid-event.json', path.join(ledger, 'inbox', 'valid-event.json'));
+    await writeFreshFixture('duplicate-event.json', path.join(ledger, 'outbox', 'duplicate-event.json'));
     const status = await getEventLedgerStatus({ eventsDir: ledger, deadLetterLimit: 5 });
     assert(status.ok === true, 'event summary should be ok');
     assert(status.queues.inbox.file_count === 1, 'event summary should count inbox files');
     assert(status.queues.outbox.file_count === 1, 'event summary should count outbox files');
     assert(status.totals.pending === 2, 'event summary should count pending files');
+    assert(status.pending.expired_count === 0, 'event summary should report no expired fresh pending events');
+  } finally {
+    await rm(ledger, { recursive: true, force: true });
+  }
+}
+
+async function checkPendingExpirySummary() {
+  const ledger = await makeLedger();
+  try {
+    await cp(path.join(FIXTURES_DIR, 'expired-event.json'), path.join(ledger, 'inbox', 'expired-event.json'));
+    await writeFreshFixture('valid-event.json', path.join(ledger, 'outbox', 'valid-event.json'));
+    const status = await getEventLedgerStatus({ eventsDir: ledger });
+    assert(status.totals.pending === 2, 'event summary should count mixed pending files');
+    assert(status.pending.expired_count === 1, 'event summary should count expired pending events');
+    assert(status.pending.expired[0].event_id === 'evt_20260401_fixture_expired_0001', 'expired summary should include event id');
+    assert(typeof status.pending.oldest_pending_age_hours === 'number', 'event summary should expose oldest pending age');
   } finally {
     await rm(ledger, { recursive: true, force: true });
   }
@@ -169,7 +199,7 @@ async function checkReceiptWriter() {
   const ledger = await makeLedger();
   try {
     const eventFile = path.join(ledger, 'archive', 'valid-event.json');
-    await cp(path.join(FIXTURES_DIR, 'valid-event.json'), eventFile);
+    await writeFreshFixture('valid-event.json', eventFile);
     const result = await ackEvent({
       eventFile,
       system: 'hermes',
@@ -205,7 +235,7 @@ async function checkReceiptWriter() {
 async function checkDispatcher() {
   const ledger = await makeLedger();
   try {
-    await cp(path.join(FIXTURES_DIR, 'valid-event.json'), path.join(ledger, 'outbox', 'valid-event.json'));
+    await writeFreshFixture('valid-event.json', path.join(ledger, 'outbox', 'valid-event.json'));
     const summary = await dispatchQueue({
       queue: 'outbox',
       dryRun: false,
@@ -236,6 +266,7 @@ async function main() {
   await checkExpiredTtlDeadLetter();
   await checkTaskEventProducer(schema);
   await checkEventSummary();
+  await checkPendingExpirySummary();
   await checkReceiptWriter();
   await checkDispatcher();
   console.log(JSON.stringify({
@@ -249,6 +280,7 @@ async function main() {
       'expired TTL dead-letter path',
       'task event producer outbox write',
       'event ledger status summary',
+      'pending expiry status summary',
       'event receipt writer',
       'event dispatcher delivered receipt',
     ],

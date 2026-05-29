@@ -8,6 +8,8 @@ const __dirname = path.dirname(__filename);
 const OPERATIONS_DIR = path.resolve(__dirname, '..');
 const EVENTS_DIR = process.env.ROOK_EVENTS_DIR || path.join(OPERATIONS_DIR, 'events');
 const QUEUES = ['inbox', 'outbox', 'archive', 'dead-letter', 'receipts'];
+const PENDING_QUEUES = ['inbox', 'outbox'];
+const EXPIRING_SOON_MS = 24 * 60 * 60 * 1000;
 
 async function walkJsonFiles(dir) {
   const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
@@ -85,6 +87,64 @@ async function recentReceipts(eventsDir, limit) {
   }));
 }
 
+function eventTiming(payload, file, nowMs) {
+  const createdMs = Date.parse(payload?.created_at || '');
+  const ttlHours = payload?.ttl_hours;
+  const ttlMs = Number.isInteger(ttlHours) ? ttlHours * 60 * 60 * 1000 : NaN;
+  const expiresMs = Number.isFinite(createdMs) && Number.isFinite(ttlMs) ? createdMs + ttlMs : NaN;
+  const ageMs = Number.isFinite(createdMs) ? Math.max(0, nowMs - createdMs) : null;
+  const expiresInMs = Number.isFinite(expiresMs) ? expiresMs - nowMs : null;
+
+  return {
+    path: file.path,
+    queue: file.queue,
+    event_id: payload?.event_id || null,
+    message_id: payload?.message_id || null,
+    idempotency_key: payload?.idempotency_key || null,
+    created_at: payload?.created_at || null,
+    ttl_hours: Number.isInteger(ttlHours) ? ttlHours : null,
+    expires_at: Number.isFinite(expiresMs) ? new Date(expiresMs).toISOString() : null,
+    age_hours: ageMs === null ? null : Number((ageMs / (60 * 60 * 1000)).toFixed(2)),
+    expires_in_hours: expiresInMs === null ? null : Number((expiresInMs / (60 * 60 * 1000)).toFixed(2)),
+    expired: expiresInMs !== null ? expiresInMs <= 0 : false,
+    expiring_soon: expiresInMs !== null ? expiresInMs > 0 && expiresInMs <= EXPIRING_SOON_MS : false,
+    invalid_timing: ageMs === null || expiresInMs === null,
+  };
+}
+
+async function pendingDiagnostics(eventsDir) {
+  const nowMs = Date.now();
+  const files = [];
+  for (const queue of PENDING_QUEUES) {
+    const queueFiles = await walkJsonFiles(path.join(eventsDir, queue));
+    files.push(...queueFiles.map((file) => ({ ...file, queue })));
+  }
+
+  const events = [];
+  for (const file of files) {
+    const payload = await readJsonIfPossible(file.path);
+    events.push(eventTiming(payload, file, nowMs));
+  }
+
+  const withAge = events.filter((event) => typeof event.age_hours === 'number');
+  const oldest = withAge.sort((a, b) => (b.age_hours || 0) - (a.age_hours || 0))[0] || null;
+  const withExpiry = events.filter((event) => typeof event.expires_in_hours === 'number' && !event.expired);
+  const nextExpiry = withExpiry.sort((a, b) => (a.expires_in_hours || 0) - (b.expires_in_hours || 0))[0] || null;
+
+  return {
+    expired_count: events.filter((event) => event.expired).length,
+    expiring_soon_count: events.filter((event) => event.expiring_soon).length,
+    invalid_timing_count: events.filter((event) => event.invalid_timing).length,
+    oldest_pending_age_hours: oldest?.age_hours ?? null,
+    oldest_pending_created_at: oldest?.created_at ?? null,
+    oldest_pending_file: oldest?.path ?? null,
+    next_expiry_at: nextExpiry?.expires_at ?? null,
+    next_expiry_file: nextExpiry?.path ?? null,
+    expiring_soon: events.filter((event) => event.expiring_soon).slice(0, 10),
+    expired: events.filter((event) => event.expired).slice(0, 10),
+  };
+}
+
 export async function getEventLedgerStatus(options = {}) {
   const eventsDir = options.eventsDir || EVENTS_DIR;
   const deadLetterLimit = Number.isInteger(options.deadLetterLimit) ? options.deadLetterLimit : 10;
@@ -103,6 +163,7 @@ export async function getEventLedgerStatus(options = {}) {
       dead_lettered: queueMap['dead-letter']?.file_count || 0,
       receipts: queueMap.receipts?.file_count || 0,
     },
+    pending: await pendingDiagnostics(eventsDir),
     recent_dead_letters: await recentDeadLetters(eventsDir, deadLetterLimit),
     recent_receipts: await recentReceipts(eventsDir, receiptLimit),
   };
