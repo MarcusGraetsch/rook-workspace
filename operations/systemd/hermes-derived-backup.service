@@ -1,0 +1,8 @@
+[Unit]
+Description=Hermes Derived Data Backup
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/.openclaw/workspace/operations/bin/backup-hermes-derived-data.sh

@@ -1,0 +1,8 @@
+[Unit]
+Description=Rook Workspace Sync to rook-agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/.openclaw/rook-agent/scripts/sync-from-workspace.sh

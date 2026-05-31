@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook VM Ops Baseline Threshold Gate (daily 05:40)
+Requires=rook-vm-ops-threshold.service
+
+[Timer]
+OnCalendar=*-*-* 05:40:00
+Persistent=true
+RandomizedDelaySec=5m
+Unit=rook-vm-ops-threshold.service
+
+[Install]
+WantedBy=timers.target

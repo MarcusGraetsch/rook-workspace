@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+LOCK_FILE="/tmp/rook-runtime-backup.lock"
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+  echo "Another rook runtime backup is already running; exiting."
+  exit 0
+fi
+
 DATE_UTC="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname)"
 

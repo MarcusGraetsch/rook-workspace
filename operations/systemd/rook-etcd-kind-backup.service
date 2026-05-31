@@ -1,0 +1,8 @@
+[Unit]
+Description=Rook etcd Snapshot Backup for kind Cluster
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/.openclaw/workspace/operations/bin/backup-etcd-kind.sh

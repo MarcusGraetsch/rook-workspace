@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook Monthly Autoresearch Task (monthly 09:00)
+Requires=rook-monthly-autoresearch.service
+
+[Timer]
+OnCalendar=*-*-01 09:00:00
+Persistent=true
+RandomizedDelaySec=20m
+Unit=rook-monthly-autoresearch.service
+
+[Install]
+WantedBy=timers.target

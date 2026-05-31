@@ -1,0 +1,8 @@
+[Unit]
+Description=Hermes Rook Communication Bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/.openclaw/workspace/operations/bin/hermes-rook-comm-bridge.sh

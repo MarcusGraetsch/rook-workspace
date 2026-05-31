@@ -26,6 +26,13 @@ if [ "${1:-}" != "" ]; then
   exit 1
 fi
 
+LOCK_FILE="/tmp/hermes-derived-backup.lock"
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+  echo "Another Hermes derived-data backup is already running; exiting."
+  exit 0
+fi
+
 DATE_UTC="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname)"
 BACKUP_ROOT="${HERMES_DERIVED_BACKUP_ROOT:-/root/backups/hermes-derived}"

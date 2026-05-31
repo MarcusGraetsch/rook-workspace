@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook Workspace Sync to rook-agent (daily 02:00)
+Requires=rook-workspace-sync.service
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=rook-workspace-sync.service
+
+[Install]
+WantedBy=timers.target

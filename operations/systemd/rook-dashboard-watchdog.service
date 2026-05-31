@@ -4,4 +4,7 @@ After=rook-dashboard.service
 
 [Service]
 Type=oneshot
+User=root
+Group=root
+Environment=ROOK_DASHBOARD_SYSTEMD_SCOPE=system
 ExecStart=/root/.openclaw/workspace/operations/bin/dashboard-watchdog.sh

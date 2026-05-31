@@ -13,18 +13,42 @@
  *   node sync-github-issues.mjs [--dry-run] [--project <project-id>]
  */
 
-import { promises as fs } from 'fs';
+import { promises as fs, openSync, closeSync, unlinkSync } from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 
 const TASKS_DIR = path.join('/root/.openclaw/workspace', 'operations', 'tasks');
 const LOG_FILE = '/root/.openclaw/runtime/logs/sync-github-issues.jsonl';
+const LOCK_FILE = '/tmp/sync-github-issues.lock';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const PROJECT_FILTER = (() => {
   const idx = process.argv.indexOf('--project');
   return idx !== -1 ? process.argv[idx + 1] : null;
 })();
+
+let lockFd = null;
+
+function acquireLock() {
+  try {
+    lockFd = openSync(LOCK_FILE, 'wx');
+    process.on('exit', releaseLock);
+    process.on('SIGINT', () => { releaseLock(); process.exit(130); });
+    process.on('SIGTERM', () => { releaseLock(); process.exit(143); });
+    return true;
+  } catch (err) {
+    if (err?.code === 'EEXIST') return false;
+    throw err;
+  }
+}
+
+function releaseLock() {
+  if (lockFd !== null) {
+    try { closeSync(lockFd); } catch {}
+    lockFd = null;
+  }
+  try { unlinkSync(LOCK_FILE); } catch {}
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -226,6 +250,11 @@ async function syncTask(filePath) {
 // ---------------------------------------------------------------------------
 
 async function main() {
+  if (!acquireLock()) {
+    console.error('sync-github-issues: another run is already active; exiting');
+    process.exit(0);
+  }
+
   await ensureDir(path.dirname(LOG_FILE));
 
   log({
@@ -270,6 +299,7 @@ async function main() {
 }
 
 main().catch((err) => {
+  releaseLock();
   console.error(`sync-github-issues fatal: ${err.message}`);
   process.exit(1);
 });

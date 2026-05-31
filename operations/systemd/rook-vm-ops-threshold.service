@@ -1,0 +1,9 @@
+[Unit]
+Description=Rook VM Ops Baseline Threshold Gate
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/.openclaw/workspace
+ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/check-vm-ops-baseline-thresholds.mjs

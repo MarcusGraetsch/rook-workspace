@@ -5,6 +5,13 @@
 
 set -euo pipefail
 
+LOCK_FILE="/tmp/etcd-kind-backup.lock"
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+    echo "Another etcd kind backup is already running; exiting."
+    exit 0
+fi
+
 # Konfiguration
 CLUSTER_NAME="rook-lab"
 BACKUP_DIR="/var/backups/etcd-kind"

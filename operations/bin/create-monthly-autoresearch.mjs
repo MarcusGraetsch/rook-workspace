@@ -17,6 +17,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { openSync, closeSync, unlinkSync } from 'fs';
 
 const TASKS_DIR = '/root/.openclaw/workspace/operations/tasks/ops';
 const LOG_FILE = '/root/.openclaw/runtime/logs/create-monthly-autoresearch.jsonl';
@@ -26,6 +27,30 @@ const FORCED_TARGET = (() => {
   const idx = process.argv.indexOf('--target');
   return idx !== -1 ? process.argv[idx + 1] : null;
 })();
+
+const LOCK_FILE = '/tmp/create-monthly-autoresearch.lock';
+let lockFd = null;
+
+function acquireLock() {
+  try {
+    lockFd = openSync(LOCK_FILE, 'wx');
+    process.on('exit', releaseLock);
+    process.on('SIGINT', () => { releaseLock(); process.exit(130); });
+    process.on('SIGTERM', () => { releaseLock(); process.exit(143); });
+    return true;
+  } catch (err) {
+    if (err?.code === 'EEXIST') return false;
+    throw err;
+  }
+}
+
+function releaseLock() {
+  if (lockFd !== null) {
+    try { closeSync(lockFd); } catch {}
+    lockFd = null;
+  }
+  try { unlinkSync(LOCK_FILE); } catch {}
+}
 
 // Rotation: each month gets a different target
 const TARGETS = [
@@ -139,6 +164,11 @@ async function createTask(target) {
 }
 
 async function main() {
+  if (!acquireLock()) {
+    console.error('create-monthly-autoresearch: another run is already active; exiting');
+    process.exit(0);
+  }
+
   await ensureDir(path.dirname(LOG_FILE));
   await ensureDir(TASKS_DIR);
 
@@ -160,6 +190,7 @@ async function main() {
 }
 
 main().catch((err) => {
+  releaseLock();
   console.error(`create-monthly-autoresearch fatal: ${err.message}`);
   process.exit(1);
 });

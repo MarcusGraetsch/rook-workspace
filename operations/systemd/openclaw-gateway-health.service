@@ -1,0 +1,9 @@
+[Unit]
+Description=OpenClaw Gateway Health Guardian
+After=openclaw-gateway.service
+
+[Service]
+Type=oneshot
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/0/bus
+Environment=XDG_RUNTIME_DIR=/run/user/0
+ExecStart=/root/.openclaw/health/health-guardian.sh

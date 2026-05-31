@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook etcd Snapshot Backup for kind Cluster (daily 02:10)
+Requires=rook-etcd-kind-backup.service
+
+[Timer]
+OnCalendar=*-*-* 02:10:00
+Persistent=true
+RandomizedDelaySec=5m
+Unit=rook-etcd-kind-backup.service
+
+[Install]
+WantedBy=timers.target

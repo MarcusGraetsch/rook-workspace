@@ -5,6 +5,7 @@ PORT="${ROOK_DASHBOARD_PORT:-3001}"
 URL="${ROOK_DASHBOARD_URL:-http://127.0.0.1:${PORT}/kanban}"
 SERVICE="${ROOK_DASHBOARD_SERVICE:-rook-dashboard.service}"
 MODEL_POLICY_CONTROLLER="${ROOK_MODEL_POLICY_CONTROLLER:-/root/.openclaw/workspace/operations/bin/model-mode-controller.mjs}"
+SYSTEMD_SCOPE="${ROOK_DASHBOARD_SYSTEMD_SCOPE:-user}"
 
 run_model_policy_controller() {
   if command -v node >/dev/null 2>&1 && [[ -f "$MODEL_POLICY_CONTROLLER" ]]; then
@@ -27,7 +28,11 @@ fi
 echo "dashboard_down url=$URL service=$SERVICE" >&2
 
 if command -v systemctl >/dev/null 2>&1; then
-  systemctl --user restart "$SERVICE"
+  if [[ "$SYSTEMD_SCOPE" == "system" ]]; then
+    systemctl restart "$SERVICE"
+  else
+    systemctl --user restart "$SERVICE"
+  fi
   sleep 3
   curl -fsS --max-time 5 "$URL" >/dev/null
   echo "dashboard_restarted url=$URL service=$SERVICE"

@@ -1,0 +1,8 @@
+[Unit]
+Description=Restart OpenClaw Gateway after npm package update
+After=openclaw-gateway.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sleep 15
+ExecStart=/usr/bin/systemctl restart openclaw-gateway.service

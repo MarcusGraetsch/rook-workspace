@@ -1,0 +1,12 @@
+[Unit]
+Description=Hermes Rook Communication Bridge (every 5 minutes)
+Requires=hermes-rook-comm-bridge.service
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=hermes-rook-comm-bridge.service
+
+[Install]
+WantedBy=timers.target

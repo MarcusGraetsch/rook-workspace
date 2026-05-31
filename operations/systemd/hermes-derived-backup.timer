@@ -1,0 +1,12 @@
+[Unit]
+Description=Hermes Derived Data Backup (daily 04:20)
+Requires=hermes-derived-backup.service
+
+[Timer]
+OnCalendar=*-*-* 04:20:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=hermes-derived-backup.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook GitHub Issues Sync (daily 06:00)
+Requires=rook-github-issues-sync.service
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+Persistent=true
+RandomizedDelaySec=10m
+Unit=rook-github-issues-sync.service
+
+[Install]
+WantedBy=timers.target

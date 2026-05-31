@@ -11,6 +11,7 @@ DATA_DIR="$DASHBOARD_ROOT/data"
 DB_PATH="$DATA_DIR/kanban.db"
 EMPTY_DB_PATH="$DATA_DIR/kanban.db.empty-backup"
 BACKUP_ROOT="/root/backups/rook-runtime"
+SYSTEMD_SCOPE="${ROOK_DASHBOARD_SYSTEMD_SCOPE:-user}"
 
 log() {
   echo "dashboard-startup-guard: $*" >&2
@@ -70,10 +71,11 @@ restore_from_backup() {
   log "restoring dashboard DB from backup: $backup_db"
 
   # Stop the running process first if it is already up
-  if command -v systemctl >/dev/null 2>&1 && systemctl --user is-active --quiet rook-dashboard.service 2>/dev/null; then
-    log "stopping rook-dashboard.service before restore"
-    systemctl --user stop rook-dashboard.service
-    local stopped=1
+  if command -v systemctl >/dev/null 2>&1; then
+    if [[ "$SYSTEMD_SCOPE" != "system" ]] && systemctl --user is-active --quiet rook-dashboard.service 2>/dev/null; then
+      log "stopping rook-dashboard.service before restore"
+      systemctl --user stop rook-dashboard.service
+    fi
   fi
 
   # Copy DB files (main + WAL + SHM if present)

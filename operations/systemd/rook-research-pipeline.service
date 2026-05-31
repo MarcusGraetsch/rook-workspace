@@ -1,0 +1,8 @@
+[Unit]
+Description=Rook Weekly Research Pipeline
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/.openclaw/workspace/projects/digital-research/data/run-pipeline-orchestrated.sh

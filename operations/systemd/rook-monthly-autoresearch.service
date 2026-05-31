@@ -1,0 +1,9 @@
+[Unit]
+Description=Rook Monthly Autoresearch Task
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/.openclaw/workspace
+ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/create-monthly-autoresearch.mjs

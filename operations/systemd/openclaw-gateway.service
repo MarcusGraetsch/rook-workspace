@@ -6,6 +6,8 @@ StartLimitBurst=5
 StartLimitIntervalSec=60
 
 [Service]
+User=openclaw
+Group=openclaw
 ExecStart=/usr/bin/node /usr/lib/node_modules/openclaw/dist/index.js gateway --port 18789
 Restart=always
 RestartSec=5
@@ -17,9 +19,11 @@ KillMode=control-group
 EnvironmentFile=-/root/.openclaw/.env.d/brave-api-key.txt
 EnvironmentFile=-/root/.openclaw/.env.d/minimax-api-key.txt
 EnvironmentFile=-/root/.openclaw/.env.d/kimi-api-key.txt
-Environment=HOME=/root
+Environment=HOME=/var/lib/openclaw
+Environment=OPENCLAW_STATE_DIR=/root/.openclaw
+Environment=OPENCLAW_CONFIG_PATH=/root/.openclaw/openclaw.json
 Environment=TMPDIR=/tmp
-Environment=PATH=/usr/bin:/root/.local/bin:/root/.npm-global/bin:/root/bin:/root/.volta/bin:/root/.asdf/shims:/root/.bun/bin:/root/.nvm/current/bin:/root/.fnm/current/bin:/root/.local/share/pnpm:/usr/local/bin:/bin
+Environment=PATH=/usr/bin:/usr/local/bin:/bin
 Environment=OPENCLAW_GATEWAY_PORT=18789
 Environment=OPENCLAW_SYSTEMD_UNIT=openclaw-gateway.service
 Environment="OPENCLAW_WINDOWS_TASK_NAME=OpenClaw Gateway"

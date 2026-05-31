@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch openclaw npm package for updates and restart gateway
+
+[Path]
+PathModified=/usr/lib/node_modules/openclaw/package.json
+Unit=openclaw-gateway-autoreload.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Rook GitHub Issues Sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/.openclaw/workspace
+ExecStart=/usr/bin/node /root/.openclaw/workspace/operations/bin/sync-github-issues.mjs

@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="/root/.openclaw/workspace/engineering/rook-dashboard"
 HOST="${ROOK_DASHBOARD_HOST:-127.0.0.1}"
 PORT="${ROOK_DASHBOARD_PORT:-3001}"
+SYSTEMD_SCOPE="${ROOK_DASHBOARD_SYSTEMD_SCOPE:-user}"
 
 cd "$ROOT_DIR"
 

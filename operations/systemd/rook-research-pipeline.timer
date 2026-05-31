@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook Weekly Research Pipeline (Sundays 08:00)
+Requires=rook-research-pipeline.service
+
+[Timer]
+OnCalendar=Sun *-*-* 08:00:00
+Persistent=true
+RandomizedDelaySec=20m
+Unit=rook-research-pipeline.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,9 @@
+[Unit]
+Description=Rook VM Ops Baseline Report
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/.openclaw/workspace
+ExecStart=/root/.openclaw/workspace/operations/bin/vm-ops-baseline.sh

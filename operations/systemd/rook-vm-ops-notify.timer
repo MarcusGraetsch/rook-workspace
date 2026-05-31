@@ -1,0 +1,12 @@
+[Unit]
+Description=Rook VM Ops Threshold Notification (daily 05:45)
+Requires=rook-vm-ops-notify.service
+
+[Timer]
+OnCalendar=*-*-* 05:45:00
+Persistent=true
+RandomizedDelaySec=5m
+Unit=rook-vm-ops-notify.service
+
+[Install]
+WantedBy=timers.target
