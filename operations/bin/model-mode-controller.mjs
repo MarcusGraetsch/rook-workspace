@@ -12,6 +12,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import { checkApproval } from './approval-gate.mjs';
 
 const ROOT_DIR = '/root/.openclaw';
 const OPENCLAW_CONFIG_PATH = path.join(ROOT_DIR, 'openclaw.json');
@@ -160,6 +161,11 @@ async function collectKimiUsage(defaultModelRef, providers) {
 }
 
 async function sendTelegramMessage(policy, text, openclawConfig) {
+  const approval = await checkApproval('outbound_message', { optional: true });
+  if (!approval.ok) {
+    return { ok: true, skipped: true, reason: approval.reason, envVar: approval.envVar };
+  }
+
   if (policy?.telegram?.enabled !== true) {
     return { ok: false, skipped: true, reason: 'telegram disabled' };
   }
@@ -289,6 +295,29 @@ async function computeDecision(policy, openclawConfig, command) {
 }
 
 async function executeDecision(policy, openclawConfig, decision) {
+  if (decision.action === 'switch' || decision.action === 'restore') {
+    const approval = await checkApproval('config_rewrite');
+    if (!approval.ok) {
+      const blockedState = {
+        updated_at: new Date().toISOString(),
+        active_mode: decision.current_mode,
+        effective_model: decision.current_mode === 'fallback' ? policy.fallback_model : policy.default_model,
+        reason: `${decision.reason} (blocked: ${approval.reason})`,
+        policy_path: path.relative(ROOT_DIR, POLICY_PATH),
+        usage: decision.usage,
+        approval_required: approval.envVar,
+      };
+      await writeJsonAtomic(RUNTIME_STATE_PATH, blockedState);
+      return {
+        ...decision,
+        action: 'blocked',
+        reason: approval.reason,
+        approval,
+        state: blockedState,
+      };
+    }
+  }
+
   const state = decision.action === 'switch' || decision.action === 'restore'
     ? await applyMode(policy, openclawConfig, decision.next_mode, decision.reason, decision.usage)
     : await writeJsonAtomic(RUNTIME_STATE_PATH, {

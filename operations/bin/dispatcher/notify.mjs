@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import { ALERTS_FILE, LOG_DIR_PATH, ensureDir } from './loader.mjs';
 import { promises as fs } from 'fs';
+import { checkApproval } from '../approval-gate.mjs';
 
 // ---------------------------------------------------------------------------
 // Constants (from original)
@@ -79,6 +80,10 @@ export async function sendNotification(message) {
   if (!NOTIFY_ENABLED || !message.trim()) {
     return { ok: true, skipped: true };
   }
+  const approval = await checkApproval('outbound_message', { optional: true });
+  if (!approval.ok) {
+    return { ok: true, skipped: true, reason: approval.reason, envVar: approval.envVar };
+  }
   const result = await spawnNotification(NOTIFY_CHANNEL, NOTIFY_TARGET, message);
   return { ...result, ok: result.code === 0 };
 }
@@ -86,6 +91,10 @@ export async function sendNotification(message) {
 export async function sendTelegramNotification(message) {
   if (!NOTIFY_TELEGRAM_ENABLED || !message.trim()) {
     return { ok: true, skipped: true };
+  }
+  const approval = await checkApproval('outbound_message', { optional: true });
+  if (!approval.ok) {
+    return { ok: true, skipped: true, reason: approval.reason, envVar: approval.envVar };
   }
   // Strip Discord markdown bold (**) — Telegram uses the same syntax but
   // Telegram markdown is more strict; plain text is always safe.

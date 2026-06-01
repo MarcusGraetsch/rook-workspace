@@ -7,4 +7,6 @@ Type=oneshot
 User=root
 Group=root
 Environment=ROOK_DASHBOARD_SYSTEMD_SCOPE=system
+Environment=ROOK_APPROVAL_SERVICE_RESTART=1
+Environment=ROOK_APPROVAL_CONFIG_REWRITE=1
 ExecStart=/root/.openclaw/workspace/operations/bin/dashboard-watchdog.sh

@@ -6,6 +6,17 @@ URL="${ROOK_DASHBOARD_URL:-http://127.0.0.1:${PORT}/kanban}"
 SERVICE="${ROOK_DASHBOARD_SERVICE:-rook-dashboard.service}"
 MODEL_POLICY_CONTROLLER="${ROOK_MODEL_POLICY_CONTROLLER:-/root/.openclaw/workspace/operations/bin/model-mode-controller.mjs}"
 SYSTEMD_SCOPE="${ROOK_DASHBOARD_SYSTEMD_SCOPE:-user}"
+APPROVAL_GATE="${ROOK_APPROVAL_GATE:-/root/.openclaw/workspace/operations/bin/approval-gate.mjs}"
+
+require_approval() {
+  if command -v node >/dev/null 2>&1 && [[ -f "$APPROVAL_GATE" ]]; then
+    if node "$APPROVAL_GATE" service_restart >/dev/null 2>&1; then
+      return 0
+    fi
+  fi
+  echo "approval_required scope=service_restart action=dashboard_restart gate=$APPROVAL_GATE" >&2
+  return 1
+}
 
 run_model_policy_controller() {
   if command -v node >/dev/null 2>&1 && [[ -f "$MODEL_POLICY_CONTROLLER" ]]; then
@@ -29,8 +40,10 @@ echo "dashboard_down url=$URL service=$SERVICE" >&2
 
 if command -v systemctl >/dev/null 2>&1; then
   if [[ "$SYSTEMD_SCOPE" == "system" ]]; then
+    require_approval
     systemctl restart "$SERVICE"
   else
+    require_approval
     systemctl --user restart "$SERVICE"
   fi
   sleep 3

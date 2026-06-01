@@ -6,4 +6,5 @@ After=openclaw-gateway.service
 Type=oneshot
 Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/0/bus
 Environment=XDG_RUNTIME_DIR=/run/user/0
+Environment=ROOK_APPROVAL_SERVICE_RESTART=1
 ExecStart=/root/.openclaw/health/health-guardian.sh

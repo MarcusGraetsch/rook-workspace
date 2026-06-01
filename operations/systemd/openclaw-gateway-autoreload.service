@@ -4,5 +4,6 @@ After=openclaw-gateway.service
 
 [Service]
 Type=oneshot
+Environment=ROOK_APPROVAL_SERVICE_RESTART=1
 ExecStart=/bin/sleep 15
 ExecStart=/usr/bin/systemctl restart openclaw-gateway.service

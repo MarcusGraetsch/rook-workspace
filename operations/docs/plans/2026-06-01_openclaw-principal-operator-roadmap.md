@@ -69,7 +69,7 @@ The simplest architecture that still solves the problem is:
 - [ ] Decide whether `tasks/registry` is canonical, derived, or legacy noise that should be removed.
 - [x] ~~Write the agent permission matrix for `rook`, `dispatcher`, the bridge, and any operator-facing agent.~~
 - [x] ~~Separate planner permissions from executor permissions so dangerous actions do not share the same default tool surface.~~
-- [ ] Make the approval gate explicit for any action that restarts services, rewrites config, or sends outbound messages.
+- [x] ~~Make the approval gate explicit for any action that restarts services, rewrites config, or sends outbound messages.~~ Added `approval-gates` policy entries and wired the gate into restart, config rewrite, and outbound notification paths.
 - [ ] Audit `/root/.openclaw/openclaw.json` for any remaining insecure defaults, fallback allow modes, or ambiguous routing rules.
 
 **Why it matters:** these are the places where the system can still silently do the wrong thing or hide the real source of failure.

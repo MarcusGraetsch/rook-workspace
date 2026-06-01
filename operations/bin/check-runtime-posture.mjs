@@ -128,6 +128,7 @@ async function main() {
   const gateway = config?.gateway || {};
   const hooks = config?.hooks || {};
   const agentMatrix = runtimePolicy?.agent_permission_matrix || {};
+  const approvalGates = runtimePolicy?.approval_gates || {};
   const agentsById = agentConfigById(config);
 
   record(
@@ -239,6 +240,16 @@ async function main() {
     unknownHookAgents.length === 0 ? 'all bound' : unknownHookAgents.join(', '),
     'warning'
   );
+
+  for (const scope of ['service_restart', 'config_rewrite', 'outbound_message']) {
+    const gate = approvalGates?.[scope] || {};
+    record(
+      `runtime_policy.approval_gates.${scope}`,
+      typeof gate?.env === 'string' && gate.env.trim().length > 0,
+      typeof gate?.env === 'string' ? gate.env : 'missing',
+      'error'
+    );
+  }
 
   for (const [agentId, expected] of Object.entries(agentMatrix)) {
     const agent = agentsById.get(agentId);

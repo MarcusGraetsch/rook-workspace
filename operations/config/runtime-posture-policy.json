@@ -112,6 +112,20 @@
       ]
     }
   },
+  "approval_gates": {
+    "service_restart": {
+      "env": "ROOK_APPROVAL_SERVICE_RESTART",
+      "description": "Required before helpers restart a live service"
+    },
+    "config_rewrite": {
+      "env": "ROOK_APPROVAL_CONFIG_REWRITE",
+      "description": "Required before helpers rewrite live config or mode state"
+    },
+    "outbound_message": {
+      "env": "ROOK_APPROVAL_OUTBOUND_MESSAGE",
+      "description": "Required before helpers emit outbound notifications"
+    }
+  },
   "acknowledged_findings": {
     "telegram_group_allowlist_empty": {
       "enabled": true,
