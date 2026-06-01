@@ -562,11 +562,11 @@ async function main() {
     });
   }
 
-  if (hooks.allowRequestSessionKey !== true) {
+  if (hooks.allowRequestSessionKey === true) {
     findings.push({
       source: 'openclaw_contract',
       severity: 'warning',
-      type: 'hooks_allow_request_session_key_disabled',
+      type: 'hooks_allow_request_session_key_enabled',
       details: `hooks.allowRequestSessionKey=${String(hooks.allowRequestSessionKey)}`,
     });
   }

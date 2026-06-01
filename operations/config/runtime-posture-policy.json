@@ -3,6 +3,115 @@
   "event_dispatcher": {
     "max_stale_minutes": 15
   },
+  "agent_permission_matrix": {
+    "rook": {
+      "profile": "coding",
+      "alsoAllow": [
+        "group:messaging"
+      ]
+    },
+    "dispatcher": {
+      "profile": "messaging",
+      "alsoAllow": [
+        "read",
+        "exec"
+      ]
+    },
+    "engineer": {
+      "allow": [
+        "read",
+        "write",
+        "edit",
+        "exec",
+        "process",
+        "web_search",
+        "web_fetch"
+      ],
+      "deny": [
+        "gateway",
+        "browser",
+        "elevated"
+      ]
+    },
+    "researcher": {
+      "allow": [
+        "read",
+        "write",
+        "edit",
+        "memory_search",
+        "memory_get",
+        "web_search",
+        "web_fetch"
+      ],
+      "deny": [
+        "gateway",
+        "browser",
+        "elevated",
+        "exec"
+      ]
+    },
+    "test": {
+      "allow": [
+        "read",
+        "write",
+        "edit",
+        "exec",
+        "process"
+      ],
+      "deny": [
+        "gateway",
+        "browser",
+        "elevated"
+      ]
+    },
+    "review": {
+      "allow": [
+        "read",
+        "write",
+        "edit",
+        "exec",
+        "process"
+      ],
+      "deny": [
+        "gateway",
+        "browser",
+        "elevated"
+      ]
+    },
+    "coach": {
+      "allow": [
+        "read",
+        "write",
+        "edit",
+        "memory_search",
+        "memory_get",
+        "web_search",
+        "web_fetch"
+      ],
+      "deny": [
+        "gateway",
+        "browser",
+        "elevated",
+        "exec"
+      ]
+    },
+    "health": {
+      "allow": [
+        "read",
+        "write",
+        "edit",
+        "memory_search",
+        "memory_get"
+      ],
+      "deny": [
+        "gateway",
+        "browser",
+        "elevated",
+        "exec",
+        "web_search"
+      ]
+    }
+  },
   "acknowledged_findings": {
     "telegram_group_allowlist_empty": {
       "enabled": true,

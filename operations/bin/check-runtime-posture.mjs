@@ -47,6 +47,32 @@ function configuredAgentIds(config) {
     : [];
 }
 
+function agentConfigById(config) {
+  const agents = Array.isArray(config?.agents?.list) ? config.agents.list : [];
+  return new Map(
+    agents
+      .map((agent) => [agent?.id, agent])
+      .filter(([id]) => typeof id === 'string' && id.length > 0)
+  );
+}
+
+function normalizeStringList(value) {
+  return Array.isArray(value)
+    ? [...new Set(value.map((entry) => String(entry).trim()).filter((entry) => entry.length > 0))].sort()
+    : [];
+}
+
+function compareStringList(expected, actual) {
+  const normalizedExpected = normalizeStringList(expected);
+  const normalizedActual = normalizeStringList(actual);
+  return {
+    ok: normalizedExpected.length === normalizedActual.length
+      && normalizedExpected.every((entry, index) => entry === normalizedActual[index]),
+    expected: normalizedExpected,
+    actual: normalizedActual,
+  };
+}
+
 function matchesConstraints(constraints, actual) {
   return Object.entries(constraints || {}).every(([key, expected]) => actual[key] === expected);
 }
@@ -101,6 +127,8 @@ async function main() {
   const discord = config?.channels?.discord || {};
   const gateway = config?.gateway || {};
   const hooks = config?.hooks || {};
+  const agentMatrix = runtimePolicy?.agent_permission_matrix || {};
+  const agentsById = agentConfigById(config);
 
   record(
     'agents.unbound_dirs',
@@ -113,15 +141,18 @@ async function main() {
     const agentDir = path.join(AGENTS_DIR, agentId, 'agent');
     const modelsPath = path.join(agentDir, 'models.json');
     const authProfilesPath = path.join(agentDir, 'auth-profiles.json');
+    const bundleSeverity = agentId === 'rook' ? 'warning' : 'error';
     record(
       `agent:${agentId}:models.json`,
       await pathExists(modelsPath),
-      path.relative(OPENCLAW_DIR, modelsPath)
+      path.relative(OPENCLAW_DIR, modelsPath),
+      bundleSeverity
     );
     record(
       `agent:${agentId}:auth-profiles.json`,
       await pathExists(authProfilesPath),
-      path.relative(OPENCLAW_DIR, authProfilesPath)
+      path.relative(OPENCLAW_DIR, authProfilesPath),
+      bundleSeverity
     );
   }
 
@@ -195,7 +226,7 @@ async function main() {
 
   record(
     'hooks.allowRequestSessionKey',
-    hooks.allowRequestSessionKey === true,
+    hooks.allowRequestSessionKey !== true,
     String(hooks.allowRequestSessionKey ?? 'missing'),
     'warning'
   );
@@ -208,6 +239,48 @@ async function main() {
     unknownHookAgents.length === 0 ? 'all bound' : unknownHookAgents.join(', '),
     'warning'
   );
+
+  for (const [agentId, expected] of Object.entries(agentMatrix)) {
+    const agent = agentsById.get(agentId);
+    record(
+      `agents.${agentId}.present`,
+      Boolean(agent),
+      agent ? 'present' : 'missing',
+      'error'
+    );
+
+    if (!agent) {
+      continue;
+    }
+
+    const tools = agent.tools || {};
+    const resolvedProfile = tools.profile || config?.tools?.profile || null;
+
+    if (Object.prototype.hasOwnProperty.call(expected || {}, 'profile')) {
+      record(
+        `agents.${agentId}.tools.profile`,
+        resolvedProfile === expected.profile,
+        `expected=${String(expected.profile)} actual=${String(resolvedProfile)}`,
+        'error'
+      );
+    }
+
+    for (const field of ['allow', 'deny', 'alsoAllow']) {
+      if (!Object.prototype.hasOwnProperty.call(expected || {}, field)) {
+        continue;
+      }
+
+      const comparison = compareStringList(expected[field], tools[field]);
+      record(
+        `agents.${agentId}.tools.${field}`,
+        comparison.ok,
+        comparison.ok
+          ? `matched ${comparison.expected.length} entries`
+          : `expected=[${comparison.expected.join(', ')}] actual=[${comparison.actual.join(', ')}]`,
+        'error'
+      );
+    }
+  }
 
   const summary = {
     checked_at: new Date().toISOString(),

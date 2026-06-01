@@ -105,7 +105,7 @@ async function main() {
 
   record('hooks.enabled', hooks.enabled === true, hooks.enabled === true ? 'enabled' : 'disabled or missing');
   record('hooks.token', typeof hooks.token === 'string' && hooks.token.length > 10, hooks.token ? 'present' : 'missing');
-  record('hooks.allowRequestSessionKey', hooks.allowRequestSessionKey === true, String(hooks.allowRequestSessionKey));
+  record('hooks.allowRequestSessionKey', hooks.allowRequestSessionKey !== true, String(hooks.allowRequestSessionKey));
   record(
     'hooks.allowedSessionKeyPrefixes',
     Array.isArray(hooks.allowedSessionKeyPrefixes) && hooks.allowedSessionKeyPrefixes.includes(REQUIRED_HOOK_PREFIX),

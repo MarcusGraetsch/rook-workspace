@@ -67,8 +67,8 @@ The simplest architecture that still solves the problem is:
 
 - [ ] Resolve the persistent `tasks/registry` restore warning by identifying the real source of truth for task state.
 - [ ] Decide whether `tasks/registry` is canonical, derived, or legacy noise that should be removed.
-- [ ] Write the agent permission matrix for `rook`, `dispatcher`, the bridge, and any operator-facing agent.
-- [ ] Separate planner permissions from executor permissions so dangerous actions do not share the same default tool surface.
+- [x] ~~Write the agent permission matrix for `rook`, `dispatcher`, the bridge, and any operator-facing agent.~~
+- [x] ~~Separate planner permissions from executor permissions so dangerous actions do not share the same default tool surface.~~
 - [ ] Make the approval gate explicit for any action that restarts services, rewrites config, or sends outbound messages.
 - [ ] Audit `/root/.openclaw/openclaw.json` for any remaining insecure defaults, fallback allow modes, or ambiguous routing rules.
 
