@@ -1,0 +1,56 @@
+{
+  "task_id": "ops-0002",
+  "project_id": "rook-workspace",
+  "title": "Autoresearch: rook-dashboard (Juni 2026)",
+  "description": "Monthly autoresearch loop for **rook-dashboard**.\n\nNext.js Kanban dashboard for task management. Improve performance, fix UX issues, and add missing features.\n\n**Target path:** `/root/.openclaw/workspace/engineering/rook-dashboard`\n**Focus areas:** load time, UX completeness, Kanban reliability\n\nRun /autoresearch (agent-growth-suite) against this target.\nMeasure before/after. Keep only improvements that score better.\nCommit results and document in AUTORESEARCH-LOG.md.",
+  "status": "ready",
+  "assigned_agent": "rook",
+  "claimed_by": null,
+  "priority": "medium",
+  "labels": [
+    "autoresearch",
+    "monthly",
+    "rook-dashboard"
+  ],
+  "dependencies": [],
+  "blocked_by": [],
+  "blocked_reason": null,
+  "failure_reason": null,
+  "handoff_notes": "",
+  "source_channel": "system:monthly-autoresearch",
+  "artifacts": [],
+  "checklist": [
+    {
+      "title": "Run /autoresearch on rook-dashboard",
+      "completed": false,
+      "position": 0
+    },
+    {
+      "title": "Document baseline metrics",
+      "completed": false,
+      "position": 1
+    },
+    {
+      "title": "Implement top improvements",
+      "completed": false,
+      "position": 2
+    },
+    {
+      "title": "Measure and compare",
+      "completed": false,
+      "position": 3
+    },
+    {
+      "title": "Commit and document in AUTORESEARCH-LOG.md",
+      "completed": false,
+      "position": 4
+    }
+  ],
+  "timestamps": {
+    "created_at": "2026-06-01T07:06:38.937Z",
+    "updated_at": "2026-06-01T07:06:38.937Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}
