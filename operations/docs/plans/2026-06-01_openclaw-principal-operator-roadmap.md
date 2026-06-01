@@ -24,6 +24,11 @@
 - [x] `voice-call` auto-load warning was removed by disabling the plugin.
 - [x] The dashboard polling/render drift fix was deployed and committed.
 
+## Current session progress
+
+- [x] ~~Implement the first dashboard-0050 slice: expand Kanban workflow states to Review/Rework/Human Review/Merging, add canonical task filtering and task update APIs, and render artifacts/retry/child-task state in the dashboard.~~
+- [x] ~~Surface retry queue depth and running session counts in the agent health overview, and align the health schema with the emitted snapshot shape.~~
+
 ## Target architecture
 
 The simplest architecture that still solves the problem is:
@@ -157,4 +162,3 @@ For every completed task:
 1. Change `- [ ]` to `- [x]`.
 2. Strike through the task text with `~~...~~`.
 3. Add a short completion note only if the result is not obvious from the commit or report filename.
-

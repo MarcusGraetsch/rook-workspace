@@ -11,9 +11,12 @@
     "last_seen_at",
     "workspace",
     "queue_depth",
+    "retry_queue_depth",
     "last_error",
     "last_completed_task",
     "repo_heads",
+    "running_sessions_count",
+    "max_concurrent",
     "runtime"
   ],
   "properties": {
@@ -32,6 +35,10 @@
       "type": "integer",
       "minimum": 0
     },
+    "retry_queue_depth": {
+      "type": "integer",
+      "minimum": 0
+    },
     "last_error": { "type": ["string", "null"] },
     "last_completed_task": { "type": ["string", "null"] },
     "repo_heads": {
@@ -39,6 +46,14 @@
       "additionalProperties": {
         "type": "string"
       }
+    },
+    "running_sessions_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "max_concurrent": {
+      "type": ["integer", "null"],
+      "minimum": 0
     },
     "runtime": {
       "type": "object",
