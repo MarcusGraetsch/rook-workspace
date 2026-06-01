@@ -21,6 +21,7 @@ const AGENTS_DIR = path.join(OPENCLAW_DIR, 'agents');
 const CREDENTIALS_DIR = path.join(OPENCLAW_DIR, 'credentials');
 const TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'tasks');
 const CANONICAL_ARCHIVE_TASKS_DIR = path.join(WORKSPACE_DIR, 'operations', 'archive', 'tasks');
+const FLOWS_REGISTRY_PATH = path.join(OPENCLAW_DIR, 'flows', 'registry.sqlite');
 const RUNTIME_TASK_STATE_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'task-state');
 const RUNTIME_ARCHIVE_TASKS_DIR = path.join(OPENCLAW_DIR, 'runtime', 'operations', 'archive', 'tasks');
 const WORKSPACE_MAIN_TASKS_DIR = path.join(OPENCLAW_DIR, 'workspace-main', 'operations', 'tasks');
@@ -87,6 +88,26 @@ async function pathExists(targetPath) {
     return true;
   } catch {
     return false;
+  }
+}
+
+async function checkSqliteIntegrity(filePath) {
+  if (!(await pathExists(filePath))) {
+    return { ok: false, reason: 'missing' };
+  }
+
+  try {
+    const { stdout } = await execFile('sqlite3', [filePath, 'pragma integrity_check;'], {
+      maxBuffer: 1024 * 1024,
+    });
+    const result = String(stdout || '').trim();
+    return {
+      ok: result === 'ok',
+      reason: result || 'empty_response',
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, reason: message };
   }
 }
 
@@ -1069,6 +1090,16 @@ async function main() {
     }
   }
 
+  const flowRegistryIntegrity = await checkSqliteIntegrity(FLOWS_REGISTRY_PATH);
+  findings.push({
+    source: 'flow_registry',
+    severity: flowRegistryIntegrity.ok ? 'info' : (flowRegistryIntegrity.reason === 'missing' ? 'warning' : 'error'),
+    type: flowRegistryIntegrity.ok ? 'flow_registry_ok' : (flowRegistryIntegrity.reason === 'missing' ? 'flow_registry_missing' : 'flow_registry_corrupt'),
+    details: flowRegistryIntegrity.ok
+      ? path.relative(OPENCLAW_DIR, FLOWS_REGISTRY_PATH)
+      : `flows/registry.sqlite integrity: ${flowRegistryIntegrity.reason}`,
+  });
+
   const trackedFiles = await trackedWorkspaceFiles();
   for (const agentId of unboundAgentDirs) {
     const agentDir = path.join(AGENTS_DIR, agentId);
@@ -1183,6 +1214,13 @@ async function main() {
     true,
     findings.filter((finding) => finding.source === 'runtime_only_task_state' && finding.severity === 'warning').length,
     0
+  );
+  recordCheck(
+    'flow_registry',
+    'Flow registry',
+    !findings.some((finding) => finding.source === 'flow_registry' && finding.severity === 'error'),
+    findings.filter((finding) => finding.source === 'flow_registry' && finding.severity === 'warning').length,
+    findings.filter((finding) => finding.source === 'flow_registry' && finding.severity === 'error').length
   );
   recordCheck(
     'stale_agent_dirs',

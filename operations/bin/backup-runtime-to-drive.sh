@@ -11,6 +11,7 @@ fi
 DATE_UTC="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 HOSTNAME_SHORT="$(hostname -s 2>/dev/null || hostname)"
 
+OPENCLAW_DIR="/root/.openclaw"
 WORKSPACE_ROOT="/root/.openclaw/workspace"
 DASHBOARD_ROOT="$WORKSPACE_ROOT/engineering/rook-dashboard"
 RUNTIME_ROOT="${ROOK_RUNTIME_ROOT:-/root/.openclaw/runtime}"
@@ -52,13 +53,23 @@ tar czf "$RUN_DIR/operations/tasks.tar.gz" \
   tasks archive/tasks projects/projects.json
 echo "    Created operations/tasks.tar.gz"
 
-echo "[3/5] Archiving runtime health and dispatcher state..."
+echo "[3/6] Archiving flow registry..."
+if [ -f "$OPENCLAW_DIR/flows/registry.sqlite" ]; then
+  tar czf "$RUN_DIR/operations/flows.tar.gz" \
+    -C "$OPENCLAW_DIR" \
+    flows/registry.sqlite
+  echo "    Created operations/flows.tar.gz"
+else
+  echo "    Flow registry missing; skipping."
+fi
+
+echo "[4/6] Archiving runtime health and dispatcher state..."
 tar czf "$RUN_DIR/operations/runtime-state.tar.gz" \
   -C "$RUNTIME_OPERATIONS_ROOT" \
   archive health logs/dispatcher
 echo "    Created operations/runtime-state.tar.gz"
 
-echo "[4/5] Writing manifests..."
+echo "[5/6] Writing manifests..."
 cat > "$RUN_DIR/manifests/backup-manifest.txt" <<EOF
 timestamp_utc=$DATE_UTC
 host=$HOSTNAME_SHORT
@@ -90,7 +101,7 @@ EOF
 du -sh "$RUN_DIR" > "$RUN_DIR/manifests/size.txt" 2>/dev/null || true
 echo "    Wrote manifests"
 
-echo "[5/5] Syncing to Google Drive..."
+echo "[6/6] Syncing to Google Drive..."
 if command -v rclone >/dev/null 2>&1 && rclone listremotes 2>/dev/null | grep -qx 'gdrive:'; then
   rclone copy "$RUN_DIR" "$GDRIVE_REMOTE/$DATE_UTC" --create-empty-src-dirs
   echo "    Synced to $GDRIVE_REMOTE/$DATE_UTC"

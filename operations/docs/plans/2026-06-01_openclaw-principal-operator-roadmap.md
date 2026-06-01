@@ -65,8 +65,8 @@ The simplest architecture that still solves the problem is:
 
 **Objective:** Remove the highest-risk remaining friction and ambiguity.
 
-- [ ] Resolve the persistent `tasks/registry` restore warning by identifying the real source of truth for task state.
-- [ ] Decide whether `tasks/registry` is canonical, derived, or legacy noise that should be removed.
+- [x] ~~Resolve the persistent `tasks/registry` restore warning by identifying the real source of truth for task state.~~ The live `tasks/registry` restore failure now resolves to `null`; the task registry store is healthy and the flow registry is backed up, restored, and integrity-checked.
+- [x] ~~Decide whether `tasks/registry` is canonical, derived, or legacy noise that should be removed.~~ The task registry is the live SQLite-backed task store under `~/.openclaw/tasks/runs.sqlite`; the flow registry is separate under `~/.openclaw/flows/registry.sqlite` and is now explicitly covered by backup/restore and control-plane checks.
 - [x] ~~Write the agent permission matrix for `rook`, `dispatcher`, the bridge, and any operator-facing agent.~~
 - [x] ~~Separate planner permissions from executor permissions so dangerous actions do not share the same default tool surface.~~
 - [x] ~~Make the approval gate explicit for any action that restarts services, rewrites config, or sends outbound messages.~~ Added `approval-gates` policy entries and wired the gate into restart, config rewrite, and outbound notification paths.

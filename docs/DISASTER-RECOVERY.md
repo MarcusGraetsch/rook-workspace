@@ -33,6 +33,7 @@ The runtime backup job is designed to protect the main local-only operational st
 - `operations/tasks/`
 - `/root/.openclaw/runtime/operations/archive/tasks/`
 - `operations/projects/projects.json`
+- `/root/.openclaw/flows/registry.sqlite`
 - `/root/.openclaw/runtime/operations/health/`
 - `/root/.openclaw/runtime/operations/logs/dispatcher/`
 - `/root/.openclaw/runtime/operations/task-state/`

@@ -151,6 +151,7 @@ If those requirements are missing, the dashboard should keep the ticket in `Inta
 - The runtime backup job snapshots:
   - dashboard SQLite state
   - canonical tasks and project registry from the tracked workspace
+  - flow registry from `/root/.openclaw/flows/registry.sqlite`
   - archived tasks from `/root/.openclaw/runtime/operations/archive/tasks/`
   - Git-backed archive history already present under `/root/.openclaw/workspace/operations/archive/tasks/`
   - health snapshots, task overlays, and dispatcher logs from `/root/.openclaw/runtime/operations/`

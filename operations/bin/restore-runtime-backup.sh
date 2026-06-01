@@ -15,6 +15,7 @@ This script restores:
   - dashboard SQLite files
   - canonical tasks and archived tasks
   - project registry
+  - flow registry
   - health snapshots
   - dispatcher logs
   - archived runtime task overlays
@@ -31,6 +32,7 @@ fi
 MODE="$1"
 SOURCE="$2"
 
+OPENCLAW_DIR="/root/.openclaw"
 WORKSPACE_ROOT="/root/.openclaw/workspace"
 OPERATIONS_ROOT="$WORKSPACE_ROOT/operations"
 RUNTIME_ROOT="${ROOK_RUNTIME_ROOT:-/root/.openclaw/runtime}"
@@ -85,6 +87,13 @@ if [ -f "$RESTORE_DIR/operations/tasks.tar.gz" ]; then
   echo "Restored canonical task state."
 else
   echo "Task archive missing; skipping canonical task restore."
+fi
+
+if [ -f "$RESTORE_DIR/operations/flows.tar.gz" ]; then
+  tar xzf "$RESTORE_DIR/operations/flows.tar.gz" -C "$OPENCLAW_DIR"
+  echo "Restored flow registry."
+else
+  echo "Flow registry archive missing; skipping flow registry restore."
 fi
 
 if [ -f "$RESTORE_DIR/operations/runtime-state.tar.gz" ]; then
