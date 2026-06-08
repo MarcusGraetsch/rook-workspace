@@ -41,9 +41,12 @@
 
 ---
 
-## Lessons Learned
-
-## Wiki-System (aktiv)
+### Memory-Search (behoben)
+- **Problem:** 2026-05-27: Memory-Search down wegen OpenAI Quota erschöpft
+- **Status:** ✅ Behoben — läuft mit built-in backend (lokale Vektor-Suche)
+- **Prüfung:** 2026-06-07: Suchanfragen liefern relevante Treffer aus historischen Sessions
+- **Kein OpenAI API Key nötig** für Memory-Search
+- **Notiz:** Falls OpenAI Embeddings für bessere Qualität gewünscht → API Key konfigurieren
 
 ### Wiki-Lint Cron-Job
 - **ID:** `dc1ddcd4-17fd-4e49-b736-a5ff16110e7f`
@@ -65,9 +68,14 @@
 
 ---
 
-## Lessons Learned
-
-### 2026-05-26 - Cron-Job Crash & Update-Skill Fix
+## Auto-Save Research Skill
+- **Neu erstellt:** 2026-06-08
+- **Problem:** Research-Dateien (z.B. KI-Chronologie) werden erstellt aber nicht automatisch committed
+- **Lösung:** `auto-save-research` Skill + Cron-Job alle 30 Minuten
+- **Script:** `.agents/skills/auto-save-research/scripts/check-and-save.js`
+- **Watched dirs:** `research/`, `projects/digital-research/`, `wiki/`, `memory/`
+- **Erster Test:** ✅ Erfolgreich — 8 Dateien committed und gepusht
+- **Nächster Schritt:** Cron-Job einrichten
 - **Problem:** Rook hat direkt `npm install -g openclaw@latest` ausgeführt → Session gecrasht
 - **Fix:** Phoenix (Hermes Agent) hat Session-Datei gelöscht, Gateway + Node neu gestartet
 - **Ursache:** CVE-Skill oder manueller Befehl hat direkt npm install ausgeführt, ohne openclaw-update Skill zu nutzen
@@ -96,6 +104,21 @@
 - `digital-capitalism-research` = Nur Research-Projekt
 - `working-notes` = Website (umbenannt von marcus-cyborg)
 - Submodules für Projekte mit eigenen Repos
+
+### 2026-06-05 - Repositories & Themen-Zuordnung
+| Repo | Thema | Zweck |
+|------|-------|-------|
+| **rook-workspace** | Workspace, Memory, Tools, Skills | Mein persönliches System |
+| **rook-agent** | Core System, Config, Skills | OpenClaw Agent-System |
+| **digital-capitalism-research** | KI-Chronologie, Research, Digital Capitalism | Forschungsprojekte |
+| **working-notes** | Website, Blog | Öffentliche Inhalte |
+| **rook-k8s-lab** | Kubernetes, IDP | Technische Experimente |
+| **idp-customer-onboarding** | Kundenprojekte | HiSolutions Arbeit |
+
+**Regel:** Digital Research → `digital-capitalism-research` (nicht rook-workspace)
+- KI-Chronologie, Research, Digital Capitalism → immer in `digital-capitalism-research`
+- Workspace, Memory, Tools → `rook-workspace`
+- Neue Themen → prüfen, ob neues Repo nötig
 
 ### 2026-03-27 - Ecosystem-Recherche
 - ogerly/awesom-claw: Kuratierter Index des OpenClaw-Ökosystems
@@ -153,10 +176,10 @@
 - Sonntags 08:00: Research Pipeline
 - Sonntags 02:00: Google Drive Backup
 
-### LLM
-- Default: Kimi K2.5 (kimi-coding/k2p5)
-- Problem: Rate Limits bei intensiver Nutzung
-- Fallback: OpenAI/Codex (noch nicht konfiguriert)
+## LLM
+- **Primary:** MiniMax-M3 (minimax/MiniMax-M3) — seit 2026-06-06
+- **Fallback:** Kimi K2.5 (kimi-coding/k2p5) — API Key Problem (401), fix pending
+- **Previous:** Kimi K2.5 war Primary bis 2026-06-06
 
 ### Neue Projekte (2026-04-14)
 - **community_politics_art-projects** — Privates Repo für Community/Politik/Kunst-Projekte (GitHub)
