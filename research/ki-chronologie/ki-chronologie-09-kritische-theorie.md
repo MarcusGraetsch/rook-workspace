@@ -145,6 +145,34 @@
 - **Die Kritik der Technologie-Adoption: KI wird zuerst den Schwächsten aufgezwungen**
 - Quelle: Boing Boing, Electronic Frontier Foundation, The Guardian
 
+### Gilles Deleuze — Postscript on the Societies of Control (1990)
+- Französischer Philosoph (1925–1995) formuliert die „Gesellschaften der Kontrolle“ als Nachfolge der Disziplinargesellschaften (Foucault)
+- Kontrolle ist nicht mehr ortsgebunden (Gefängnis, Fabrik), sondern kontinuierlich, digital, modulierbar
+- KI-Anwendung: Algorithmische Überwachung, Echtzeit-Kontrolle, Modulation von Verhalten durch Plattformen
+- **Die Kontrollgesellschaft: KI ist nicht nur Überwachung, sondern permanente, sanfte Modulation des Verhaltens**
+- Quelle: Wikipedia, Deleuze, "October" 59, Semiotext(e)
+
+### Bernard Stiegler — Technics and Time (1994)
+- Französischer Philosoph (1952–2020) entwickelt eine „Techno-Phänomenologie“: Technik ist nicht Gegensatz zum Menschen, sondern dessen Voraussetzung
+- *Technics and Time* (1994): Die „Epiphylogenese“ — Mensch wird durch Technik (Feuer, Schrift, KI) zu dem, was er ist
+- Kritik der „Proletarisierung des Bewusstseins“ durch digitale Technologie: KI zerstört Wissen, indem sie es automatisiert
+- **Die techno-phänomenologische Kritik: KI zerstört das menschliche Wissen, das sie ersetzt**
+- Quelle: Wikipedia, Stanford Encyclopedia, Stiegler, "Technics and Time"
+
+### Rosa Luxemburg — The Accumulation of Capital (1913)
+- Marxistische Theoretikerin (1871–1919) analysiert die „Reproduktion des Kapitals" durch technologische Expansion
+- Luxemburg argumentiert: Kapitalismus braucht ständige Expansion in nicht-kapitalistische Bereiche — eine These für die KI-Datenökonomie
+- KI-Anwendung: Die „Daten-Akkumulation“ reproduziert Luxemburgs Logik: KI muss ständig neue Daten erobern
+- **Die marxistische KI-Ökonomie: KI als Kapitalismus-Engine, die ständig neue Lebensbereiche kolonisiert**
+- Quelle: Wikipedia, Luxemburg, "The Accumulation of Capital", Verso Books
+
+### Federico Campagna — Technic and Magic (2018)
+- Italienischer Philosoph (geb. 1984) unterscheidet „Technik" (berechenbare Welt) und „Magie" (unberechenbare Welt)
+- KI ist die perfekte Technik: Sie versucht, die Welt vollständig berechenbar zu machen und verdrängt damit die „Magie“
+- Campagna warnt: Die technische Totalität der KI vernichtet die Möglichkeit alternativer Welten
+- **Die magische Kritik der KI: Wenn Algorithmen die Welt berechnen, verschwindet die Möglichkeit des Wunders**
+- Quelle: Campagna, "Technic and Magic", Bloomsbury, The Guardian
+
 ---
 
 *Gesammelt von Rook für Marcus Grätsch*
