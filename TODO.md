@@ -22,6 +22,7 @@
 |---|------|--------|--------|---------|
 | 1 | Flux GitHub Token konfigurieren (Repo ist private) | IDP K8s Lab | `[ ]` | Blockt GitOps-Sync |
 | 2 | ArgoCD Keycloak SSO fertigstellen | IDP K8s Lab | `[ ]` | |
+| 3 | Voice-Call Real-Setup abschließen (Telnyx API Key, Connection ID, Public Key, fromNumber, public Webhook-URL) | Session-Review 2026-06-12 / Telnyx-Wartezustand | `[ ]` | Blockiert bis die externen API- und Webhook-Daten vorliegen |
 
 ## 🟡 In Arbeit
 

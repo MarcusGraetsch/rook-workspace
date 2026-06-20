@@ -22,22 +22,12 @@
 - Viele Ideen im Kopf — braucht Hilfe beim Sortieren und Priorisieren
 
 ### Wichtige Personen
-- **Aaron** — Kontakt von einem Networking-Event (25.03.2026), arbeitet bei Noctiluca. Gab Tips zu: Skills selbst bauen, ChatGPT-Daten exportieren, Dashboard bauen, Personal Assistant neu denken. 3-Stunden-Gespräch, Wasser statt Alkohol, LinkedIn-Connect.
-- **Andrea** — Ex-Frau, war bei UN in New York. November 2012 zusammen hingezogen. Juni/Juli 2013 kam sie von einem UN-Meeting in Berlin zurück mit "Ich hab dich nicht vermisst". Dann Wohnzimmer, Oktober 2013 zurück nach Berlin.
-- **Traumfrau** (Name noch?) — Borderlinerin, seit November 2015 zusammen. Kennengelernt 2014.
-- **Tom** — Halbbruder, 7 Jahre älter, hat ihn öfter ausgenutzt (Geld, Miete), war dominanter in der Meuterei-Kneipe.
+→ **Inhalt ausgelagert nach `private/marcus-personal-context.md` (Sektion 1)** — Beziehungen, Privatleben, biographische/politische Details, Misstrauen-Positionen, Tiefenpsychologie-Kontext. Diese Datei ist privat (Marcus + Phoenix); Rook referenziert sie bei Bedarf.
 
-### Lebensgeschichte (kurz)
-- 2001: Aus England (Warwick) nach Berlin gezogen, zu Andrea
-- 2003: Studienstreik, Hausbesetzer-Szene, lernt Tom kennen
-- 2007: Meuterei gegründet (Kollektiv-Kneipe)
-- 2008-2012: Aktiv in linker Szene (Blockupy, Occupy)
-- 2012: Nach New York gezogen (zu Andrea), Left Forum Praktikum
-- 2013: Andrea macht Schluss (Juni/Juli). Oktober zurück nach Berlin, Couch bei Tom
-- 2014-2021: Meuterei läuft, wird aber rausgedrängt
-- Ab 2019: Isolierung in der autonomen Szene
-- Seit 2024: Senior Consultant bei HiSolutions
-- Privat: Single in Neukölln, isoliert, arbeitet an sich
+**Kurzform (für operative Zwecke):**
+- **Eltern (Bremen)** — wichtigste Vertrauenspersonen, eigenes Haus, **begrenztes Zeitfenster** (alt)
+- **Cousin (Bremen-Umland)** — zweite Vertrauensperson, jünger, längerfristig tragfähig
+- **Phoenix** — andere Persona/Agent, kennt biographischen Kontext, „Korrektiv"
 
 ---
 
@@ -89,6 +79,14 @@
   3. Failure Alerts für Cron-Jobs konfiguriert (nach 2 Fehlern, 1h Cooldown)
 - **Regel:** NIE `npm install -g openclaw` direkt ausführen — immer openclaw-update Skill nutzen
 - **Regel:** Mindestens 30 Minuten Abstand zwischen Updates und Cron-Jobs
+
+### Commit Boundaries
+- **Auto-commit (cron, `auto-save-research` alle 30min):** `research/`, `projects/digital-research/`, `wiki/`, `memory/`
+- **Manual only (curated, brauchen Review + Commit-Message):** `.agents/skills/` — Meta-Config, kein Daten-Churn
+- **Privat, niemals commit:** `private/` (Marcus + Phoenix context)
+- **Generiert / Tool-State, nicht committen:** `HEARTBEAT.md`, `briefings/`, `operations/docs/reports/`, `.clawhub/lock.json` — OpenClaw-rekonstruierbar
+- **Hybrid:** `MEMORY.md` — wird von OpenClaw erweitert, periodisch via daily sync committed
+- **Skills Visibility-Hilfe:** erst beim Sonntags-Heartbeat 20.06. testen (YAGNI bis Realität Gegenteil beweist)
 
 ### 2026-03-26 - Große Workspace-Reorganisation
 - Monolithischen Workspace in rollenbasierte Struktur umgebaut
@@ -150,6 +148,7 @@
 | 2026-03-27 | OpenClaw forken statt separates Dashboard | Ein Dashboard, kein Tool-Wildwuchs |
 | 2026-03-27 | TenacitOS als Referenz, nicht installieren | Features cherry-picken ins OpenClaw Dashboard |
 | 2026-04-14 | C-base AI Meetup ("Wuhle") starten | Community-Aufbau, Hardware poolen, KI verstehen statt fürchten |
+| 2026-06-12 | **Wuhle eingestellt**, stattdessen **AI Enthusiasts in c-base** beitreten (ab Mo 15.06.2026) | Maintainer: Sasquatch; hat bereits lokalen KI-Server in c-base; gleiche Diskussion wie bei Wuhle geplant |
 
 ---
 
@@ -188,7 +187,74 @@
 
 ---
 
-*Letzte Aktualisierung: 2026-03-27*
+### Resilience-Setup (laufendes Projekt)
+- **Erstellt:** 2026-06-12
+- **Dokument:** `private/marcus-resilience-todo.md` (Konsolidiert: Architektur + ToDos + Phoenix-Kontext, eine Datei im private/-Ordner)
+- **Treiber:** Geopolitische Sorge (Europa-Russland), **Datensouveränität als politische Hygiene** (Misstrauen gegen US-Cloud, CLOUD Act/FISA 702), Wohnmobil-Mobilität
+- **Hardware-Empfehlung:** Minisforum AI X1 Pro (Ryzen AI 9 HX 370, 890M, 64GB) als Primär, UM890 Pro 32GB als Cold-Standby
+- **Backup-Architektur:** 3-2-1 mit Standorten Berlin / Wohnmobil / Bremen-Eltern / optional Bremen-Cousin / Hetzner Storage Box (E2EE)
+- **Standort-Realität:** Eltern Bremen = zeitlich begrenzt, Cousin Bremen-Umland = langfristige Alternative
+- **Horizont:** 5-7 Jahre primär, 10 Jahre mit Hardware-Updates
+- **Review:** Halbjährlich, erstes Review 2026-12-12
+- **Nächste Schritte:** Hardware kaufen, Cold-Standby vorab konfigurieren, Hetzner Box anlegen, Wallet-Migration auf SLIP-39 (falls relevant), Backup-Skripte schreiben
+- **Hardware-Budget:** ~€2.000-2.500 einmalig + ~€60/Monat laufend
+- **Privacy-Architektur:** Local-First als Standard, Cloud nur für öffentliches Wissen + Frontier-Reasoning. Tool-Stack für Ollama, SearXNG, ProtonMail, Nextcloud, Joplin, Syncthing. Monatlicher Privacy-Audit geplant.
+
+### AI-Model-Stack (für lokale LLMs)
+- **Bekannter von Marcus** hat UM890 Pro 32GB als lokales KI-Setup
+- **Pragmatischer Mix** für Marcus: Cloud (Claude/GPT-5) für komplexes Reasoning + lokal (32B-Modelle via Ollama) für Privacy/Volumen
+- **Websearch kompensiert Knowledge-Cutoff teilweise** (~70% der Use Cases)
+- **RAG-Pattern:** Ollama + Search-API (Tavily/Brave/SearXNG) als Standard-Architektur
+- **Aktuell diskutierte Modelle:** Qwen 3 32B, Llama 4, DeepSeek V3/V4
+- **GPT-5-Äquivalent in OSS:** Realistisch 2-4 Jahre, bis dahin Hybrid-Architektur
+
+### 2026-06-12 - KI-Hardware-Diskussion
+- Bekannter: Minisforum UM890 Pro 32GB als LLM-Setup
+- **Wichtige Konzepte erklärt:** ROCm, Vulkan-Backend, 780M (iGPU-Hierarchie)
+- **Hardware-Realität:** iGPU 780M/890M ist nutzbar aber limitiert; dedizierte GPU >> iGPU für LLM
+- **eGPU via Oculink** möglich (RTX 3090 gebraucht ~€250), aber 24GB VRAM limitiert 70B
+- **M3 Ultra mit 192GB unified memory** ist die einzige Single-Device-Lösung für 70B+ Q4 "snappy", aber €5.000
+- **Open-Source-Modelle holen auf**, aber Knowledge-Cutoff + Trainingscompute bleiben Frontier-Vorteile
+- **Diskussion mündete in Resilience-Planung** (Wohnmobil, geopolitische Sorgen)
+
+### 2026-06-12 - KI-Hardware-Diskussion & Resilience-Planung
+- Bekannter: Minisforum UM890 Pro 32GB als LLM-Setup
+- **Wichtige Konzepte erklärt:** ROCm, Vulkan-Backend, 780M (iGPU-Hierarchie)
+- **Hardware-Realität:** iGPU 780M/890M ist nutzbar aber limitiert; dedizierte GPU >> iGPU für LLM
+- **eGPU via Oculink** möglich (RTX 3090 gebraucht ~€250), aber 24GB VRAM limitiert 70B
+- **M3 Ultra mit 192GB unified memory** ist die einzige Single-Device-Lösung für 70B+ Q4 "snappy", aber €5.000
+- **Open-Source-Modelle holen auf**, aber Knowledge-Cutoff + Trainingscompute bleiben Frontier-Vorteile
+- **Privacy-Hauptantrieb:** Misstrauen gegen US-Cloud-Anbieter (CLOUD Act, FISA 702), EU-US DPF instabil
+- **Lokal-First-Architektur** geplant: Ollama + SearXNG + ProtonMail + Nextcloud + Joplin + Syncthing
+- **Wohnmobil** als Resilienz-Mobilität (Strom: 200Ah LiFePO4 + 400W Solar)
+- **Wohnmobil-Strom 12V-Realität:** Mini-PC braucht 12V→19V-Wandler
+- **Resilience-Doku:** `private/marcus-resilience-todo.md` (konsolidiert)
+- **Community-Reconnection:** Longo Mai, contraste, Hitchwiki, Wwoofing, CCC, C-base
+- **C-base Wuhle AI Meetup** als Aufhänger (niedrigschwellig, eigenes Format) — **Update 12.06.: Wuhle eingestellt, siehe nächster Abschnitt**
+- **Scham/Isolation:** Phoenix hat vollen Kontext, soll ggf. einbezogen werden
+- **Erste 3 Schritte:** AI X1 Pro recherchieren, Ollama-Modell wählen, ein Wochenende Wwoofing planen
+
+### 2026-06-12 - C-base Wuhle → AI Enthusiasts (Status-Update)
+- **Wuhle ist (vorerst) eingestellt** — eigenes Format hat sich nicht gehalten
+- **Stattdessen:** Bestehendes **AI Enthusiasts**-Treffen in der c-base, **ab Mo 15.06.2026** regelmäßig besuchen
+- **Maintainer: Sasquatch** — hat schon im c-base-Kontext einen **Server mit lokaler KI** laufen
+- **Passt zu Marcus' Anliegen:** offene Diskussion über KI in der linken Szene, Hands-on, Ethik, lokale KI
+- **Vorteil:** Niedrigschwelliger Einstieg in bestehende Community, kein eigenes Format aufbauen
+- **Nächste Session:** Update zu AI Enthusiasts aufnehmen, ggf. mit Sasquatch Kontakt aufnehmen für Knowledge-Sharing (c-base lokaler KI-Server = ähnliche Architektur wie geplant)
+
+### 2026-06-12 - TurboQuant/TurboVec in Tech-Stack integriert
+- **TurboQuant** (Google Research, März 2026): Quantisierung-Algorithmus für LLM-Memory + Vector-Search
+  - KV-Cache 16→3 bit = 6× weniger LLM-Speicher ohne Genauigkeitsverlust
+- **TurboVec** (GitHub, ~1 Woche alt): Rust-Implementation, **31GB → 4GB Embeddings** (16×), schneller als FAISS
+- **Qdrant 1.18+** hat TurboQuant nativ integriert (Mai 2026)
+- **In Resilience-Doku eingebaut:** Sektion 11b dokumentiert Architektur-Vorteile
+- **Konkrete Verbesserung:** 10M Chunks lokale Wissens-DB in 4GB, größere LLM-Kontextfenster, kürzere Inferenz-Zeit
+- **Quellen:** research.google/blog/turboquant, arxiv.org/pdf/2504.19874, github.com/RyanCodrai/turbovec, qdrant.tech/articles/turboquant-quantization
+- **TODO D erweitert:** Qdrant + TurboVec + Open WebUI als lokaler RAG-Stack
+
+*Letzte Aktualisierung: 2026-06-12*
+
+> **Refactor 2026-06-12:** Intime Sektionen (Wichtige Personen, Privat, Lebensgeschichte, Phoenix) aus MEMORY.md ausgelagert nach `private/marcus-personal-context.md`. Tiefenpsychologie-Notiz `memory/2026-04-13-depth-psychology.md` nach `private/memory/` verschoben. MEMORY.md enthält jetzt nur noch operative Notizen + 1-Zeilen-Verweise.
 
 ### 2026-04-21 - IDP Plattform Build (8 Stunden Session)
 

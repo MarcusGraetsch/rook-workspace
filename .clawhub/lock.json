@@ -28,6 +28,10 @@
     "gog": {
       "version": "1.0.0",
       "installedAt": 1778928081933
+    },
+    "claude-mem": {
+      "version": "1.0.1",
+      "installedAt": 1781009662786
     }
   }
 }
