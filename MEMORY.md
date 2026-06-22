@@ -219,6 +219,15 @@
 - **Fallback:** Kimi K2.5 (kimi-coding/k2p5) — API Key Problem (401), fix pending
 - **Previous:** Kimi K2.5 war Primary bis 2026-06-06
 
+### Research-Stack (Crawlee)
+- **Setup:** `data/crawler/` (eigenes Verzeichnis, neben `data/blogwatcher/`)
+- **Script:** `kontrapolis_crawl.py` — BeautifulSoupCrawler, SSL verify=False, JSONL-Output
+- **Performance:** 45 Artikel in ~27s, 0 Fehler, avg 4.819 chars/Artikel
+- **Kategorien kontrapolis:** Repression und Knast (9), Antimilitarismus (5), Überwachung (5)
+- **Output:** `data/crawler/output/kontrapolis_articles.jsonl` (45 Artikel, 1 Zeile pro Artikel)
+- **Crawlee-Dataset** speichert nicht korrekt → direkt in JSONL schreiben (nicht push_data nutzen)
+- **venv:** `crawlee_venv/` — Python 3.10, crawlee[beautifulsoup,sql_sqlite] + httpx[http2]
+
 ### Neue Projekte (2026-04-14)
 - **community_politics_art-projects** — Privates Repo für Community/Politik/Kunst-Projekte (GitHub)
   - Enthält zunächst: C-base AI Meetup Planung
