@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/ubisoft-mitgruender-stirbt-bei-flugzeugabsturz-in-frankreich-11339621.html",
+  "url": "https://www.heise.de/news/Ubisoft-Mitgruender-stirbt-bei-Flugzeugabsturz-in-Frankreich-11339621.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

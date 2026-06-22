@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/fleischwerbe-verbot-kein-platz-fuer-firmen-die-klimakrise-vorantreiben-11326899.html",
+  "url": "https://www.telepolis.de/article/Fleischwerbe-Verbot-Kein-Platz-fuer-Firmen-die-Klimakrise-vorantreiben-11326899.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

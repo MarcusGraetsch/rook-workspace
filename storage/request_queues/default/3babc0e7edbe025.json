@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/valves-steam-controller-wird-bei-neuen-bestellungen-wohl-erst-2027-ausgeliefert-11339703.html",
+  "url": "https://www.heise.de/news/Valves-Steam-Controller-wird-bei-neuen-Bestellungen-wohl-erst-2027-ausgeliefert-11339703.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

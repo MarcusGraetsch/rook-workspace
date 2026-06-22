@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/irankrieg-krieg-als-geschaeftsmodell-der-usa-11203212.html",
+  "url": "https://www.telepolis.de/article/Irankrieg-Krieg-als-Geschaeftsmodell-der-USA-11203212.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

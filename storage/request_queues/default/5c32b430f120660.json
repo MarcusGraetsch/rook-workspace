@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/spacex-vor-boersengang-pensionsfonds-setzt-musks-firma-auf-die-schwarze-liste-11312511.html",
+  "url": "https://www.telepolis.de/article/SpaceX-vor-Boersengang-Pensionsfonds-setzt-Musks-Firma-auf-die-schwarze-Liste-11312511.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

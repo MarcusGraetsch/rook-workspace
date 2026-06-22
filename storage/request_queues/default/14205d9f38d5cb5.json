@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/gazprom-anlagen-brennen-russlands-wirtschaft-ist-im-endstadium/forum-585277",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Gazprom-Anlagen-brennen-Russlands-Wirtschaft-ist-im-Endstadium/forum-585277/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

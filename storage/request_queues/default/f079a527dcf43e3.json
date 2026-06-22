@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/krebserkrankung-und-beruf-ihre-rechte-und-finanzielle-unterstuetzung-11272097.html",
+  "url": "https://www.telepolis.de/article/Krebserkrankung-und-Beruf-Ihre-Rechte-und-finanzielle-Unterstuetzung-11272097.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

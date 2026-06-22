@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/apothekenreform-im-check-warum-kosten-steigen-ohne-klaren-nutzen-11310885.html",
+  "url": "https://www.telepolis.de/article/Apothekenreform-im-Check-Warum-Kosten-steigen-ohne-klaren-Nutzen-11310885.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

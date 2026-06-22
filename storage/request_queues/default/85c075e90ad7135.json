@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/plus/abo?affiliateid=30166&wt_mc=intern.abo.plus.hp_ea_2025.ho_sticky.teaser.teaser",
+  "url": "https://www.heise.de/plus/abo?affiliateId=30166&wt_mc=intern.abo.plus.hp_ea_2025.ho_sticky.teaser.teaser",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

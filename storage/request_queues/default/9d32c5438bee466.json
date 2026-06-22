@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/ix-workshop-der-schnelle-weg-zum-isaqb-zertifizierten-softwarearchitekten-11321470.html",
+  "url": "https://www.heise.de/news/iX-Workshop-Der-schnelle-Weg-zum-iSAQB-zertifizierten-Softwarearchitekten-11321470.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

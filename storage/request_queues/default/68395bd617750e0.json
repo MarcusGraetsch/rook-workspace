@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/tests/opel-astra-plug-in-hybrid-im-test-lohnt-sich-der-ueberarbeitete-phev-noch-11315377.html",
+  "url": "https://www.heise.de/tests/Opel-Astra-Plug-in-Hybrid-im-Test-Lohnt-sich-der-ueberarbeitete-PHEV-noch-11315377.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

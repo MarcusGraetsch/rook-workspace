@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/einmalige-psilocybin-dosis-veraendert-die-hirnstruktur-zum-positiven-11285500.html",
+  "url": "https://www.telepolis.de/article/Einmalige-Psilocybin-Dosis-veraendert-die-Hirnstruktur-zum-Positiven-11285500.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

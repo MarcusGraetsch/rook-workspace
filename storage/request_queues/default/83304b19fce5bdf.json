@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/tests/fussball-wm-im-stream-liefert-magenta-die-bessere-bildqualitaet-als-ard-und-zdf-11334925.html",
+  "url": "https://www.heise.de/tests/Fussball-WM-im-Stream-Liefert-Magenta-die-bessere-Bildqualitaet-als-ARD-und-ZDF-11334925.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

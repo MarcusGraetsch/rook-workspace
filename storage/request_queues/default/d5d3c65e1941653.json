@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/krieg-in-iran/!6189582",
+  "url": "https://taz.de/Krieg-in-Iran/!6189582/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

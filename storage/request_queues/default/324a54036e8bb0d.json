@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/gefuehlte-wahrheit-die-neue-macht-der-politischen-erzaehlung-11322818.html",
+  "url": "https://www.telepolis.de/article/Gefuehlte-Wahrheit-Die-neue-Macht-der-politischen-Erzaehlung-11322818.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

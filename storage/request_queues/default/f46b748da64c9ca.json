@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/bis-zu-11-000-dollar-sold-ukraine-wirbt-auslaender-mit-eu-milliarden-an-11331499.html",
+  "url": "https://www.telepolis.de/article/Bis-zu-11-000-Dollar-Sold-Ukraine-wirbt-Auslaender-mit-EU-Milliarden-an-11331499.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

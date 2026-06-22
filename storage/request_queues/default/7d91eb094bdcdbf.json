@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/staubsauger-gegen-den-klimakollaps-wie-die-luft-von-co2-befreit-werden-kann-11333787.html",
+  "url": "https://www.telepolis.de/article/Staubsauger-gegen-den-Klimakollaps-Wie-die-Luft-von-CO2-befreit-werden-kann-11333787.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

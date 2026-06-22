@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/uk-studie-kinder-ueberlisten-alterskontrollen-mit-aufgemalten-schnurrbaerten-11281569.html",
+  "url": "https://www.telepolis.de/article/UK-Studie-Kinder-ueberlisten-Alterskontrollen-mit-aufgemalten-Schnurrbaerten-11281569.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

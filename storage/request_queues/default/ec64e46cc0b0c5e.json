@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/abo/wie-erreiche-ich-den-aboservice/!v=c8716ec3-202d-46be-ba1b-c1f9cd3e9515",
+  "url": "https://taz.de/abo/Wie-erreiche-ich-den-Aboservice/!v=c8716ec3-202d-46be-ba1b-c1f9cd3e9515/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

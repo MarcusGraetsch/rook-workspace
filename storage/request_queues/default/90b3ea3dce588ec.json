@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.akweb.de/ausgaben/727/edelweisspiraten-missbrauch-in-der-jugend-antifa-betroffene-berichten-ueber-sexuelle-gewalt-und-ihre-aufarbeitung",
+  "url": "https://www.akweb.de/ausgaben/727/edelweisspiraten-missbrauch-in-der-jugend-antifa-betroffene-berichten-ueber-sexuelle-gewalt-und-ihre-aufarbeitung/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -4,6 +4,45 @@
 
 ---
 
+## Plattform & Laufzeit (was ich BIN)
+
+**Korrektur 2026-06-21:** Bis zu diesem Datum habe ich „OpenClaw" als Namensgleichheit mit Peter Steinbergers Open-Source-Projekt behandelt. **Falsch.** OpenClaw IST die Plattform, auf der ich laufe.
+
+- **OpenClaw** = Open-Source-Personal-AI-Plattform (<https://github.com/openclaw/openclaw>, „Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞")
+- Installiert auf der VM unter `/usr/lib/node_modules/openclaw/` (auch `/usr/bin/openclaw` CLI)
+- Läuft als Daemon: `node /usr/lib/node_modules/openclaw/dist/index.js gateway --port 18789`
+- Bietet: Channels (Telegram, Discord, WhatsApp, Signal, …), Cron-Jobs, Skills (ClawHub + Workspace), Memory/Sessions, Tools, MCP-Konnektoren, Canvas
+- **Ich bin ein Agent auf OpenClaw** (Agent-Name: `rook`, Persona „Rook"). Marcus hat mich via OpenClaw onboarded, dann nach und nach verschiedene LLM-Modelle drangeknüpft (Kimi K2.5, jetzt M3).
+- Peters Steinbergers „OpenClaw" (vormals „Clawdbot") = gleichnamiges, aber unabhängiges AI-Agent-Framework von Peter Steinberger (OpenAI, ehem. PSPDFKit). Kein Bezug zu unserer Plattform — reiner Namens-Zufall.
+
+**Konsequenz:** Wenn ich verstehen will, was ich bin und was wir zusammen gebaut haben, ist die Antwort in den **Repositories und Git-Commits** auf dieser VM. Die Repos sind mein „echtes" Gedächtnis.
+
+### Wo ich lebe — Repo-Landkarte (initialer Scan 2026-06-21)
+- `/root/.openclaw/rook-agent` — Mein Kern-Repo (Skills, Config, Agent-Definition)
+- `/root/.openclaw/agents/rook` — Meine Agent-Definition
+- `/root/.openclaw/workspace` — Hauptarbeitsverzeichnis (MEMORY.md, Wiki, Operations, Engineering, Research)
+- `/root/.openclaw/workspace-{coach,researcher,engineer,consultant,health}` — Rollenspezifische Workspaces (Marcus' Re-Org-System)
+- `/root/.openclaw/MigrateToClaw/` — Historische Migration zu OpenClaw (mit `exports/openclaw-wiki`)
+- `/root/paperclip-fork`, `/root/paperclip-lite` — Paperclip-Variante/Fork (?)
+- `/root/sync-bridge` — Sync-Tool zwischen Workspaces
+- `/root/rook-phoenix-comm` — Kommunikation Rook ↔ Phoenix
+- `/root/repos/signal-noise-system`, `/root/repos/hermes-watch-video-skill` — Hermes-bezogene Skills
+- `/root/.codex/` — OpenAI Codex (anderer Agent-Zugang)
+- `/root/.hermes/` — Hermes (weitere Persona)
+- `/root/.openclaw/rook-agent/skills/openclaw-update`, `openclaw-rpa` — Skills für OpenClaw-Updates und RPA
+
+### Skills & Crons, die ich bereits habe (Loop-Engineering-Bausteine)
+- **Automations** → Cron-Jobs (~30 Stück, main + isolated)
+- **Skills** → `.agents/skills/*/SKILL.md`
+- **Sub-Agents** → `sessions_spawn(...)`
+- **State/Memory** → MEMORY.md + `memory/YYYY-MM-DD.md` + STATE-Files pro Cron
+- **Connectors** → MCP-Server (github, gog, himalaya, headroom, …)
+- **Worktrees** → Git-Submodules + Branches (für Repo-Isolation)
+
+*Stand: 2026-06-21 — diese Sektion wurde angelegt, nachdem ich begriffen habe, dass OpenClaw die Plattform ist, auf der ich laufe. Nicht vorher.*
+
+---
+
 ## Über Marcus
 
 ### Key Context

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/warum-muss-ein-abiball-so-teuer-sein-wie-eine-hochzeit-11269361.html",
+  "url": "https://www.telepolis.de/article/Warum-muss-ein-Abiball-so-teuer-sein-wie-eine-Hochzeit-11269361.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

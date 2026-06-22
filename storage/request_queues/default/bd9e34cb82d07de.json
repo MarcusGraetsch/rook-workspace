@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/frueher-eine-alterskrankheit-dieser-krebs-trifft-jetzt-immer-mehr-junge-11322938.html",
+  "url": "https://www.telepolis.de/article/Frueher-eine-Alterskrankheit-Dieser-Krebs-trifft-jetzt-immer-mehr-Junge-11322938.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

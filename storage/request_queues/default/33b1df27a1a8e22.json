@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/en/news/report-eu-to-soon-classify-aws-and-azure-as-gatekeepers-under-dsa-11337873.html",
+  "url": "https://www.heise.de/en/news/Report-EU-to-soon-classify-AWS-and-Azure-as-gatekeepers-under-DSA-11337873.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/saufen-rauchen-snacken-wie-teuer-uns-unsere-laster-wirklich-kommen-11281639.html",
+  "url": "https://www.telepolis.de/article/Saufen-Rauchen-Snacken-Wie-teuer-uns-unsere-Laster-wirklich-kommen-11281639.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

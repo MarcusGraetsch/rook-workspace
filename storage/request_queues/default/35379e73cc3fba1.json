@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/apples-designteam-unter-john-ternus-wieder-mit-mehr-bedeutung-11339868.html",
+  "url": "https://www.heise.de/news/Apples-Designteam-Unter-John-Ternus-wieder-mit-mehr-Bedeutung-11339868.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

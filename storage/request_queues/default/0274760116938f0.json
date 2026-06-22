@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/taz-panterstiftung/kritischen-journalismus-foerdern/!v=e4eb8635-98d1-4a5d-b035-a82efb835967",
+  "url": "https://taz.de/taz-panterstiftung/kritischen-journalismus-foerdern/!v=e4eb8635-98d1-4a5d-b035-a82efb835967/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

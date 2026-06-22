@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/depression-ist-nicht-das-was-du-denkst-11296009.html",
+  "url": "https://www.telepolis.de/article/Depression-ist-nicht-das-was-du-denkst-11296009.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

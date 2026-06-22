@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/taz-zahl-ich/ihnen-liegt-die-taz-am-herzen/!v=bd8182f9-0363-4f43-936f-7a2f0666b18c",
+  "url": "https://taz.de/taz-zahl-ich/ihnen-liegt-die-taz-am-herzen/!v=bd8182f9-0363-4f43-936f-7a2f0666b18c/#matomo:pk_campaign=tzi-Standard&pk_source=taz.de&pk_medium=taz.de-Redaktion&pk_content=aus-kampagne&pk_kwd=tzi-standardkampagne&pk_placement=cta-button-nav",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/le-monde-diplomatique/papier-kurzabo/!v=b75aec96-9d26-4b19-89e5-9be178895ace",
+  "url": "https://taz.de/LE-MONDE-diplomatique/papier-kurzabo/!v=b75aec96-9d26-4b19-89e5-9be178895ace/#matomo:pk_campaign=DA24MOP2OF-LMd-Papier-Abo-Probe-Kurzabo&pk_source=taz.de&pk_medium=taz.de-Redaktion&pk_content=Alt-Teaser-fuer-Startseite-LMd-3M9E-Papier&pk_kwd=einschub-desktop&pk_placement=Verlagstrenner-3-Abo",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

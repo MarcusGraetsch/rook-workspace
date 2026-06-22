@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/meredith-whittaker-ki-chatbots-sind-nicht-eure-freunde/das-sind-aber-tolle-erkenntnisse/posting-46363836/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Meredith-Whittaker-KI-Chatbots-sind-nicht-eure-Freunde/Das-sind-aber-tolle-Erkenntnisse/posting-46363836/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

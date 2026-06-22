@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/komponist-fuer-doom-und-duke-nukem-3d-verstorben-11339367.html",
+  "url": "https://www.heise.de/news/Komponist-fuer-Doom-und-Duke-Nukem-3D-verstorben-11339367.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

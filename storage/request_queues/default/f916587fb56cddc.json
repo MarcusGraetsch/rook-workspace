@@ -1,0 +1,18 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/forum-43418",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/forum-43418/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "state": 4,
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": "2026-06-22 09:14:19.027005+00:00"
+}

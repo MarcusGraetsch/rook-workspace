@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/features/warum-telepolis-fuer-ihre-unterstuetzung-wirbt-und-was-wir-dafuer-tun-9658321.html",
+  "url": "https://www.telepolis.de/features/Warum-Telepolis-fuer-Ihre-Unterstuetzung-wirbt-und-was-wir-dafuer-tun-9658321.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/usa-und-iran-bringt-das-neue-abkommen-die-wende-im-oelkrieg/wie-kommt-der-autor-auf-sozialismus/posting-46364082/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/USA-und-Iran-Bringt-das-neue-Abkommen-die-Wende-im-Oelkrieg/Wie-kommt-der-Autor-auf-Sozialismus/posting-46364082/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

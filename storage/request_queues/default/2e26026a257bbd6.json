@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/analyse-washingtons-iran-erzaehlung-verliert-an-einfluss-11073619.html",
+  "url": "https://www.telepolis.de/article/Analyse-Washingtons-Iran-Erzaehlung-verliert-an-Einfluss-11073619.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

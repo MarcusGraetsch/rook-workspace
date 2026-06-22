@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.akweb.de/bewegung/jagd-auf-digitale-skelette-verfolgung-von-antifas-budapest-komplex-ist-experimentierfeld-fuer-neue-technologien",
+  "url": "https://www.akweb.de/bewegung/jagd-auf-digitale-skelette-verfolgung-von-antifas-budapest-komplex-ist-experimentierfeld-fuer-neue-technologien/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

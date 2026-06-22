@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/meloni-gegen-trump-hinter-dem-foto-streit-steckt-ein-ganz-anderer-konflikt/der-rdw-haette-es-noetiger/posting-46365175/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Meloni-gegen-Trump-Hinter-dem-Foto-Streit-steckt-ein-ganz-anderer-Konflikt/Der-RdW-haette-es-noetiger/posting-46365175/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

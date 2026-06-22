@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/zecken-alarm-wenn-der-zeckenstich-zur-fleischallergie-wird-11284180.html",
+  "url": "https://www.telepolis.de/article/Zecken-Alarm-Wenn-der-Zeckenstich-zur-Fleischallergie-wird-11284180.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

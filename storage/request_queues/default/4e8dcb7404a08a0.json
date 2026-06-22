@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/von-caracas-nach-teheran-die-geopolitische-dominokette-11198805.html",
+  "url": "https://www.telepolis.de/article/Von-Caracas-nach-Teheran-Die-geopolitische-Dominokette-11198805.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

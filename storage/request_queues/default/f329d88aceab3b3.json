@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/debatte-im-deutschlandfunk-warum-der-linken-ein-fataler-irrweg-droht/liberalismus-oder-demokratie/posting-46363978/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Debatte-im-Deutschlandfunk-Warum-der-Linken-ein-fataler-Irrweg-droht/Liberalismus-oder-Demokratie/posting-46363978/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

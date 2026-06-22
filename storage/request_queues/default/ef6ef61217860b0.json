@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/kantine/essen-und-event-location/!v=44afcac2-94aa-43cd-bc80-69fee4341dc4",
+  "url": "https://taz.de/kantine/essen-und-event-location/!v=44afcac2-94aa-43cd-bc80-69fee4341dc4/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/havanna-syndrom-gabbard-widerruft-biden-berichte-11330383.html",
+  "url": "https://www.telepolis.de/article/Havanna-Syndrom-Gabbard-widerruft-Biden-Berichte-11330383.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

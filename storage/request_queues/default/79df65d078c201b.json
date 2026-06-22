@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/features/fake-news-alarm-wie-telepolis-ins-visier-proukrainischer-propaganda-geriet-9716630.html",
+  "url": "https://www.telepolis.de/features/Fake-News-Alarm-Wie-Telepolis-ins-Visier-proukrainischer-Propaganda-geriet-9716630.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

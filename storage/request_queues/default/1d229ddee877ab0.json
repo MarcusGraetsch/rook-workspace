@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/hintergrund/agentic-qa-wie-ki-agenten-die-qualitaetssicherung-transformieren-11312179.html",
+  "url": "https://www.heise.de/hintergrund/Agentic-QA-Wie-KI-Agenten-die-Qualitaetssicherung-transformieren-11312179.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/mehr-zahlen-laenger-arbeiten-was-bleibt-am-ende-noch-von-ihrer-rente-uebrig-11326122.html",
+  "url": "https://www.telepolis.de/article/Mehr-zahlen-laenger-arbeiten-Was-bleibt-am-Ende-noch-von-Ihrer-Rente-uebrig-11326122.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

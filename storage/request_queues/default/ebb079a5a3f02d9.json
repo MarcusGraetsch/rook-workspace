@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/bayern-steuerpruefungen-bei-influencern-bringen-hunderttausende-euro-11339878.html",
+  "url": "https://www.heise.de/news/Bayern-Steuerpruefungen-bei-Influencern-bringen-Hunderttausende-Euro-11339878.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

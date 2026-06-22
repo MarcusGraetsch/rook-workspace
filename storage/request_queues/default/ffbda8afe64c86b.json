@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/opel-werk-in-thailand-wie-deutsches-steuergeld-jetzt-chinas-e-autos-antreibt/seit-wann-haben-wir-einen-vorsprung-bei-waermepumpen/posting-46365453/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Opel-Werk-in-Thailand-Wie-deutsches-Steuergeld-jetzt-Chinas-E-Autos-antreibt/Seit-wann-haben-wir-einen-Vorsprung-bei-Waermepumpen/posting-46365453/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

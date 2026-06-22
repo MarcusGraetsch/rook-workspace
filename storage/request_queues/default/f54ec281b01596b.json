@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.akweb.de/bewegung/landtagswahl-mecklenburg-vorpommern-kampagne-zusammen-bewegen-gegen-rechts-in-parchim-guestrow-greifswald",
+  "url": "https://www.akweb.de/bewegung/landtagswahl-mecklenburg-vorpommern-kampagne-zusammen-bewegen-gegen-rechts-in-parchim-guestrow-greifswald/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

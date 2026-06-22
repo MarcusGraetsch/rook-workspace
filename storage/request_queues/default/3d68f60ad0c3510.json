@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/opel-werk-in-thailand-wie-deutsches-steuergeld-jetzt-chinas-e-autos-antreibt-11337298.html",
+  "url": "https://www.telepolis.de/article/Opel-Werk-in-Thailand-Wie-deutsches-Steuergeld-jetzt-Chinas-E-Autos-antreibt-11337298.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

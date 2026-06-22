@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/verlag/taz-stelle-tzi/!v=4daba0b7-f71f-4e4e-8553-41b069adb932",
+  "url": "https://taz.de/verlag/taz-stelle-tzi/!v=4daba0b7-f71f-4e4e-8553-41b069adb932/#matomo:pk_campaign=taz-Stellen-tzi-Community-Management--Marketing&pk_source=taz.de&pk_medium=taz.de-Redaktion&pk_content=aus-kampagne&pk_placement=dritter-Einschub-mitte",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

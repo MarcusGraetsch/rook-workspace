@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/das-ende-eines-irrwegs-ueber-trumps-beendigung-des-iran-krieges/forum-585287/comment",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Das-Ende-eines-Irrwegs-Ueber-Trumps-Beendigung-des-Iran-Krieges/forum-585287/comment/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

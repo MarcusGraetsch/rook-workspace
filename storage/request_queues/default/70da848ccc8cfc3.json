@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/vom-master-zum-jobcenter-wenn-der-titel-nicht-mehr-reicht-11241676.html",
+  "url": "https://www.telepolis.de/article/Vom-Master-zum-Jobcenter-Wenn-der-Titel-nicht-mehr-reicht-11241676.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

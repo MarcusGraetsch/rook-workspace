@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/taz-lab-infobrief/!v=ab680df0-0d2c-4892-b901-2412e0a7b8eb",
+  "url": "https://taz.de/taz-lab-Infobrief/!v=ab680df0-0d2c-4892-b901-2412e0a7b8eb/#matomo:pk_campaign=taz-Newsletter-tazlab&pk_source=taz.de&pk_medium=taz.de&pk_content=aus-kampagne&pk_placement=Footer-Startseite/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

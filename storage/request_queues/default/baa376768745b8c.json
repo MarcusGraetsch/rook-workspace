@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/neuhardenberg-das-dorf-in-dem-ganz-deutschland-steckt-11312395.html",
+  "url": "https://www.telepolis.de/article/Neuhardenberg-Das-Dorf-in-dem-ganz-Deutschland-steckt-11312395.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

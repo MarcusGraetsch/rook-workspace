@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/lieferando-wolt-uber-eats-kommt-jetzt-die-pflicht-zur-festanstellung-11331885.html",
+  "url": "https://www.telepolis.de/article/Lieferando-Wolt-Uber-Eats-Kommt-jetzt-die-Pflicht-zur-Festanstellung-11331885.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/eigenheim-als-spardose-warum-hausbesitzer-reicher-werden-als-mieter-11312809.html",
+  "url": "https://www.telepolis.de/article/Eigenheim-als-Spardose-Warum-Hausbesitzer-reicher-werden-als-Mieter-11312809.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

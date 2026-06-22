@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/abo/feministaz-abo-2026/!v=9d99082c-c398-45d1-b2b0-92bcc298f4af",
+  "url": "https://taz.de/abo/feministaz-abo-2026/!v=9d99082c-c398-45d1-b2b0-92bcc298f4af/#matomo:pk_campaign=FE26WTP1OF-WE-10W29EK-neg-Frauentaz-HUP&pk_source=taz.de&pk_medium=taz.de-Redaktion&pk_content=aus-kampagne&pk_placement=Abbinder-Startseite",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/ratgeber/himmelswaechter-mit-picam-und-raspi4-zur-astrobeobachtung-bauen-11306515.html",
+  "url": "https://www.heise.de/ratgeber/Himmelswaechter-mit-PiCam-und-Raspi4-zur-Astrobeobachtung-bauen-11306515.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

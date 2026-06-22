@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/krebserkrankung-und-beruf-der-wiedereinstieg-11279386.html",
+  "url": "https://www.telepolis.de/article/Krebserkrankung-und-Beruf-der-Wiedereinstieg-11279386.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

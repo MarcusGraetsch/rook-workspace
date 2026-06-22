@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/hintergrund/eudi-wallet-welche-rolle-pid-und-pid-provider-im-eudi-wallet-oekosystem-spielen-11254452.html",
+  "url": "https://www.heise.de/hintergrund/EUDI-Wallet-Welche-Rolle-PID-und-PID-Provider-im-EUDI-Wallet-Oekosystem-spielen-11254452.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

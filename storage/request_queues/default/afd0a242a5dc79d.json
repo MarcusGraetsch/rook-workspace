@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/anzeigen/werben-bei-der-taz/!v=48b787de-0383-4c31-a6d1-15c92ea81ee3",
+  "url": "https://taz.de/anzeigen/werben-bei-der-taz/!v=48b787de-0383-4c31-a6d1-15c92ea81ee3/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

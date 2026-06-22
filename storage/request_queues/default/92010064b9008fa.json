@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/ueber-60-euro-im-monat-warum-wir-uns-die-vielen-einzel-abos-bald-sparen-11330669.html",
+  "url": "https://www.telepolis.de/article/Ueber-60-Euro-im-Monat-Warum-wir-uns-die-vielen-Einzel-Abos-bald-sparen-11330669.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

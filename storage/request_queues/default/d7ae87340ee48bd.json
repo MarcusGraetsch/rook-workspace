@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/ratgeber/indach-statt-aufdach-photovoltaik-vor-und-nachteile-im-realitaetscheck-11328929.html",
+  "url": "https://www.heise.de/ratgeber/Indach-statt-Aufdach-Photovoltaik-Vor-und-Nachteile-im-Realitaetscheck-11328929.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/bericht-eu-stuft-aws-und-azure-bald-als-gatekeeper-laut-digital-markets-act-ein-11337868.html",
+  "url": "https://www.heise.de/news/Bericht-EU-stuft-AWS-und-Azure-bald-als-Gatekeeper-laut-Digital-Markets-Act-ein-11337868.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

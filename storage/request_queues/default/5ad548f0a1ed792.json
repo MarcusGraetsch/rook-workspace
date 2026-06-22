@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/windows-11-26h2-biegt-auf-zielgerade-ein-11339801.html",
+  "url": "https://www.heise.de/news/Windows-11-26H2-biegt-auf-Zielgerade-ein-11339801.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

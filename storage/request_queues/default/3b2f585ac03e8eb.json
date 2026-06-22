@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/longevity-in-japan-wirkstoff-rs5614-dreht-biologische-gen-uhr-zurueck-11339661.html",
+  "url": "https://www.telepolis.de/article/Longevity-in-Japan-Wirkstoff-RS5614-dreht-biologische-Gen-Uhr-zurueck-11339661.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

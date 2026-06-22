@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/en/news/apple-music-hi-res-lossless-audio-for-the-first-time-on-apple-tv-4k-11338659.html",
+  "url": "https://www.heise.de/en/news/Apple-Music-Hi-Res-Lossless-Audio-for-the-first-time-on-Apple-TV-4K-11338659.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

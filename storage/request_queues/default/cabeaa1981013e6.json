@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/bestenlisten/testsieger/top-8-bester-akku-rasenmaeher-im-test-stihl-vor-einhell-gardena-und-makita/ft2r6hp?wt_mc=intern.red.bestenlisten.bestenlisten_buehne.startseite.buehne.buehne",
+  "url": "https://www.heise.de/bestenlisten/testsieger/top-8-bester-akku-rasenmaeher-im-test-stihl-vor-einhell-gardena-und-makita/ft2r6hp?wt_mc=intern.red.bestenlisten.bestenlisten_buehne.startseite.buehne.buehne",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

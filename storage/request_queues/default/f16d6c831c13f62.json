@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/hightech-erste-funktionierende-quantenbatterie-vorgestellt-11320580.html",
+  "url": "https://www.telepolis.de/article/Hightech-Erste-funktionierende-Quantenbatterie-vorgestellt-11320580.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

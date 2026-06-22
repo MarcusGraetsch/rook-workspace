@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/youtube-ueberholt-netflix-das-ungebaendigte-medium-wird-zum-neuen-fernsehen-11319838.html",
+  "url": "https://www.telepolis.de/article/YouTube-ueberholt-Netflix-Das-ungebaendigte-Medium-wird-zum-neuen-Fernsehen-11319838.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

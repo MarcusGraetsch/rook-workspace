@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/buergergeld-reform-wie-friedrich-merz-die-regeln-fuer-arbeitslose-verschaerft-11326023.html",
+  "url": "https://www.telepolis.de/article/Buergergeld-Reform-Wie-Friedrich-Merz-die-Regeln-fuer-Arbeitslose-verschaerft-11326023.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

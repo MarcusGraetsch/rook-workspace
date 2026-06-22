@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/olg-oldenburg-warum-videos-aus-schlachthof-lohne-nun-extrem-teuer-werden/forum-585239",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/OLG-Oldenburg-Warum-Videos-aus-Schlachthof-Lohne-nun-extrem-teuer-werden/forum-585239/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

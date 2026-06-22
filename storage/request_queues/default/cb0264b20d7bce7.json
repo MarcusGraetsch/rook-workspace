@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/visa-verbote-symbolik-die-militarisierte-meisterschaft-11338068.html",
+  "url": "https://www.telepolis.de/article/Visa-Verbote-Symbolik-Die-militarisierte-Meisterschaft-11338068.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

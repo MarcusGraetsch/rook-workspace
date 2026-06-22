@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/e-bikes-auf-dem-vormarsch-wie-real-ist-der-auto-ersatz-11306773.html",
+  "url": "https://www.telepolis.de/article/E-Bikes-auf-dem-Vormarsch-Wie-real-ist-der-Auto-Ersatz-11306773.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

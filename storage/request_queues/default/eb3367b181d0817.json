@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/definitiv-zu-spaet-warum-ezb-direktorin-schnabel-vor-hoeheren-loehnen-warnt-11335361.html",
+  "url": "https://www.telepolis.de/article/Definitiv-zu-spaet-Warum-EZB-Direktorin-Schnabel-vor-hoeheren-Loehnen-warnt-11335361.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

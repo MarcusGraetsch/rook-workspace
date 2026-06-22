@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/closed-end-funds-bis-zu-10-prozent-ertrag-fuer-die-altersvorsorge-11306180.html",
+  "url": "https://www.telepolis.de/article/Closed-end-Funds-Bis-zu-10-Prozent-Ertrag-fuer-die-Altersvorsorge-11306180.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

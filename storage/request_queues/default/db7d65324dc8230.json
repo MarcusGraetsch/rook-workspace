@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/abo/life-socks/!v=b3abbae4-9cf7-46e6-bb05-3296fa7cba47",
+  "url": "https://taz.de/abo/life-socks/!v=b3abbae4-9cf7-46e6-bb05-3296fa7cba47/#matomo:pk_campaign=LS26WWP1OF-10W19E-neg-ermaessigt-Linke-Socken-2026&pk_source=taz.de&pk_medium=taz.de-Redaktion&pk_content=aus-kampagne&pk_kwd=einschub-desktop&pk_placement=erster-Einschub-mitte",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

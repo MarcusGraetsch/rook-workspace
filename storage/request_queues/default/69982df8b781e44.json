@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/muetterrente-vor-einschnitt-bis-zu-15-000-euro-verlust-pro-kind-11336709.html",
+  "url": "https://www.telepolis.de/article/Muetterrente-vor-Einschnitt-Bis-zu-15-000-Euro-Verlust-pro-Kind-11336709.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/en/news/commodore-callback-8020-flip-phone-without-browser-social-networks-and-5g-11332574.html",
+  "url": "https://www.heise.de/en/news/Commodore-Callback-8020-Flip-phone-without-browser-social-networks-and-5G-11332574.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/militaerexperte-sicher-russischer-angriff-auf-die-nato-ist-nicht-plausibel-11330829.html",
+  "url": "https://www.telepolis.de/article/Militaerexperte-sicher-Russischer-Angriff-auf-die-Nato-ist-nicht-plausibel-11330829.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

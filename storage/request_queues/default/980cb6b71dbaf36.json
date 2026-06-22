@@ -1,0 +1,18 @@
+{
+  "unique_key": "https://www.golem.de/sonstiges/zustimmung/auswahl.html?from=https://www.golem.de/",
+  "url": "https://www.golem.de/sonstiges/zustimmung/auswahl.html?from=https://www.golem.de/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "state": 4,
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": "2026-06-22 09:14:13.470518+00:00"
+}

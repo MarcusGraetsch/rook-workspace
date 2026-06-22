@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/verlag/unsere-newsletter/!v=f45a1f72-d45b-4f0d-8ae8-79635f4033dd",
+  "url": "https://taz.de/verlag/unsere-newsletter/!v=f45a1f72-d45b-4f0d-8ae8-79635f4033dd/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

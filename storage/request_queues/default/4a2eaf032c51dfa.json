@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/ubuntu-myna-spracherkennung-fuer-den-linux-desktop-11339967.html",
+  "url": "https://www.heise.de/news/Ubuntu-Myna-Spracherkennung-fuer-den-Linux-Desktop-11339967.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/asml-unter-druck-us-gesetz-will-duv-export-nach-china-stoppen-11254574.html",
+  "url": "https://www.telepolis.de/article/ASML-unter-Druck-US-Gesetz-will-DUV-Export-nach-China-stoppen-11254574.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

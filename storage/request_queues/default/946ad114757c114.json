@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/unbemannte-deutsche-aeroforce-x-soll-bis-zu-40-stunden-in-der-luft-bleiben-11331777.html",
+  "url": "https://www.heise.de/news/Unbemannte-deutsche-AeroForce-X-soll-bis-zu-40-Stunden-in-der-Luft-bleiben-11331777.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

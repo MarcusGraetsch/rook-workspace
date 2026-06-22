@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/ratgeber/kamera-apps-im-test-canon-sony-co-im-praxisvergleich-11333934.html",
+  "url": "https://www.heise.de/ratgeber/Kamera-Apps-im-Test-Canon-Sony-Co-im-Praxisvergleich-11333934.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

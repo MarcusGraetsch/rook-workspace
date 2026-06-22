@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/brutzeit-beginnt-was-gartenvoegel-jetzt-wirklich-brauchen-11248132.html",
+  "url": "https://www.telepolis.de/article/Brutzeit-beginnt-Was-Gartenvoegel-jetzt-wirklich-brauchen-11248132.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

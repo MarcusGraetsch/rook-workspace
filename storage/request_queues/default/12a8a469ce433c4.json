@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/boersen-im-klimastress-wie-der-super-el-nino-die-depots-veraendert/und-etfs-in-erneuerbare-gehen-derzeit-raketenmaessig-ab/posting-46364387/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Boersen-im-Klimastress-Wie-der-Super-El-Nino-die-Depots-veraendert/und-ETFs-in-Erneuerbare-gehen-derzeit-raketenmaessig-ab/posting-46364387/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

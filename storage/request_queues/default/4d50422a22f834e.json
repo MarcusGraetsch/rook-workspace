@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/ki-schreibassistent-beim-arzt-erfindet-befunde-und-ist-trotzdem-im-einsatz-11295817.html",
+  "url": "https://www.telepolis.de/article/KI-Schreibassistent-beim-Arzt-erfindet-Befunde-und-ist-trotzdem-im-Einsatz-11295817.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

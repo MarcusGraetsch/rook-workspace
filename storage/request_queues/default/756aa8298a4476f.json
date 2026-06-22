@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.golem.de/sonstiges/pgp/fg_-_0x70733e9b.asc",
+  "url": "https://www.golem.de/sonstiges/pgp/fg_-_0x70733E9B.asc",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

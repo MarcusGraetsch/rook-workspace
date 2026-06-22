@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/sicherheit-oder-bevormundung-google-zieht-bei-android-die-daumenschrauben-an-11268094.html",
+  "url": "https://www.telepolis.de/article/Sicherheit-oder-Bevormundung-Google-zieht-bei-Android-die-Daumenschrauben-an-11268094.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

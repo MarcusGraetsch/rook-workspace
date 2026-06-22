@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/trade-republic-oeffnet-ipos-fuer-alle-das-sollten-anleger-wissen-11320544.html",
+  "url": "https://www.telepolis.de/article/Trade-Republic-oeffnet-IPOs-fuer-alle-das-sollten-Anleger-wissen-11320544.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

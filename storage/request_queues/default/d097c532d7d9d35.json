@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/nicht-gut-sein-koennen-als-prinzip-was-uns-machiavelli-ueber-autokraten-lehrt-11336915.html",
+  "url": "https://www.telepolis.de/article/Nicht-gut-sein-koennen-als-Prinzip-Was-uns-Machiavelli-ueber-Autokraten-lehrt-11336915.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/polymarket-angeblich-seit-monaten-irrefuehrende-werbung-von-influencern-11339745.html",
+  "url": "https://www.heise.de/news/Polymarket-Angeblich-seit-Monaten-irrefuehrende-Werbung-von-Influencern-11339745.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

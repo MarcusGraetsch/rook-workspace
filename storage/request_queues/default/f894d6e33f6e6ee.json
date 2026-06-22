@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/nius-bvg-und-die-angst-vor-dem-falschen-satz-11322585.html",
+  "url": "https://www.telepolis.de/article/Nius-BVG-und-die-Angst-vor-dem-falschen-Satz-11322585.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

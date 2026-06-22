@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/tests/e-auto-leapmotor-b10-im-test-ein-e-suv-das-die-konkurrenz-unter-druck-setzt-11304227.html",
+  "url": "https://www.heise.de/tests/E-Auto-Leapmotor-B10-im-Test-Ein-E-SUV-das-die-Konkurrenz-unter-Druck-setzt-11304227.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

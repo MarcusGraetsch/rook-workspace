@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/eu-schulden-warum-auf-jedem-deutschen-1-437-euro-verdeckte-lasten-liegen-11336985.html",
+  "url": "https://www.telepolis.de/article/EU-Schulden-Warum-auf-jedem-Deutschen-1-437-Euro-verdeckte-Lasten-liegen-11336985.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

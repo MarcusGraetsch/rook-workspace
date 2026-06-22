@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/waldzustand-2026-warum-viele-baeume-weiter-geschwaecht-sind-11313514.html",
+  "url": "https://www.telepolis.de/article/Waldzustand-2026-Warum-viele-Baeume-weiter-geschwaecht-sind-11313514.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

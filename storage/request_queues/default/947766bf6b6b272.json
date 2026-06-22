@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/staedtische-jugendhilfe-in-hamburg/!6186172",
+  "url": "https://taz.de/Staedtische-Jugendhilfe-in-Hamburg/!6186172/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

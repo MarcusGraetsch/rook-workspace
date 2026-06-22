@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/viel-geduld-chinese-it-spione-lauerten-lange-in-forschungseinrichtungen-11333355.html",
+  "url": "https://www.heise.de/news/Viel-Geduld-Chinese-IT-Spione-lauerten-lange-in-Forschungseinrichtungen-11333355.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

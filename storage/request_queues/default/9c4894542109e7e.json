@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/wer-kontrolliert-die-oeffentlichkeit-11327512.html",
+  "url": "https://www.telepolis.de/article/Wer-kontrolliert-die-Oeffentlichkeit-11327512.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

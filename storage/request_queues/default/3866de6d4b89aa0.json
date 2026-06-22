@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/wm-auftakt-gegen-curacao-droht-deutschland-die-naechste-historische-blamage-11331425.html",
+  "url": "https://www.telepolis.de/article/WM-Auftakt-gegen-Curacao-Droht-Deutschland-die-naechste-historische-Blamage-11331425.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

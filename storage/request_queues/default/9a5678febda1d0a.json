@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/taz-panterstiftung/panter-preis-publikumswahl/!v=33cff274-6085-4858-a2a3-1cbaffa55ed3",
+  "url": "https://taz.de/taz-panterstiftung/panter-preis-publikumswahl/!v=33cff274-6085-4858-a2a3-1cbaffa55ed3/#matomo:pk_campaign=Panter-Preis-Publikumswahl-2026&pk_source=taz.de&pk_medium=taz.de-Redaktion&pk_content=aus-kampagne&pk_placement=Verlagstrenner-3-Abo",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

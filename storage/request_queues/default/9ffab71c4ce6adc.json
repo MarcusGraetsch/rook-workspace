@@ -1,0 +1,16 @@
+{
+  "unique_key": "https://www.golem.de",
+  "url": "https://www.golem.de/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "state": 4
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": "2026-06-22 09:14:10.521138+00:00"
+}

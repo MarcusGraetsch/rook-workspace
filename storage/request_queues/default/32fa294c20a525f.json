@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/multimediadatei/microsoft-build-vw-kappt-api-tech-extremismus-heiseshow-11318424.html",
+  "url": "https://www.heise.de/multimediadatei/Microsoft-Build-VW-kappt-API-Tech-Extremismus-heiseshow-11318424.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

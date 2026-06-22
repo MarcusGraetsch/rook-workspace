@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/taz-futurzwei/magazin-fuer-zukunft-und-politik/!v=8ce19a8c-38e5-4a30-920c-8176f4c036c0",
+  "url": "https://taz.de/taz-FUTURZWEI/magazin-fuer-zukunft-und-politik/!v=8ce19a8c-38e5-4a30-920c-8176f4c036c0/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

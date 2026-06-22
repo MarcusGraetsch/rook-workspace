@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/forscher-zu-deutschem-protestpotential/!6188270",
+  "url": "https://taz.de/Forscher-zu-deutschem-Protestpotential/!6188270/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

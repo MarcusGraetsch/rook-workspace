@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/radikal-umbau-bei-chatgpt-surfen-wir-bald-nie-wieder-selbst-im-netz-11321662.html",
+  "url": "https://www.telepolis.de/article/Radikal-Umbau-bei-ChatGPT-Surfen-wir-bald-nie-wieder-selbst-im-Netz-11321662.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

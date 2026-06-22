@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/voigt-doepfner-und-die-ki-debatte-das-problem-sind-nicht-die-maschinen-11332693.html",
+  "url": "https://www.telepolis.de/article/Voigt-Doepfner-und-die-KI-Debatte-Das-Problem-sind-nicht-die-Maschinen-11332693.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

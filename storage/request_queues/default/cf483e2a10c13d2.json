@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/ptc-windchill-bsi-ruft-admins-nachts-wegen-kritischer-sicherheitsluecke-an-11338090.html",
+  "url": "https://www.heise.de/news/PTC-Windchill-BSI-ruft-Admins-nachts-wegen-kritischer-Sicherheitsluecke-an-11338090.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

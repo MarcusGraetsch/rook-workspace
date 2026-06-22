@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/rente-vaeter-im-wechselmodell-gehen-bei-erziehungszeiten-leer-aus-11290348.html",
+  "url": "https://www.telepolis.de/article/Rente-Vaeter-im-Wechselmodell-gehen-bei-Erziehungszeiten-leer-aus-11290348.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

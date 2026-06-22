@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/verlag/seitenwende-bei-der-taz/!v=165b2a3c-a94a-4114-8616-1b254db7ced2",
+  "url": "https://taz.de/verlag/seitenwende-bei-der-taz/!v=165b2a3c-a94a-4114-8616-1b254db7ced2/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

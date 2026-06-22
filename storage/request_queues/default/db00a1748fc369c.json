@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/login?forward=/article/das-ende-eines-irrwegs-ueber-trumps-beendigung-des-iran-krieges-11339977.html",
+  "url": "https://www.telepolis.de/login?forward=/article/Das-Ende-eines-Irrwegs-Ueber-Trumps-Beendigung-des-Iran-Krieges-11339977.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

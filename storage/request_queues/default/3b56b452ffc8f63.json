@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/gazprom-anlagen-brennen-russlands-wirtschaft-ist-im-endstadium/re-kurz-bevor-sich-adolf-und-eva-erschossen-haben/posting-46365549/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Gazprom-Anlagen-brennen-Russlands-Wirtschaft-ist-im-Endstadium/Re-Kurz-bevor-sich-Adolf-und-Eva-erschossen-haben/posting-46365549/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

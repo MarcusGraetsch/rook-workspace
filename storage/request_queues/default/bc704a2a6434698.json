@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/wm-wahnsinn-warum-wir-beim-fussball-nicht-mehr-locker-sind-11333477.html",
+  "url": "https://www.telepolis.de/article/WM-Wahnsinn-Warum-wir-beim-Fussball-nicht-mehr-locker-sind-11333477.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

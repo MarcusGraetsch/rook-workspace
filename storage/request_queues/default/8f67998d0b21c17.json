@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/macos-27-iphone-mirroring-erhaelt-flexible-fenster-und-kontrollzentrum-11339071.html",
+  "url": "https://www.heise.de/news/macOS-27-iPhone-Mirroring-erhaelt-flexible-Fenster-und-Kontrollzentrum-11339071.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

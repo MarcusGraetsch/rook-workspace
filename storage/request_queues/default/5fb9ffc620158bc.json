@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/voelkische-gruppe-indoktriniert-kinder/!6186647",
+  "url": "https://taz.de/Voelkische-Gruppe-indoktriniert-Kinder/!6186647/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

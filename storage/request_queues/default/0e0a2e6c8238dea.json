@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/debatte-im-deutschlandfunk-warum-der-linken-ein-fataler-irrweg-droht-11337353.html",
+  "url": "https://www.telepolis.de/article/Debatte-im-Deutschlandfunk-Warum-der-Linken-ein-fataler-Irrweg-droht-11337353.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/rn-chef-jordan-bardella-frankreich-soll-eu-beitrag-um-milliarden-kuerzen-11334149.html",
+  "url": "https://www.telepolis.de/article/RN-Chef-Jordan-Bardella-Frankreich-soll-EU-Beitrag-um-Milliarden-kuerzen-11334149.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

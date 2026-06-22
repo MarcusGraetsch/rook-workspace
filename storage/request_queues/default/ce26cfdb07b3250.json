@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/unerwarteter-befund-warum-eine-zuckerfreie-diaet-bei-maeusen-den-darm-schaedigt-11339357.html",
+  "url": "https://www.telepolis.de/article/Unerwarteter-Befund-Warum-eine-zuckerfreie-Diaet-bei-Maeusen-den-Darm-schaedigt-11339357.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/bremen-testet-als-erstes-bundesland-digitale-arbeitszeiterfassung-fuer-lehrkraefte-11334067.html",
+  "url": "https://www.heise.de/news/Bremen-testet-als-erstes-Bundesland-digitale-Arbeitszeiterfassung-fuer-Lehrkraefte-11334067.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/reisekrankheit-mit-den-richtigen-songs-entspannt-in-den-urlaub-10631900.html",
+  "url": "https://www.telepolis.de/article/Reisekrankheit-Mit-den-richtigen-Songs-entspannt-in-den-Urlaub-10631900.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

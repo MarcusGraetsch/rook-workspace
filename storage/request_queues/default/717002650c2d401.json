@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/diehl-defence-zeigt-cobra-600-jetdrohne-verzehnfacht-iris-t-reichweite-11335573.html",
+  "url": "https://www.telepolis.de/article/Diehl-Defence-zeigt-Cobra-600-Jetdrohne-verzehnfacht-IRIS-T-Reichweite-11335573.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

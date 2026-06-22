@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/globale-oelreserven-am-limit-was-der-iran-krieg-mit-den-vorraeten-macht-11336755.html",
+  "url": "https://www.telepolis.de/article/Globale-Oelreserven-am-Limit-Was-der-Iran-Krieg-mit-den-Vorraeten-macht-11336755.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

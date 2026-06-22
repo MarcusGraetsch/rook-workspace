@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/dietmar-dath-ki-ist-leistungsfaehiger-fuer-gleichschaltung-als-hitlers-radio-11325955.html",
+  "url": "https://www.telepolis.de/article/Dietmar-Dath-KI-ist-leistungsfaehiger-fuer-Gleichschaltung-als-Hitlers-Radio-11325955.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

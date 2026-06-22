@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/samp-t-ng-warum-die-schweiz-und-14-staaten-die-patriot-alternative-pruefen-11334421.html",
+  "url": "https://www.telepolis.de/article/SAMP-T-NG-Warum-die-Schweiz-und-14-Staaten-die-Patriot-Alternative-pruefen-11334421.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

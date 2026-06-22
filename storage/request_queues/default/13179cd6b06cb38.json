@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/tests/smart-home-mit-der-fritzbox-schalter-fritz-smart-control-440-im-praxistest-11266749.html",
+  "url": "https://www.heise.de/tests/Smart-Home-mit-der-Fritzbox-Schalter-Fritz-Smart-Control-440-im-Praxistest-11266749.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

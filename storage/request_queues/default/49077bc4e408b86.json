@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/iran-krieg-wie-ein-anruf-netanjahus-den-angriff-ausloeste-11199904.html",
+  "url": "https://www.telepolis.de/article/Iran-Krieg-Wie-ein-Anruf-Netanjahus-den-Angriff-ausloeste-11199904.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

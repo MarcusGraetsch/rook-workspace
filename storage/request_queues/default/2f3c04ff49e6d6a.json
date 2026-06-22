@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/ratgeber/trick-17-guenstigen-balkonkraftwerksakku-mit-grosser-solaranlage-kombinieren-11321596.html",
+  "url": "https://www.heise.de/ratgeber/Trick-17-Guenstigen-Balkonkraftwerksakku-mit-grosser-Solaranlage-kombinieren-11321596.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/en/news/too-expensive-dell-s-xps-13-costs-one-and-a-half-times-the-macbook-neo-11336161.html",
+  "url": "https://www.heise.de/en/news/Too-expensive-Dell-s-XPS-13-costs-one-and-a-half-times-the-MacBook-Neo-11336161.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

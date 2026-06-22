@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/strahlendes-afrika-uran-fuer-die-welt-11339299.html",
+  "url": "https://www.telepolis.de/article/Strahlendes-Afrika-Uran-fuer-die-Welt-11339299.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

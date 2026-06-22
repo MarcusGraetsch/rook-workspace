@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.heise.de/news/grossbritannien-provider-setzen-auf-kill-switch-gegen-smartphone-diebstahl-11339721.html",
+  "url": "https://www.heise.de/news/Grossbritannien-Provider-setzen-auf-Kill-Switch-gegen-Smartphone-Diebstahl-11339721.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

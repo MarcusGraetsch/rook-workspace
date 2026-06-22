@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/tofu-tempeh-und-seitan-was-steckt-drin-was-fehlt-11272333.html",
+  "url": "https://www.telepolis.de/article/Tofu-Tempeh-und-Seitan-Was-steckt-drin-was-fehlt-11272333.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

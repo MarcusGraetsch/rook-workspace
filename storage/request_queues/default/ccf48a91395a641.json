@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/abo/unsere-angebote/!v=2f71d22a-827d-4693-a3aa-1d7225a94c26",
+  "url": "https://taz.de/abo/unsere-angebote/!v=2f71d22a-827d-4693-a3aa-1d7225a94c26/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

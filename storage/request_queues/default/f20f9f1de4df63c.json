@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/reisen-in-die-zivilgesellschaft/auf-reisen-mit-taz-journalistinnen/!v=ff445dca-48e0-4ffa-95fa-60d466e9a152",
+  "url": "https://taz.de/reisen-in-die-zivilgesellschaft/auf-reisen-mit-taz-journalistinnen/!v=ff445dca-48e0-4ffa-95fa-60d466e9a152/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/strahlendes-afrika-uran-fuer-die-welt/und-wie-immer-luegt-greenpeace-absolut/posting-46362881/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Strahlendes-Afrika-Uran-fuer-die-Welt/Und-wie-immer-Luegt-Greenpeace-absolut/posting-46362881/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

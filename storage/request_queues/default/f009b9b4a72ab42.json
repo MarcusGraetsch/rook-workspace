@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/wm-in-mexiko-kartelle-ordnen-an-don-t-mess-with-the-world-cup-11338338.html",
+  "url": "https://www.telepolis.de/article/WM-in-Mexiko-Kartelle-ordnen-an-Don-t-mess-with-the-World-Cup-11338338.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

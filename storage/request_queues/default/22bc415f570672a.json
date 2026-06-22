@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/abo/taz-digital-download/!v=cc10271f-4e70-40eb-babd-65117b993b88",
+  "url": "https://taz.de/abo/taz-digital-download/!v=cc10271f-4e70-40eb-babd-65117b993b88/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

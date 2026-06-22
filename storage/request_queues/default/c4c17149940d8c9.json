@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/mietenexplosion-trotz-mietpreisbremse-das-politische-paradox-11307792.html",
+  "url": "https://www.telepolis.de/article/Mietenexplosion-trotz-Mietpreisbremse-Das-politische-Paradox-11307792.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

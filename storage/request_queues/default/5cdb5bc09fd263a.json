@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/hitze-falle-altbau-warum-daemmen-ohne-lueftungskonzept-im-sommer-versagt-11337796.html",
+  "url": "https://www.telepolis.de/article/Hitze-Falle-Altbau-Warum-Daemmen-ohne-Lueftungskonzept-im-Sommer-versagt-11337796.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

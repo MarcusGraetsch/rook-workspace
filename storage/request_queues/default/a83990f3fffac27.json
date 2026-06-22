@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/atomschirm-nur-gegen-rafale-kauf-jordan-bardellas-neue-bedingung-an-europa-11334879.html",
+  "url": "https://www.telepolis.de/article/Atomschirm-nur-gegen-Rafale-Kauf-Jordan-Bardellas-neue-Bedingung-an-Europa-11334879.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

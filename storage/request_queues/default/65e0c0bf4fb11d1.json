@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/forum/telepolis/kommentare/sperre-fuer-tiktok-co-uk-will-jetzt-auch-vpns-mit-altersgrenzen-belegen/anregung/posting-46364830/show",
+  "url": "https://www.telepolis.de/forum/Telepolis/Kommentare/Sperre-fuer-TikTok-Co-UK-will-jetzt-auch-VPNs-mit-Altersgrenzen-belegen/Anregung/posting-46364830/show/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

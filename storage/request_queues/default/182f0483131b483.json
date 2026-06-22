@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/taz-futurzwei/endlich-mal-ein-magazin-fuer-zukunft/!v=74fecf50-f139-44d1-99d0-30c8f4f637ee",
+  "url": "https://taz.de/taz-FUTURZWEI/endlich-mal-ein-magazin-fuer-zukunft/!v=74fecf50-f139-44d1-99d0-30c8f4f637ee/#matomo:pk_campaign=F2-Abo&pk_source=taz.de&pk_medium=taz.de-Redaktion&pk_content=aus-kampagne&pk_kwd=verlagstrenner-3-startseite&pk_placement=Verlagstrenner-3-Abo",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

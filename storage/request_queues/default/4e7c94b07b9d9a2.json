@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/krankengeld-fuer-teilrentner-das-aus-fuer-den-99-prozent-trick-11333201.html",
+  "url": "https://www.telepolis.de/article/Krankengeld-fuer-Teilrentner-Das-Aus-fuer-den-99-Prozent-Trick-11333201.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

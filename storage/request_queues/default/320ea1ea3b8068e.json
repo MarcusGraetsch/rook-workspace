@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/unterstuetzen-sie-qualitaetsjournalismus-auf-telepolis?lpid=39273_tp000002_28633_3_173&experimentid=270483&kameleoonreplica=false&kameleoonselectedvariationid=1022769",
+  "url": "https://www.telepolis.de/Unterstuetzen-Sie-Qualitaetsjournalismus-auf-Telepolis?LPID=39273_TP000002_28633_3_173&kameleoonSelectedVariationId=1022769&experimentId=270483&kameleoonReplica=false",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/40-prozent-mehr-e-autos-jetzt-fehlen-nur-noch-die-ladeplaetze-11323060.html",
+  "url": "https://www.telepolis.de/article/40-Prozent-mehr-E-Autos-Jetzt-fehlen-nur-noch-die-Ladeplaetze-11323060.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 2
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

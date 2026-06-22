@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/genossenschaft/die-taz-in-besten-haenden/!v=45dd710a-25d1-45d5-bcf5-fce24b72cbf2",
+  "url": "https://taz.de/genossenschaft/die-taz-in-besten-haenden/!v=45dd710a-25d1-45d5-bcf5-fce24b72cbf2/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

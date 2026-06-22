@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/taz-lab/kongress-fuer-debatte-streit-verstaendigung/!v=2f2702df-3697-433e-9d1d-48f733c77d1c",
+  "url": "https://taz.de/taz-lab/kongress-fuer-debatte-streit-verstaendigung/!v=2f2702df-3697-433e-9d1d-48f733c77d1c/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

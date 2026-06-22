@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://www.telepolis.de/article/warum-krebs-wenn-zellen-ausser-kontrolle-geraten-11339483.html",
+  "url": "https://www.telepolis.de/article/Warum-Krebs-Wenn-Zellen-ausser-Kontrolle-geraten-11339483.html",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

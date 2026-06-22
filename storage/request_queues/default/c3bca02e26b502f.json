@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/ebola-in-dr-kongo/!6189587",
+  "url": "https://taz.de/Ebola-in-DR-Kongo/!6189587/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}

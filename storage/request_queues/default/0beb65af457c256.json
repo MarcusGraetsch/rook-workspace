@@ -1,0 +1,17 @@
+{
+  "unique_key": "https://taz.de/redaktion-der-taz/wie-kann-ich-einen-leserinnenbrief-an-die-taz-redaktion-senden/!v=f41b541d-0e60-4ba2-8853-70e8a19fbf48",
+  "url": "https://taz.de/redaktion-der-taz/Wie-kann-ich-einen-Leserinnenbrief-an-die-taz-Redaktion-senden/!v=f41b541d-0e60-4ba2-8853-70e8a19fbf48/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "enqueueStrategy": "same-hostname",
+      "crawlDepth": 1
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": null
+}
