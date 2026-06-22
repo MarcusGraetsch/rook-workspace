@@ -1,0 +1,7 @@
+{
+  "crawled_at": "2026-06-22T18:30:49.734167+00:00",
+  "finished_at": "2026-06-22T18:31:17.415863+00:00",
+  "articles_crawled": 45,
+  "requests_made": 60,
+  "output_file": "/root/.openclaw/workspace/data/crawler/output/kontrapolis_articles.jsonl"
+}

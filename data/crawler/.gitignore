@@ -1,0 +1,14 @@
+# Python venv
+crawlee_venv/
+
+# Crawlee internal storage (opaque, reconstructed)
+storage/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
