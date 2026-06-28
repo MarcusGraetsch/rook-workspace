@@ -21,7 +21,7 @@ const WIKI_ROOT = '/root/.openclaw/workspace/wiki';
 const TOPICS_DIR = join(WIKI_ROOT, 'topics');
 
 // Config
-const MIN_TOPIC_LINES = 30;
+const MIN_TOPIC_LINES = 50; // raised from 30 (2026-06-28, per Wiki-Review)
 const OUTDATED_DAYS = 90;
 
 // Colors for console output
