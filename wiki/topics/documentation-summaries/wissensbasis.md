@@ -30,6 +30,30 @@ Diese Conversations sind thematisch in andere Topics einsortiert worden. Die Sam
 - Ein Dokument ist zu Meta (über das Wiki selbst)
 - Ein Dokument ist ein Misc ohne klaren Bezug
 
+
+## Triage-Prozess für Misc-Conversations
+
+Wenn eine Conversation keinem spezifischen Technical Topic zugeordnet werden kann, läuft folgender Triage-Flow:
+
+1. **Hat einen klaren Topic-Bezug?** → einsortieren in `topics/<match>/wissensbasis.md`
+2. **Ist Meta (Wiki/Workflow selbst)?** → bleibt hier, evtl. als Hinweis auf Schema
+3. **Ist punktuell ohne Anschluss?** → bleibt hier mit Stichwort + Datum
+4. **Ist wirklich Müll / Duplikat?** → Prune-Planning-Cron nimmt es raus
+
+Wichtig: **Lieber zu viel hier parken** als falsch einsortieren. Falsche Topic-Zuordnung ist schlimmer als Misc-Bucket.
+
+## Wiki-Lint-Beziehung
+
+Dieses Topic ist ein Sonderfall im Wiki-Lint: Es DARF dünn bleiben, weil es bewusst Sammelbecken ist. Wenn der Lint hier „Orphan" meldet, ist das kein echtes Problem — der Cron-Job `Wiki Bi-Monthly Lint` (dc1ddcd4-…) hat Auto-Repair für Struktur, nicht für Inhalt.
+
+Der Lint-Check sortiert `documentation-summaries` strukturell mit ein, weil das Wiki-Schema es als reguläres Topic führt. Inhaltliche Pflege bleibt manuell.
+
+## Archiv-Strategie
+
+- **Retention:** Misc-Conversations 6 Monate sichtbar, dann ins Cold-Archive (`archive/`)
+- **Suchbarkeit:** Stichworte + Datum reichen — kein Volltext-Index nötig
+- **Cold-Archive-Pfad:** `archive/<yyyy>/<mm>/misc-<topic>.md`
+
 ## Cross-References
 
 - → [[knowledge-management]] — Wiki-Struktur, Ingest-Prozess
@@ -37,4 +61,4 @@ Diese Conversations sind thematisch in andere Topics einsortiert worden. Die Sam
 
 ---
 
-*Zuletzt aktualisiert: 2026-05-01*
+*Zuletzt aktualisiert: 2026-06-28*

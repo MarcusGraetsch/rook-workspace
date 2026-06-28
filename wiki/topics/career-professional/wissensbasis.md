@@ -38,6 +38,30 @@ Fokus: Kubernetes, Cloud-Native, IT Service Management, KI-Integration
 - Sichtbarkeit: LinkedIn-Profil pflegen
 - Netzwerk: Konferenzen, Meetups
 
+
+## Sichtbarkeit & Außenwirkung
+
+Marcus' Sichtbarkeit läuft über mehrere Kanäle:
+
+- **working-notes Website** (working-notes Repo, `workingnotes.eu`?) — Blog für Thought Leadership
+- **LinkedIn** — Headline + regelmäßige Posts zu Cloud/KI-Themen
+- **c-base AI Enthusiasts** (seit Mo 15.06.2026) — Community in Berlin, lokaler KI-Server
+- **GitHub Profil** — `MarcusGraetsch` mit öffentlichen Repos (idp-customer-onboarding, rook-k8s-lab, working-notes)
+
+## Zertifizierungs-Pfad
+
+Realistische Zertifizierungen in den nächsten 24 Monaten:
+
+- **CKA** (Certified Kubernetes Administrator) — Kernkompetenz, hoher Marktwert
+- **TOGAF** — passt zu Enterprise Architecture Projekten
+- **AWS Solutions Architect Associate** — für Cloud-Migration-Themen
+
+Budget: ~€1.500-2.500 für 2-3 Certs in 2026/27.
+
+## Mentoring & Wissenstransfer
+
+Bei HiSolutions: Senior-Position bedeutet auch Mentoring von Junior Consultants. Themen: K8s Basics, Cloud-Native Patterns, GitOps, Compliance (NIS2/BSI). Wird in `consulting-advisory` weitergeführt.
+
 ## Cross-References
 
 - → [[consulting-advisory]] — Tagessätze, Rates, Kundenprojekte
@@ -45,4 +69,4 @@ Fokus: Kubernetes, Cloud-Native, IT Service Management, KI-Integration
 - → [[cloud-kubernetes]] — K8s als Kernkompetenz
 
 ---
-*Zuletzt aktualisiert: 2026-05-01*
+*Zuletzt aktualisiert: 2026-06-28*
