@@ -1,0 +1,13 @@
+{
+  "source": "wohnprojekte-portal.de",
+  "crawled_at": "2026-06-27T15:00:26.132364+00:00",
+  "records_extracted": 771,
+  "output_file": "/root/.openclaw/workspace/projects/caravan-sommer-2026/datenbank/initiative-archiv/wohnprojekte-portal/wohnprojekte-portal_initiativen.jsonl",
+  "projektart_distribution": {
+    "Realisiertes Projekt": 479,
+    "Projekt in Gründung": 191,
+    "Projektgruppe": 85,
+    "Immobilie": 14,
+    "Stadtquartier": 2
+  }
+}

@@ -1,5 +1,5 @@
 # 📊 Weekly Research Briefing
-Generated: 2026-06-21 08:12
+Generated: 2026-06-28 08:02
 
 ## 📈 This Week's Summary
 - **0** new articles collected

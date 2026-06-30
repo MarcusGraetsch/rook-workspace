@@ -337,6 +337,33 @@
 
 ## Aktuelle Projekte
 
+### Caravan-Sommer-2026 — „Whole Earth Catalog Edition" 🚐🌍
+- **Was:** Datenbank für alternativen Urlaub abseits vom Mainstream
+- **Spirit:** Neue Auflage des **Whole Earth Catalog** (Brand, 1968–74) — „Access to Tools", ehrliche Infos, selbstbestimmtes Leben, Do-it-yourself, Ökologie + Cyber + Community
+- **Scope:** ❗ **NICHT Berlin-only** — bundesweit / regional, auch grenznah (DACH + Nachbarschaft)
+- **Zielgruppen-Filter (Marcus 2026-06-27 explizit):**
+  - Möglichst billig / ohne Geld / Tausch
+  - Alternativ-Ökonomie (Solawi, Mietshäuser Syndikat, Wagenplätze, Ökodörfer, Kommunen, Longo Mai, …)
+  - Linkspolitisch / like-minded
+  - Workaway/Wwoofing-Höfe als Begegnungs-Maschine
+  - **Spirituelle Communities JA** (Findhorn, Schloss Tempelhof, ZEGG, Sieben Linden, Lebensgarten Steyerberg, Kommune Niederkaufungen, …) — „too much Hippie" ist KEIN Ausschlusskriterium
+  - **Keine Ecke-Präferenz** — breit sammeln
+- **Datenbank-Schema (geplant):** Name, Typ, Standort (Region/Stadt), Kontakt (URL/Email), Charakter (linkspolitisch / spirituell / anarchistisch / basisdemokratisch / pragmatisch / öko / …), Kostenrahmen, Aktivitäten, Quelle
+- **Speicherort:** `projekte/caravan-sommer-2026/datenbank/initiative-archiv/`
+- **Pipeline:** Phase 1 (PDFs) abgebrochen 2026-06-26 — dreispaltiges Layout zu komplex. Phase 2 = Crawlee-Scraping
+- **Quellen-Status:**
+  - contraste**.org** (NICHT .de — SSL-Handshake-Fail auf .de) — 21 Einträge (4 Initiativen-Anzeigen + 17 Termine), DACH-verteilt, **Hauptquelle** ✅
+  - kontrapolis.info — 45 Artikel, nur 4 initiativen-bezogen, **runtergestuft** (Hintergrundmaterial)
+  - Phase 2 v2 vollständig fertig: **946 Einträge** — 21 contraste + 45 kontrapolis + 25 netzwerk-oekodorf (Ökodörfer/Gemeinschaften, alles DE, spirituell bis pragmatisch) + **771 wohnprojekte-portal (Wohnprojekte, DE)** + 84 squat-net (Artikel-mix, DE/CH/AT)
+  - **Wohnprojekte-portal** ist die gigantische Quelle (771 Einträge) — fast alle mit Email + Adresse, einfach zu scrapen, strukturiert
+  - Squat-net: primär News-Artikel statt Initiativen → runterstufen oder filtern (84 Einträge, nur ~15–20 Hausprojekte/Wagenplätze davon sind wirklich Orte)
+  - **Datenstand:** 946 Einträge in `datenbank/initiative-archiv/`, 5 JSONL-Dateien
+- **Crawler-Code:** `projekte/caravan-sommer-2026/crawler/initiative_crawl.py` — Unified Crawlee + BeautifulSoup + JSONL, wiederverwendet venv aus `data/crawler/`
+- **Pipeline-Berichte:** `datenbank/initiative-archiv/REPORT.md`, `SCHEMA.md`
+- **Backup:** 53 extrahierte contraste-Texte (pdftotext) als LLM-Extraktion-Pool falls Crawler mau
+- **Status (2026-06-27 16:50):** v1 fertig (66 Einträge), v2 läuft
+- **Repo:** (noch) lokal, später evtl. public wenn Stil sitzt
+
 ### IDP Plattform (rook-k8s-lab)
 - **Status:** Funktional, braucht noch Flux Token (Repo ist jetzt private)
 - **Doku:** 23 Dokumente, alle mit Compliance-Referenzen (NIS2, BSI, ISO, DSGVO)

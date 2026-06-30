@@ -1,0 +1,8 @@
+{
+  "source": "squat.net",
+  "crawled_at": "2026-06-27T15:48:52.436048+00:00",
+  "article_urls_found": 85,
+  "skipped_non_dach": 1,
+  "records_extracted": 84,
+  "output_file": "/root/.openclaw/workspace/projects/caravan-sommer-2026/datenbank/initiative-archiv/squat-net/squat-net_initiativen.jsonl"
+}

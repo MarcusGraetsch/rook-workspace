@@ -1,0 +1,7 @@
+{
+  "source": "workaway",
+  "crawled_at": "2026-06-27T16:05:19.167877+00:00",
+  "records_extracted": 200,
+  "output_file": "/root/.openclaw/workspace/projects/caravan-sommer-2026/datenbank/initiative-archiv/workaway/workaway_initiativen.jsonl",
+  "pages_crawled": 10
+}

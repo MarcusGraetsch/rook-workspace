@@ -1,0 +1,16 @@
+{
+  "unique_key": "https://kontrapolis.info",
+  "url": "https://kontrapolis.info/",
+  "method": "GET",
+  "payload": null,
+  "headers": {},
+  "user_data": {
+    "__crawlee": {
+      "state": 4
+    }
+  },
+  "retry_count": 0,
+  "no_retry": false,
+  "loaded_url": null,
+  "handled_at": "2026-06-27 13:02:11.293871+00:00"
+}
