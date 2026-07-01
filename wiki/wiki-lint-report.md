@@ -1,4 +1,4 @@
-# Wiki Lint Report — 2026-06-28
+# Wiki Lint Report — 2026-07-01
 
 > Automated Health Check | Geprüft: 32 Topics
 
@@ -66,4 +66,4 @@ Alle Topics wurden in den letzten 90 Tagen aktualisiert.
 - ✅ Wiki ist gesund — keine Aktion nötig
 
 ---
-*Wiki-Lint erzeugt: 2026-06-28 | Quelle: operations/bin/wiki-lint.js*
+*Wiki-Lint erzeugt: 2026-07-01 | Quelle: operations/bin/wiki-lint.js*
