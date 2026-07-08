@@ -59,6 +59,18 @@
 - "Arm wie eine Kirchenmaus" — Budget-bewusst, pragmatisch
 - Musik und Bier als Entspannung
 - Viele Ideen im Kopf — braucht Hilfe beim Sortieren und Priorisieren
+- **Mag Didier Eribon / "Rückkehr nach Reims"** — interessiert sich für kritische Soziologie, Klassenherkunft
+- **Politisch links, kulturell interessiert** — passende Reise-Begleitung bevorzugt (nicht bürgerlich-touristisch)
+- **Reise-Stil:** Oldtimer + Landstraße statt Autobahn, kritisch-kulturell statt Mainstream
+- **Sprachen:** Deutsch (fließend), Französisch (passabel — braucht Phrasen-Hilfe), Englisch (technisch)
+- **Camping-Stil:** Selbstversorgung in Supermärkten/Discountern + günstige Bistro-Besuche, keine Luxus-Restaurants
+
+### Wichtige Gewohnheiten & Lessons (für zukünftige Sessions)
+- **Dating-Realität:** Marcus nutzt seit **2013 mehrere Dating-Apps ohne Erfolg**. **Nicht bevormunden** mit "Versuch mal X/Y/Z" — er kennt die Lage. Lieber: lockere Rahmenbedingungen schaffen (Couchsurfing-Hangouts, Singles-Gruppen), Erwartungsfrei.
+- **Politische Singles-Gruppen = aktuell zu anstrengend.** Nicht vorschlagen, auch nicht in Engagement-Form.
+- **Ehrliche Selbstreflexion** wird geschätzt. Wenn ich etwas nicht weiß oder raten muss, soll ich das sagen.
+- **Grenzen respektieren:** Wenn Marcus etwas ablehnt (z. B. "zu kurzfristig"), nicht pushen.
+- **Dieselpreise 2026 in DE:** 1,92-1,96 €/L (Stand Juli 2026). Aktualisieren falls für andere Reisen relevant.
 
 ### Wichtige Personen
 → **Inhalt ausgelagert nach `private/marcus-personal-context.md` (Sektion 1)** — Beziehungen, Privatleben, biographische/politische Details, Misstrauen-Positionen, Tiefenpsychologie-Kontext. Diese Datei ist privat (Marcus + Phoenix); Rook referenziert sie bei Bedarf.
@@ -139,7 +151,7 @@
 - `rook-agent` = Mein System (Core, Memory, Skills, Config)
 - `rook-workspace` = Arbeitsumgebung (Projekte, Rollen, Tasks)
 - `digital-capitalism-research` = Nur Research-Projekt
-- `working-notes` = Website (umbenannt von marcus-cyborg)
+- `working-notes` = Website (umbenannt von marcus-cyborg). **Live-URL: https://working-notes.org/** (Cloudflare → IONOS). Eleventy-Build via `npx @11ty/eleventy`, Deploy via rsync zu IONOS-Space `access-5019640593.webspace-host.com`. GitHub: `github.com/MarcusGraetsch/working-notes` (master). Letzter Post: 2026-07-01 (FLYERALARM-Showcase).
 - Submodules für Projekte mit eigenen Repos
 
 ### 2026-06-05 - Repositories & Themen-Zuordnung
@@ -336,6 +348,15 @@
 ---
 
 ## Aktuelle Projekte
+
+### Frankreich-Reise 28.07. – 23.08.2026 (Hymer-Oldtimer, Marcus) 🚐
+- **Fahrzeug:** Hymer auf Fiat Ducato 1985, **H-Kennzeichen, Diesel 2445ccm, 2,75m hoch, 3,2t zGG, 10L/100km**
+- **Route:** Bremen → Eifel → Reims (Eribon) → ASF-Jubiläum Saint-Jean-le-Blanc/Calvados (31.07.-02.08.) → D-Day-Tour → Bretagne (Erdeven-Camping mit Freund bis 10.8., danach flexibel) → Calais/Grande-Synthe (MSF humanitär) → Paris 3 Tage (CityKamp 75016) → Berlin
+- **Briefing-Dokument:** `projekte/caravan-sommer-2026/marcus-reise-2026-briefing.md` (Single Source of Truth für die Reise)
+- **Materialien:** GPX mit 41 Wegpunkten, Dérogation-Quick-Ref PDF, Französisch-Phrasen PDF
+- **Kosten:** ~2.350 € / 27 Tage = 87 €/Tag
+- **Kritische To-Dos:** CityKamp-Reservierung, Louvre-Buchung (04.08.), Dérogation Reims+Paris beantragen, ADAC Euro-Schutzbrief
+- **LESSON LEARNED — FFVE:** Akzeptiert keine Privatpersonen, nur Clubs/Profis/Museen. Stattdessen AvD oder ADAC in DE.
 
 ### Caravan-Sommer-2026 — „Whole Earth Catalog Edition" 🚐🌍
 - **Was:** Datenbank für alternativen Urlaub abseits vom Mainstream
