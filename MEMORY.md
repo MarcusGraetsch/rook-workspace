@@ -240,6 +240,14 @@
 - **Fallback:** Kimi K2.5 (kimi-coding/k2p5) — API Key Problem (401), fix pending
 - **Previous:** Kimi K2.5 war Primary bis 2026-06-06
 
+### Provider-Subscriptions (Marcus 2026-07-12)
+- **Modell:** Pro Plan oder Basic (günstigste Stufe) bei jedem Provider
+- **Usage-Limit:** Token Plan / Rate-Limit (z.B. 429 `Token Plan usage limit reached`)
+- **Reset-Intervall:** **Alle 5 Stunden** (zyklisch, nicht dauerhaft)
+- **Konsequenz:** Provider-Limits sind transient — nicht permanent. Wenn MiniMax und Kimi gleichzeitig am Limit sind → ~5h warten oder OpenRouter/DeepSeek/etc. als dritten Fallback.
+- **Aktuell (2026-07-12):** MiniMax aufgebraucht (Reset in <5h), Kimi als Fallback aktiv
+- **Phoenix/Hermes** teilt den gleichen MiniMax Key — wenn Rook umstellt, Phoenix mit umstellen
+
 ### Research-Stack (Crawlee)
 - **Setup:** `data/crawler/` (eigenes Verzeichnis, neben `data/blogwatcher/`)
 - **Script:** `kontrapolis_crawl.py` — BeautifulSoupCrawler, SSL verify=False, JSONL-Output
