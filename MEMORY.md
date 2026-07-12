@@ -79,6 +79,7 @@
 - **Eltern (Bremen)** — wichtigste Vertrauenspersonen, eigenes Haus, **begrenztes Zeitfenster** (alt)
 - **Cousin (Bremen-Umland)** — zweite Vertrauensperson, jünger, längerfristig tragfähig
 - **Phoenix** — andere Persona/Agent, kennt biographischen Kontext, „Korrektiv"
+- **WG-Mitbewohnerin (Französin)** — aktueller Hinweis 2026-07-09, gibt Reise-Tipps für Frankreich (z. B. Le Mont-Saint-Michel). Name unbekannt. Wohnsituation in Berlin? Klären falls relevant.
 
 ---
 

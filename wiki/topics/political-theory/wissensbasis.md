@@ -68,9 +68,54 @@ Drei Grenzüberschreitungen:
 - `Hegels Einfluss auf Informatik.md`
 - `Comprehensive Analysis of Das Kapital.md`
 -e 
+## Karp / Palantir — Sovereignty-Cluster (Juli 2026)
+
+*Recherche-Cluster 11.07.2026 — Synthese aus laufender Beobachtung.*
+
+### Drei verschachtelte Wendungen
+1. **Tech-PR** (Karp/Palantir) — Souveränität als Verkauf von Enterprise-KI an den US-Staat
+2. **Staats-Kompensation** (Anthropic) — Fable 5 Blackout 12.06.2026 → Ausgleichslogik
+3. **EU-Souveränität** (Mistral) — Antwort auf US-Konzentration
+
+### Schlüssel-Befunde
+
+| Datum | Akteur | Aussage | Beleg |
+|-------|--------|---------|-------|
+| 06/2026 | MIT Economics | "Automation and Repression" — Karp-These ökonomisiert | MIT Working Paper |
+| 04/2026 | Yanis Varoufakis | Prägung **"Techlordism"** als kritischer Begriff für Karp | Foreign Affairs |
+| 22.06.2026 | Satya Nadella (WSJ) | Parallel-Rhetorik zu Karp: KI als "Sicherheitstechnologie" | WSJ-Interview |
+| 12.06.2026 | Anthropic | **Fable 5 Blackout** — erste öffentliche Lücke zwischen Frontier Labs | Ankündigung |
+| Juli 2026 | Karp | "Sovereignty"-Manifest | Palantir-Communications |
+
+### Die Pointe (AGI-Klausel-Brücke)
+Karps Sovereignty-Manifest ist **direkte Reaktion** auf Microsofts Streichung der AGI-Schutzklausel am 28.10.2025 (siehe → [[ai-ml]]). Die Schutzklausel war nie ein Sicherheitsversprechen — sie war ein **Wettbewerbs-Hedge** für Microsoft. Ihre Streichung signalisiert: AGI ist **kein Schutzschild mehr für irgendjemanden**, weder für OpenAI, noch für Microsoft, noch für die "Pause"-Koalition.
+
+Damit ist Karp nicht der Vorläufer einer Bewegung, sondern **Mitläufer** eines Übergangs, in dem die Industrie sich offen als Staats-Logik positioniert.
+
+### Tokenomics Foundation (Juni 2026)
+- Gründungs-Konsortium: **Linux Foundation + FinOps Foundation**
+- Backers: Accenture, Booking.com, IBM, JPMorgan, **Microsoft**, **Oracle**
+- Ziel: Standardisierung von KI-Token-Accounting (Cost-per-Token, Attribution, Allocation)
+- **Implikation:** Wenn Microsoft + Oracle im Token-Standardisierungs-Gremium sitzen, ist "Sovereignty" keine Microsoft-Konkurrenz-Strategie — sie ist parallel dazu und ergänzend.
+
+### Gartner-Prognose
+> "Bis Ende 2027 werden 40 % der 'agentic AI'-Projekte in Unternehmen abgebrochen oder eingestellt."
+
+Quelle: Gartner Hype-Cycle 2026. Quelle für Karps These: Der Agentic-Hype ist anterior zum Beweis — die Industrie brennt selbst Geld.
+
+## Karps Marx-Zitat
+> "Ich bin Marxist. Ich glaube an die kapitalistische Dynamik, aber ich glaube nicht, dass sie überleben wird."
+
+Quelle: Yahoo Finance, 11.07.2026. Beleg via MIT Economics Working Paper "Automation and Repression" (Juni 2026).
+
+**Theorie-Anschluss:** Das Zitat liest sich wie eine Re-Aktualisierung der Tronti'schen kopernikanischen Wendung — nur mit umgekehrter Wertung: nicht die Arbeiterkämpfe treiben das Kapital, sondern das Kapital treibt einen Zyklus zu seinem eigenen Ende.
+
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
+- → [[ai-ml]] — AGI-Klausel-Korrektur, Karp-Brücke
+- → [[consulting-advisory]] — Tokenomics Foundation, Enterprise-AI
+- → [[music-culture]] — Widerstandsmusik gegen Techlordism
 
 ## Cross-References
 
