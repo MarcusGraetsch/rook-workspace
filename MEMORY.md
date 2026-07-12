@@ -79,16 +79,24 @@
 - **Eltern (Bremen)** — wichtigste Vertrauenspersonen, eigenes Haus, **begrenztes Zeitfenster** (alt)
 - **Cousin (Bremen-Umland)** — zweite Vertrauensperson, jünger, längerfristig tragfähig
 - **Phoenix** — andere Persona/Agent, kennt biographischen Kontext, „Korrektiv"
+  - **Was es IST:** Marcus' lokale Installation des [Hermes-Agent-Frameworks](https://github.com/nousresearch/hermes-agent) von Nous Research — getauft auf "Phoenix", so wie dieser Agent "Rook" heißt
+  - **Setup:** `/root/.hermes/` + `/root/rook-phoenix-comm` (Kommunikationskanal Rook ↔ Phoenix)
+  - **Warum biographischer Kontext:** Phoenix hat Zugriff auf `private/marcus-personal-context.md` + Resilience-Dokumente
+  - **Korrektur 2026-07-12:** Phoenix ist KEIN zweiter LLM-Agent auf gleichem Modell, sondern eine separate Hermes-Agent-Instanz mit eigenem Skill-Loop + Memory-System
 - **WG-Mitbewohnerin (Französin)** — aktueller Hinweis 2026-07-09, gibt Reise-Tipps für Frankreich (z. B. Le Mont-Saint-Michel). Name unbekannt. Wohnsituation in Berlin? Klären falls relevant.
 
 ---
 
-### Memory-Search (behoben)
-- **Problem:** 2026-05-27: Memory-Search down wegen OpenAI Quota erschöpft
-- **Status:** ✅ Behoben — läuft mit built-in backend (lokale Vektor-Suche)
-- **Prüfung:** 2026-06-07: Suchanfragen liefern relevante Treffer aus historischen Sessions
-- **Kein OpenAI API Key nötig** für Memory-Search
-- **Notiz:** Falls OpenAI Embeddings für bessere Qualität gewünscht → API Key konfigurieren
+### Memory-Search (Reparatur 2026-07-12)
+- **Problem:** 2026-05-27: Memory-Search down wegen OpenAI Quota erschöpft; 2026-07-12 erneut kaputt (rook + engineer)
+- **Fix 2026-07-12:** `provider: "none"` (FTS-only) für rook + engineer in `openclaw.json` (`agents.list[].memorySearch`)
+- **Warum:** OpenAI Embeddings 429 insufficient_quota — keine gültige API Key vorhanden
+- **Lösung:** FTS-only Modus (SQLite FTS5) statt Vektor-Suche — Keyword-Matching funktioniert, semantische Suche nicht
+- **Backup-Option:** Ollama lokal installieren + `provider: "ollama"` → semantische Suche zurück
+- **Befehle:**
+  ```bash
+  openclaw memory status --index --agent rook  # Index neu bauen
+  ```
 
 ### Wiki-Lint Cron-Job
 - **ID:** `dc1ddcd4-17fd-4e49-b736-a5ff16110e7f`
