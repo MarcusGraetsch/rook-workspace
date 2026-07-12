@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path("/root/.openclaw/workspace/projects/caravan-sommer-2026/datenbank")
 DEDUP_DIR = ROOT / "initiative-archiv" / "dedup"
 INPUT_MASTER = DEDUP_DIR / "master_initiativen_geocoded.jsonl"
-EXISTING_ORTE = ROOT / "orte.jsonl"
+EXISTING_ORTE = ROOT / "hand-curated.jsonl"
 OUTPUT_ORTE = ROOT / "orte.jsonl"
 REPORT_PATH = ROOT / "BUILD_REPORT.md"
 
@@ -34,41 +34,76 @@ TYPE_MAP = {
     "Volunteer Organisation": "volunteer-project",
     "Volunteer Exchange": "volunteer-project",
     "Alliance Member": "volunteer-project",
+    "FÖJ/BFD": "volunteer-project",
+    "Freiwilligendienst": "volunteer-project",
+    "Freiwilligendienst/Austausch": "volunteer-project",
+    "Entwicklungspolitischer Austausch": "volunteer-project",
     # Housing
     "Wohnprojekt": "housing-project",
     "Hausprojekt": "housing-project",
     "Wagenplatz": "wagon-park",
     "Immobilie": "housing-project",
-    # Communities
+    "Genossenschaft": "housing-project",  # most housing coops
+    # Communities (catch-all variants)
     "Ökodorf": "ecovillage",
     "Ökodorf/Gemeinschaft": "ecovillage",
     "Ökodorf/Spirituelle Kommune": "ecovillage",
+    "Ökodorf/Spirituelle Gemeinschaft": "ecovillage",
     "Ökodorf-Netzwerk": "ecovillage",
+    "Ökodorf/Stadt-Gemeinschaft": "ecovillage",
+    "Ökodorf/Bio-Landwirtschaft": "ecovillage",
+    "Ökdorf": "ecovillage",
     "Gemeinschaft/Ökodorf": "ecovillage",
     "Gemeinschaft/Ökdorf": "ecovillage",
+    "Gemeinschaft/Ökohof": "ecovillage",
     "Gemeinschaft": "intentional-community",
+    "Gemeinschaft/Kommune": "intentional-community",
+    "Gemeinschaft/Spirituelle Kommune": "intentional-community",
+    "Gemeinschaft/Rittergut": "intentional-community",
+    "Gemeinschaft/Dorf-Integration": "intentional-community",
+    "Gemeinschaft/Stadt-Kommune": "intentional-community",
+    "Gemeinschaft/Landkommune": "intentional-community",
     "Kommune": "intentional-community",
+    "Kommune/Spirituelle Gemeinschaft": "intentional-community",
     "Spirituelle Kommune": "intentional-community",
+    "Spirituelle Kommune/Peace Center": "intentional-community",
+    "Spirituelle Gemeinschaft/Ökodorf": "intentional-community",
+    "Stadt-Gemeinschaft": "intentional-community",
     "Bildungszentrum/Spirituelle Kommune": "intentional-community",
     "GEN-Mitglied": "ecovillage",
     # Solawi / CSA
     "Solawi": "csa-farm",
+    "Solidarische Landwirtschaft": "csa-farm",
     # Education / Events
     "Bildungsveranstaltung": "education-event",
     "Bildungszentrum": "education-center",
+    "Lernort": "learning-space",
     "Aktion": "event",
     "Camp/Aktion": "camp-event",
     "Gedenkort/Veranstaltung": "memorial-event",
     "Feministisches Projekt": "feminist-project",
     "Allgemein (Initiativen-Anzeige)": "initiative-listing",
+    "Netzwerk/Organisation": "network",
+    "Netzwerk": "network",
+    "Ökdorf-Netzwerk": "ecovillage-network",
+    # Care / historic / farms
+    "Seniorenzentrum": "care-facility",
+    "Pflegeeinrichtung": "care-facility",
+    "Schloss": "historic-building",
+    "Landwirtschaft": "farm",
+    "Ökohof": "farm",
+    "Demeter": "farm",
+    "Art Community": "art-community",
+    "Okkulte Gemeinschaft": "religious-community",
 }
 
 
 def map_type(t):
-    """Map crawler type string to master-type. Falls back to 'initiative'."""
+    """Map crawler type string to master-type. Returns None if unknown."""
     if not t:
         return None
-    return TYPE_MAP.get(t.strip(), "initiative")
+    mapped = TYPE_MAP.get(t.strip())
+    return mapped  # None if not in map, caller handles fallback
 
 
 # --- Character → Tags ---

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Caravan-Sommer-2026 — Orte-Filter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0; padding: 0; background: #f5f3ee; color: #2a2620;
+  }
+  header {
+    background: #2a2620; color: #f5f3ee; padding: 16px 24px;
+    border-bottom: 4px solid #8b6e3f;
+  }
+  header h1 { margin: 0 0 4px; font-size: 22px; font-weight: 600; }
+  header .subtitle { font-size: 13px; opacity: 0.8; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 16px; }
+
+  /* Filter Panel */
+  .filters {
+    background: white; padding: 16px; border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+    gap: 12px; align-items: end;
+  }
+  .filter-group label {
+    display: block; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.5px; color: #666; margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .filter-group input, .filter-group select {
+    width: 100%; padding: 8px; border: 1px solid #ddd;
+    border-radius: 4px; font-size: 14px; background: white;
+  }
+  .filter-group input:focus, .filter-group select:focus {
+    outline: none; border-color: #8b6e3f;
+  }
+  .reset-btn {
+    padding: 8px 16px; background: #8b6e3f; color: white;
+    border: none; border-radius: 4px; cursor: pointer; font-size: 13px;
+    font-weight: 600; height: 36px;
+  }
+  .reset-btn:hover { background: #6b5530; }
+
+  /* Tag filter (chips) */
+  .tag-filter {
+    margin: 12px 0 16px; display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .tag-chip {
+    padding: 4px 10px; background: white; border: 1px solid #ddd;
+    border-radius: 14px; font-size: 12px; cursor: pointer;
+    user-select: none;
+  }
+  .tag-chip:hover { border-color: #8b6e3f; }
+  .tag-chip.active {
+    background: #8b6e3f; color: white; border-color: #8b6e3f;
+  }
+
+  /* Stats bar */
+  .stats {
+    font-size: 13px; color: #666; padding: 8px 0;
+    border-bottom: 1px solid #ddd; margin-bottom: 12px;
+    display: flex; gap: 24px;
+  }
+  .stats strong { color: #2a2620; }
+
+  /* Results list */
+  .results { display: grid; gap: 10px; }
+  .card {
+    background: white; padding: 14px 16px; border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    border-left: 4px solid #ddd;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .card:hover {
+    transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .card.ecovillage { border-left-color: #6b8e23; }
+  .card.wwoof-farm { border-left-color: #d4a017; }
+  .card.volunteer-project { border-left-color: #4682b4; }
+  .card.housing-project { border-left-color: #8b008b; }
+  .card.intentional-community { border-left-color: #9932cc; }
+  .card.event { border-left-color: #ff6347; }
+  .card.stellplatz { border-left-color: #2f4f4f; }
+  .card.aire-municipale { border-left-color: #2f4f4f; }
+
+  .card h3 {
+    margin: 0 0 4px; font-size: 16px; font-weight: 600;
+    color: #2a2620;
+  }
+  .card .meta {
+    font-size: 12px; color: #666; margin-bottom: 8px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .card .meta span { display: inline-flex; align-items: center; gap: 4px; }
+  .card .desc {
+    font-size: 14px; line-height: 1.4; color: #444;
+    margin-bottom: 8px;
+  }
+  .card .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .card .tag {
+    padding: 2px 8px; background: #f0ebe0; border-radius: 10px;
+    font-size: 11px; color: #6b5530;
+  }
+  .card .verified-badge {
+    display: inline-block; padding: 1px 6px; border-radius: 8px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+  }
+  .card .verified-badge.no { background: #fee; color: #c33; }
+  .card .verified-badge.yes { background: #efe; color: #383; }
+  .card a {
+    color: #8b6e3f; text-decoration: none; font-size: 12px;
+    display: inline-block; margin-top: 4px;
+  }
+  .card a:hover { text-decoration: underline; }
+
+  /* Empty state */
+  .empty {
+    text-align: center; padding: 40px; color: #999; font-style: italic;
+  }
+
+  /* Loading */
+  .loading {
+    text-align: center; padding: 40px; color: #999;
+  }
+
+  /* Reise-Presets */
+  .presets {
+    margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .preset-btn {
+    padding: 6px 12px; background: white; border: 1px solid #ddd;
+    border-radius: 4px; font-size: 12px; cursor: pointer;
+  }
+  .preset-btn:hover { border-color: #8b6e3f; }
+  .preset-btn.active {
+    background: #2a2620; color: white; border-color: #2a2620;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🚐 Caravan-Sommer-2026 — Orte-Filter</h1>
+  <div class="subtitle">1816 Initiativen & Orte · 100% mit Land · Click & Filter</div>
+</header>
+
+<div class="container">
+  <div class="presets">
+    <span style="font-size:12px;color:#666;align-self:center">Presets:</span>
+    <button class="preset-btn" data-preset="all">Alle</button>
+    <button class="preset-btn" data-preset="reise">🛣️ Reise-Route (DACH+Nachbarschaft)</button>
+    <button class="preset-btn" data-preset="frankreich">🇫🇷 Frankreich-Fokus</button>
+    <button class="preset-btn" data-preset="oekodorf">🌱 Ökodörfer</button>
+    <button class="preset-btn" data-preset="housing">🏘️ Wohnprojekte</button>
+    <button class="preset-btn" data-preset="volunteer">🤝 Volunteer-Projekte</button>
+    <button class="preset-btn" data-preset="stellplatz">🅿️ Schlafplätze (Stellplätze/Aires)</button>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>🔍 Suche (Name / Stadt / Description)</label>
+      <input type="text" id="search" placeholder="z.B. 'Sieben Linden', 'ecovillage France'...">
+    </div>
+    <div class="filter-group">
+      <label>🌍 Land</label>
+      <select id="country"><option value="">Alle</option></select>
+    </div>
+    <div class="filter-group">
+      <label>🏷️ Type</label>
+      <select id="type"><option value="">Alle</option></select>
+    </div>
+    <div class="filter-group">
+      <label>✅ Verified</label>
+      <select id="verified">
+        <option value="">Alle</option>
+        <option value="false">❌ Nur unverified</option>
+        <option value="true">✓ Nur verified</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>📌 Hat GPS</label>
+      <select id="gps">
+        <option value="">Egal</option>
+        <option value="yes">Mit GPS</option>
+        <option value="no">Ohne GPS</option>
+      </select>
+    </div>
+    <button class="reset-btn" id="reset">Reset</button>
+  </div>
+
+  <div class="tag-filter" id="tag-chips"></div>
+
+  <div class="stats" id="stats"></div>
+  <div class="results" id="results">
+    <div class="loading">Lade 1816 Einträge…</div>
+  </div>
+</div>
+
+<script>
+let ALL_ENTRIES = [];
+let ACTIVE_TAGS = new Set();
+let ACTIVE_PRESET = 'all';
+
+const DACH_NEIGHBORS = new Set([
+  'DE','FR','BE','NL','LU','AT','CH','IT','ES','PT','GB','IE','DK','PL','CZ','SE','NO','FI','GR'
+]);
+
+async function load() {
+  const resp = await fetch('orte.jsonl');
+  const text = await resp.text();
+  ALL_ENTRIES = text.trim().split('\n').map(line => JSON.parse(line));
+  init();
+}
+
+function init() {
+  // Populate filter selects
+  const countries = new Set();
+  const types = new Set();
+  const tagSet = new Set();
+  ALL_ENTRIES.forEach(e => {
+    if (e.country) countries.add(e.country);
+    (e.types || []).forEach(t => types.add(t));
+    (e.tags || []).forEach(t => tagSet.add(t));
+  });
+  Array.from(countries).sort().forEach(c => {
+    const o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    document.getElementById('country').appendChild(o);
+  });
+  Array.from(types).sort().forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    document.getElementById('type').appendChild(o);
+  });
+
+  // Tag chips (top 30 tags by frequency)
+  const tagCount = new Map();
+  ALL_ENTRIES.forEach(e => {
+    (e.tags || []).forEach(t => tagCount.set(t, (tagCount.get(t) || 0) + 1));
+  });
+  const topTags = Array.from(tagCount.entries())
+    .sort((a,b) => b[1] - a[1]).slice(0, 25);
+  const chipsEl = document.getElementById('tag-chips');
+  topTags.forEach(([t, n]) => {
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.dataset.tag = t;
+    chip.textContent = `${t} (${n})`;
+    chip.addEventListener('click', () => {
+      if (ACTIVE_TAGS.has(t)) { ACTIVE_TAGS.delete(t); chip.classList.remove('active'); }
+      else { ACTIVE_TAGS.add(t); chip.classList.add('active'); }
+      render();
+    });
+    chipsEl.appendChild(chip);
+  });
+
+  // Event listeners
+  ['search','country','type','verified','gps'].forEach(id => {
+    document.getElementById(id).addEventListener('input', render);
+  });
+  document.getElementById('reset').addEventListener('click', () => {
+    document.getElementById('search').value = '';
+    document.getElementById('country').value = '';
+    document.getElementById('type').value = '';
+    document.getElementById('verified').value = '';
+    document.getElementById('gps').value = '';
+    ACTIVE_TAGS.clear();
+    document.querySelectorAll('.tag-chip.active').forEach(c => c.classList.remove('active'));
+    setPreset('all');
+    render();
+  });
+
+  // Presets
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.preset;
+      setPreset(p);
+      render();
+    });
+  });
+
+  setPreset('all');
+  render();
+}
+
+function setPreset(p) {
+  ACTIVE_PRESET = p;
+  document.querySelectorAll('.preset-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.preset === p);
+  });
+}
+
+function passesPreset(e) {
+  switch (ACTIVE_PRESET) {
+    case 'reise': return DACH_NEIGHBORS.has(e.country);
+    case 'frankreich': return e.country === 'FR';
+    case 'oekodorf': return (e.types || []).includes('ecovillage');
+    case 'housing': return (e.types || []).includes('housing-project');
+    case 'volunteer': return (e.types || []).some(t => ['wwoof-farm','volunteer-project'].includes(t));
+    case 'stellplatz': return (e.types || []).some(t => ['stellplatz','aire-municipale','camping-cheap','freisteh-spot'].includes(t));
+    default: return true;
+  }
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const country = document.getElementById('country').value;
+  const type = document.getElementById('type').value;
+  const verified = document.getElementById('verified').value;
+  const gps = document.getElementById('gps').value;
+
+  const filtered = ALL_ENTRIES.filter(e => {
+    if (!passesPreset(e)) return false;
+    if (country && e.country !== country) return false;
+    if (type && !(e.types || []).includes(type)) return false;
+    if (verified !== '') {
+      const v = e.verified === true;
+      if (verified === 'true' && !v) return false;
+      if (verified === 'false' && v) return false;
+    }
+    if (gps === 'yes' && (!e.lat || !e.lon)) return false;
+    if (gps === 'no' && e.lat && e.lon) return false;
+    if (ACTIVE_TAGS.size > 0) {
+      const tags = new Set(e.tags || []);
+      for (const t of ACTIVE_TAGS) if (!tags.has(t)) return false;
+    }
+    if (q) {
+      const hay = `${e.name || ''} ${e.city || ''} ${e.region || ''} ${e.description || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Stats
+  const statsEl = document.getElementById('stats');
+  const verifiedCount = filtered.filter(e => e.verified).length;
+  const withGps = filtered.filter(e => e.lat && e.lon).length;
+  const countries = new Set(filtered.map(e => e.country).filter(Boolean));
+  statsEl.innerHTML = `
+    <span><strong>${filtered.length}</strong> von ${ALL_ENTRIES.length} Einträgen</span>
+    <span><strong>${verifiedCount}</strong> verifiziert</span>
+    <span><strong>${withGps}</strong> mit GPS</span>
+    <span><strong>${countries.size}</strong> Länder</span>
+  `;
+
+  // Results
+  const resEl = document.getElementById('results');
+  if (filtered.length === 0) {
+    resEl.innerHTML = '<div class="empty">Keine Treffer. Filter anpassen oder Reset drücken.</div>';
+    return;
+  }
+
+  // Sort: country → city → name
+  filtered.sort((a, b) => {
+    const c = (a.country || 'ZZ').localeCompare(b.country || 'ZZ');
+    if (c !== 0) return c;
+    const ci = (a.city || '').localeCompare(b.city || '');
+    if (ci !== 0) return ci;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+
+  // Limit to 200 for performance; show banner if more
+  const SHOWN = filtered.slice(0, 200);
+  let html = '';
+  if (filtered.length > 200) {
+    html += `<div class="empty">Zeige erste 200 von ${filtered.length} — Filter weiter einschränken oder Reset drücken.</div>`;
+  }
+  SHOWN.forEach(e => {
+    const primaryType = (e.types || [])[0] || 'initiative';
+    const loc = [e.city, e.region, e.country].filter(Boolean).join(', ');
+    const contact = e.contact || {};
+    const link = contact.url || e.source_url;
+    const tagsHtml = (e.tags || []).slice(0, 6).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
+    const verifiedBadge = `<span class="verified-badge ${e.verified ? 'yes' : 'no'}">${e.verified ? '✓ verified' : 'unverified'}</span>`;
+    const gpsHtml = (e.lat && e.lon) ? `<span>📍 ${e.lat.toFixed(3)}, ${e.lon.toFixed(3)}</span>` : '<span style="color:#999">📍 kein GPS</span>';
+    const linkHtml = link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener">→ ${escapeHtml(truncUrl(link))}</a>` : '';
+    html += `
+      <div class="card ${primaryType}">
+        <h3>${escapeHtml(e.name || '(unbenannt)')} ${verifiedBadge}</h3>
+        <div class="meta">
+          <span>📂 ${primaryType}</span>
+          ${loc ? `<span>📍 ${escapeHtml(loc)}</span>` : ''}
+          ${gpsHtml}
+        </div>
+        ${e.description ? `<div class="desc">${escapeHtml(truncDesc(e.description))}</div>` : ''}
+        <div class="tags">${tagsHtml}</div>
+        ${linkHtml}
+      </div>
+    `;
+  });
+  resEl.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+function truncUrl(u) {
+  try {
+    const url = new URL(u);
+    return url.hostname + url.pathname.slice(0, 30);
+  } catch { return u.slice(0, 50); }
+}
+
+function truncDesc(d) {
+  if (d.length <= 280) return d;
+  return d.slice(0, 277) + '...';
+}
+
+load();
+</script>
+</body>
+</html>

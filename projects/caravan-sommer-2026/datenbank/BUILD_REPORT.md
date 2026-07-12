@@ -5,7 +5,7 @@
 ## Pipeline
 
 - **Input (crawler master)**: `master_initiativen_geocoded.jsonl` (1768 entries)
-- **Input (existing curated)**: `orte.jsonl` (82 raw / 57 with id+name)
+- **Input (existing curated)**: `hand-curated.jsonl` (82 raw / 57 with id+name)
 - **Output**: `orte.jsonl` (1816 entries)
 
 ## Merge Logic
@@ -49,19 +49,19 @@
 
 ## Type distribution
 
-- `initiative`: 1597
 - `wwoof-farm`: 999
-- `volunteer-project`: 513
-- `housing-project`: 181
-- `ecovillage`: 61
+- `volunteer-project`: 515
+- `housing-project`: 182
+- `ecovillage`: 62
 - `intentional-community`: 38
 - `event`: 15
 - `stellplatz`: 13
 - `aire-municipale`: 10
+- `csa-farm`: 7
 - `social-center`: 6
-- `csa-farm`: 6
 - `cooperative`: 6
 - `megalithic-site`: 6
+- `farm`: 4
 - `festival`: 4
 - `camp`: 4
 - `education`: 3
@@ -77,33 +77,66 @@
 | `Aktion` | `event` |
 | `Allgemein (Initiativen-Anzeige)` | `initiative-listing` |
 | `Alliance Member` | `volunteer-project` |
+| `Art Community` | `art-community` |
 | `Bildungsveranstaltung` | `education-event` |
 | `Bildungszentrum` | `education-center` |
 | `Bildungszentrum/Spirituelle Kommune` | `intentional-community` |
 | `Camp/Aktion` | `camp-event` |
+| `Demeter` | `farm` |
+| `Entwicklungspolitischer Austausch` | `volunteer-project` |
 | `Feministisches Projekt` | `feminist-project` |
+| `Freiwilligendienst` | `volunteer-project` |
+| `Freiwilligendienst/Austausch` | `volunteer-project` |
+| `FÖJ/BFD` | `volunteer-project` |
 | `GEN-Mitglied` | `ecovillage` |
 | `Gedenkort/Veranstaltung` | `memorial-event` |
 | `Gemeinschaft` | `intentional-community` |
+| `Gemeinschaft/Dorf-Integration` | `intentional-community` |
+| `Gemeinschaft/Kommune` | `intentional-community` |
+| `Gemeinschaft/Landkommune` | `intentional-community` |
+| `Gemeinschaft/Rittergut` | `intentional-community` |
+| `Gemeinschaft/Spirituelle Kommune` | `intentional-community` |
+| `Gemeinschaft/Stadt-Kommune` | `intentional-community` |
 | `Gemeinschaft/Ökdorf` | `ecovillage` |
 | `Gemeinschaft/Ökodorf` | `ecovillage` |
+| `Gemeinschaft/Ökohof` | `ecovillage` |
+| `Genossenschaft` | `housing-project` |
 | `Hausprojekt` | `housing-project` |
 | `HelpStay-Host` | `volunteer-project` |
 | `HelpX-Host` | `volunteer-project` |
 | `Immobilie` | `housing-project` |
 | `Kommune` | `intentional-community` |
+| `Kommune/Spirituelle Gemeinschaft` | `intentional-community` |
+| `Landwirtschaft` | `farm` |
+| `Lernort` | `learning-space` |
+| `Netzwerk` | `network` |
+| `Netzwerk/Organisation` | `network` |
+| `Okkulte Gemeinschaft` | `religious-community` |
+| `Pflegeeinrichtung` | `care-facility` |
+| `Schloss` | `historic-building` |
+| `Seniorenzentrum` | `care-facility` |
 | `Solawi` | `csa-farm` |
+| `Solidarische Landwirtschaft` | `csa-farm` |
+| `Spirituelle Gemeinschaft/Ökodorf` | `intentional-community` |
 | `Spirituelle Kommune` | `intentional-community` |
+| `Spirituelle Kommune/Peace Center` | `intentional-community` |
+| `Stadt-Gemeinschaft` | `intentional-community` |
 | `Volunteer Exchange` | `volunteer-project` |
 | `Volunteer Organisation` | `volunteer-project` |
 | `WWOOF-Host` | `wwoof-farm` |
 | `Wagenplatz` | `wagon-park` |
 | `Wohnprojekt` | `housing-project` |
 | `Workaway-Host` | `volunteer-project` |
+| `Ökdorf` | `ecovillage` |
+| `Ökdorf-Netzwerk` | `ecovillage-network` |
 | `Ökodorf` | `ecovillage` |
 | `Ökodorf-Netzwerk` | `ecovillage` |
+| `Ökodorf/Bio-Landwirtschaft` | `ecovillage` |
 | `Ökodorf/Gemeinschaft` | `ecovillage` |
+| `Ökodorf/Spirituelle Gemeinschaft` | `ecovillage` |
 | `Ökodorf/Spirituelle Kommune` | `ecovillage` |
+| `Ökodorf/Stadt-Gemeinschaft` | `ecovillage` |
+| `Ökohof` | `farm` |
 
 ## What This Means
 
