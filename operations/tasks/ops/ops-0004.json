@@ -1,0 +1,56 @@
+{
+  "task_id": "ops-0004",
+  "project_id": "rook-workspace",
+  "title": "Autoresearch: claude-mem (Juli 2026)",
+  "description": "Monthly autoresearch loop for **claude-mem**.\n\nMemory plugin (SQLite + Chroma + Express worker on port 37777). Optimize accuracy of memory retrieval, hook latency, and compression quality.\n\n**Target path:** `/root/.openclaw/claude-mem`\n**Focus areas:** retrieval accuracy, hook latency, compression quality\n\nRun /autoresearch (agent-growth-suite) against this target.\nMeasure before/after. Keep only improvements that score better.\nCommit results and document in AUTORESEARCH-LOG.md.",
+  "status": "ready",
+  "assigned_agent": "rook",
+  "claimed_by": null,
+  "priority": "medium",
+  "labels": [
+    "autoresearch",
+    "monthly",
+    "claude-mem"
+  ],
+  "dependencies": [],
+  "blocked_by": [],
+  "blocked_reason": null,
+  "failure_reason": null,
+  "handoff_notes": "",
+  "source_channel": "system:monthly-autoresearch",
+  "artifacts": [],
+  "checklist": [
+    {
+      "title": "Run /autoresearch on claude-mem",
+      "completed": false,
+      "position": 0
+    },
+    {
+      "title": "Document baseline metrics",
+      "completed": false,
+      "position": 1
+    },
+    {
+      "title": "Implement top improvements",
+      "completed": false,
+      "position": 2
+    },
+    {
+      "title": "Measure and compare",
+      "completed": false,
+      "position": 3
+    },
+    {
+      "title": "Commit and document in AUTORESEARCH-LOG.md",
+      "completed": false,
+      "position": 4
+    }
+  ],
+  "timestamps": {
+    "created_at": "2026-07-01T07:11:45.641Z",
+    "updated_at": "2026-07-01T07:11:45.641Z",
+    "started_at": null,
+    "completed_at": null,
+    "claimed_at": null
+  }
+}

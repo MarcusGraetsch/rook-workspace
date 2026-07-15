@@ -240,11 +240,30 @@
 - **Fallback:** Kimi K2.5 (kimi-coding/k2p5) — API Key Problem (401), fix pending
 - **Previous:** Kimi K2.5 war Primary bis 2026-06-06
 
-### Provider-Subscriptions (Marcus 2026-07-12)
+### Provider-Subscriptions (Marcus 2026-07-12, ergänzt 2026-07-15)
 - **Modell:** Pro Plan oder Basic (günstigste Stufe) bei jedem Provider
 - **Usage-Limit:** Token Plan / Rate-Limit (z.B. 429 `Token Plan usage limit reached`)
 - **Reset-Intervall:** **Alle 5 Stunden** (zyklisch, nicht dauerhaft)
 - **Konsequenz:** Provider-Limits sind transient — nicht permanent. Wenn MiniMax und Kimi gleichzeitig am Limit sind → ~5h warten oder OpenRouter/DeepSeek/etc. als dritten Fallback.
+- **Fallback-Chain (live seit 2026-07-15 14:42):**
+  1. `minimax/MiniMax-M3` (primary)
+  2. `minimax/MiniMax-M2.7` (Minimax 2nd)
+  3. `kimi/moonshot-k2-6`
+  4. `openai/gpt-5.4` (Codex) ← neu, OAuth über Marcus' Account
+- **Anthropic ENTFERNT** aus der Fallback-Chain 2026-07-15: war Dead Config (kein API-Key, Auth-Store leer), verursachte Auth-Fail am Ende der Chain. **Lesson: Nie eine Fallback-Chain mit Dead-Provider. Immer prüfen, ob Auth-Profile existieren, bevor Model in `models.providers` oder Fallbacks landet.**
+- **Diagnostik-Cron:** `openclaw models auth list` zeigt aktuelle Auth-Profile. Backups unter `/root/.openclaw/openclaw.json.bak-pre-c-<timestamp>` (manuell vor jeder Config-Mutation anlegen!).
+
+### Incidents & Post-Mortems
+
+#### 2026-07-15 11:08 — Anthropic Auth-Fail (Message #8416)
+- **Symptom:** OpenClaw sendet `⚠️ Missing API key for provider "anthropic"` als Telegram-Diagnose.
+- **Root Cause:** 4-stufiger Fallback lief komplett ins Leere: `minimax/MiniMax-M3` timeout → `minimax/MiniMax-M2.7` timeout → `kimi/moonshot-k2-6` timeout → `anthropic/claude-sonnet-4-6` 401 (kein Key konfiguriert).
+- **Trigger:** SearXNG-Spike (15 Min, mehrere parallele Container-Pulls + 6 web_search Calls + viele Tokens). Hat das Token-Budget stark gedrückt, sodass alle Provider-Limits zur selben Zeit griffen.
+- **Fix:** Option C — `openai/gpt-5.4` (Codex) als 4. Fallback, Anthropic-Plugin + Model-Aliases + alle Fallback-Referenzen entfernt. OpenClaw erkennt den Patch sofort (kein Restart nötig).
+- **Lesson für die Zukunft:**
+  1. **Spike-Länge = Token-Kosten.** Lange Spikes (15+ Min, viele Sub-Calls) drücken das Budget aller Provider gleichzeitig. Bei großen Spikes vorher den Provider-Status checken (`openclaw models status`) und ggf. auf Single-Provider-Modus umstellen.
+  2. **Fallback-Chains nie blind.** Vor jedem neuen Fallback-Modell verifizieren, dass ein Auth-Profile existiert. `openclaw models auth list` als Pre-Flight-Routine.
+  3. **Diagnose-Messages sind gut.** OpenClaw hat den Fail-Mode selbst diagnostiziert und an Telegram geschickt — das hat das Debugging massiv beschleunigt. Schema: timeout-Failures propagieren → am Ende Dead-Provider-Fail → OpenClaw bricht ab und meldet. **Besser früh abbrechen als spät.**
 - **Aktuell (2026-07-12):** MiniMax aufgebraucht (Reset in <5h), Kimi als Fallback aktiv
 - **Phoenix/Hermes** teilt den gleichen MiniMax Key — wenn Rook umstellt, Phoenix mit umstellen
 

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Rook Agent"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Marcus Frankreich-Rundreise 2026 (28.07.-23.08.)</name>
+    <desc>Hymer-Oldtimer Bremen → Reims → Calvados → Erdeven → MSM → D-Day → Calais → Paris → Köln → Berlin</desc>
+    <author><name>Rook</name></author>
+    <time>2026-07-09T16:30:36.637695Z</time>
+  </metadata>
+
+  <!-- HAUPTRROUTE (28.07. - 21.08.) -->
+  <rte>
+    <name>Frankreich-Rundreise 2026 - Hauptroute</name>
+    <desc>27-Tage-Rundreise mit Hymer-Oldtimer</desc>
+    <rtept lat="53.0793" lon="8.8017">
+      <name>Bremen (Start)</name>
+      <desc>Abfahrt 28.07. nachmittags</desc>
+      <time>2026-07-28T12:00:00Z</time>
+    </rtept>
+    <rtept lat="50.5559" lon="6.2426">
+      <name>Monschau (Eifel)</name>
+      <desc>ÜN 1 - 28./29.07.</desc>
+      <time>2026-07-28T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.2583" lon="4.0317">
+      <name>Reims (Eribon-Tag)</name>
+      <desc>Dérogation nötig! 29.07.</desc>
+      <time>2026-07-29T12:00:00Z</time>
+    </rtept>
+    <rtept lat="48.8340" lon="-0.6580">
+      <name>Saint-Jean-le-Blanc (Calvados)</name>
+      <desc>ASF-Anreise 30.07.</desc>
+      <time>2026-07-30T12:00:00Z</time>
+    </rtept>
+    <rtept lat="48.8358" lon="-0.6563">
+      <name>ASF Jubiläum (50 ans Volontaires au Bocage)</name>
+      <desc>14770 Calvados, 31.07.-02.08.</desc>
+      <time>2026-07-31T12:00:00Z</time>
+    </rtept>
+    <rtept lat="47.6420" lon="-3.1570">
+      <name>Erdeven (Anreise 03.08.)</name>
+      <desc>320 km via Rennes, ~3,5 h</desc>
+      <time>2026-08-03T12:00:00Z</time>
+    </rtept>
+    <rtept lat="47.6420" lon="-3.1570">
+      <name>Erdeven Camping (Basis 04.-10.08.)</name>
+      <desc>Mit Freund + Familie, bis 10.8.</desc>
+      <time>2026-08-04T12:00:00Z</time>
+    </rtept>
+    <rtept lat="48.6361" lon="-1.5114">
+      <name>Le Mont-Saint-Michel</name>
+      <desc>11.08. nachmittag</desc>
+      <time>2026-08-11T12:00:00Z</time>
+    </rtept>
+    <rtept lat="48.6047" lon="-1.5089">
+      <name>Camping Beauvoir</name>
+      <desc>ÜN MSM-Umgebung, 11./12.08.</desc>
+      <time>2026-08-11T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.2789" lon="-0.7042">
+      <name>Bayeux</name>
+      <desc>D-Day-Basis, OPTIONAL Tapisserie</desc>
+      <time>2026-08-12T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.1986" lon="-0.3853">
+      <name>Mémorial de Caen</name>
+      <desc>12./14.08.</desc>
+      <time>2026-08-14T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.3597" lon="-0.8472">
+      <name>Omaha Beach</name>
+      <desc>D-Day West, 13.08.</desc>
+      <time>2026-08-13T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.4108" lon="-1.1764">
+      <name>Utah Beach</name>
+      <desc>D-Day West, 13.08.</desc>
+      <time>2026-08-13T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.3914" lon="-0.9872">
+      <name>Pointe du Hoc</name>
+      <desc>D-Day West, 13.08.</desc>
+      <time>2026-08-13T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.3394" lon="-0.6244">
+      <name>Gold Beach (Arromanches)</name>
+      <desc>D-Day Ost, 14.08.</desc>
+      <time>2026-08-14T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.3278" lon="-0.3956">
+      <name>Juno Beach</name>
+      <desc>D-Day Ost, 14.08.</desc>
+      <time>2026-08-14T12:00:00Z</time>
+    </rtept>
+    <rtept lat="49.2758" lon="-0.2583">
+      <name>Sword Beach (Ouistreham)</name>
+      <desc>D-Day Ost, 14.08.</desc>
+      <time>2026-08-14T12:00:00Z</time>
+    </rtept>
+    <rtept lat="50.9513" lon="1.8587">
+      <name>Calais</name>
+      <desc>15.08. abends</desc>
+      <time>2026-08-15T12:00:00Z</time>
+    </rtept>
+    <rtept lat="50.9869" lon="2.3036">
+      <name>Grande-Synthe (MSF)</name>
+      <desc>MSF-Tag humanitär, 16.08.</desc>
+      <time>2026-08-16T12:00:00Z</time>
+    </rtept>
+    <rtept lat="48.8628" lon="2.2494">
+      <name>Paris (CityKamp 75016)</name>
+      <desc>Bois de Boulogne, 17.-19.08.</desc>
+      <time>2026-08-17T12:00:00Z</time>
+    </rtept>
+    <rtept lat="50.9626" lon="6.9583">
+      <name>Köln (Reisemobilhafen)</name>
+      <desc>An der Schanz 14, 50735 - 20.08.</desc>
+      <time>2026-08-20T12:00:00Z</time>
+    </rtept>
+    <rtept lat="52.5200" lon="13.4050">
+      <name>Berlin (Ankunft)</name>
+      <desc>21.08. abends</desc>
+      <time>2026-08-21T12:00:00Z</time>
+    </rtept>
+  </rte>
+
+  <!-- HAUPT-WAYPOINTS -->
+  <wpt lat="53.0793" lon="8.8017">
+    <name>Bremen (Start)</name>
+    <desc>Abfahrt 28.07. nachmittags</desc>
+    <time>2026-07-28T12:00:00Z</time>
+  </wpt>
+  <wpt lat="50.5559" lon="6.2426">
+    <name>Monschau (Eifel)</name>
+    <desc>ÜN 1 - 28./29.07.</desc>
+    <time>2026-07-28T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.2583" lon="4.0317">
+    <name>Reims (Eribon-Tag)</name>
+    <desc>Dérogation nötig! 29.07.</desc>
+    <time>2026-07-29T12:00:00Z</time>
+  </wpt>
+  <wpt lat="48.8340" lon="-0.6580">
+    <name>Saint-Jean-le-Blanc (Calvados)</name>
+    <desc>ASF-Anreise 30.07.</desc>
+    <time>2026-07-30T12:00:00Z</time>
+  </wpt>
+  <wpt lat="48.8358" lon="-0.6563">
+    <name>ASF Jubiläum (50 ans Volontaires au Bocage)</name>
+    <desc>14770 Calvados, 31.07.-02.08.</desc>
+    <time>2026-07-31T12:00:00Z</time>
+  </wpt>
+  <wpt lat="47.6420" lon="-3.1570">
+    <name>Erdeven (Anreise 03.08.)</name>
+    <desc>320 km via Rennes, ~3,5 h</desc>
+    <time>2026-08-03T12:00:00Z</time>
+  </wpt>
+  <wpt lat="47.6420" lon="-3.1570">
+    <name>Erdeven Camping (Basis 04.-10.08.)</name>
+    <desc>Mit Freund + Familie, bis 10.8.</desc>
+    <time>2026-08-04T12:00:00Z</time>
+  </wpt>
+  <wpt lat="48.6361" lon="-1.5114">
+    <name>Le Mont-Saint-Michel</name>
+    <desc>11.08. nachmittag</desc>
+    <time>2026-08-11T12:00:00Z</time>
+  </wpt>
+  <wpt lat="48.6047" lon="-1.5089">
+    <name>Camping Beauvoir</name>
+    <desc>ÜN MSM-Umgebung, 11./12.08.</desc>
+    <time>2026-08-11T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.2789" lon="-0.7042">
+    <name>Bayeux</name>
+    <desc>D-Day-Basis, OPTIONAL Tapisserie</desc>
+    <time>2026-08-12T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.1986" lon="-0.3853">
+    <name>Mémorial de Caen</name>
+    <desc>12./14.08.</desc>
+    <time>2026-08-14T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.3597" lon="-0.8472">
+    <name>Omaha Beach</name>
+    <desc>D-Day West, 13.08.</desc>
+    <time>2026-08-13T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.4108" lon="-1.1764">
+    <name>Utah Beach</name>
+    <desc>D-Day West, 13.08.</desc>
+    <time>2026-08-13T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.3914" lon="-0.9872">
+    <name>Pointe du Hoc</name>
+    <desc>D-Day West, 13.08.</desc>
+    <time>2026-08-13T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.3394" lon="-0.6244">
+    <name>Gold Beach (Arromanches)</name>
+    <desc>D-Day Ost, 14.08.</desc>
+    <time>2026-08-14T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.3278" lon="-0.3956">
+    <name>Juno Beach</name>
+    <desc>D-Day Ost, 14.08.</desc>
+    <time>2026-08-14T12:00:00Z</time>
+  </wpt>
+  <wpt lat="49.2758" lon="-0.2583">
+    <name>Sword Beach (Ouistreham)</name>
+    <desc>D-Day Ost, 14.08.</desc>
+    <time>2026-08-14T12:00:00Z</time>
+  </wpt>
+  <wpt lat="50.9513" lon="1.8587">
+    <name>Calais</name>
+    <desc>15.08. abends</desc>
+    <time>2026-08-15T12:00:00Z</time>
+  </wpt>
+  <wpt lat="50.9869" lon="2.3036">
+    <name>Grande-Synthe (MSF)</name>
+    <desc>MSF-Tag humanitär, 16.08.</desc>
+    <time>2026-08-16T12:00:00Z</time>
+  </wpt>
+  <wpt lat="48.8628" lon="2.2494">
+    <name>Paris (CityKamp 75016)</name>
+    <desc>Bois de Boulogne, 17.-19.08.</desc>
+    <time>2026-08-17T12:00:00Z</time>
+  </wpt>
+  <wpt lat="50.9626" lon="6.9583">
+    <name>Köln (Reisemobilhafen)</name>
+    <desc>An der Schanz 14, 50735 - 20.08.</desc>
+    <time>2026-08-20T12:00:00Z</time>
+  </wpt>
+  <wpt lat="52.5200" lon="13.4050">
+    <name>Berlin (Ankunft)</name>
+    <desc>21.08. abends</desc>
+    <time>2026-08-21T12:00:00Z</time>
+  </wpt>
+
+  <!-- TAGESAUSFLÜGE AB ERDEVEN -->
+  <wpt lat="48.6493" lon="-2.0258">
+    <name>[Trip] Saint-Malo</name>
+    <desc>Tagestrip ab Erdeven, ~200 km RT</desc>
+  </wpt>
+  <wpt lat="48.6819" lon="-2.3167">
+    <name>[Trip] Cap Fréhel</name>
+    <desc>Felsenküste, Bretagne-Nord</desc>
+  </wpt>
+  <wpt lat="48.4561" lon="-2.0503">
+    <name>[Trip] Dinan</name>
+    <desc>Mittelalterliche Altstadt</desc>
+  </wpt>
+  <wpt lat="48.8128" lon="-3.4422">
+    <name>[Trip] Côte de Granit Rose (Perros-Guirec)</name>
+    <desc>Rosa Granitfelsen</desc>
+  </wpt>
+  <wpt lat="47.5844" lon="-3.0825">
+    <name>[Trip] Carnac</name>
+    <desc>Megalithen, 15 km von Erdeven</desc>
+  </wpt>
+  <wpt lat="47.8722" lon="-3.9200">
+    <name>[Trip] Concarneau</name>
+    <desc>Altstadt auf Insel, Ville Close</desc>
+  </wpt>
+  <wpt lat="47.4831" lon="-3.0844">
+    <name>[Trip] Quiberon</name>
+    <desc>Halbinsel, Strand</desc>
+  </wpt>
+  <wpt lat="47.3494" lon="-3.1558">
+    <name>[Trip] Belle-Île (Le Palais)</name>
+    <desc>Fähre ab Quiberon</desc>
+  </wpt>
+
+</gpx>

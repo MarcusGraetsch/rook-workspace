@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Caravan-Sommer-2026"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Marcus Reise 28.07.-23.08.2026: Bremen → Normandie → Bretagne → Paris → Berlin</name>
+    <desc>Frankreich-Reise mit Hymer-Oldtimer H-Kennzeichen, 27 Tage, Wohnmobil-Stellplätze, Sehenswürdigkeiten, D-Day, Calais/Grande-Synthe, Paris</desc>
+    <author><name>Rook (Caravan-Sommer-2026)</name></author>
+    <time>2026-07-07T19:00:00Z</time>
+  </metadata>
+  <wpt lat="53.0793" lon="8.8017">
+    <name>🚐 Bremen (Start)</name>
+    <cmt>Marcus' Start, 28.07. nachmittags</cmt>
+    <desc>Marcus' Start, 28.07. nachmittags</desc>
+    <type>start</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="50.35" lon="6.5667">
+    <name>🛣️ Eifel/Maas-Region (ÜN)</name>
+    <cmt>Übernachtung 28./29.07., Eifel-Region</cmt>
+    <desc>Übernachtung 28./29.07., Eifel-Region</desc>
+    <type>uebernachtung</type>
+    <sym>u</sym>
+  </wpt>
+  <wpt lat="49.2583" lon="4.0317">
+    <name>📖 Reims - Eribon-Stadt</name>
+    <cmt>Didier Eribons Heimatstadt, 29.07. Dérogation ZFE Reims</cmt>
+    <desc>Didier Eribons Heimatstadt, 29.07. Dérogation ZFE Reims</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.9333" lon="-0.6833">
+    <name>🎉 Saint-Jean-le-Blanc (ASF)</name>
+    <cmt>ASF-Jubiläum 50 ans Volontaires au Bocage, 31.07.-02.08. 14770 Calvados</cmt>
+    <desc>ASF-Jubiläum 50 ans Volontaires au Bocage, 31.07.-02.08. 14770 Calvados</desc>
+    <type>termin</type>
+    <sym>t</sym>
+  </wpt>
+  <wpt lat="49.05" lon="0.25">
+    <name>🥖 Calvados-Land (ÜN-Tipps)</name>
+    <cmt>Aires de Camping-Car rund um Caen</cmt>
+    <desc>Aires de Camping-Car rund um Caen</desc>
+    <type>uebernachtung</type>
+    <sym>u</sym>
+  </wpt>
+  <wpt lat="49.3586" lon="-0.8503">
+    <name>⚔️ Omaha Beach (Colleville)</name>
+    <cmt>US-Landung, amerikanischer Soldatenfriedhof</cmt>
+    <desc>US-Landung, amerikanischer Soldatenfriedhof</desc>
+    <type>dday</type>
+    <sym>d</sym>
+  </wpt>
+  <wpt lat="49.3811" lon="-1.1711">
+    <name>⚔️ Utah Beach (Sainte-Marie-du-Mont)</name>
+    <cmt>US-Landung, D-Day-Museum</cmt>
+    <desc>US-Landung, D-Day-Museum</desc>
+    <type>dday</type>
+    <sym>d</sym>
+  </wpt>
+  <wpt lat="49.3383" lon="-0.6192">
+    <name>⚔️ Gold Beach (Arromanches)</name>
+    <cmt>Briten, künstliche Häfen Mulberry, Arromanches 360° Kino</cmt>
+    <desc>Briten, künstliche Häfen Mulberry, Arromanches 360° Kino</desc>
+    <type>dday</type>
+    <sym>d</sym>
+  </wpt>
+  <wpt lat="49.3308" lon="-0.4567">
+    <name>⚔️ Juno Beach (Courseulles)</name>
+    <cmt>Kanadier, Juno Beach Centre</cmt>
+    <desc>Kanadier, Juno Beach Centre</desc>
+    <type>dday</type>
+    <sym>d</sym>
+  </wpt>
+  <wpt lat="49.2792" lon="-0.2581">
+    <name>⚔️ Sword Beach (Ouistreham)</name>
+    <cmt>Briten, Pegasus-Brücke</cmt>
+    <desc>Briten, Pegasus-Brücke</desc>
+    <type>dday</type>
+    <sym>d</sym>
+  </wpt>
+  <wpt lat="49.3944" lon="-0.9789">
+    <name>⚔️ Pointe du Hoc</name>
+    <cmt>Rangers-Kletterfelsen</cmt>
+    <desc>Rangers-Kletterfelsen</desc>
+    <type>dday</type>
+    <sym>d</sym>
+  </wpt>
+  <wpt lat="49.1989" lon="-0.3853">
+    <name>🏛️ Mémorial de Caen</name>
+    <cmt>D-Day-Museum, 1 Tag lohnend</cmt>
+    <desc>D-Day-Museum, 1 Tag lohnend</desc>
+    <type>museum</type>
+    <sym>m</sym>
+  </wpt>
+  <wpt lat="49.2789" lon="-0.7042">
+    <name>🧵 Bayeux - Tapestry</name>
+    <cmt>Bayeux-Tapestry, 1000-jähriger Wandteppich</cmt>
+    <desc>Bayeux-Tapestry, 1000-jähriger Wandteppich</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.6493" lon="-1.9992">
+    <name>🏰 Saint-Malo</name>
+    <cmt>Korsaren-Stadt, Festungswälle, 2 Tage</cmt>
+    <desc>Korsaren-Stadt, Festungswälle, 2 Tage</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.6853" lon="-2.3181">
+    <name>🌊 Cap Fréhel</name>
+    <cmt>Steile Klippen, Leuchtturm</cmt>
+    <desc>Steile Klippen, Leuchtturm</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.8325" lon="-3.4864">
+    <name>🪨 Côte de Granit Rose (Ploumanac'h)</name>
+    <cmt>Rosa Granit-Felsen</cmt>
+    <desc>Rosa Granit-Felsen</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.45" lon="-2.0333">
+    <name>🏰 Dinan</name>
+    <cmt>Mittelalter-Altstadt</cmt>
+    <desc>Mittelalter-Altstadt</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="47.8731" lon="-3.9181">
+    <name>🏘️ Concarneau</name>
+    <cmt>Ville Close, Fischerhafen</cmt>
+    <desc>Ville Close, Fischerhafen</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="47.9967" lon="-4.0967">
+    <name>⛪ Quimper</name>
+    <cmt>Kathedrale, bretonische Kultur</cmt>
+    <desc>Kathedrale, bretonische Kultur</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="47.585" lon="-3.0781">
+    <name>🗿 Carnac (Megalithen)</name>
+    <cmt>Vorgeschichtliche Steinformationen</cmt>
+    <desc>Vorgeschichtliche Steinformationen</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="47.5819" lon="-2.8086">
+    <name>🌊 Golfe du Morbihan</name>
+    <cmt>Traumhafte Bucht</cmt>
+    <desc>Traumhafte Bucht</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.3644" lon="-3.7444">
+    <name>🌲 Huelgoat Forest</name>
+    <cmt>Verwunschener Wald</cmt>
+    <desc>Verwunschener Wald</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.1983" lon="-2.3939">
+    <name>💚 WWOOF Bretagne: Merdrignac</name>
+    <cmt>Experience sustainable living in Bretagne</cmt>
+    <desc>Experience sustainable living in Bretagne</desc>
+    <type>initiative</type>
+    <sym>i</sym>
+  </wpt>
+  <wpt lat="47.9856" lon="-4.3118">
+    <name>💚 WWOOF Landudec (Finistère)</name>
+    <cmt>Help create alternative way of living</cmt>
+    <desc>Help create alternative way of living</desc>
+    <type>initiative</type>
+    <sym>i</sym>
+  </wpt>
+  <wpt lat="48.087" lon="-3.2877">
+    <name>💚 HelpStay Central Brittany</name>
+    <cmt>Draft Horse Farm in Ploërdut</cmt>
+    <desc>Draft Horse Farm in Ploërdut</desc>
+    <type>initiative</type>
+    <sym>i</sym>
+  </wpt>
+  <wpt lat="47.2186" lon="-1.5541">
+    <name>💚 HelpStay Nantes (Abbaretz)</name>
+    <cmt>Join our family home</cmt>
+    <desc>Join our family home</desc>
+    <type>initiative</type>
+    <sym>i</sym>
+  </wpt>
+  <wpt lat="50.9513" lon="1.8587">
+    <name>🚢 Calais (Stadt)</name>
+    <cmt>Hafenstadt, Migrations-Hintergrund</cmt>
+    <desc>Hafenstadt, Migrations-Hintergrund</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="51.0153" lon="2.3">
+    <name>🤝 Grande-Synthe (MSF-Camp)</name>
+    <cmt>MSF-Camp 40 km von Calais, humanitärer Besuch</cmt>
+    <desc>MSF-Camp 40 km von Calais, humanitärer Besuch</desc>
+    <type>humanitaer</type>
+    <sym>h</sym>
+  </wpt>
+  <wpt lat="50.945" lon="1.863">
+    <name>🏘️ Auberge des Migrants (Calais)</name>
+    <cmt>Humanitäre Hilfsorganisation</cmt>
+    <desc>Humanitäre Hilfsorganisation</desc>
+    <type>humanitaer</type>
+    <sym>h</sym>
+  </wpt>
+  <wpt lat="48.8631" lon="2.2497">
+    <name>🏕️ CityKamp Paris (ÜN)</name>
+    <cmt>Camping 4-Sterne, 75016 Bois de Boulogne</cmt>
+    <desc>Camping 4-Sterne, 75016 Bois de Boulogne</desc>
+    <type>uebernachtung</type>
+    <sym>u</sym>
+  </wpt>
+  <wpt lat="48.8722" lon="2.3819">
+    <name>🏘️ Belleville / Ménilmontant</name>
+    <cmt>Marché de Belleville, multikulti</cmt>
+    <desc>Marché de Belleville, multikulti</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.8606" lon="2.3961">
+    <name>⚰️ Mur des Fédérés (Père Lachaise)</name>
+    <cmt>Commune 1871, 147 erschossene Arbeiter</cmt>
+    <desc>Commune 1871, 147 erschossene Arbeiter</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.8617" lon="2.3934">
+    <name>🌳 Père Lachaise (Friedhof)</name>
+    <cmt>Morrison, Wilde, Piaf, Communards</cmt>
+    <desc>Morrison, Wilde, Piaf, Communards</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.8353" lon="2.4069">
+    <name>🌍 Cité de l'Immigration</name>
+    <cmt>Post-koloniale Migrationsgeschichte, Calais-Anschluss</cmt>
+    <desc>Post-koloniale Migrationsgeschichte, Calais-Anschluss</desc>
+    <type>museum</type>
+    <sym>m</sym>
+  </wpt>
+  <wpt lat="48.8606" lon="2.3376">
+    <name>🎨 Musée du Louvre</name>
+    <cmt>Tickets online! 22 €, 18.08. Mi 15-16 Uhr</cmt>
+    <desc>Tickets online! 22 €, 18.08. Mi 15-16 Uhr</desc>
+    <type>museum</type>
+    <sym>m</sym>
+  </wpt>
+  <wpt lat="48.8264" lon="2.3519">
+    <name>🏘️ Butte-aux-Cailles</name>
+    <cmt>Alternatives Viertel, 13. Arr.</cmt>
+    <desc>Alternatives Viertel, 13. Arr.</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.8526" lon="2.3474">
+    <name>📚 Shakespeare and Company</name>
+    <cmt>Legendäre Buchhandlung, 5. Arr.</cmt>
+    <desc>Legendäre Buchhandlung, 5. Arr.</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="48.853" lon="2.3499">
+    <name>⛪ Notre-Dame (außen)</name>
+    <cmt>Gotische Kathedrale, Baustelle</cmt>
+    <desc>Gotische Kathedrale, Baustelle</desc>
+    <type>sehenswuerdigkeit</type>
+    <sym>s</sym>
+  </wpt>
+  <wpt lat="50.7753" lon="6.0833">
+    <name>🛣️ Aachen (ÜN-Option)</name>
+    <cmt>Heimweg-Übernachtung 21./22.08.</cmt>
+    <desc>Heimweg-Übernachtung 21./22.08.</desc>
+    <type>uebernachtung</type>
+    <sym>u</sym>
+  </wpt>
+  <wpt lat="51.5833" lon="6.5">
+    <name>🛣️ Niederrhein (Heimweg)</name>
+    <cmt>Heimweg 22.08.</cmt>
+    <desc>Heimweg 22.08.</desc>
+    <type>etappe</type>
+    <sym>e</sym>
+  </wpt>
+  <wpt lat="52.52" lon="13.405">
+    <name>🏠 Berlin (Ziel)</name>
+    <cmt>Marcus' Ziel, 23.08.</cmt>
+    <desc>Marcus' Ziel, 23.08.</desc>
+    <type>ziel</type>
+    <sym>z</sym>
+  </wpt>
+  <trk>
+    <name>Frankreich-Rundreise (Bremen → Berlin)</name>
+    <type>roadtrip</type>
+    <trkseg>
+      <trkpt lat="53.0793" lon="8.8017"></trkpt>
+      <trkpt lat="50.35" lon="6.5667"></trkpt>
+      <trkpt lat="49.2583" lon="4.0317"></trkpt>
+      <trkpt lat="48.9333" lon="-0.6833"></trkpt>
+      <trkpt lat="49.3586" lon="-0.8503"></trkpt>
+      <trkpt lat="49.3811" lon="-1.1711"></trkpt>
+      <trkpt lat="49.3944" lon="-0.9789"></trkpt>
+      <trkpt lat="49.3383" lon="-0.6192"></trkpt>
+      <trkpt lat="49.3308" lon="-0.4567"></trkpt>
+      <trkpt lat="49.2792" lon="-0.2581"></trkpt>
+      <trkpt lat="49.1989" lon="-0.3853"></trkpt>
+      <trkpt lat="48.6493" lon="-1.9992"></trkpt>
+      <trkpt lat="48.6853" lon="-2.3181"></trkpt>
+      <trkpt lat="48.8325" lon="-3.4864"></trkpt>
+      <trkpt lat="48.45" lon="-2.0333"></trkpt>
+      <trkpt lat="48.1983" lon="-2.3939"></trkpt>
+      <trkpt lat="47.9856" lon="-4.3118"></trkpt>
+      <trkpt lat="48.087" lon="-3.2877"></trkpt>
+      <trkpt lat="48.3644" lon="-3.7444"></trkpt>
+      <trkpt lat="47.8731" lon="-3.9181"></trkpt>
+      <trkpt lat="47.9967" lon="-4.0967"></trkpt>
+      <trkpt lat="47.585" lon="-3.0781"></trkpt>
+      <trkpt lat="47.5819" lon="-2.8086"></trkpt>
+      <trkpt lat="50.9513" lon="1.8587"></trkpt>
+      <trkpt lat="51.0153" lon="2.3"></trkpt>
+      <trkpt lat="48.8631" lon="2.2497"></trkpt>
+      <trkpt lat="48.8722" lon="2.3819"></trkpt>
+      <trkpt lat="48.8606" lon="2.3961"></trkpt>
+      <trkpt lat="48.8617" lon="2.3934"></trkpt>
+      <trkpt lat="48.8353" lon="2.4069"></trkpt>
+      <trkpt lat="48.8606" lon="2.3376"></trkpt>
+      <trkpt lat="48.8264" lon="2.3519"></trkpt>
+      <trkpt lat="48.8526" lon="2.3474"></trkpt>
+      <trkpt lat="50.7753" lon="6.0833"></trkpt>
+      <trkpt lat="52.52" lon="13.405"></trkpt>
+    </trkseg>
+  </trk>
+</gpx>
