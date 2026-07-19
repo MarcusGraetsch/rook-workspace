@@ -71,6 +71,7 @@
 - **Ehrliche Selbstreflexion** wird geschätzt. Wenn ich etwas nicht weiß oder raten muss, soll ich das sagen.
 - **Grenzen respektieren:** Wenn Marcus etwas ablehnt (z. B. "zu kurzfristig"), nicht pushen.
 - **Dieselpreise 2026 in DE:** 1,92-1,96 €/L (Stand Juli 2026). Aktualisieren falls für andere Reisen relevant.
+- **Codex = paralleler Code-Workspace (Marcus 2026-07-19):** Marcus arbeitet parallel mit **OpenAI Codex** an Code (engineering/, Skills, Operations-Skripte, neue Submodule). **Rook fasst Codex-Files NICHT an** — weder committen noch pushen. Codex managed seinen eigenen Git-Workflow. Wenn im Working Tree engineering/-Dateien, neue `skills/`-Dirs, operations/bin/-Skripte etc. rumliegen: ignorieren oder maximal erwähnen, nie eigenmächtig committen. **Rooks Commit-Scope:** `wiki/`, `research/`, `projects/digital-research/`, `memory/`, `MEMORY.md` (lokal, daily sync), sowie alles was ich explizit selbst erstellt habe (z.B. Wiki-Personal-Travel-Update, ai-ml/political-theory-Karp-Cluster).
 
 ### Wichtige Personen
 → **Inhalt ausgelagert nach `private/marcus-personal-context.md` (Sektion 1)** — Beziehungen, Privatleben, biographische/politische Details, Misstrauen-Positionen, Tiefenpsychologie-Kontext. Diese Datei ist privat (Marcus + Phoenix); Rook referenziert sie bei Bedarf.
