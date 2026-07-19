@@ -112,13 +112,7 @@ Quelle: Yahoo Finance, 11.07.2026. Beleg via MIT Economics Working Paper "Automa
 
 ## Cross-References
 
-- → [[cloud-kubernetes]] — (placeholder)
-- → [[ai-ml]] — AGI-Klausel-Korrektur, Karp-Brücke
+- → [[ai-ml]] — AGI-Klausel-Korrektur, Karp-Brücke, Tokenomics
 - → [[consulting-advisory]] — Tokenomics Foundation, Enterprise-AI
-- → [[music-culture]] — Widerstandsmusik gegen Techlordism
-
-## Cross-References
-
-- → [[music-culture]] — Protestmusik und Politik
-- → [[consulting-advisory]] — Kritische Theorie im Consulting
+- → [[music-culture]] — Protestmusik und Politik, Widerstandsmusik gegen Techlordism
 

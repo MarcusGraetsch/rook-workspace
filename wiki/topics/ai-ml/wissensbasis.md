@@ -127,6 +127,26 @@ Vorher: Karp konnte sich als Alternative inszenieren ("Microsoft beschränkt, Pa
 Nach 28.10.2025: Es gibt keine AGI-Schutzklausel mehr, also auch keinen Schutzschild, gegen den man "Sovereignty" verkaufen könnte.
 → Siehe [[political-theory]] für die volle Karp-Analyse.
 
+## Tokenomics Foundation (Juni 2026)
+
+*Neue Beobachtung — die Tokenomics-Standardisierung ist die **dritte Säule** neben Karp und Anthropic Fable 5.*
+
+- **Gründungs-Konsortium:** Linux Foundation + FinOps Foundation
+- **Backers:** Accenture, Booking.com, IBM, JPMorgan, **Microsoft**, **Oracle**
+- **Ziel:** Standardisierung von KI-Token-Accounting (Cost-per-Token, Attribution, Allocation)
+- **Implikation:** Microsoft und Oracle sitzen mit im Standardisierungs-Gremium. Karps "Sovereignty"-Position ist **kein Microsoft-Konkurrenz-Move**, sondern läuft parallel zur Microsoft-Strategie — Sovereignty wird zur Branchen-Norm, nicht zum Anti-Microsoft-Hebel.
+- **Bezug zu AGI-Klausel:** Die Tokenomics-Standardisierung läuft unterhalb der Vertrags-Frage. Microsoft hat die AGI-Klausel gestrichen **und** arbeitet an einer Tokenomics-Norm mit. Das ist konsistent: Microsoft verlagert das Schlachtfeld von IP-Schutz zu Pricing-Standard.
+
+### Drei-Schichten-Modell (Arbeitshypothese 2026-07)
+
+| Schicht | Akteure | Was passiert |
+|---------|---------|--------------|
+| **IP-Schicht** | Microsoft / OpenAI (gestrichen 28.10.2025) | AGI-Klausel weg, "safety guardrails" statt Schutzschwelle |
+| **Pricing-Schicht** | Tokenomics Foundation (gegründet 06/2026) | Token-Accounting wird Industrienorm, Microsoft + Oracle dabei |
+| **Sovereignty-Schicht** | Palantir/Karp (07/2026), Mistral, Anthropic Fable 5 | Vertrieb rhetorisch aufgeladen: "nationale Souveränität" als Enterprise-KI-Use-Case |
+
+→ Siehe [[political-theory]] für die Theorie-Einbettung (Tronti'sche kopernikanische Wendung, „Kapital treibt seinen eigenen Zyklus zu Ende").
+
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)
