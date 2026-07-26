@@ -62,9 +62,49 @@ RAG allein funktioniert NICHT für Marcus' Anwendungsfall:
 
 Die beiden Systeme ergänzen sich, sie konkurrieren nicht.
 
+## Editorial Guidelines (Sprachpräferenz & Konventionen)
+
+*Stand 2026-07-26*
+
+Wiki-Topics sind die „Verfassung" des persönlichen Wissensstands. Wenn hier was an Geschmeidigkeit verliert, leidet die ganze Practice. Daher ein paar leichtgewichtige Konventionen, die das Wiki auch in 2 Jahren noch lesbar machen.
+
+### Sprachpräferenz — Deutsch, genauer
+
+- **Deutsch ist Default** — fachliche Anglizismen nur, wo eingebürgert (z.B. „Deployment", „Pipeline", „Cache-Buster")
+- **Natürliche Konstruktionen statt nominalisierter Inversions:**
+  - ✅ „Maut in Polen" — ❌ „Polen-Maut"
+  - ✅ „Festival in Breitenbach" — ❌ „Breitenbach-Festival"
+  - ✅ „Reise nach Reims" — ❌ „Reims-Reise"
+  - **Faustregel:** Was sagt man im Gespräch? So schreiben.
+- **Ortsnamen-Adjektive sparsam** — lieber „Festival in Breitenbach am Herzberg" statt „Breitenbach-Festival". Wenn es einen offiziellen Eigennamen gibt (Schloss Bellevue, Hotel Adlon), dann den.
+- **Dativ-/Possessiv-Vermeidung wo möglich:** „Hilfe für Container-Logs" statt „Container-Logs-Hilfe"
+
+### Struktur-Konventionen
+
+- **Topic = wissensbasis.md + log.md** (siehe WIKI-SCHEMA.md)
+- **Headings:** `##` Top-Level, `###` Sub. Keine `####` (zu tief → eigene Subpage)
+- **Citationen:** `Source: <path#line>` wenn Memory-Snippet zitiert wird, sonst reicht URL/Datum
+- **Cross-References:** `→ [[topic-name]]` immer vor dem nächsten `##` einfügen, nie als letzter Bullet verstecken
+- **Datums-Stempel:** `*Stand YYYY-MM-DD — Optional: Kontext*` als erster Sub-Bullet unter `##` wenn sich der Inhalt schnell ändert (z.B. Projekte, DBs)
+- **Tabellen sparsam:** Eine Tabelle statt 5 Bullet-Listen wenn 3+ Spalten oder 4+ Zeilen
+
+### Was NICHT ins Wiki gehört
+
+- **Tageslogs** → `memory/YYYY-MM-DD.md` (Memory-System, nicht Wiki)
+- **Codex-/Engineering-Files** → working-notes Repo + engineering/ (Codex-Scope)
+- **Private-Resilience-Dokumente** → `private/` (nur Marcus + Phoenix)
+- **Tool-Generated State** → `HEARTBEAT.md`, `briefings/`, Reports (rekonstruierbar)
+
+### Tone
+
+- **Sachlich, knapp, ohne Filler.** Kein „Great question!" oder „I'd be happy to help" — gilt auch im Wiki.
+- **Meinungen ja, aber markiert:** „*Stand der Meinung: 2026-07-26, könnte sich ändern.*" Style.
+- **Humor sparsam:** Wiki ist Arbeitswerkzeug, nicht Twitter.
+
 ## Cross-References
 
 - → [[ai-ml]] — Knowledge Management + AI
 - → [[productivity-tools]] — Obsidian als KM-Tool
 - → [[rook-hermes-bridge]] — Archive, Manifest, Deduplizierung, Prune Planning
+- → [[personal-travel]] — Themen-Anwendung (Caravan-Sommer-2026 / Ostsee-Tour)
 

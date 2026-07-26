@@ -125,8 +125,75 @@ Wohnmobil-Mobilität ist nicht nur Lifestyle, sondern Teil der **Resilience-Arch
 - **Keine Flug-Kurzstrecken** (Klimabilanz), wo Zug oder Caravan geht
 - **Kein 5-Sterne-Hotel** — lieber einfache Pensionen / Camping / bei Leuten
 
+## Ostsee-Tour 2026 — Konkrete Reise
+
+*Stand 2026-07-26 — repo: `working-notes/` (Codex-managed), Live: https://working-notes.org/ostsee-tour/*
+
+Anders als die Caravan-Sommer-2026-DB (siehe oben) ist das hier **eine konkrete, durchgeplante Reise** mit fester Route, fixen Daten und Live-Karte. Ergänzt sich, ist aber nicht dasselbe.
+
+### Eckdaten
+
+- **Dauer:** 27 Tage, 28.07.–23.08.2026
+- **Strecke:** ~1.810 km (Bremen → Berlin, über Herzberg, Saale, Elbe, Mecklenburg, Rügen, Usedom, Schorfheide)
+- **Fahrzeug:** Hymer-Fiat-Ducato 1985, H-Kennzeichen, 2,75 m hoch, 3,2 t zGG, 10 L/100 km
+- **Tagesbudget:** ~87 €/Tag (Diesel + Stellplatz + Lebensmittel — gesamt ~2.350 €)
+- **Live-Karte:** https://working-notes.org/ostsee-tour/ (Leaflet, 41 Routenpunkte, 27 Campingplätze, 8 Stellplätze, 5 Bade-Stops, 13 Sehenswürdigkeiten, 3 Festivals)
+
+### Die 27 Etappen
+
+| Tag | Datum | Strecke | km | Hinweise |
+|-----|-------|---------|----|----------|
+| 1 | Di 28.07. | Bremen → Herzberg | 360 | B71/B27, ~5–5,5 Std. |
+| 2 | Mi 29.07. | Aufbauen, Werra-Badestrand | 0 | Akklimatisation |
+| 3–6 | Do–So 30.07.–02.08. | **Herzberg Festival** | 0 | 4 Tage, Breitenbach am Herzberg |
+| 7 | Mo 03.08. | Herzberg → Jena | 245 | Eisenach/Gotha/Erfurt, ~3,5–4 Std. |
+| 8 | Di 04.08. | Jena → Torgau | 215 | Saale-Stausee/Leipzig, ~3–3,5 Std. |
+| 9 | Mi 05.08. | Torgau → Brandenburg | 250 | Torgau vertiefen (Schloss Hartenfels, Stadtkirche St. Marien, Denkmal der Begegnung); Dessau/Wörlitz nachmittags, ~4 Std. |
+| 10 | Do 06.08. | Brandenburg → Ahrenshoop/Prerow | 300 | Plau am See (Baden!), ~4,5–5 Std. |
+| 11 | Fr 07.08. | Prerow → Nonnevitz/Rügen | 95 | Stralsund, ~1,5 Std. |
+| 12–14 | Sa–Mo 08.–10.08. | Luigis Nonnevitz | 0 | 3 Tage Stellplatz am Rügener Weststrand |
+| 15 | Di 11.08. | Rügen → Świnoujście | 95 | Rügen-Brücke, Usedom |
+| 16 | Mi 12.08. | Polnische Ostsee (Misdroy) | 0 | Tagesausflüge |
+| 17 | Do 13.08. | Świnoujście → Zempin | 25 | Grenzübergang auf Usedom |
+| 18–25 | Fr 14.08.–Fr 21.08. | **Usedom** | 0 | 8 Tage, Camping am Dünengelände |
+| 26 | Sa 22.08. | Usedom → Werbellinsee | 145 | Schwedt/Schorfheide, ~2,5 Std. |
+| 27 | So 23.08. | Werbellinsee → Berlin | 80 | ~1,5 Std. |
+
+### Anker-Punkte (Highlights)
+
+- **Herzberg Festival** (30.07.–02.08., Breitenbach am Herzberg) — 4 Tage links-alternatives Musik-/Politik-Festival, Eröffnung der Reise
+- **Torgau vertieft** (Tag 9 morgens) — Schloss Hartenfels mit "Schöner Pforte" (1525, erster evangelischer Kirchenbau), Stadtkirche St. Marien (Katharina von Boras Grab), Denkmal der Begegnung (Elbufer, Truman/Stalin 1945)
+- **Wörlitzer Gartenreich** (Tag 9 nachmittags) — englischer Landschaftsgarten, Kahnfahrt möglich
+- **Luigis Nonnevitz** (Tag 12–14) — Stellplatz am Rügener Weststrand mit Institution-Charakter
+- **Usedom-Dünencamping** (Tag 18–25) — 8 Tage am Stück, polnische Seite billiger
+
+### Stellplätze & Praktisches (Etappen-relevant)
+
+- **Bad Hersfeld** (Geistalbad) — Tag 1, Pausenstop auf der 360-km-Anreise
+- **Süßer Winkel am Werbellinsee** (Tag 26) — 30–35 €/Nacht
+- **Torgau** (Tag 8/9) — Übernachtungsstop mit Vertiefungspotenzial
+- **StVO §12/Landesrecht** — Wildcampen verboten, 1 Nacht zur Wiederherstellung der Fahrtüchtigkeit oft toleriert
+- **Dérogation** (für ZAZ in Bremen-City + Paris) — bei Préfecture beantragen, ~2 Wochen Vorlauf
+
+### Bezug zur Caravan-Sommer-2026-DB
+
+Die Caravan-DB (1816 Orte, `orte.jsonl`) ist **kein** Ersatz für die konkrete Ostsee-Tour, sondern **das Lager**, aus dem spontane Stop-Entscheidungen fallen können:
+
+- Auf der Route liegen mehrere Einträge: Genossenschaften, Höfe, Wagenplätze (overpass-Tag `community_centre`, `social_facility`)
+- `orte-filter.html` client-side, lädt offline — wenn unterwegs ohne Netz, geht das auf
+- Tipp: Für die Usedom-Woche (Tag 18–25) ggf. Solawi-Höfe in Vorpommern rausfiltern, falls Langeweile aufkommt
+
+### Offene To-Dos (bis 28.07.)
+
+- **CityKamp Paris** Reservierung (Tag 17, 75016) — schnell, max. 2,75 m Höhe prüfen
+- **Louvre-Buchung** (für 04.08. — Wait, Tag 8 ist Torgau, Louvre ist in Paris = Tag 17?) — klären
+- **Dérogation** für Bremen (ZAZ) + Paris beantragen
+- **ADAC Euro-Schutzbrief** abschließen (für Polen/Frankreich)
+- **Working-Notes-Ostsee-Tour-Karte** testen — Markus hat 26.07. bestätigt: grüne Linie sichtbar, 8 Stellplätze da
+
 ## Cross-References
 
 - → [[music-culture]] — Road-Trip-Playlists für Protest-Demos
 - → [[openclaw-community]] — Memory-Index für Reise-Briefings
 - → [[cloud-kubernetes]] — Infrastruktur-Mentalität (Mobile-Operations, GitOps)
+- → [[web-development]] — Working-Notes Deployment Pipeline (Leaflet-Karte, IONOS)
