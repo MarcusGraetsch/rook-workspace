@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Herzberg Heatmap · Marcus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-2: #1c2129;
+    --border: #30363d;
+    --ink: #e6edf3;
+    --ink-soft: #8b949e;
+    --accent: #58a6ff;
+    --accent-2: #f78166;
+    --top: #1f6feb;
+    --hit: #2ea043;
+    --warn: #d29922;
+    --no: #6e7681;
+    --yes: #238636;
+    --conflict: #f85149;
+    --grid: #21262d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  body { padding: 18px; max-width: 1400px; margin: 0 auto; }
+  /* --- Header --- */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  h1 .sub { color: var(--ink-soft); font-weight: 400; font-size: 13px; margin-left: 8px; }
+  .stats {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .stats strong { color: var(--accent); font-size: 16px; margin-right: 4px; }
+  /* --- Toolbar --- */
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .toolbar button {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .toolbar button:hover { background: var(--bg); border-color: var(--accent); }
+  .toolbar button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .toolbar button.primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+  .toolbar .spacer { flex: 1; }
+  .toolbar .legend {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .legend .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  /* --- Heatmap Calendar --- */
+  .calendar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+  }
+  .days {
+    display: grid;
+    grid-template-columns: 60px repeat(5, 1fr);
+    gap: 4px;
+    min-width: 900px;
+  }
+  .day-header {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    padding: 8px 4px;
+    background: var(--panel-2);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .day-header small {
+    display: block;
+    color: var(--ink-soft);
+    font-size: 10px;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .time-slot {
+    font-size: 10px;
+    color: var(--ink-soft);
+    text-align: right;
+    padding: 6px 6px 6px 0;
+    font-family: 'Courier New', monospace;
+  }
+  .cell {
+    background: var(--grid);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px;
+    min-height: 28px;
+    position: relative;
+    transition: all 0.1s;
+  }
+  .cell.has-act {
+    cursor: pointer;
+    background: var(--panel-2);
+  }
+  .cell.has-act:hover { border-color: var(--accent); z-index: 2; }
+  .cell.picked { background: var(--yes); border-color: var(--yes); }
+  .cell.picked:hover { background: var(--conflict); border-color: var(--conflict); }
+  .cell.conflict { background: var(--conflict); border-color: var(--conflict); animation: pulse 1.5s infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(248,81,73,0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(248,81,73,0); }
+  }
+  .cell-tier {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cell[data-tier="TOP"] { background: rgba(31,111,235,0.25); border-color: rgba(31,111,235,0.5); }
+  .cell[data-tier="HIT"] { background: rgba(46,160,67,0.25); border-color: rgba(46,160,67,0.5); }
+  .cell[data-tier="NICE"] { background: rgba(210,153,34,0.2); border-color: rgba(210,153,34,0.4); }
+  .cell.picked[data-tier="TOP"] { background: var(--top); }
+  .cell.picked[data-tier="HIT"] { background: var(--hit); }
+  .cell.picked[data-tier="NICE"] { background: var(--warn); color: var(--bg); }
+  .cell-name {
+    font-size: 9px;
+    color: var(--ink-soft);
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cell.picked .cell-name { color: rgba(255,255,255,0.85); }
+  /* --- Two columns -> Selected acts + Group --- */
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (max-width: 900px) { .row { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .picked-list { list-style: none; }
+  .picked-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .picked-list li:last-child { border-bottom: none; }
+  .picked-list .time {
+    font-family: 'Courier New', monospace;
+    color: var(--accent-2);
+    font-size: 12px;
+    min-width: 130px;
+  }
+  .picked-list .name { flex: 1; }
+  .picked-list .tier-tag {
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--panel-2);
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .picked-list .tier-tag[data-tier="TOP"] { background: var(--top); color: white; }
+  .picked-list .tier-tag[data-tier="HIT"] { background: var(--hit); color: white; }
+  .picked-list .tier-tag[data-tier="NICE"] { background: var(--warn); color: var(--bg); }
+  .picked-list .remove {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink-soft);
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .picked-list .remove:hover { background: var(--conflict); border-color: var(--conflict); color: white; }
+  /* --- Friends --- */
+  .friend-input {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .friend-input input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+  }
+  .friend-input input:focus { outline: none; border-color: var(--accent); }
+  .friend-input button {
+    background: var(--accent);
+    border: none;
+    color: var(--bg);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .friend-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+      margin-bottom: 10px;
+  }
+  .friend-tag {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .friend-tag .count {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .friend-tag .x {
+    cursor: pointer;
+    color: var(--ink-soft);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .friend-tag .x:hover { color: var(--conflict); }
+  /* --- Heatmap insights --- */
+  .insights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .insight {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .insight-label {
+    font-size: 10px;
+    color: var(--ink-soft);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .insight-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .insight-sub { font-size: 11px; color: var(--ink-soft); }
+  /* --- Footer --- */
+  footer {
+    margin-top: 32px;
+    padding: 16px 0;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+    letter-spacing: 1px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  /* --- Modal --- */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal.show { display: flex; }
+  .modal-content {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 480px;
+    width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .modal-content h2 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .modal-content .meta { color: var(--ink-soft); font-size: 12px; margin-bottom: 14px; }
+  .modal-content .bridge {
+    background: rgba(88,166,255,0.1);
+    border-left: 3px solid var(--accent);
+    padding: 10px 12px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .modal-content .bridge strong { color: var(--accent); }
+  .modal-content .bridge em { color: var(--accent-2); font-style: normal; }
+  .modal-content .actions {
+    display: flex;
+    gap: 10px;
+  }
+  .modal-content .actions button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--ink);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .modal-content .actions button.primary { background: var(--yes); border-color: var(--yes); color: white; }
+  .modal-content .actions button.primary:hover { background: var(--hit); }
+  .modal-content .actions button.danger { background: transparent; border-color: var(--conflict); color: var(--conflict); }
+  .modal-content .actions button.danger:hover { background: var(--conflict); color: white; }
+  .close-btn {
+    float: right;
+    background: transparent;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .close-btn:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Herzberg Heatmap <span class="sub">2026 · Konflikt-Löser</span></h1>
+  <div class="stats">
+    <span><strong id="pickedCount">0</strong> ausgewählt</span>
+    <span><strong id="conflictCount">0</strong> Konflikte</span>
+    <span><strong id="hoursTotal">0</strong>h live</span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <button class="primary" onclick="autoPick()">✨ Auto-Pick (TOP, konfliktfrei)</button>
+  <button onclick="autoPick(false)">⭐ TOP alle picken</button>
+  <button onclick="clearAll()">🗑 Reset</button>
+  <button onclick="exportPicks()">📤 Export</button>
+  <button onclick="printPlan()">🖨 Drucken</button>
+  <div class="spacer"></div>
+  <div class="legend">
+    <span><span class="swatch" style="background:rgba(31,111,235,0.5)"></span>TOP</span>
+    <span><span class="swatch" style="background:rgba(46,160,67,0.5)"></span>HIT</span>
+    <span><span class="swatch" style="background:rgba(210,153,34,0.5)"></span>NICE</span>
+    <span><span class="swatch" style="background:var(--yes)"></span>gewählt</span>
+    <span><span class="swatch" style="background:var(--conflict)"></span>Konflikt</span>
+  </div>
+</div>
+
+<div class="insights">
+  <div class="insight">
+    <div class="insight-label">Picks / Total</div>
+    <div class="insight-value"><span id="ratioCount">0</span> / <span id="totalCount">0</span></div>
+    <div class="insight-sub">Acts auf deinem Plan</div>
+  </div>
+  <div class="insight">
+    <div class="insight-label">Konfliktfrei</div>
+    <div class="insight-value" id="cleanCount">0</div>
+    <div class="insight-sub">ohne Überlappung</div>
+  </div>
+  <div class="insight">
+    <div class="insight-label">Top-Score</div>
+    <div class="insight-value"><span id="topScore">0</span></div>
+    <div class="insight-sub">höchste Affinität</div>
+  </div>
+  <div class="insight">
+    <div class="insight-label">Bester Tag</div>
+    <div class="insight-value" id="bestDay">–</div>
+    <div class="insight-sub" id="bestDaySub">wenig Konflikte</div>
+  </div>
+</div>
+
+<div class="calendar">
+  <div class="days" id="days"></div>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <h2>📌 Dein Plan (sortiert nach Zeit)</h2>
+    <ul class="picked-list" id="pickedList"></ul>
+  </div>
+  <div class="panel">
+    <h2>👥 Gruppen-Sync</h2>
+    <p style="font-size:12px;color:var(--ink-soft);margin-bottom:8px">Freund:in fügt Picks hinzu — Heatmap zeigt eure Schnittmenge</p>
+    <div class="friend-input">
+      <input type="text" id="friendName" placeholder="Name der Freund:in">
+      <button onclick="addFriend()">+</button>
+    </div>
+    <div class="friend-list" id="friendList"></div>
+    <p style="font-size:11px;color:var(--ink-soft);margin-top:6px">💡 Tipp: Wenn dein Buddy die gleiche HTML nutzt, kann er seine Picks als JSON exportieren und du importierst sie.</p>
+    <input type="file" id="friendImport" style="display:none" accept=".json" onchange="importFriend(event)">
+    <button onclick="document.getElementById('friendImport').click()" style="margin-top:6px;background:var(--panel-2);border:1px solid var(--border);color:var(--ink);padding:5px 10px;border-radius:4px;cursor:pointer;font-size:11px">📥 JSON laden</button>
+  </div>
+</div>
+
+<footer>
+  Built with Spotify + sweat · Daten: herzberg-festival.com + PKS<br>
+  Lokal, keine Cloud, deine Picks sind in deinem Browser
+</footer>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeModal()">×</button>
+    <h2 id="modalName"></h2>
+    <div class="meta" id="modalMeta"></div>
+    <div class="bridge" id="modalBridge"></div>
+    <div class="actions" id="modalActions"></div>
+  </div>
+</div>
+
+<script>
+const DATA_URL = 'inline';
+let ALL_ACTS = [];
+let PICKS = new Set();   // names
+let FRIENDS = {};          // friend_name -> Set of names
+let CURRENT_DAY = null;    // für Modal
+const STORAGE = {
+  KEY_PICKS: 'herzberg_picks_v1',
+  KEY_FRIENDS: 'herzberg_friends_v1',
+};
+
+function load() {
+  try { PICKS = new Set(JSON.parse(localStorage.getItem(STORAGE.KEY_PICKS) || '[]')); } catch { PICKS = new Set(); }
+  try { FRIENDS = JSON.parse(localStorage.getItem(STORAGE.KEY_FRIENDS) || '{}'); } catch { FRIENDS = {}; }
+  for (const k in FRIENDS) FRIENDS[k] = new Set(FRIENDS[k]);
+}
+function save() {
+  localStorage.setItem(STORAGE.KEY_PICKS, JSON.stringify([...PICKS]));
+  const f = {};
+  for (const k in FRIENDS) f[k] = [...FRIENDS[k]];
+  localStorage.setItem(STORAGE.KEY_FRIENDS, JSON.stringify(f));
+}
+
+function dayOf(time) {
+  if (!time) return 'unknown';
+  const m = time.match(/^(Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)/);
+  return m ? m[1] : 'unknown';
+}
+function bucketStage(stage) {
+  // Wir haben 5 Stages, aber wir ordnen nach Tagen (Spalten) und nicht nach Stages
+  return stage || 'unknown';
+}
+function timeOf(time) {
+  if (!time) return null;
+  const m = time.match(/\| (\d{2}:\d{2})/);
+  return m ? m[1] : null;
+}
+
+// Baue Grid: 4 Tage (Mi als Vorabend, Do/Fr/Sa/So), Zeit-Slots 11:00–03:00
+function buildGrid() {
+  const days = ['Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  const dayDates = { Mittwoch: '29.07', Donnerstag: '30.07', Freitag: '31.07', Samstag: '01.08', Sonntag: '02.08' };
+  const slots = [];
+  for (let h = 11; h <= 23; h++) slots.push(`${String(h).padStart(2, '0')}:00`);
+  slots.push('00:00', '01:00', '02:00', '03:00');
+
+  const grid = {};
+  for (const a of ALL_ACTS) {
+    const d = dayOf(a.time);
+    const t = timeOf(a.time);
+    if (!d || !t || !days.includes(d)) continue;
+    if (!grid[d]) grid[d] = {};
+    grid[d][t] = a;
+  }
+  return { days, slots, grid, dayDates };
+}
+
+function render() {
+  const { days, slots, grid, dayDates } = buildGrid();
+  document.getElementById('totalCount').textContent = ALL_ACTS.length;
+  document.getElementById('pickedCount').textContent = PICKS.size;
+  document.getElementById('ratioCount').textContent = PICKS.size;
+
+  // Insights
+  const clean = countClean();
+  document.getElementById('cleanCount').textContent = clean;
+  const conflicts = countConflicts();
+  document.getElementById('conflictCount').textContent = conflicts;
+  const topScore = [...PICKS].map(n => ALL_ACTS.find(a => a.name === n)).filter(Boolean).reduce((m, a) => Math.max(m, a.score || 0), 0);
+  document.getElementById('topScore').textContent = topScore;
+  // Hours
+  const hours = [...PICKS].map(n => ALL_ACTS.find(a => a.name === n)).filter(Boolean).reduce((s, a) => s + 1.5, 0); // 1.5h pro Act
+  document.getElementById('hoursTotal').textContent = hours.toFixed(1);
+  // Best day
+  const dayCounts = {};
+  for (const a of [...PICKS].map(n => ALL_ACTS.find(x => x.name === n)).filter(Boolean)) {
+    const d = dayOf(a.time);
+    dayCounts[d] = (dayCounts[d] || 0) + 1;
+  }
+  const bestDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0];
+  document.getElementById('bestDay').textContent = bestDay ? bestDay[0] : '–';
+  document.getElementById('bestDaySub').textContent = bestDay ? `${bestDay[1]} Acts gepickt` : 'noch nichts';
+
+  // Grid
+  const html = [];
+  html.push('<div class="time-slot" style="font-weight:700;color:var(--ink-soft)">ZEIT</div>');
+  for (const d of days) {
+    html.push(`<div class="day-header">${d}<small>${dayDates[d]}</small></div>`);
+  }
+  for (const slot of slots) {
+    html.push(`<div class="time-slot">${slot}</div>`);
+    for (const d of days) {
+      const a = grid[d]?.[slot];
+      if (a) {
+        const picked = PICKS.has(a.name);
+        const conflict = picked && hasConflict(a);
+        const cls = ['cell', 'has-act', picked ? 'picked' : '', conflict ? 'conflict' : ''].filter(Boolean).join(' ');
+        html.push(`<div class="${cls}" data-tier="${a.tier}" data-day="${d}" data-name="${a.name.replace(/"/g,'&quot;')}" onclick="openModal('${a.name.replace(/'/g, "\\'")}')">
+          <div class="cell-tier">${a.score}pts · ${a.tier}</div>
+          <div class="cell-name">${a.name}</div>
+        </div>`);
+      } else {
+        html.push(`<div class="cell"></div>`);
+      }
+    }
+  }
+  document.getElementById('days').innerHTML = html.join('');
+
+  // Picked list
+  const pickedActs = [...PICKS].map(n => ALL_ACTS.find(a => a.name === n)).filter(Boolean).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const pickedHtml = pickedActs.map(a => `
+    <li>
+      <span class="time">${a.time || '–'}</span>
+      <span class="name">${a.name}</span>
+      <span class="tier-tag" data-tier="${a.tier}">${a.tier}</span>
+      <span class="stage" style="font-size:10px;color:var(--ink-soft);min-width:90px;text-align:right">${a.stage}</span>
+      <button class="remove" onclick="togglePick('${a.name.replace(/'/g, "\\'")}')">✕</button>
+    </li>
+  `).join('');
+  document.getElementById('pickedList').innerHTML = pickedHtml.length ? pickedHtml : '<li style="color:var(--ink-soft);font-style:italic;padding:12px 0">Noch nichts gepickt. Klick eine Zelle in der Heatmap.</li>';
+
+  // Friend list
+  const fHtml = Object.keys(FRIENDS).map(name => `
+    <div class="friend-tag">
+      <span>${name}</span>
+      <span class="count">${[...FRIENDS[name]].length}</span>
+      <span class="x" onclick="removeFriend('${name}')">×</span>
+    </div>
+  `).join('');
+  document.getElementById('friendList').innerHTML = fHtml;
+}
+
+function hasConflict(act) {
+  for (const other of PICKS) {
+    if (other === act.name) continue;
+    const oa = ALL_ACTS.find(a => a.name === other);
+    if (oa && oa.time === act.time) return true;
+  }
+  return false;
+}
+
+function countConflicts() {
+  let c = 0;
+  const seen = new Set();
+  for (const n of PICKS) {
+    const a = ALL_ACTS.find(x => x.name === n);
+    if (!a) continue;
+    for (const m of PICKS) {
+      if (m === n || seen.has(m + '|' + n)) continue;
+      const b = ALL_ACTS.find(x => x.name === m);
+      if (b && a.time === b.time) {
+        c++;
+        seen.add(n + '|' + m);
+      }
+    }
+  }
+  return c;
+}
+
+function countClean() {
+  const groups = {};
+  for (const n of PICKS) {
+    const a = ALL_ACTS.find(x => x.name === n);
+    if (!a) continue;
+    if (!groups[a.time]) groups[a.time] = [];
+    groups[a.time].push(n);
+  }
+  let clean = 0;
+  for (const t in groups) if (groups[t].length === 1) clean++;
+  return clean;
+}
+
+function togglePick(name) {
+  if (PICKS.has(name)) PICKS.delete(name);
+  else PICKS.add(name);
+  save();
+  render();
+}
+
+function openModal(name) {
+  const a = ALL_ACTS.find(x => x.name === name);
+  if (!a) return;
+  CURRENT_DAY = dayOf(a.time);
+  document.getElementById('modalName').textContent = a.name;
+  document.getElementById('modalMeta').textContent = `${a.time || '–'} · ${a.stage} · ${a.genre}`;
+  document.getElementById('modalBridge').innerHTML = a.bridge[0]
+    ? `Weil du <strong>${a.bridge[0]}</strong>${a.bridge[1] ? ` und <em>${a.bridge[1]}</em>` : ''} hörst — Spotify-Affinität <strong>${a.score} pts</strong>`
+    : `Unbekanntes Terrain — vielleicht genau das Richtige? <em>0 pts</em>`;
+  const picked = PICKS.has(name);
+  const html = picked
+    ? `<button class="danger" onclick="togglePick('${name.replace(/'/g, "\\'")}'); closeModal();">Vom Plan nehmen</button>`
+    : `<button class="primary" onclick="togglePick('${name.replace(/'/g, "\\'")}'); closeModal();">Auf den Plan</button>`;
+  document.getElementById('modalActions').innerHTML = html;
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function autoPick(solveConflicts = true) {
+  const top = ALL_ACTS.filter(a => a.tier === 'TOP').sort((a, b) => b.score - a.score);
+  for (const a of top) PICKS.add(a.name);
+  if (solveConflicts) {
+    // Bei Konflikten: behalte den höchsten Score
+    const slots = {};
+    for (const n of PICKS) {
+      const a = ALL_ACTS.find(x => x.name === n);
+      if (!a) continue;
+      if (!slots[a.time]) slots[a.time] = [];
+      slots[a.time].push(a);
+    }
+    for (const t in slots) {
+      if (slots[t].length > 1) {
+        slots[t].sort((a, b) => b.score - a.score);
+        slots[t].slice(1).forEach(a => PICKS.delete(a.name));
+      }
+    }
+  }
+  save();
+  render();
+}
+
+function clearAll() {
+  if (!confirm('Wirklich alle Picks löschen?')) return;
+  PICKS = new Set();
+  save();
+  render();
+}
+
+function exportPicks() {
+  const data = {
+    user: 'Marcus',
+    timestamp: new Date().toISOString(),
+    festival: 'Herzberg 2026',
+    picks: [...PICKS].map(n => {
+      const a = ALL_ACTS.find(x => x.name === n);
+      return a ? { name: a.name, time: a.time, stage: a.stage, tier: a.tier, score: a.score } : { name: n };
+    }),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `herzberg-plan-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function printPlan() {
+  window.print();
+}
+
+function addFriend() {
+  const inp = document.getElementById('friendName');
+  const name = inp.value.trim();
+  if (!name) return;
+  if (!FRIENDS[name]) FRIENDS[name] = new Set();
+  save();
+  render();
+  inp.value = '';
+}
+
+function removeFriend(name) {
+  delete FRIENDS[name];
+  save();
+  render();
+}
+
+function importFriend(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const name = data.user || 'Buddy';
+      FRIENDS[name] = new Set((data.picks || []).map(p => p.name));
+      save();
+      render();
+      alert(`✓ ${data.picks?.length || 0} Picks von ${name} geladen`);
+    } catch (err) {
+      alert('Fehler beim Laden');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// Boot
+load();
+// INLINED acts.json — kein Server noetig
+const DATA = JSON.parse('{"festival":{"name":"Herzberg Festival 2026","dates":"30.07.–02.08.2026","location":"Oberholz / Hessen","tagline":"Eternal Love ∞","stages":["mainstage","freakstage","mentalstage","lesenzeit","hoellenschuppen"]},"user":{"name":"Marcus","top_bridges":["AC/DC","Monster Magnet","Motörhead","NEU!","Hawkwind","The Cure","Leonard Cohen","Westernhagen","Kyuss"],"total_listening_hours":10500,"favorite_window":"15-19 Uhr","festivals_prior":"~0"},"acts":[{"name":"Highest Primzahl on Mars","stage":"freakstage","time":"Donnerstag, 30.07.2026 | 14:45","url":"https://herzberg-festival.com/line-up/highest-primzahl-on-mars/","genre":"krautrock","bridge":["NEU!","Guru Guru"],"score":25.2,"tier":"HIT","spotlight":"You might love this — 25 pts"},{"name":"Gnome","stage":"freakstage","time":"Donnerstag, 30.07.2026 | 17:00","url":"https://herzberg-festival.com/line-up/gnome/","genre":"stoner","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"KillaBeatMaker","stage":"freakstage","time":"Donnerstag, 30.07.2026 | 19:15","url":"https://herzberg-festival.com/line-up/killabeatmaker/","genre":"world/electronic","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Fulu Miziki","stage":"freakstage","time":"Donnerstag, 30.07.2026 | 21:30","url":"https://herzberg-festival.com/line-up/fulu-miziki/","genre":"world/afro-punk","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Stone Water","stage":"freakstage","time":"Donnerstag, 30.07.2026 | 23:45","url":"https://herzberg-festival.com/line-up/stone-water/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Sing Along - mit Julia van Embers & The Mountain Voices","stage":"freakstage","time":"Freitag, 31.07.2026 | 12:30","url":"https://herzberg-festival.com/line-up/sing-along-mit-julia-van-embers-the-mountain-voices/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Mina Richman & Band","stage":"freakstage","time":"Freitag, 31.07.2026 | 14:45","url":"https://herzberg-festival.com/line-up/mina-richman/","genre":"singer-songwriter","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Noura Mint Seymali","stage":"freakstage","time":"Freitag, 31.07.2026 | 17:00","url":"https://herzberg-festival.com/line-up/noura-mint-seymali/","genre":"world/maghreb","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Guru Guru","stage":"freakstage","time":"Freitag, 31.07.2026 | 19:15","url":"https://herzberg-festival.com/line-up/guru-guru/","genre":"krautrock","bridge":["NEU!","Birth Control"],"score":27.4,"tier":"HIT","spotlight":"You might love this — 27 pts"},{"name":"Steiner & Madlaina","stage":"freakstage","time":"Freitag, 31.07.2026 | 21:30","url":"https://herzberg-festival.com/line-up/steiner-madlaina/","genre":"indie pop","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"NAFT","stage":"freakstage","time":"Freitag, 31.07.2026 | 23:45","url":"https://herzberg-festival.com/line-up/naft/","genre":"world/psychedelic","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Peter Bursch\'s Gitarrenkurs","stage":"freakstage","time":"Samstag, 01.08.2026 | 11:30","url":"https://herzberg-festival.com/line-up/peter-burschs-gitarrenkurs/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Poetry Slam mit Stella Jantosca","stage":"freakstage","time":"Samstag, 01.08.2026 | 12:30","url":"https://herzberg-festival.com/line-up/poetry-slam-mit-stella-jantosca/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"WÖR & Kongero","stage":"freakstage","time":"Samstag, 01.08.2026 | 14:45","url":"https://herzberg-festival.com/line-up/woer-kongero/","genre":"folk/world","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Mal Élevé feat. Osy","stage":"freakstage","time":"Samstag, 01.08.2026 | 17:00","url":"https://herzberg-festival.com/line-up/mal-eleve/","genre":"world/reggae","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Derya Yıldırım & Grup Şimşek","stage":"freakstage","time":"Samstag, 01.08.2026 | 19:15","url":"https://herzberg-festival.com/line-up/derya-yildirim-grup-simsek/","genre":"turkish psych","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Quantum Fantay","stage":"freakstage","time":"Samstag, 01.08.2026 | 21:30","url":"https://herzberg-festival.com/line-up/quantum-fantay/","genre":"space rock","bridge":["Hawkwind","NEU!"],"score":41.5,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Turfu","stage":"freakstage","time":"Samstag, 01.08.2026 | 23:45","url":"https://herzberg-festival.com/line-up/turfu/","genre":"world/psychedelic","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Hooffoot","stage":"freakstage","time":"Sonntag, 02.08.2026 | 13:30","url":"https://herzberg-festival.com/line-up/hooffoot/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Sababa 5","stage":"freakstage","time":"Sonntag, 02.08.2026 | 15:45","url":"https://herzberg-festival.com/line-up/sababa-5/","genre":"middle east funk","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Mars Mushrooms","stage":"freakstage","time":"Sonntag, 02.08.2026 | 18:00","url":"https://herzberg-festival.com/line-up/mars-mushrooms/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Total Hip Replacement & Anyankofo","stage":"freakstage","time":"Sonntag, 02.08.2026 | 20:15","url":"https://herzberg-festival.com/line-up/total-hip-replacement-anyankofo/","genre":"world/afrobeat","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Temple Fang","stage":"freakstage","time":"Sonntag, 02.08.2026 | 22:30","url":"https://herzberg-festival.com/line-up/temple-fang/","genre":"heavy psych","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"Trommelfeuer","stage":"hoellenschuppen","time":"Donnerstag, 30.07.2026 | 15:00","url":"https://herzberg-festival.com/line-up/trommelfeuer/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Giant Dwarfs and Black Holes","stage":"hoellenschuppen","time":"Donnerstag, 30.07.2026 | 18:00","url":"https://herzberg-festival.com/line-up/giant-dwarfs-and-black-holes/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"HUM","stage":"hoellenschuppen","time":"Donnerstag, 30.07.2026 | 21:00","url":"https://herzberg-festival.com/line-up/hum/","genre":"space rock","bridge":["Hawkwind","NEU!"],"score":41.5,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"120 Minds","stage":"hoellenschuppen","time":"Donnerstag, 30.07.2026 | 23:00","url":"https://herzberg-festival.com/line-up/120-minds/","genre":"space rock","bridge":["Hawkwind","NEU!"],"score":41.5,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"The Spacelords","stage":"hoellenschuppen","time":"Freitag, 31.07.2026 | 01:00","url":"https://herzberg-festival.com/line-up/the-spacelords/","genre":"space rock","bridge":["Hawkwind","NEU!"],"score":41.5,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Kaozzz Konzzzept","stage":"hoellenschuppen","time":"Freitag, 31.07.2026 | 15:00","url":"","genre":"heavy psych","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"YENGA","stage":"hoellenschuppen","time":"Freitag, 31.07.2026 | 18:00","url":"https://herzberg-festival.com/line-up/yenga/","genre":"heavy psych","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"Deviant Amps","stage":"hoellenschuppen","time":"Freitag, 31.07.2026 | 20:00","url":"https://herzberg-festival.com/line-up/deviant-amps/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Cliffsight","stage":"hoellenschuppen","time":"Freitag, 31.07.2026 | 22:30","url":"https://herzberg-festival.com/line-up/cliffsight/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Zen Trip","stage":"hoellenschuppen","time":"Mittwoch, 29.07.2026 | 19:00","url":"https://herzberg-festival.com/line-up/zen-trip/","genre":"psychedelic","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"New Spacewave Exp.","stage":"hoellenschuppen","time":"Mittwoch, 29.07.2026 | 23:00","url":"https://herzberg-festival.com/line-up/new-spacewave-exp/","genre":"space rock","bridge":["Hawkwind","NEU!"],"score":41.5,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"W3LTRAUM","stage":"hoellenschuppen","time":"Samstag, 01.08.2026 | 01:00","url":"https://herzberg-festival.com/line-up/w3ltraum/","genre":"heavy psych","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"Crimson Oak","stage":"hoellenschuppen","time":"Samstag, 01.08.2026 | 15:00","url":"","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"The Imperial Mustard","stage":"hoellenschuppen","time":"Samstag, 01.08.2026 | 18:00","url":"https://herzberg-festival.com/line-up/the-imperial-mustard/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Space Invaders feat. Mani Neumeier","stage":"hoellenschuppen","time":"Samstag, 01.08.2026 | 21:00","url":"https://herzberg-festival.com/line-up/space-invaders-feat-mani-neumeier/","genre":"krautrock","bridge":["NEU!","Guru Guru"],"score":25.2,"tier":"HIT","spotlight":"You might love this — 25 pts"},{"name":"The Black Cat\'s Eye","stage":"hoellenschuppen","time":"Samstag, 01.08.2026 | 23:00","url":"","genre":"space rock","bridge":["Hawkwind","NEU!"],"score":41.5,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Lenzolino","stage":"hoellenschuppen","time":"Sonntag, 02.08.2026 | 01:00","url":"https://herzberg-festival.com/line-up/lenzolino/","genre":"heavy psych","bridge":["Monster Magnet","Elder"],"score":82.3,"tier":"TOP","spotlight":"YOUR TOP: 82 affinity points"},{"name":"Lauscher und Mandina","stage":"hoellenschuppen","time":"Sonntag, 02.08.2026 | 15:00","url":"","genre":"singer-songwriter","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Melodaddies","stage":"hoellenschuppen","time":"Sonntag, 02.08.2026 | 18:00","url":"","genre":"rocknroll","bridge":["AC/DC","Status Quo"],"score":234.6,"tier":"TOP","spotlight":"YOUR TOP: 235 affinity points"},{"name":"Mo\'Kalamity","stage":"mainstage","time":"Donnerstag, 30.07.2026 | 14:45","url":"https://herzberg-festival.com/line-up/mokalamity/","genre":"reggae/world","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Ukulele Death Squad","stage":"mainstage","time":"Donnerstag, 30.07.2026 | 17:00","url":"https://herzberg-festival.com/line-up/ukulele-death-squad/","genre":"comedy/ukulele","bridge":["Sham 69","Bad Religion"],"score":35.9,"tier":"TOP","spotlight":"YOUR TOP: 36 affinity points"},{"name":"Elder","stage":"mainstage","time":"Donnerstag, 30.07.2026 | 19:15","url":"https://herzberg-festival.com/line-up/elder/","genre":"heavy psych","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"Marlo Grosshardt","stage":"mainstage","time":"Donnerstag, 30.07.2026 | 21:30","url":"https://herzberg-festival.com/line-up/marlo-grosshardt/","genre":"singer-songwriter-de","bridge":["Klaus der Geiger","Rio Reiser"],"score":8.1,"tier":"NICE","spotlight":"Affinity 8 pts"},{"name":"Hilight Tribe","stage":"mainstage","time":"Donnerstag, 30.07.2026 | 23:45","url":"https://herzberg-festival.com/line-up/hilight-tribe/","genre":"trance/psychedelic","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Wucan","stage":"mainstage","time":"Freitag, 31.07.2026 | 14:45","url":"https://herzberg-festival.com/line-up/wucan/","genre":"heavy psych","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"Fortuna Ehrenfeld","stage":"mainstage","time":"Freitag, 31.07.2026 | 17:00","url":"https://herzberg-festival.com/line-up/fortuna-ehrenfeld/","genre":"singer-songwriter-de","bridge":["Tocotronic","Die Toten Hosen"],"score":42.0,"tier":"TOP","spotlight":"YOUR TOP: 42 affinity points"},{"name":"Buntspecht","stage":"mainstage","time":"Freitag, 31.07.2026 | 19:15","url":"https://herzberg-festival.com/line-up/buntspecht/","genre":"indie/singer-songwriter","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Wicked Dub Division meets North East Ska Jazz Orchestra","stage":"mainstage","time":"Freitag, 31.07.2026 | 21:30","url":"https://herzberg-festival.com/line-up/wicked-dub-division-meets-north-east-ska-jazz-orchestra/","genre":"ska/dub","bridge":["Sham 69","Bad Religion"],"score":35.9,"tier":"TOP","spotlight":"YOUR TOP: 36 affinity points"},{"name":"Kadavar","stage":"mainstage","time":"Freitag, 31.07.2026 | 23:45","url":"https://herzberg-festival.com/line-up/kadavar/","genre":"psych/stoner","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"Laura Cox","stage":"mainstage","time":"Samstag, 01.08.2026 | 14:45","url":"https://herzberg-festival.com/line-up/laura-cox/","genre":"hard rock","bridge":["AC/DC","Aerosmith"],"score":252.6,"tier":"TOP","spotlight":"YOUR TOP: 253 affinity points"},{"name":"My Baby","stage":"mainstage","time":"Samstag, 01.08.2026 | 17:00","url":"https://herzberg-festival.com/line-up/my-baby/","genre":"indie/psychedelic","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Rockpommel\'s Band","stage":"mainstage","time":"Samstag, 01.08.2026 | 19:00","url":"https://herzberg-festival.com/line-up/rockpommels-band/","genre":"rocknroll","bridge":["AC/DC","Status Quo"],"score":234.6,"tier":"TOP","spotlight":"YOUR TOP: 235 affinity points"},{"name":"Orange","stage":"mainstage","time":"Samstag, 01.08.2026 | 21:30","url":"https://herzberg-festival.com/line-up/orange/","genre":"singer-songwriter","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Wolfmother","stage":"mainstage","time":"Samstag, 01.08.2026 | 23:45","url":"https://herzberg-festival.com/line-up/wolfmother/","genre":"hard psych","bridge":["AC/DC","Monster Magnet"],"score":252.9,"tier":"TOP","spotlight":"YOUR TOP: 253 affinity points"},{"name":"SFZ Rückers","stage":"mainstage","time":"Sonntag, 02.08.2026 | 13:00","url":"https://herzberg-festival.com/line-up/sfz-rueckers/","genre":"rocknroll","bridge":["AC/DC","Status Quo"],"score":234.6,"tier":"TOP","spotlight":"YOUR TOP: 235 affinity points"},{"name":"Lara Hulo","stage":"mainstage","time":"Sonntag, 02.08.2026 | 13:30","url":"https://herzberg-festival.com/line-up/lara-hulo/","genre":"indie/singer-songwriter","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Spidergawd","stage":"mainstage","time":"Sonntag, 02.08.2026 | 15:45","url":"https://herzberg-festival.com/line-up/spidergawd/","genre":"heavy psych/stoner","bridge":["Monster Magnet","Kyuss"],"score":85.1,"tier":"TOP","spotlight":"YOUR TOP: 85 affinity points"},{"name":"The Magic Mumble Jumble","stage":"mainstage","time":"Sonntag, 02.08.2026 | 18:00","url":"https://herzberg-festival.com/line-up/the-magic-mumble-jumble/","genre":"indie/folk","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Walter Trout","stage":"mainstage","time":"Sonntag, 02.08.2026 | 20:15","url":"https://herzberg-festival.com/line-up/walter-trout/","genre":"blues rock","bridge":["Eric Clapton","Rory Gallagher"],"score":50.5,"tier":"TOP","spotlight":"YOUR TOP: 51 affinity points"},{"name":"Kazur","stage":"mentalstage","time":"Donnerstag, 30.07.2026 | 16:15","url":"https://herzberg-festival.com/line-up/kazur/","genre":"singer-songwriter-de","bridge":["Heinz Rudolf Kunze","Westernhagen"],"score":66.6,"tier":"TOP","spotlight":"YOUR TOP: 67 affinity points"},{"name":"Abzug","stage":"mentalstage","time":"Donnerstag, 30.07.2026 | 18:30","url":"https://herzberg-festival.com/line-up/abzug/","genre":"punk","bridge":["Sham 69","Bad Religion"],"score":35.9,"tier":"TOP","spotlight":"YOUR TOP: 36 affinity points"},{"name":"Evolfo","stage":"mentalstage","time":"Donnerstag, 30.07.2026 | 20:45","url":"https://herzberg-festival.com/line-up/evolfo/","genre":"singer-songwriter","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Green Milk from the Planet Orange","stage":"mentalstage","time":"Donnerstag, 30.07.2026 | 23:00","url":"https://herzberg-festival.com/line-up/green-milk-from-the-planet-orange/","genre":"japan psych","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Vig John","stage":"mentalstage","time":"Freitag, 31.07.2026 | 16:15","url":"https://herzberg-festival.com/line-up/vig-john/","genre":"singer-songwriter-de","bridge":["Heinz Rudolf Kunze","Westernhagen"],"score":66.6,"tier":"TOP","spotlight":"YOUR TOP: 67 affinity points"},{"name":"Baobab Vibes","stage":"mentalstage","time":"Freitag, 31.07.2026 | 18:30","url":"https://herzberg-festival.com/line-up/baobab-vibes/","genre":"world/afrobeat","bridge":["NEU!","Hawkwind"],"score":39.7,"tier":"TOP","spotlight":"YOUR TOP: 40 affinity points"},{"name":"Sirkus","stage":"mentalstage","time":"Freitag, 31.07.2026 | 20:45","url":"https://herzberg-festival.com/line-up/sirkus/","genre":"singer-songwriter","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Love Machine","stage":"mentalstage","time":"Freitag, 31.07.2026 | 23:00","url":"https://herzberg-festival.com/line-up/love-machine/","genre":"post-punk","bridge":["The Cure","Depeche Mode"],"score":72.7,"tier":"TOP","spotlight":"YOUR TOP: 73 affinity points"},{"name":"Klaus der Geiger Trio","stage":"mentalstage","time":"Samstag, 01.08.2026 | 16:15","url":"https://herzberg-festival.com/line-up/klaus-der-geiger-trio/","genre":"singer-songwriter-de","bridge":["Rio Reiser","Westernhagen"],"score":53.2,"tier":"TOP","spotlight":"YOUR TOP: 53 affinity points"},{"name":"Go Mahhh","stage":"mentalstage","time":"Samstag, 01.08.2026 | 18:30","url":"https://herzberg-festival.com/line-up/go-mahhh/","genre":"singer-songwriter","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Miss Mellow","stage":"mentalstage","time":"Samstag, 01.08.2026 | 20:45","url":"https://herzberg-festival.com/line-up/miss-melow/","genre":"singer-songwriter","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Kant","stage":"mentalstage","time":"Samstag, 01.08.2026 | 23:00","url":"https://herzberg-festival.com/line-up/kant/","genre":"post-metal","bridge":["Russian Circles","Mogwai"],"score":0.0,"tier":"NEW","spotlight":"New horizon — based on your Russian Circles listen."},{"name":"DJ Electric","stage":"mentalstage","time":"Sonntag, 02.08.2026 | 01:15","url":"https://herzberg-festival.com/line-up/dj-electric/","genre":"dj electronic","bridge":["Kraftwerk","NEU!"],"score":12.6,"tier":"HIT","spotlight":"You might love this — 13 pts"},{"name":"Caldaera","stage":"mentalstage","time":"Sonntag, 02.08.2026 | 15:00","url":"https://herzberg-festival.com/line-up/caldaera/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Mitokeh","stage":"mentalstage","time":"Sonntag, 02.08.2026 | 17:15","url":"https://herzberg-festival.com/line-up/mitokeh-2/","genre":"space rock","bridge":["Hawkwind","NEU!"],"score":41.5,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"The Citadel","stage":"mentalstage","time":"Sonntag, 02.08.2026 | 19:30","url":"https://herzberg-festival.com/line-up/the-citadel/","genre":"post-metal","bridge":["Sleep","Electric Wizard"],"score":4.1,"tier":"NICE","spotlight":"Affinity 4 pts"},{"name":"Bruther","stage":"mentalstage","time":"Sonntag, 02.08.2026 | 21:45","url":"https://herzberg-festival.com/line-up/bruther/","genre":"industrial/post-punk","bridge":["The Cure","Depeche Mode"],"score":72.7,"tier":"TOP","spotlight":"YOUR TOP: 73 affinity points"},{"name":"Nadine Lindner","stage":"unknown","time":"Donnerstag, 30.07.2026 | 13:40","url":"https://herzberg-festival.com/line-up/nadine-lindner/","genre":"singer-songwriter","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Peter Knorn mit Frank Schäfer","stage":"unknown","time":"Donnerstag, 30.07.2026 | 15:30","url":"https://herzberg-festival.com/line-up/peter-knorn-mit-frank-schaefer/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Kinderrave mit Andy Strauß","stage":"unknown","time":"Donnerstag, 30.07.2026 | 17:00","url":"https://herzberg-festival.com/line-up/kinderrave-mit-andy-strauss/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"FEE PENAFIEL","stage":"unknown","time":"Donnerstag, 30.07.2026 | 18:45","url":"https://herzberg-festival.com/line-up/fee/","genre":"singer-songwriter","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Die Dinners","stage":"unknown","time":"Donnerstag, 30.07.2026 | 20:30","url":"https://herzberg-festival.com/line-up/die-dinners/","genre":"comedy","bridge":["Tocotronic","Die Toten Hosen"],"score":42.0,"tier":"TOP","spotlight":"YOUR TOP: 42 affinity points"},{"name":"Lesen für Bier - Herzberg Edition","stage":"unknown","time":"Donnerstag, 30.07.2026 | 22:00","url":"https://herzberg-festival.com/line-up/lesen-fuer-bier-herzberg-edition/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"DJ NEAU","stage":"unknown","time":"Donnerstag, 30.07.2026 | 23:59","url":"https://herzberg-festival.com/line-up/dj-neau/","genre":"dj electronic","bridge":["Kraftwerk","NEU!"],"score":12.6,"tier":"HIT","spotlight":"You might love this — 13 pts"},{"name":"Raketen Erna","stage":"unknown","time":"Freitag, 31.07.2026 | 11:00","url":"https://herzberg-festival.com/line-up/raketen-erna/","genre":"singer-songwriter","bridge":["Leonard Cohen","Tom Petty"],"score":65.1,"tier":"TOP","spotlight":"YOUR TOP: 65 affinity points"},{"name":"Privilegien & Allyship","stage":"unknown","time":"Freitag, 31.07.2026 | 12:30","url":"https://herzberg-festival.com/line-up/privilegien-allyship/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Textbomben","stage":"unknown","time":"Freitag, 31.07.2026 | 16:30","url":"https://herzberg-festival.com/line-up/textbomben/","genre":"spoken word","bridge":["Tocotronic","Die Toten Hosen"],"score":42.0,"tier":"TOP","spotlight":"YOUR TOP: 42 affinity points"},{"name":"Twiiiins","stage":"unknown","time":"Freitag, 31.07.2026 | 18:30","url":"https://herzberg-festival.com/line-up/twiiiins/","genre":"singer-songwriter","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Herzberg Songslam","stage":"unknown","time":"Freitag, 31.07.2026 | 20:30","url":"https://herzberg-festival.com/line-up/herzberg-songslam/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Van Vatale","stage":"unknown","time":"Freitag, 31.07.2026 | 23:00","url":"https://herzberg-festival.com/line-up/van-vatale/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Andy Strauß - Ravemesse","stage":"unknown","time":"Samstag, 01.08.2026 | 01:00","url":"https://herzberg-festival.com/line-up/andy-strauss-ravemesse/","genre":"punk/spoken word","bridge":["Tocotronic","Die Toten Hosen"],"score":42.0,"tier":"TOP","spotlight":"YOUR TOP: 42 affinity points"},{"name":"Clown-Workshop mit Shaggy","stage":"unknown","time":"Samstag, 01.08.2026 | 11:00","url":"https://herzberg-festival.com/line-up/workshops-mit-shaggy/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Impro-Workshop mit Shaggy","stage":"unknown","time":"Samstag, 01.08.2026 | 12:30","url":"https://herzberg-festival.com/line-up/impro-workshop-mit-shaggy/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Kinder-Mitmach-Show mit Shaggy","stage":"unknown","time":"Samstag, 01.08.2026 | 15:00","url":"https://herzberg-festival.com/line-up/kinder-mitmach-show-mit-shaggy/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Helmut Philipps","stage":"unknown","time":"Samstag, 01.08.2026 | 16:30","url":"https://herzberg-festival.com/line-up/helmut-philipps/","genre":"singer-songwriter-de","bridge":["Heinz Rudolf Kunze","Klaus der Geiger"],"score":29.5,"tier":"HIT","spotlight":"You might love this — 30 pts"},{"name":"Duo Zirka","stage":"unknown","time":"Samstag, 01.08.2026 | 18:30","url":"https://herzberg-festival.com/line-up/duo-zirka/","genre":"singer-songwriter","bridge":["Tocotronic","Arcade Fire"],"score":41.1,"tier":"TOP","spotlight":"YOUR TOP: 41 affinity points"},{"name":"Matze Rossi","stage":"unknown","time":"Samstag, 01.08.2026 | 20:30","url":"https://herzberg-festival.com/line-up/matze-rossi/","genre":"singer-songwriter-de","bridge":["Klaus der Geiger","Rio Reiser"],"score":8.1,"tier":"NICE","spotlight":"Affinity 8 pts"},{"name":"Lener","stage":"unknown","time":"Samstag, 01.08.2026 | 22:30","url":"https://herzberg-festival.com/line-up/lener/","genre":"singer-songwriter-de","bridge":["Heinz Rudolf Kunze","Westernhagen"],"score":66.6,"tier":"TOP","spotlight":"YOUR TOP: 67 affinity points"},{"name":"Anima Libera - Ecstatic Dance","stage":"unknown","time":"Samstag, 01.08.2026 | 23:59","url":"https://herzberg-festival.com/line-up/anima-libera-ecstatic-dance/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"LiSSTN","stage":"unknown","time":"Sonntag, 02.08.2026 | 02:00","url":"https://herzberg-festival.com/line-up/lisstn/","genre":"electronic","bridge":["Kraftwerk","NEU!"],"score":12.6,"tier":"HIT","spotlight":"You might love this — 13 pts"},{"name":"Theater con Cuore","stage":"unknown","time":"Sonntag, 02.08.2026 | 11:00","url":"https://herzberg-festival.com/line-up/theater-con-cuore/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Peter Bursch\'s Ukulele Kurs","stage":"unknown","time":"Sonntag, 02.08.2026 | 12:30","url":"https://herzberg-festival.com/line-up/peter-burschs-ukulele-kurs/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Klaus der Geiger & Marius Peters","stage":"unknown","time":"Sonntag, 02.08.2026 | 16:30","url":"https://herzberg-festival.com/line-up/klaus-der-geiger-marius-peters/","genre":"singer-songwriter-de","bridge":["Rio Reiser","Westernhagen"],"score":53.2,"tier":"TOP","spotlight":"YOUR TOP: 53 affinity points"},{"name":"Lina Bó","stage":"unknown","time":"Sonntag, 02.08.2026 | 18:30","url":"https://herzberg-festival.com/line-up/lina-bo-2/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."},{"name":"Kaŝita Kanto","stage":"unknown","time":"Sonntag, 02.08.2026 | 20:30","url":"https://herzberg-festival.com/line-up/kasita-kanto/","genre":"unknown","bridge":["",""],"score":0,"tier":"NEW","spotlight":"New horizon — based on your  listen."}]}');
+ALL_ACTS = DATA.acts;
+render();
+</script>
+
+</body>
+</html>

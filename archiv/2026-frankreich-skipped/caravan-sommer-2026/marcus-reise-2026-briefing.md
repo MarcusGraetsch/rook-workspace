@@ -227,6 +227,36 @@
 
 ---
 
+## 9a. 💊 CBD / SUBSTANZEN (Update 21.07.2026)
+
+**Frankreich-Lage zur Reisezeit (28.07. – 23.08.2026):**
+
+🟢 **Legal in FR (unverändert):**
+- **CBD-Blüten & -Blätter** — seit Conseil-d'État-Urteil vom 29.12.2022 endgültig legal (THC ≤ 0,3 %)
+- **CBD-Extrakte / -Öle zur topischen Anwendung** (Kosmetik, Cremes, Balsame)
+- **E-Liquids** mit CBD
+- **Mitnahme aus DE für Eigenbedarf** beim Grenzübertritt kein Problem
+
+🔴 **Seit 15.05.2026 NEU VERBOTEN (genau VOR Reise in Kraft):**
+- **Alle CBD-Lebensmittel** — Öle zum Einnehmen, Kapseln, Gummis, Hanftees, Aufgüsse, Bonbons
+- Begründung ANSM (franz. Arzneimittelbehörde): fehlende Sicherheitsdaten für oralen Konsum
+- **Konsequenz beim Einkauf in FR: Augen auf, das Zeug steht teils noch im Regal**
+
+⚪ **Grauzone Rauchen:** Konsum und Verkauf erlaubt (kein Tabak-Beimisch); bei Waldbrandgefahr (August, Mittelmeerraum) offenes Rauchen am Strand problematisch — Acetylene in der Glut = Risiko.
+
+⚫ **Definitiv rauslassen:** HHC & synthetische Cannabinoide (auch in DE seit Juni 2024 im BtMG, kein Eigenbedarf-Argument).
+
+**Strategie für die Reise:**
+1. **Vorrat aus DE mitnehmen** (Blüten + topische Öle/Cremes) — erste 2–3 Wochen abgedeckt
+2. **In FR nur nachkaufen:** Blüten + Kosmetik/Topika. KEINE Lebensmittel-Tropfen, Öle, Tees.
+3. **CBD-Shops** in fast jeder Stadt > 10k Einwohner (Ketten: *CBD Shop*, *The Greenstore*, *La Fumerie*)
+4. **Auf Camping:** Konsum im Hymer unproblematisch; im August am Strand → nur Vaporizer, kein Joint mit Tabak
+5. **Bei Polizei-/Zollkontrolle:** Produkt-Verpackung mit THC-Analyse griffbereit, alle < 0,3 %
+
+**Quellen (Recherche 21.07.2026):** thecannex.com (Mai 2026), cbd.fr, cbdshopfrance.fr, cloud-store-cbd.com, Conseil d'État Entscheidung 29.12.2022.
+
+---
+
 ## 10. 💬 FRAGEN AN ZUKÜNFTIGE ROOK-SESSIONS
 
 Falls du (Rook) in einer neuen Session gefragt wirst, ohne dass diese Datei vorliegt, hier die wichtigsten Suchbegriffe für memory_search:

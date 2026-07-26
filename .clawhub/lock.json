@@ -32,6 +32,16 @@
     "claude-mem": {
       "version": "1.0.1",
       "installedAt": 1781009662786
+    },
+    "ai-act-risk-check": {
+      "version": "1.0.0",
+      "installedAt": 1784364352456,
+      "registry": "https://clawhub.ai"
+    },
+    "openrouter-free": {
+      "version": "1.0.0",
+      "installedAt": 1784364442885,
+      "registry": "https://clawhub.ai"
     }
   }
 }

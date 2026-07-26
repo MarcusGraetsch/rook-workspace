@@ -1,0 +1,68 @@
+Kategorie;Posten;Beschreibung;Menge;Einheit;Einzelpreis EUR;Gesamt EUR;Hinweis
+=== KRAFTSTOFF ===;;;;;;;;;Dieselpreise Stand 18.07.2026
+Kraftstoff;Deutschland (Hin+Rück);Bremen→Eifel→Reims + Köln→Berlin;1400;km;;282,80;140 L × 2,02 €/L — Destatis 13.07.2026
+Kraftstoff;Belgien (Transit);Aachen-Lüttich (Hin) + Paris-Köln (Rück);300;km;;64,50;30 L × 2,15 €/L — SPF Economie
+Kraftstoff;Frankreich (Reise-Hauptteil);Reims→Calvados→Bretagne→D-Day→Paris;2600;km;;546,00;260 L × 2,10 €/L — Roole 13.07. (B7 2,22 €/L Peak, Mittel)
+Kraftstoff;SUMME DIESEL;430 L gesamt (10 L/100 km × 4300 km);430;L;;893,30;+73,30 € gegenüber Briefing 09.07.2026
+;;;;
+=== MAUT (Mautklasse 2) ===;;;;;;;;;≤3m hoch und ≤3,5t zGG
+Maut;Frankreich (Ecopéage/SAPN/SANEF);überwiegend Landstraße;1;Pauschale;50,00;50,00;Reims-Region + Normandie
+Maut;Deutschland;Brücken/Tunnel;1;Pauschale;20,00;20,00;z.B. Köln-Mülheimer Brücke optional
+Maut;SUMME MAUT;;2;Pauschalen;;70,00;
+;;;;
+=== CAMPING/STELLPLÄTZE ===;;;;;;;;;
+Camping;Reisemobilhafen Köln;20.08.2026 ÜN Heimweg;1;Nacht;18,00;18,00;An der Schanz 14, 50735 Köln-Niehl
+Camping;Camping Erdeven (Bretagne);04.-10.08.2026 (7 Nächte) mit Freund;7;Nächte;25,00;175,00;Camping Les Ormes o.ä.
+Camping;Stellplatz Le Mont-Saint-Michel;11.08.2026 Wohnmobil-Park;1;Nacht;12,00;12,00;offizieller Camping-Cars-Parkplatz
+Camping;Camping Calvados ASF-Jubiläum;30.07.-02.08. (3 Nächte Saint-Jean-le-Blanc);3;Nächte;18,00;54,00;Veranstaltungs-Camping
+Camping;Stellplatz Hinweg ÜN1;28.07. Eifel/Maas;1;Nacht;15,00;15,00;Aire oder Camping
+Camping;CityKamp Paris;17.-19.08.2026 (3 Nächte);3;Nächte;45,00;135,00;2 Allée du Bord de l'Eau, 75016
+Camping;Stellplatz Bretagne Basis;Reserve aires;2;Nächte;10,00;20,00;kostenfrei möglich, Reserve
+Camping;Reserve Puffer-Stellplatz;für Unvorhergesehenes;1;Nacht;10,00;10,00;z.B. Reifenpanne oder Stau
+Camping;Gesamt Campings-Stellplätze;13 ÜN + Reserve;;Nächte;;439,00;Briefing hatte 456 € (gerundet)
+;;;;
+=== VERPFLEGUNG SELBSTVERSORGUNG ===;;;;;;;;;
+Verpflegung;Supermarkt/Carrefour/Intermarché/Aldi/Lidl;DE ø20 €, FR ø22 €;27;Tage;23,00;621,00;inkl. Frühstück + Picknick
+Verpflegung;SUMME SELBSTVERSORGUNG;;27;Tage;;621,00;
+;;;;
+=== VERPFLEGUNG RESTAURANT ===;;;;;;;;;
+Restaurant;Bistro/Crêperie (FR) locker;Crepes + Plat du Jour + Abendessen;7;x;30,00;210,00;keine Luxus-Restaurants
+Restaurant;Verkostung Spezialitäten;Käse/Wein/Cidre/Bretagne-Spezial;1;x;15,00;15,00;regional
+Restaurant;SUMME RESTAURANT;;8;x;;225,00;
+;;;;
+=== EINTRITTE / MUSEEN ===;;;;;;;;;
+Eintritt;Louvre-Tickets;18.08.2026 Slot 15-16h;1;Ticket;22,00;22,00;https://ticket.louvre.fr
+Eintritt;Museumspass Paris 2 Tage;17.-18.08.2026;1;Pass;88,00;88,00;Musée d'Orsay + Centre Pompidou + mehr
+Eintritt;Cité de l'Immigration;17.08.2026 Bois de Vincennes;1;Ticket;10,00;10,00;Calais-Anschluss thematisch
+Eintritt;Bayeux-Tapisserie;12.08.2026 (Weltkulturerbe);1;Ticket;12,00;12,00;UNESCO
+Eintritt;Mémorial de Caen;14.08.2026 D-Day Ost;1;Ticket;20,00;20,00;mit Audio-Guide
+Eintritt;Père Lachaise kostenlos;19.08.2026 Mur des Fédérés + Communards;1;x;0,00;0,00;
+Eintritt;Shakespeare and Company;19.08.2026 Buchhandlung;1;x;0,00;0,00;Spende freiwillig
+Eintritt;SUMME EINTRITTE;;152,00;;;
+;;;;
+=== LE MONT-SAINT-MICHEL ===;;;;;;;;;
+MSM;Abtei-Eintritt;12.08.2026 morgens 8h;1;Ticket;13,00;13,00;UNESCO-Welterbe
+MSM;Wohnmobil-Parkplatz (offiziell);12.08.2026 Park;1;Pauschale;12,00;12,00;Camping-Cars-Parkplatz
+MSM;Crêperie MSM-Dorf;12.08.2026 Mittag;1;x;12,00;12,00;oder Picknick
+MSM;SUMME MSM;;3;x;;37,00;Briefing hatte 27 € (Abtei + Park, ohne Crêperie)
+;;;;
+=== SONSTIGES ===;;;;;;;;;
+Sonstiges;ADAC Euro-Schutzbrief Upgrade;falls noch nicht erfolgt;1;Pauschale;35,00;35,00;Krankenrücktransport etc.
+Sonstiges;Kopien/Drucke Dérogation;Reims + Grand Paris;2;x;3,00;6,00;Farbdrucke + laminieren
+Sonstiges;Souvenirs/Café/Reserve;Erfahrungswert;1;Pauschale;60,00;60,00;kleine Mitbringsel + Café zwischendurch
+Sonstiges;SUMME SONSTIGES;;1;Pauschale;;101,00;
+;;;;
+=== GESAMT ===;;;;;;;;;
+;;GESAMT KOMFORT-VARIANTE;;;;
+;SUMME KOMFORT (alle Posten);;;;;
+;PRO TAG (27 Tage);;;;;
+;;;;
+=== SPAR-VARIANTEN ===;;;;;;;;;
+Spar-Variante;SPARSAM;Restaurant 4× statt 7×, günstigere Eintritte;;Pauschale;-150,00;-150,00;≈ 2.316 € / 86 €/Tag
+Spar-Variante;STRAMM;kein Restaurant, MSM nur außen, 1-Tag-Museumspass;;Pauschale;-200,00;-200,00;≈ 2.266 € / 84 €/Tag
+;;;;
+=== PREIS-SPIKE-INFORMATION ===;;;;;;;;;
+Info;Auslöser;Frappes Nahost-Israel-Konflikt seit ~09.07.2026;;;;
+Info;Auswirkung;Diesel in FR/DE/BE durchgängig >2,00 €/L;;;;
+Info;Risiko;Bei Rückgang der geopol. Spannungen: -10 bis -20 ct/L möglich;;;;
+Info;Puffer im Budget;Dieselposition hat +73 € Puffer durch volatility;;;;
