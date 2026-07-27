@@ -210,6 +210,29 @@ Think of it like a human reviewing their journal and updating their mental model
 
 The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
 
+## Staged Agent Workflow
+
+For difficult multi-file changes, use the installed staged coding pipeline skill for the active platform.
+
+Rules:
+
+- Define an observable completion condition before editing.
+- Preserve user work; never stash, reset, force, delete, push or deploy without explicit approval.
+- Use separate Git worktrees for parallel write packages.
+- Keep package file ownership disjoint.
+- Store reports outside Git worktrees.
+- Verify agent claims through real artifacts and commands.
+- Merge only verified package branches.
+- Run adversarial review on the integration branch.
+- Limit automatic fix loops to two rounds.
+- Put substantial final reports in Markdown files and summarize them in chat.
+
+Skills installed:
+
+- `evidence-driven-method` — general protocol (Hermes + OpenClaw)
+- `staged-coding-pipeline-openclaw` — coding pipeline (OpenClaw: sessions_spawn / sessions_yield / git worktrees)
+- `staged-coding-pipeline-hermes` — coding pipeline (Hermes: delegate_task / git worktrees)
+
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
