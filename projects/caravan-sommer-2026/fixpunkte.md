@@ -1,15 +1,24 @@
 # Fixpunkte & Checklisten
 
-## Anker-Termin (fix)
+## ⚠️ AKTUALISIERUNG 2026-08-04
 
-**31. Juli 2026** — 50-Jahr-Feier eines ASF-Dauerstandorts in der Normandie
+**Frankreich-Phase abgesagt** wegen Diesel-Preisen. Die Reise 2026 ist **ausschließlich** die **Ostsee-Tour 2026** (Bremen → Herzberg → Ostsee → Berlin, 28.07.–23.08.2026, 27 Tage). Diese Datei unten dokumentiert den **alten Plan** als historische Referenz; **die aktuelle Reise-Logik liegt im Ostsee-Tour-Embed** (`working-notes/src/ostsee-tour-embed/`).
+
+Aktuelle Tour-Daten (siehe `working-notes/src/ostsee-tour-embed/index.html`):
+- Zeitraum: 28.07.–23.08.2026
+- Route: Bremen → Bad Hersfeld → Herzberg (Festival 30.07.–02.08.) → Wartburg/Erfurt/Jena → Bleilochtalsperre/Leipzig/Torgau → Dessau/Wörlitz/Brandenburg-Havel → Plau/Ahrenshoop/Prerow → Stralsund/Rügen → Usedom/Świnoujście → Werbellinsee → Berlin
+- 7 Regionen, ~1.715 € Budget, Hymer B644 BJ 1985
+
+## ~~Anker-Termin (fix, abgesagt)~~
+
+**31. Juli 2026** — 50-Jahr-Feier eines ASF-Dauerstandorts in der Normandie — **ABGESAGT** (Diesel-Preise)
 - **Ort: Escures** (Calvados), Gemeinde **Commes**, ~10 km östlich von Bayeux
 - **Projekt: „Les Volontaires d'ASF Escures"** — seit 1976(!) deutsche Freiwillige auf Bauernhof im normannischen Bocage
 - Geschichte: Versöhnungsarbeit nach NS-Okkupation + D-Day, ursprünglich Zivildienst, inzwischen freiwillige Helfer unterstützen Bauern vor Ort
 - Kontakt: **Florian** lädt Marcus ein + bietet Mitfahrt an. Keine ASF-Anfrage nötig.
 - Ankunft: 31.7. (genauer Festbeginn offen — vermutlich Nachmittag/Abend)
 
-## Phase 0 — Werkstatt-Abholung
+## ~~Phase 0 — Werkstatt-Abholung~~
 
 **Status:** Ort geklärt = **Bremen**, Termin offen
 - [x] Werkstatt-Ort: **Bremen**
@@ -47,31 +56,9 @@
   - **Land-Route:** Bremen → Hannover → Frankfurt → Saarbrücken → Metz → Reims → Rouen → Normandie (kürzer, aber Autobahn-Langeweile)
   - **Mix-Empfehlung:** Bremen → Köln → Aachen → Lüttich → Reims → Rouen → Normandie (goldene Mitte)
 
-## Phase 4 — Normandie (ASF-Feier)
+## ~~Phase 4 — Normandie (ASF-Feier)~~
 
-**Status:** offen, läuft parallel zu Phase 5-Vorbereitung
-- [ ] ASF-Dorf genauer lokalisieren (Name + Lage)
-- [ ] Übernachtung in der Nähe: Campingplatz, Stellplatz, beim ASF-Dorf selbst?
-- [ ] Fest-Programm: Wer kommt? Welche Programmpunkte?
-- [ ] Vorab Kontakt zu Florian / ASF-Orgateam aufnehmen
-- [ ] Historische Einordnung: was war 1976 dort? Was ist daraus geworden?
-
-## Phase 5 — freie Forschungs-Reise
-
-**Status:** Budget + Zeitfenster geklärt = **20 Urlaubstage ab 31.7.**, optional **+ 1 Monat Workation** (Start 1.10.)
-- Reise-Budget-Zeitstrahl:
-  - 31.7. – ~5.8.: ASF-Feier (4–5 Tage)
-  - ~5.8. – ~25.8.: 20 Urlaubstage freie Forschungs-Route
-  - **25.8. – 1.10.: 5 Wochen Berlin** (Wohnung, Werkstatt-Nachbereitung Caravan, Vorbereitung)
-  - 1.10. – ~1.11.: Workation (1 Monat, vom Caravan aus)
-- **Forschungs-Scope:** Europa-weit! Siehe [`datenbank/`](./datenbank/) — laufende Recherche, Eintrag für Eintrag aufgebaut
-- Mögliche Achsen (siehe [`brainstorming-orte.md`](./brainstorming-orte.md)):
-  - **West-Achse** (Rückweg über Bretagne → Île-de-France → Belgien → DE)
-  - **Süd-Achse** (Normandie → Loire → Okzitanien → Pyrenäen → Baskenland)
-  - **Ost-Achse** (Normandie → Paris → Champagne → Saarland → DE)
-  - **NEU: beliebig Europa-weit** mit spontanen Stopps aus der Datenbank
-- Mitfahrgelegenheit anbieten (BlaBlaCar, Mitfahrzentrale)
-- Wwoofing-Hof(aufenthalt) für 3–5 Tage einbauen → Kostenersparnis + Kontakt
+**ABGESAGT.** Anker-Termin Normandie entfällt komplett. Phase 5 (Forschungs-Reise Europa) entfällt ebenfalls. Die 20 freien Urlaubstage ab 5.8. werden stattdessen für die Ostsee-Etappen verwendet (siehe aktuelle 27-Tage-Route im Ostsee-Tour-Embed).
 
 ## Workation-Planung
 
