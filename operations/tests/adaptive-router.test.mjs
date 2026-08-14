@@ -6,6 +6,7 @@ import path from 'node:path';
 
 import { classifyTask, routeTask } from '../bin/adaptive-router.mjs';
 import { buildRoutingText, observeRouting } from '../bin/dispatcher/routing-shadow.mjs';
+import { summarizeRoutingRecords } from '../bin/routing-report.mjs';
 
 const policyUrl = new URL('../config/adaptive-routing-policy.json', import.meta.url);
 const policy = JSON.parse(await readFile(policyUrl, 'utf8'));
@@ -100,4 +101,44 @@ test('shadow observer builds task context and writes a non-invasive routing reco
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('routing report summarizes shadow observations without mixing advisory CLI records', () => {
+  const summary = summarizeRoutingRecords([
+    {
+      timestamp: '2026-08-14T12:00:00.000Z',
+      kind: 'dispatch-shadow',
+      recommended_backend: 'codex',
+      reviewer: 'claude',
+      workflow: 'code-high-risk',
+      assigned_agent: 'engineer',
+      profile: { task_type: 'coding', risk: 'high', complexity: 'complex' },
+      extra_cost_policy: { allowed: false },
+    },
+    {
+      timestamp: '2026-08-14T12:05:00.000Z',
+      kind: 'dispatch-shadow',
+      recommended_backend: 'claude',
+      reviewer: null,
+      workflow: 'research',
+      assigned_agent: 'researcher',
+      profile: { task_type: 'research', risk: 'medium', complexity: 'standard' },
+      extra_cost_policy: { allowed: true },
+    },
+    {
+      timestamp: '2026-08-14T12:10:00.000Z',
+      recommended_backend: 'kimi',
+      profile: { task_type: 'conversation' },
+    },
+  ]);
+
+  assert.equal(summary.total_records, 3);
+  assert.equal(summary.dispatch_shadow_records, 2);
+  assert.equal(summary.by_backend.codex, 1);
+  assert.equal(summary.by_backend.claude, 1);
+  assert.equal(summary.by_task_type.coding, 1);
+  assert.equal(summary.by_task_type.research, 1);
+  assert.equal(summary.high_risk, 1);
+  assert.equal(summary.complex, 1);
+  assert.equal(summary.extra_cost_allowed, 1);
 });
