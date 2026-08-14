@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { routeTask } from '../adaptive-router.mjs';
+import { collectBackendAvailability } from '../routing-availability.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_POLICY = path.resolve(HERE, '../../config/adaptive-routing-policy.json');
@@ -53,7 +54,8 @@ export async function observeRouting(task, options = {}) {
   const policyPath = options.policyPath || DEFAULT_POLICY;
   const logPath = options.logPath || DEFAULT_LOG;
   const policy = await readPolicy(policyPath);
-  const decision = routeTask(text, policy);
+  const availability = options.availability || await collectBackendAvailability(policy, options.availabilityOptions || {});
+  const decision = routeTask(text, policy, availability);
   const timestamp = options.nowIso || new Date().toISOString();
 
   const record = {
@@ -66,6 +68,8 @@ export async function observeRouting(task, options = {}) {
     current_status: task?.status || null,
     input: text,
     ...decision,
+    availability: availability?.backends || null,
+    model_mode: availability?.model_mode || null,
   };
 
   await appendJsonl(logPath, record);
