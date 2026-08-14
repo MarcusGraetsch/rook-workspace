@@ -23,6 +23,13 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Check adaptive routing syntax
+        run: |
+          node --check operations/bin/adaptive-router.mjs
+          node --check operations/bin/routing-report.mjs
+          node --check operations/bin/dispatcher/routing-shadow.mjs
+          node --check operations/bin/dispatcher/index.mjs
+
       - name: Run adaptive router tests
         run: node --test operations/tests/adaptive-router.test.mjs
 
