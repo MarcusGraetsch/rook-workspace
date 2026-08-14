@@ -19,23 +19,29 @@ export function summarizeRoutingRecords(records) {
     last_timestamp: shadow.at(-1)?.timestamp || null,
     by_task_type: {},
     by_backend: {},
+    by_dispatcher_candidate: {},
+    by_recommended_status: {},
     by_workflow: {},
     by_reviewer: {},
     by_assigned_agent: {},
     high_risk: 0,
     complex: 0,
     extra_cost_allowed: 0,
+    manual_handoff_required: 0,
   };
 
   for (const record of shadow) {
     increment(summary.by_task_type, record?.profile?.task_type);
     increment(summary.by_backend, record?.recommended_backend);
+    increment(summary.by_dispatcher_candidate, record?.execution?.dispatcher_candidate);
+    increment(summary.by_recommended_status, record?.execution?.recommended_status);
     increment(summary.by_workflow, record?.workflow);
     increment(summary.by_reviewer, record?.reviewer || 'none');
     increment(summary.by_assigned_agent, record?.assigned_agent);
     if (record?.profile?.risk === 'high') summary.high_risk += 1;
     if (record?.profile?.complexity === 'complex') summary.complex += 1;
     if (record?.extra_cost_policy?.allowed === true) summary.extra_cost_allowed += 1;
+    if (record?.execution?.manual_handoff_required === true) summary.manual_handoff_required += 1;
   }
 
   return summary;
@@ -83,9 +89,13 @@ function renderHuman(summary, logPath) {
     `Log: ${logPath}`,
     `Beobachtete Dispatches: ${summary.dispatch_shadow_records}`,
     `Zeitraum: ${summary.first_timestamp || '-'} → ${summary.last_timestamp || '-'}`,
-    `High-risk: ${summary.high_risk} · Komplex: ${summary.complex} · Zusatzkosten erlaubt: ${summary.extra_cost_allowed}`,
+    `High-risk: ${summary.high_risk} · Komplex: ${summary.complex} · Manueller Handoff: ${summary.manual_handoff_required} · Zusatzkosten erlaubt: ${summary.extra_cost_allowed}`,
     '',
-    renderCounter('Empfohlene Backends', summary.by_backend),
+    renderCounter('Fachlich empfohlene Backends', summary.by_backend),
+    '',
+    renderCounter('Autonome Dispatcher-Kandidaten', summary.by_dispatcher_candidate),
+    '',
+    renderCounter('Availability der Empfehlung', summary.by_recommended_status),
     '',
     renderCounter('Task-Typen', summary.by_task_type),
     '',
