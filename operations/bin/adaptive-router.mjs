@@ -10,9 +10,9 @@ const DEFAULT_LOG = '/root/.openclaw/runtime/operations/routing-decisions.jsonl'
 const TASK_RULES = [
   ['architecture', /\b(architektur|architecture|designentscheidung|trade[- ]?off|zielarchitektur|systemdesign)\b/i],
   ['debugging', /\b(debug|bug|fehler|stacktrace|exception|root cause|ursache|kaputt|failing)\b/i],
+  ['operations', /\b(kubernetes|k8s|deployment|server|vm|systemd|docker|helm|terraform|ansible|gitlab|pipeline|ci\/?cd|betrieb|ops)\b/i],
   ['review', /\b(review|prüf|audit|gegenlesen|bewerte|bewertung|kritik|code review)\b/i],
   ['coding', /\b(implement|programmier|code|feature|refactor|repository|repo|pull request|\bpr\b|test[s]? schreiben)\b/i],
-  ['operations', /\b(kubernetes|k8s|deployment|server|vm|systemd|docker|helm|terraform|ansible|gitlab|pipeline|ci\/?cd|betrieb|ops)\b/i],
   ['research', /\b(recherch|research|suche.*quellen|vergleich|marktanalyse|finde.*information|deep research)\b/i],
   ['writing', /\b(schreib|formuliere|text|artikel|memo|konzeptpapier|dokument)\b/i],
   ['summarization', /\b(zusammenfass|summary|kurzfassung|tl;dr)\b/i],
