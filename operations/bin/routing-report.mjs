@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { promises as fs } from 'fs';
 import path from 'path';
+import { pathToFileURL } from 'url';
 
 const DEFAULT_LOG = process.env.ROOK_ROUTING_LOG || '/root/.openclaw/runtime/operations/routing-decisions.jsonl';
 
@@ -109,7 +110,8 @@ async function main() {
   process.stdout.write(`${json ? JSON.stringify(summary, null, 2) : renderHuman(summary, logPath)}\n`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const directEntryHref = process.argv[1] ? pathToFileURL(process.argv[1]).href : null;
+if (directEntryHref && import.meta.url === directEntryHref) {
   main().catch((error) => {
     process.stderr.write(`routing-report: ${error instanceof Error ? error.message : String(error)}\n`);
     process.exit(1);
