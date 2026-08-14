@@ -1,6 +1,6 @@
 # Adaptive Routing MVP
 
-Status: advisory + dispatch shadow mode
+Status: advisory + dispatch shadow + outcome correlation
 Date: 2026-08-14
 
 ## Ziel
@@ -41,8 +41,13 @@ Diese Werkzeuge können später sinnvoll sein, insbesondere für API-Gateway, Pr
 - `operations/bin/routing-report.mjs`
   - aggregiert Shadow-Beobachtungen nach Backend, Task-Typ, Workflow, Reviewer und aktuellem Agent
   - unterstützt `--days N` und `--json`
+- `operations/bin/routing-outcomes.mjs`
+  - korreliert Shadow-Entscheidungen über `task_id` mit canonical/archive Tasks und Runtime-Overlays
+  - liest tatsächliches `dispatch.model`, Executor, Attempts, Ergebnis und Status
+  - normalisiert aktuelle Modelle auf die Backend-Kategorien Kimi, MiniMax, Claude und Codex
+  - berechnet Erfolg/Failure/Pending sowie Empfehlung-vs.-Ist
 - `operations/tests/adaptive-router.test.mjs`
-  - Tests für Klassifikation, Routing, Kostenpolicy, Shadow Logging und Reporting
+  - Tests für Klassifikation, Routing, Kostenpolicy, Shadow Logging, Reporting und Outcome-Korrelation
 
 ## Abgrenzung zum bestehenden model-mode-controller
 
@@ -92,6 +97,14 @@ node operations/bin/routing-report.mjs --days 7
 node operations/bin/routing-report.mjs --days 30 --json
 ```
 
+Outcome-Korrelation ansehen:
+
+```bash
+node operations/bin/routing-outcomes.mjs
+node operations/bin/routing-outcomes.mjs --details
+node operations/bin/routing-outcomes.mjs --json --details
+```
+
 Default-Log:
 
 ```text
@@ -114,16 +127,20 @@ Dry-runs erzeugen keine Shadow-Beobachtung.
 
 ### Phase 2 — Outcome-Korrelation
 
-Routing-Beobachtungen werden über `task_id` mit realen Dispatcher-/Task-Ergebnissen verbunden:
+`routing-outcomes.mjs` verbindet Routing-Beobachtungen bereits über `task_id` mit realen Dispatcher-/Task-Ergebnissen. Dafür werden bestehende canonical/archive Tasks und Runtime-Task-State verwendet; es wird noch keine neue Datenbank benötigt.
 
-- tatsächlich verwendeter Executor/Backend
-- erfolgreich / fehlgeschlagen
-- Retry/Eskalation
-- Dauer
-- Review-/Test-Ergebnis
-- menschlich akzeptiert / nachgebessert, soweit erfassbar
+Aktuell erfassbar sind:
 
-Erst danach lässt sich sinnvoll bewerten, ob die Empfehlung besser oder schlechter als die bisherige Zuweisung war.
+- tatsächlich verwendetes Modell/Backend, soweit in `dispatch.model` vorhanden
+- Executor
+- Status: success / failure / pending
+- Retry-Anzahl
+- `last_result`
+- Failure Reason
+- Abschlusszeitpunkt
+- Empfehlung-vs.-tatsächliches Backend
+
+Noch nicht automatisch erfasst werden menschliche Akzeptanz/Nachbesserung und belastbare Kosten pro Task. Diese Daten kommen später hinzu.
 
 ### Phase 3 — Availability + Quota
 
@@ -151,3 +168,4 @@ Erst dann externe Benchmark-/Preis-Feeds oder API-Gateways anbinden. Kandidaten 
 - Manuelle Modellwahl durch Marcus überschreibt Routing.
 - Shadow-/Advisory-Modus bleibt der Default, bis reale Daten die Automatisierung rechtfertigen.
 - Shadow-Fehler dürfen den echten Dispatcher nicht blockieren.
+- Reporting-/Outcome-Tools arbeiten read-only auf bestehenden Logs und Task-Dateien.
