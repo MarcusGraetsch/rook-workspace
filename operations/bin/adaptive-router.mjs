@@ -20,7 +20,7 @@ const TASK_RULES = [
 
 const HIGH_RISK = /\b(produktiv|production|prod\b|löschen|delete|drop\b|migration|datenbank|firewall|iam|security|sicherheit|backup|restore|deploy|release|kundenumgebung)\b/i;
 const LOW_RISK = /\b(entwurf|draft|idee|brainstorm|zusammenfassung|nur lesen|read[- ]?only|analyse ohne änderung)\b/i;
-const COMPLEX = /\b(komplex|mehrere repos|multi[- ]?repo|architektur|unklare ursache|grundsatz|strategisch|langfristig|multi[- ]?agent)\b/i;
+const COMPLEX = /\b(komplex(?:e|en|er|es|em)?|mehrere repos|multi[- ]?repo|architektur|unklare ursache|grundsatz|strategisch|langfristig|multi[- ]?agent)\b/i;
 const SIMPLE = /\b(kurz|einfach|klein|typo|formatier|umbenenn|boilerplate|commit message)\b/i;
 
 function parseEuro(text) {
