@@ -1,10 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
 import { classifyTask, routeTask } from '../bin/adaptive-router.mjs';
+import { buildRoutingText, observeRouting } from '../bin/dispatcher/routing-shadow.mjs';
 
-const policy = JSON.parse(await readFile(new URL('../config/adaptive-routing-policy.json', import.meta.url), 'utf8'));
+const policyUrl = new URL('../config/adaptive-routing-policy.json', import.meta.url);
+const policy = JSON.parse(await readFile(policyUrl, 'utf8'));
 
 test('classifies repository implementation as coding', () => {
   const profile = classifyTask('Implementiere das Feature im Repository und schreibe Tests.');
@@ -49,4 +53,51 @@ test('additional cost stays disabled unless explicitly allowed', () => {
   const allowedDecision = routeTask('Recherchiere aktuelle Optionen. Zusätzliche Kosten erlaubt, Budget 2,50 Euro.', policy);
   assert.equal(allowedDecision.extra_cost_policy.allowed, true);
   assert.equal(allowedDecision.extra_cost_policy.max_eur, 2.5);
+});
+
+test('shadow observer builds task context and writes a non-invasive routing record', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'rook-routing-shadow-'));
+  const logPath = path.join(dir, 'routing.jsonl');
+  const task = {
+    task_id: 'ops-9999',
+    project_id: 'ops',
+    title: 'Kubernetes Deployment prüfen',
+    description: 'Prüfe die produktive Kundenumgebung und ändere noch nichts.',
+    status: 'ready',
+    assigned_agent: 'engineer',
+    source_channel: 'telegram:rook',
+    intake: {
+      brief: 'Deployment-Risiken erkennen',
+      refinement_summary: 'Read-only Analyse vor jeder Änderung',
+    },
+    checklist: [{ title: 'Manifest prüfen', completed: false }],
+    related_repo: 'MarcusGraetsch/example',
+  };
+
+  try {
+    const text = buildRoutingText(task);
+    assert.match(text, /Kubernetes Deployment/);
+    assert.match(text, /Manifest prüfen/);
+    assert.match(text, /Assigned agent: engineer/);
+
+    const result = await observeRouting(task, {
+      policyPath: policyUrl,
+      logPath,
+      sourceChannel: 'telegram:rook',
+      nowIso: '2026-08-14T12:00:00.000Z',
+    });
+
+    assert.equal(result.enabled, true);
+    assert.equal(result.decision.profile.task_type, 'operations');
+
+    const records = (await readFile(logPath, 'utf8')).trim().split('\n').map(JSON.parse);
+    assert.equal(records.length, 1);
+    assert.equal(records[0].kind, 'dispatch-shadow');
+    assert.equal(records[0].task_id, 'ops-9999');
+    assert.equal(records[0].source_channel, 'telegram:rook');
+    assert.equal(records[0].assigned_agent, 'engineer');
+    assert.ok(records[0].recommended_backend);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
