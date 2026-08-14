@@ -12,6 +12,20 @@ jobs:
   # breaks when a privately managed repo, such as working-notes, is not
   # accessible to the default GitHub Actions token in this repository.
 
+  # Dependency-free tests for the adaptive routing MVP.
+  test-adaptive-router:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run adaptive router tests
+        run: node --test operations/tests/adaptive-router.test.mjs
+
   # Python Tests for digital-research project
   test-python:
     runs-on: ubuntu-latest
