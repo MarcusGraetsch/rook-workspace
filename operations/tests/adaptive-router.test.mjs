@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { classifyTask, routeTask } from '../bin/adaptive-router.mjs';
+import { collectBackendAvailability } from '../bin/routing-availability.mjs';
 import { buildRoutingText, observeRouting } from '../bin/dispatcher/routing-shadow.mjs';
 import { summarizeRoutingRecords } from '../bin/routing-report.mjs';
 import {
@@ -17,26 +18,40 @@ import {
 const policyUrl = new URL('../config/adaptive-routing-policy.json', import.meta.url);
 const policy = JSON.parse(await readFile(policyUrl, 'utf8'));
 
+const injectedAvailable = {
+  checked_at: '2026-08-14T13:00:00.000Z',
+  model_mode: { active_mode: 'default', effective_model: 'kimi-coding/moonshot-k2-6' },
+  backends: {
+    kimi: { status: 'available', available: true, dispatcher_executable: true, interaction: 'openclaw' },
+    minimax: { status: 'available', available: true, dispatcher_executable: true, interaction: 'openclaw' },
+    codex: { status: 'available', available: true, dispatcher_executable: false, interaction: 'manual-cli' },
+    claude: { status: 'available', available: true, dispatcher_executable: false, interaction: 'manual-cli' },
+  },
+};
+
 test('classifies repository implementation as coding', () => {
   const profile = classifyTask('Implementiere das Feature im Repository und schreibe Tests.');
   assert.equal(profile.task_type, 'coding');
 });
 
 test('explicit user backend choice wins', () => {
-  const decision = routeTask('Bitte nutze Claude und reviewe diese Architektur gründlich.', policy);
+  const decision = routeTask('Bitte nutze Claude und reviewe diese Architektur gründlich.', policy, injectedAvailable);
   assert.equal(decision.recommended_backend, 'claude');
   assert.equal(decision.reason, 'explicit user choice');
+  assert.equal(decision.execution.manual_handoff_required, true);
 });
 
 test('standard coding prefers Codex from included subscriptions', () => {
-  const decision = routeTask('Implementiere eine kleine neue Funktion im Repo und schreibe Tests.', policy);
+  const decision = routeTask('Implementiere eine kleine neue Funktion im Repo und schreibe Tests.', policy, injectedAvailable);
   assert.equal(decision.profile.task_type, 'coding');
   assert.equal(decision.recommended_backend, 'codex');
   assert.equal(decision.extra_cost_policy.allowed, false);
+  assert.equal(decision.execution.recommended_dispatcher_executable, false);
+  assert.equal(decision.execution.dispatcher_candidate, 'kimi');
 });
 
 test('complex architecture prefers Claude and asks for independent review', () => {
-  const decision = routeTask('Entwirf eine komplexe Zielarchitektur für mehrere Repositories und bewerte langfristige Trade-offs sehr gründlich.', policy);
+  const decision = routeTask('Entwirf eine komplexe Zielarchitektur für mehrere Repositories und bewerte langfristige Trade-offs sehr gründlich.', policy, injectedAvailable);
   assert.equal(decision.profile.task_type, 'architecture');
   assert.equal(decision.profile.complexity, 'complex');
   assert.equal(decision.recommended_backend, 'claude');
@@ -45,7 +60,7 @@ test('complex architecture prefers Claude and asks for independent review', () =
 });
 
 test('high-risk production operation uses operations workflow and independent review', () => {
-  const decision = routeTask('Plane ein Kubernetes Deployment in der produktiven Kundenumgebung und prüfe die Änderung.', policy);
+  const decision = routeTask('Plane ein Kubernetes Deployment in der produktiven Kundenumgebung und prüfe die Änderung.', policy, injectedAvailable);
   assert.equal(decision.profile.task_type, 'operations');
   assert.equal(decision.profile.risk, 'high');
   assert.equal(decision.workflow, 'operations');
@@ -53,13 +68,75 @@ test('high-risk production operation uses operations workflow and independent re
 });
 
 test('additional cost stays disabled unless explicitly allowed', () => {
-  const defaultDecision = routeTask('Recherchiere aktuelle Optionen gründlich.', policy);
+  const defaultDecision = routeTask('Recherchiere aktuelle Optionen gründlich.', policy, injectedAvailable);
   assert.equal(defaultDecision.extra_cost_policy.allowed, false);
   assert.equal(defaultDecision.extra_cost_policy.max_eur, 0);
 
-  const allowedDecision = routeTask('Recherchiere aktuelle Optionen. Zusätzliche Kosten erlaubt, Budget 2,50 Euro.', policy);
+  const allowedDecision = routeTask('Recherchiere aktuelle Optionen. Zusätzliche Kosten erlaubt, Budget 2,50 Euro.', policy, injectedAvailable);
   assert.equal(allowedDecision.extra_cost_policy.allowed, true);
   assert.equal(allowedDecision.extra_cost_policy.max_eur, 2.5);
+});
+
+test('availability probe maps model-mode fallback and CLI presence without consuming model quota', async () => {
+  const snapshot = await collectBackendAvailability(policy, {
+    nowIso: '2026-08-14T13:00:00.000Z',
+    modelModeState: {
+      updated_at: '2026-08-14T12:59:00.000Z',
+      active_mode: 'fallback',
+      effective_model: 'minimax/MiniMax-M2.7',
+      reason: 'limit exceeded',
+    },
+    cliAvailability: {
+      codex: { available: true, status: 'available', reason: 'codex installed' },
+      claude: { available: true, status: 'available', reason: 'claude installed' },
+    },
+  });
+
+  assert.equal(snapshot.backends.kimi.status, 'degraded');
+  assert.equal(snapshot.backends.kimi.available, false);
+  assert.equal(snapshot.backends.minimax.status, 'available');
+  assert.equal(snapshot.backends.minimax.dispatcher_executable, true);
+  assert.equal(snapshot.backends.codex.status, 'available');
+  assert.equal(snapshot.backends.codex.dispatcher_executable, false);
+  assert.equal(snapshot.backends.claude.interaction, 'manual-cli');
+});
+
+test('fallback state keeps Codex as expert recommendation but selects MiniMax for autonomous dispatch', async () => {
+  const snapshot = await collectBackendAvailability(policy, {
+    modelModeState: {
+      active_mode: 'fallback',
+      effective_model: 'minimax/MiniMax-M2.7',
+      reason: 'Kimi quota near limit',
+    },
+    cliAvailability: {
+      codex: { available: true },
+      claude: { available: true },
+    },
+  });
+
+  const decision = routeTask('Implementiere eine kleine Funktion im Repo und schreibe Tests.', policy, snapshot);
+  assert.equal(decision.recommended_backend, 'codex');
+  assert.equal(decision.execution.manual_handoff_required, true);
+  assert.equal(decision.execution.dispatcher_candidate, 'minimax');
+});
+
+test('degraded Kimi is not recommended for ordinary conversation when MiniMax is available', async () => {
+  const snapshot = await collectBackendAvailability(policy, {
+    modelModeState: {
+      active_mode: 'fallback',
+      effective_model: 'minimax/MiniMax-M2.7',
+      reason: 'limit exceeded',
+    },
+    cliAvailability: {
+      codex: { available: false, status: 'unavailable' },
+      claude: { available: true, status: 'available' },
+    },
+  });
+
+  const decision = routeTask('Sag mir kurz den Status.', policy, snapshot);
+  assert.equal(decision.profile.task_type, 'conversation');
+  assert.equal(decision.recommended_backend, 'minimax');
+  assert.equal(decision.execution.dispatcher_candidate, 'minimax');
 });
 
 test('shadow observer builds task context and writes a non-invasive routing record', async () => {
@@ -92,6 +169,7 @@ test('shadow observer builds task context and writes a non-invasive routing reco
       logPath,
       sourceChannel: 'telegram:rook',
       nowIso: '2026-08-14T12:00:00.000Z',
+      availability: injectedAvailable,
     });
 
     assert.equal(result.enabled, true);
@@ -104,6 +182,8 @@ test('shadow observer builds task context and writes a non-invasive routing reco
     assert.equal(records[0].source_channel, 'telegram:rook');
     assert.equal(records[0].assigned_agent, 'engineer');
     assert.ok(records[0].recommended_backend);
+    assert.ok(records[0].execution.dispatcher_candidate);
+    assert.equal(records[0].availability.codex.dispatcher_executable, false);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

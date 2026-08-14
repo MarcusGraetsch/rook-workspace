@@ -26,6 +26,7 @@ jobs:
       - name: Check adaptive routing syntax
         run: |
           node --check operations/bin/adaptive-router.mjs
+          node --check operations/bin/routing-availability.mjs
           node --check operations/bin/routing-report.mjs
           node --check operations/bin/routing-outcomes.mjs
           node --check operations/bin/dispatcher/routing-shadow.mjs

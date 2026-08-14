@@ -3,6 +3,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { collectBackendAvailability } from './routing-availability.mjs';
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_POLICY = path.resolve(HERE, '../config/adaptive-routing-policy.json');
 const DEFAULT_LOG = '/root/.openclaw/runtime/operations/routing-decisions.jsonl';
@@ -96,7 +98,16 @@ function workflowFor(profile) {
   return 'direct';
 }
 
-function scoreBackend(key, backend, profile, policy) {
+function runtimeFor(key, availabilitySnapshot) {
+  return availabilitySnapshot?.backends?.[key] || null;
+}
+
+function operationallyUsable(runtime) {
+  if (!runtime) return true;
+  return !['unavailable', 'degraded'].includes(String(runtime.status || 'unknown'));
+}
+
+function scoreBackend(key, backend, profile, policy, availabilitySnapshot) {
   const prefs = policy.task_preferences?.[profile.task_type] || [];
   const prefIndex = prefs.indexOf(key);
   let score = Number(backend.base_priority || 0);
@@ -150,22 +161,74 @@ function scoreBackend(key, backend, profile, policy) {
   if (profile.task_type === 'debugging' && key === 'codex') score += 8;
   if (profile.task_type === 'architecture' && key === 'claude') score += 10;
 
-  return { key, score, reasons };
+  const runtime = runtimeFor(key, availabilitySnapshot);
+  if (runtime?.status === 'available') {
+    score += 4;
+    reasons.push('runtime available');
+  } else if (runtime?.status === 'degraded') {
+    score -= 300;
+    reasons.push(`runtime degraded: ${runtime.reason || 'unknown reason'}`);
+  } else if (runtime?.status === 'unavailable') {
+    score -= 500;
+    reasons.push(`runtime unavailable: ${runtime.reason || 'unknown reason'}`);
+  }
+
+  return {
+    key,
+    score,
+    reasons,
+    status: runtime?.status || 'unknown',
+    dispatcher_executable: runtime?.dispatcher_executable ?? backend.dispatcher_executable === true,
+  };
 }
 
-export function routeTask(text, policy) {
+function executionSummary(recommendedKey, ranked, policy, availabilitySnapshot) {
+  const recommendedRuntime = runtimeFor(recommendedKey, availabilitySnapshot);
+  const dispatcherCandidate = ranked.find((item) => {
+    const backend = policy.backends?.[item.key];
+    const runtime = runtimeFor(item.key, availabilitySnapshot);
+    const dispatcherExecutable = runtime?.dispatcher_executable ?? backend?.dispatcher_executable === true;
+    return dispatcherExecutable && operationallyUsable(runtime);
+  }) || null;
+
+  return {
+    recommended_status: recommendedRuntime?.status || 'unknown',
+    recommended_available: recommendedRuntime?.available ?? null,
+    recommended_dispatcher_executable:
+      recommendedRuntime?.dispatcher_executable ?? policy.backends?.[recommendedKey]?.dispatcher_executable === true,
+    recommended_interaction:
+      recommendedRuntime?.interaction || policy.backends?.[recommendedKey]?.interaction || 'unknown',
+    dispatcher_candidate: dispatcherCandidate?.key || null,
+    dispatcher_candidate_status: dispatcherCandidate?.status || null,
+    manual_handoff_required: Boolean(
+      recommendedKey
+      && !(recommendedRuntime?.dispatcher_executable ?? policy.backends?.[recommendedKey]?.dispatcher_executable === true)
+    ),
+  };
+}
+
+export function routeTask(text, policy, availabilitySnapshot = null) {
   const profile = classifyTask(text);
   const backends = policy.backends || {};
+  const ranked = Object.entries(backends)
+    .map(([key, backend]) => scoreBackend(key, backend, profile, policy, availabilitySnapshot))
+    .sort((a, b) => b.score - a.score);
 
   if (profile.forced_backend && backends[profile.forced_backend] && policy.principles?.explicit_user_choice_wins) {
+    const forced = ranked.find((item) => item.key === profile.forced_backend);
     return {
-      version: 1,
+      version: 2,
       mode: policy.mode || 'advisory',
       profile,
       workflow: workflowFor(profile),
       recommended_backend: profile.forced_backend,
-      alternatives: [],
+      reviewer: null,
+      alternatives: ranked.filter((item) => item.key !== profile.forced_backend).slice(0, 2)
+        .map(({ key, score, status, dispatcher_executable }) => ({ key, score, status, dispatcher_executable })),
+      score: forced?.score ?? null,
       reason: 'explicit user choice',
+      execution: executionSummary(profile.forced_backend, ranked, policy, availabilitySnapshot),
+      availability_checked_at: availabilitySnapshot?.checked_at || null,
       extra_cost_policy: {
         allowed: profile.allow_payg || policy.principles?.allow_payg_by_default === true,
         max_eur: profile.max_extra_cost_eur ?? policy.defaults?.max_extra_cost_eur ?? 0,
@@ -173,27 +236,25 @@ export function routeTask(text, policy) {
     };
   }
 
-  const ranked = Object.entries(backends)
-    .map(([key, backend]) => scoreBackend(key, backend, profile, policy))
-    .sort((a, b) => b.score - a.score);
-
   const best = ranked[0];
   const workflow = workflowFor(profile);
   const needsIndependentReview = profile.risk === 'high' || profile.quality === 'high' || profile.complexity === 'complex';
   const reviewer = needsIndependentReview
-    ? ranked.find((item) => item.key !== best?.key && ['claude', 'codex'].includes(item.key))?.key || null
+    ? ranked.find((item) => item.key !== best?.key && ['claude', 'codex'].includes(item.key) && operationallyUsable(runtimeFor(item.key, availabilitySnapshot)))?.key || null
     : null;
 
   return {
-    version: 1,
+    version: 2,
     mode: policy.mode || 'advisory',
     profile,
     workflow,
     recommended_backend: best?.key || null,
     reviewer,
-    alternatives: ranked.slice(1, 3).map(({ key, score }) => ({ key, score })),
+    alternatives: ranked.slice(1, 3).map(({ key, score, status, dispatcher_executable }) => ({ key, score, status, dispatcher_executable })),
     score: best?.score ?? null,
     reason: best ? best.reasons.join('; ') : 'no backend configured',
+    execution: executionSummary(best?.key || null, ranked, policy, availabilitySnapshot),
+    availability_checked_at: availabilitySnapshot?.checked_at || null,
     extra_cost_policy: {
       allowed: profile.allow_payg || policy.principles?.allow_payg_by_default === true,
       max_eur: profile.max_extra_cost_eur ?? policy.defaults?.max_extra_cost_eur ?? 0,
@@ -212,11 +273,19 @@ async function appendDecision(logPath, record) {
 
 function human(decision, policy) {
   const backend = policy.backends?.[decision.recommended_backend];
+  const dispatcherBackend = policy.backends?.[decision.execution?.dispatcher_candidate];
   const lines = [
     `Task: ${decision.profile.task_type} / ${decision.profile.complexity} / risk=${decision.profile.risk}`,
     `Empfehlung: ${backend?.label || decision.recommended_backend}`,
+    `Availability: ${decision.execution?.recommended_status || 'unknown'} · Dispatcher-ausführbar=${decision.execution?.recommended_dispatcher_executable ? 'ja' : 'nein'}`,
     `Workflow: ${decision.workflow}`,
   ];
+  if (decision.execution?.dispatcher_candidate) {
+    lines.push(`Dispatcher-Kandidat: ${dispatcherBackend?.label || decision.execution.dispatcher_candidate}`);
+  }
+  if (decision.execution?.manual_handoff_required) {
+    lines.push('Hinweis: Empfehlung erfordert derzeit manuellen CLI-/SSH-Handoff.');
+  }
   if (decision.reviewer) lines.push(`Unabhängiger Review: ${policy.backends?.[decision.reviewer]?.label || decision.reviewer}`);
   lines.push(`Zusatzkosten: ${decision.extra_cost_policy.allowed ? `erlaubt bis €${decision.extra_cost_policy.max_eur}` : 'nicht erlaubt'}`);
   lines.push(`Grund: ${decision.reason}`);
@@ -227,20 +296,22 @@ async function main() {
   const args = process.argv.slice(2);
   const json = args.includes('--json');
   const noLog = args.includes('--no-log');
+  const noAvailability = args.includes('--no-availability');
   const policyIndex = args.indexOf('--policy');
   const logIndex = args.indexOf('--log');
   const policyPath = policyIndex >= 0 ? path.resolve(args[policyIndex + 1]) : DEFAULT_POLICY;
   const logPath = logIndex >= 0 ? path.resolve(args[logIndex + 1]) : DEFAULT_LOG;
-  const filtered = args.filter((arg, i) => !['--json', '--no-log'].includes(arg) && i !== policyIndex && i !== policyIndex + 1 && i !== logIndex && i !== logIndex + 1);
+  const filtered = args.filter((arg, i) => !['--json', '--no-log', '--no-availability'].includes(arg) && i !== policyIndex && i !== policyIndex + 1 && i !== logIndex && i !== logIndex + 1);
   const text = filtered.join(' ').trim();
 
   if (!text) {
-    process.stderr.write('Usage: adaptive-router.mjs [--json] [--no-log] [--policy FILE] [--log FILE] "task description"\n');
+    process.stderr.write('Usage: adaptive-router.mjs [--json] [--no-log] [--no-availability] [--policy FILE] [--log FILE] "task description"\n');
     process.exit(2);
   }
 
   const policy = await loadPolicy(policyPath);
-  const decision = routeTask(text, policy);
+  const availability = noAvailability ? null : await collectBackendAvailability(policy);
+  const decision = routeTask(text, policy, availability);
   const record = { timestamp: new Date().toISOString(), input: text, ...decision };
   if (!noLog) await appendDecision(logPath, record);
   process.stdout.write(`${json ? JSON.stringify(decision, null, 2) : human(decision, policy)}\n`);
