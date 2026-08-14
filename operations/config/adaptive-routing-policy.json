@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "mode": "advisory",
+  "updated_at": "2026-08-14",
+  "currency": "EUR",
+  "principles": {
+    "subscription_first": true,
+    "explicit_user_choice_wins": true,
+    "allow_payg_by_default": false,
+    "local_models_enabled": false
+  },
+  "defaults": {
+    "quality": "normal",
+    "latency": "normal",
+    "risk": "auto",
+    "max_extra_cost_eur": 0,
+    "verification": "auto"
+  },
+  "backends": {
+    "kimi": {
+      "label": "Kimi Code",
+      "access": "subscription",
+      "executor": "kimi",
+      "marginal_cost_class": "included",
+      "capabilities": ["coding", "repo", "shell", "research", "summarization", "general"],
+      "strengths": ["routine-coding", "repo-analysis", "research", "high-throughput"],
+      "base_priority": 70
+    },
+    "minimax": {
+      "label": "MiniMax",
+      "access": "subscription-token-plan",
+      "executor": "openclaw-provider",
+      "marginal_cost_class": "included",
+      "capabilities": ["coding", "tool-use", "research", "summarization", "general"],
+      "strengths": ["routine-coding", "tool-use", "high-throughput", "fallback"],
+      "base_priority": 68
+    },
+    "codex": {
+      "label": "Codex CLI",
+      "access": "chatgpt-subscription",
+      "executor": "codex",
+      "marginal_cost_class": "included",
+      "capabilities": ["coding", "repo", "shell", "debugging", "testing", "review", "architecture"],
+      "strengths": ["software-engineering", "debugging", "implementation", "tests"],
+      "base_priority": 66
+    },
+    "claude": {
+      "label": "Claude Code",
+      "access": "claude-subscription",
+      "executor": "claude",
+      "marginal_cost_class": "included",
+      "capabilities": ["coding", "repo", "shell", "debugging", "testing", "review", "architecture", "research", "writing"],
+      "strengths": ["architecture", "review", "complex-reasoning", "long-context", "writing"],
+      "base_priority": 65
+    }
+  },
+  "task_preferences": {
+    "conversation": ["kimi", "minimax", "claude"],
+    "summarization": ["kimi", "minimax", "claude"],
+    "research": ["claude", "kimi", "minimax"],
+    "writing": ["claude", "kimi", "minimax"],
+    "coding": ["codex", "claude", "kimi", "minimax"],
+    "debugging": ["codex", "claude", "kimi", "minimax"],
+    "review": ["claude", "codex", "kimi", "minimax"],
+    "architecture": ["claude", "codex", "kimi", "minimax"],
+    "operations": ["codex", "claude", "kimi", "minimax"]
+  },
+  "workflow_templates": {
+    "direct": ["execute"],
+    "research": ["collect", "synthesize", "verify-sources"],
+    "code-standard": ["inspect", "implement", "test"],
+    "code-high-risk": ["inspect", "plan", "implement", "test", "independent-review"],
+    "architecture": ["inspect-context", "propose-options", "evaluate-tradeoffs", "review"],
+    "operations": ["inspect-state", "plan", "execute", "verify"]
+  }
+}

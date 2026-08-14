@@ -32,6 +32,7 @@ import {
   isDispatchable,
 } from './validation.mjs';
 import { ensureSpecialistRepoView, runGh, maybePushAndCreatePR } from './github.mjs';
+import { observeRouting } from './routing-shadow.mjs';
 import { pathToFileURL } from 'url';
 
 // ---------------------------------------------------------------------------
@@ -351,6 +352,35 @@ export async function main() {
       }
       await appendLog({ ts: nowIso, task_id: task.task_id, action: 'dependency_block', blocked_by: blockers });
       continue;
+    }
+
+    if (!options.dryRun) {
+      try {
+        const shadow = await observeRouting(task, {
+          sourceChannel: options.sourceChannel,
+          nowIso,
+        });
+        if (shadow?.decision) {
+          await appendLog({
+            ts: nowIso,
+            task_id: task.task_id,
+            action: 'adaptive_routing_shadow',
+            source_channel: options.sourceChannel,
+            assigned_agent: task.assigned_agent || null,
+            recommended_backend: shadow.decision.recommended_backend,
+            reviewer: shadow.decision.reviewer || null,
+            workflow: shadow.decision.workflow,
+            profile: shadow.decision.profile,
+          });
+        }
+      } catch (error) {
+        await appendLog({
+          ts: nowIso,
+          task_id: task.task_id,
+          action: 'adaptive_routing_shadow_failed',
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
 
     await dispatchTask(entry, options, nowIso);
