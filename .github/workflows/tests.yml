@@ -27,6 +27,7 @@ jobs:
         run: |
           node --check operations/bin/adaptive-router.mjs
           node --check operations/bin/routing-report.mjs
+          node --check operations/bin/routing-outcomes.mjs
           node --check operations/bin/dispatcher/routing-shadow.mjs
           node --check operations/bin/dispatcher/index.mjs
 
