@@ -33,10 +33,11 @@ test('complex architecture prefers Claude and asks for independent review', () =
   assert.notEqual(decision.reviewer, 'claude');
 });
 
-test('high-risk production operation selects verification workflow', () => {
+test('high-risk production operation uses operations workflow and independent review', () => {
   const decision = routeTask('Plane ein Kubernetes Deployment in der produktiven Kundenumgebung und prüfe die Änderung.', policy);
-  assert.equal(decision.profile.task_type, 'review');
+  assert.equal(decision.profile.task_type, 'operations');
   assert.equal(decision.profile.risk, 'high');
+  assert.equal(decision.workflow, 'operations');
   assert.ok(decision.reviewer);
 });
 
