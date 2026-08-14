@@ -1,6 +1,6 @@
 # Adaptive Routing MVP
 
-Status: advisory-only MVP
+Status: advisory + dispatch shadow mode
 Date: 2026-08-14
 
 ## Ziel
@@ -12,7 +12,7 @@ Die Routing-Schicht soll Marcus' bestehenden Arbeitsstil nicht verändern:
 - Bereits bezahlte Abos/Quota werden vor zusätzlichen Pay-as-you-go-API-Kosten genutzt.
 - Explizite Modellwahl durch Marcus hat immer Vorrang.
 
-Der MVP entscheidet **nur**. Er startet keine Modelle und ändert keine Live-Konfiguration.
+Der MVP entscheidet und beobachtet **nur**. Er startet keine Modelle, überschreibt keine Agent-Zuweisung und ändert keine Live-Modellkonfiguration.
 
 ## Warum kein LiteLLM/OpenRouter/LangChain im MVP?
 
@@ -33,8 +33,16 @@ Diese Werkzeuge können später sinnvoll sein, insbesondere für API-Gateway, Pr
   - Backend-Scoring
   - Advisory-Ausgabe
   - JSONL-Logging für spätere Evaluation
+- `operations/bin/dispatcher/routing-shadow.mjs`
+  - baut aus canonical Tasks einen Routing-Kontext
+  - protokolliert vor realen Dispatches die Empfehlung
+  - verändert Task, Agent, Modell und Dispatch nicht
+  - kann mit `ROOK_ADAPTIVE_ROUTING_SHADOW=0` deaktiviert werden
+- `operations/bin/routing-report.mjs`
+  - aggregiert Shadow-Beobachtungen nach Backend, Task-Typ, Workflow, Reviewer und aktuellem Agent
+  - unterstützt `--days N` und `--json`
 - `operations/tests/adaptive-router.test.mjs`
-  - Basistests für Coding, Architektur, Operations, explizite Modellwahl und Zusatzkosten
+  - Tests für Klassifikation, Routing, Kostenpolicy, Shadow Logging und Reporting
 
 ## Abgrenzung zum bestehenden model-mode-controller
 
@@ -47,6 +55,8 @@ Der Adaptive Router beantwortet eine andere Frage:
 Später muss die Empfehlung zusätzlich den aktuellen Availability-State des model-mode-controller berücksichtigen.
 
 ## CLI-Beispiele
+
+Einzelne Aufgabe beraten lassen:
 
 ```bash
 node operations/bin/adaptive-router.mjs --no-log \
@@ -74,20 +84,46 @@ node operations/bin/adaptive-router.mjs --json --no-log \
   "Bitte nutze Claude und reviewe die Architektur"
 ```
 
-## Geplanter Rollout
+Shadow-Beobachtungen ansehen:
 
-### Phase 1 — Advisory
+```bash
+node operations/bin/routing-report.mjs
+node operations/bin/routing-report.mjs --days 7
+node operations/bin/routing-report.mjs --days 30 --json
+```
 
-1. Tests auf der VM ausführen.
-2. 20–50 echte Marcus-Aufträge manuell durch den Router laufen lassen.
-3. Falschklassifikationen sammeln.
-4. Policy und Heuristiken korrigieren.
+Default-Log:
 
-### Phase 2 — Rook Integration
+```text
+/root/.openclaw/runtime/operations/routing-decisions.jsonl
+```
 
-Rook/Orchestrator ruft den Router vor einem echten Dispatch auf. Die Entscheidung wird im Task/Log gespeichert. Rook nennt kurz Backend + Workflow + Begründung.
+## Aktueller Rollout
 
-Kein automatischer Providerwechsel ohne vorhandene Executor-Unterstützung.
+### Phase 1 — Advisory + Shadow
+
+1. Dependency-freie Tests laufen in GitHub Actions.
+2. Der Dispatcher ruft den Router vor echten Dispatches im Shadow Mode auf.
+3. Entscheidungen werden nur protokolliert.
+4. Fehlklassifikationen werden über reale Marcus-Aufträge gesammelt.
+5. Mit `routing-report.mjs` wird die Verteilung regelmäßig ausgewertet.
+
+Der Shadow-Hook ist absichtlich **fail-open**: Ein Router- oder Logging-Fehler wird im Dispatcher-Log als `adaptive_routing_shadow_failed` festgehalten, der echte Dispatch läuft trotzdem weiter.
+
+Dry-runs erzeugen keine Shadow-Beobachtung.
+
+### Phase 2 — Outcome-Korrelation
+
+Routing-Beobachtungen werden über `task_id` mit realen Dispatcher-/Task-Ergebnissen verbunden:
+
+- tatsächlich verwendeter Executor/Backend
+- erfolgreich / fehlgeschlagen
+- Retry/Eskalation
+- Dauer
+- Review-/Test-Ergebnis
+- menschlich akzeptiert / nachgebessert, soweit erfassbar
+
+Erst danach lässt sich sinnvoll bewerten, ob die Empfehlung besser oder schlechter als die bisherige Zuweisung war.
 
 ### Phase 3 — Availability + Quota
 
@@ -99,18 +135,9 @@ Routing-Engine liest zusätzlich:
 
 Nicht verfügbare Backends werden aus der Kandidatenliste entfernt.
 
-### Phase 4 — Experience Feedback
+### Phase 4 — Controlled Auto-Routing
 
-Für ausgeführte Tasks werden Outcome-Daten ergänzt:
-
-- erfolgreich / fehlgeschlagen
-- Retry/Eskalation
-- menschlich akzeptiert / nachgebessert
-- Laufzeit
-- verwendetes Backend/Modell
-- Kosten soweit messbar
-
-Die eigene Historie wird stärker gewichtet als allgemeine Benchmark-Rankings.
+Nur für klar abgegrenzte, risikoarme Task-Klassen darf die Empfehlung die Executor-/Modellwahl automatisch beeinflussen. High-risk, produktive oder strategische Aufgaben behalten Review-/Human-Gates.
 
 ### Phase 5 — Externe Model-Daten
 
@@ -122,4 +149,5 @@ Erst dann externe Benchmark-/Preis-Feeds oder API-Gateways anbinden. Kandidaten 
 - Kein Pay-as-you-go ohne explizite Policy/Freigabe.
 - Produktive/high-risk Tasks benötigen Verifikation bzw. unabhängigen Review.
 - Manuelle Modellwahl durch Marcus überschreibt Routing.
-- Advisory-Modus bleibt der Default, bis reale Daten die Automatisierung rechtfertigen.
+- Shadow-/Advisory-Modus bleibt der Default, bis reale Daten die Automatisierung rechtfertigen.
+- Shadow-Fehler dürfen den echten Dispatcher nicht blockieren.
