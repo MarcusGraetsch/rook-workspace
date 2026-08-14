@@ -1,18 +1,18 @@
 # Adaptive Routing MVP
 
-Status: advisory + dispatch shadow + outcome correlation
+Status: advisory + dispatch shadow + availability + outcome correlation
 Date: 2026-08-14
 
 ## Ziel
 
-Die Routing-Schicht soll Marcus' bestehenden Arbeitsstil nicht verändern:
+Die Routing-Schicht soll den bestehenden Arbeitsstil nicht verändern:
 
 - Telegram bleibt der normale Einstieg über Rook/OpenClaw und Phoenix/Hermes.
 - SSH + Codex/Claude Code bleibt der bewusste Expertenmodus für komplexe Entwicklung.
 - Bereits bezahlte Abos/Quota werden vor zusätzlichen Pay-as-you-go-API-Kosten genutzt.
-- Explizite Modellwahl durch Marcus hat immer Vorrang.
+- Explizite Modellwahl hat immer Vorrang.
 
-Der MVP entscheidet und beobachtet **nur**. Er startet keine Modelle, überschreibt keine Agent-Zuweisung und ändert keine Live-Modellkonfiguration.
+Der MVP entscheidet und beobachtet **nur**. Er startet keine neuen Backend-Typen automatisch, überschreibt keine Agent-Zuweisung und ändert keine Live-Modellkonfiguration.
 
 ## Warum kein LiteLLM/OpenRouter/LangChain im MVP?
 
@@ -25,41 +25,85 @@ Diese Werkzeuge können später sinnvoll sein, insbesondere für API-Gateway, Pr
   - subscription-first Policy
   - Task-Präferenzen
   - Workflow-Templates
+  - explizite Trennung zwischen OpenClaw-ausführbaren Backends und manuellen CLI-Backends
 - `operations/bin/adaptive-router.mjs`
   - heuristische Task-Klassifikation
   - Risiko/Komplexität/Qualität/Latenz
   - explizite Modellwahl
   - Budget-Hinweise aus natürlicher Sprache
   - Backend-Scoring
-  - Advisory-Ausgabe
-  - JSONL-Logging für spätere Evaluation
+  - Availability-aware Ranking
+  - getrennte Ausgabe von fachlicher Empfehlung und autonomem Dispatcher-Kandidaten
+  - Advisory-Ausgabe und JSONL-Logging
+- `operations/bin/routing-availability.mjs`
+  - liest `model-mode-state.json` für Kimi/MiniMax
+  - markiert Kimi während aktivem Fallback als degraded
+  - erkennt Codex/Claude read-only über ausführbare CLI-Dateien im `PATH`
+  - führt keine Testprompts aus und verbraucht keine Modell-Quota
+  - meldet pro Backend `status`, `available`, `dispatcher_executable`, `interaction`, Quelle und Grund
 - `operations/bin/dispatcher/routing-shadow.mjs`
   - baut aus canonical Tasks einen Routing-Kontext
-  - protokolliert vor realen Dispatches die Empfehlung
+  - liest Availability vor dem Shadow-Routing
+  - protokolliert vor realen Dispatches Empfehlung, Dispatcher-Kandidat und Availability
   - verändert Task, Agent, Modell und Dispatch nicht
   - kann mit `ROOK_ADAPTIVE_ROUTING_SHADOW=0` deaktiviert werden
 - `operations/bin/routing-report.mjs`
-  - aggregiert Shadow-Beobachtungen nach Backend, Task-Typ, Workflow, Reviewer und aktuellem Agent
+  - aggregiert fachliche Empfehlungen und autonome Dispatcher-Kandidaten getrennt
+  - zeigt Availability-Status und benötigte manuelle Handoffs
   - unterstützt `--days N` und `--json`
 - `operations/bin/routing-outcomes.mjs`
   - korreliert Shadow-Entscheidungen über `task_id` mit canonical/archive Tasks und Runtime-Overlays
   - liest tatsächliches `dispatch.model`, Executor, Attempts, Ergebnis und Status
-  - normalisiert aktuelle Modelle auf die Backend-Kategorien Kimi, MiniMax, Claude und Codex
+  - normalisiert aktuelle Modelle auf Kimi, MiniMax, Claude und Codex
   - berechnet Erfolg/Failure/Pending sowie Empfehlung-vs.-Ist
 - `operations/tests/adaptive-router.test.mjs`
-  - Tests für Klassifikation, Routing, Kostenpolicy, Shadow Logging, Reporting und Outcome-Korrelation
+  - Tests für Klassifikation, Routing, Kostenpolicy, Availability, Shadow Logging, Reporting und Outcome-Korrelation
 
-## Abgrenzung zum bestehenden model-mode-controller
+## Drei getrennte Fragen
 
-`model-mode-controller.mjs` bleibt für Availability-/Quota-Fallback zuständig (z. B. Kimi → MiniMax bei Limits).
+Der Router unterscheidet jetzt bewusst:
 
-Der Adaptive Router beantwortet eine andere Frage:
+1. **Welches Backend wäre für die Aufgabe fachlich am besten?**
+2. **Welches Backend ist gerade verfügbar?**
+3. **Welches verfügbare Backend kann der aktuelle OpenClaw-Dispatcher autonom starten?**
 
-> Welcher Backend-/Workflow-Typ passt zu dieser Aufgabe?
+Beispiel:
 
-Später muss die Empfehlung zusätzlich den aktuellen Availability-State des model-mode-controller berücksichtigen.
+```text
+Fachliche Empfehlung: Codex CLI
+Availability: available
+Dispatcher-ausführbar: nein
+Autonomer Dispatcher-Kandidat: Kimi Code
+Manueller Handoff: ja
+```
+
+Wenn Kimi wegen Quota/Rate-Limit im bestehenden `model-mode-controller` auf Fallback steht:
+
+```text
+Fachliche Empfehlung: Codex CLI
+Kimi: degraded
+MiniMax: available
+Autonomer Dispatcher-Kandidat: MiniMax
+```
+
+Der Router verändert dabei den bestehenden `model-mode-controller` nicht.
+
+## Abgrenzung zum model-mode-controller
+
+`model-mode-controller.mjs` bleibt für Kimi/MiniMax Availability-/Quota-Fallback zuständig.
+
+Der Adaptive Router beantwortet dagegen:
+
+> Welcher Backend-/Workflow-Typ passt zur Aufgabe, welcher ist verfügbar, und welcher davon ist mit der aktuellen Ausführungsarchitektur automatisch nutzbar?
 
 ## CLI-Beispiele
+
+Availability prüfen:
+
+```bash
+node operations/bin/routing-availability.mjs
+node operations/bin/routing-availability.mjs --json
+```
 
 Einzelne Aufgabe beraten lassen:
 
@@ -68,25 +112,18 @@ node operations/bin/adaptive-router.mjs --no-log \
   "Implementiere eine kleine Funktion im Repo und schreibe Tests"
 ```
 
+Availability für Debugging ignorieren:
+
+```bash
+node operations/bin/adaptive-router.mjs --no-availability --no-log \
+  "Implementiere eine kleine Funktion im Repo und schreibe Tests"
+```
+
 JSON-Ausgabe:
 
 ```bash
 node operations/bin/adaptive-router.mjs --json --no-log \
   "Entwirf eine komplexe Zielarchitektur und prüfe sie gründlich"
-```
-
-Zusatzkosten explizit erlauben:
-
-```bash
-node operations/bin/adaptive-router.mjs --json --no-log \
-  "Recherchiere das gründlich. Zusätzliche Kosten erlaubt, Budget 2,50 Euro"
-```
-
-Explizite Modellwahl:
-
-```bash
-node operations/bin/adaptive-router.mjs --json --no-log \
-  "Bitte nutze Claude und reviewe die Architektur"
 ```
 
 Shadow-Beobachtungen ansehen:
@@ -111,46 +148,33 @@ Default-Log:
 /root/.openclaw/runtime/operations/routing-decisions.jsonl
 ```
 
-## Aktueller Rollout
+## Rollout-Stufen
 
 ### Phase 1 — Advisory + Shadow
 
-1. Dependency-freie Tests laufen in GitHub Actions.
-2. Der Dispatcher ruft den Router vor echten Dispatches im Shadow Mode auf.
-3. Entscheidungen werden nur protokolliert.
-4. Fehlklassifikationen werden über reale Marcus-Aufträge gesammelt.
-5. Mit `routing-report.mjs` wird die Verteilung regelmäßig ausgewertet.
-
-Der Shadow-Hook ist absichtlich **fail-open**: Ein Router- oder Logging-Fehler wird im Dispatcher-Log als `adaptive_routing_shadow_failed` festgehalten, der echte Dispatch läuft trotzdem weiter.
-
-Dry-runs erzeugen keine Shadow-Beobachtung.
+- Dispatcher beobachtet Routing-Entscheidungen fail-open.
+- Keine Empfehlung verändert den echten Dispatch.
+- Fehlklassifikationen werden mit realen Tasks gesammelt.
 
 ### Phase 2 — Outcome-Korrelation
 
-`routing-outcomes.mjs` verbindet Routing-Beobachtungen bereits über `task_id` mit realen Dispatcher-/Task-Ergebnissen. Dafür werden bestehende canonical/archive Tasks und Runtime-Task-State verwendet; es wird noch keine neue Datenbank benötigt.
+`routing-outcomes.mjs` verbindet Routing-Beobachtungen mit realen Dispatcher-/Task-Ergebnissen. Dafür werden bestehende canonical/archive Tasks und Runtime-Task-State verwendet; es wird noch keine neue Datenbank benötigt.
 
-Aktuell erfassbar sind:
+### Phase 2a — Availability-aware Advisory/Shadow
 
-- tatsächlich verwendetes Modell/Backend, soweit in `dispatch.model` vorhanden
-- Executor
-- Status: success / failure / pending
-- Retry-Anzahl
-- `last_result`
-- Failure Reason
-- Abschlusszeitpunkt
-- Empfehlung-vs.-tatsächliches Backend
+Aktuell umgesetzt:
 
-Noch nicht automatisch erfasst werden menschliche Akzeptanz/Nachbesserung und belastbare Kosten pro Task. Diese Daten kommen später hinzu.
+- Kimi/MiniMax Runtime-State aus `model-mode-state.json`
+- Codex/Claude Installation über read-only `PATH`-Probe
+- fachliche Empfehlung getrennt vom autonomen Dispatcher-Kandidaten
+- Kimi wird bei aktivem Fallback nicht automatisch empfohlen
+- Codex/Claude können empfohlen werden, erzwingen aber derzeit einen manuellen CLI-/SSH-Handoff
 
-### Phase 3 — Availability + Quota
+Bewusste Grenze: CLI-Installation bedeutet noch nicht verifizierte Authentifizierung. Der Availability-Status enthält deshalb für Codex/Claude `auth: unknown`.
 
-Routing-Engine liest zusätzlich:
+### Phase 3 — Controlled Executor Integration
 
-- `model-mode-state.json`
-- installierte/angemeldete CLIs
-- ggf. Provider-Quota/Rate-Limit-State
-
-Nicht verfügbare Backends werden aus der Kandidatenliste entfernt.
+Erst nach realen Shadow-Daten wird entschieden, ob und wie Codex/Claude als echte Dispatcher-Executors eingebunden werden. Bis dahin bleiben sie manuelle Expertenpfade.
 
 ### Phase 4 — Controlled Auto-Routing
 
@@ -165,7 +189,8 @@ Erst dann externe Benchmark-/Preis-Feeds oder API-Gateways anbinden. Kandidaten 
 - Keine Secrets in Policy oder Routing-Logs.
 - Kein Pay-as-you-go ohne explizite Policy/Freigabe.
 - Produktive/high-risk Tasks benötigen Verifikation bzw. unabhängigen Review.
-- Manuelle Modellwahl durch Marcus überschreibt Routing.
+- Manuelle Modellwahl überschreibt Routing.
 - Shadow-/Advisory-Modus bleibt der Default, bis reale Daten die Automatisierung rechtfertigen.
 - Shadow-Fehler dürfen den echten Dispatcher nicht blockieren.
+- Availability-Probes führen keine Modell-Prompts aus.
 - Reporting-/Outcome-Tools arbeiten read-only auf bestehenden Logs und Task-Dateien.
