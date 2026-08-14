@@ -7,6 +7,12 @@ import path from 'node:path';
 import { classifyTask, routeTask } from '../bin/adaptive-router.mjs';
 import { buildRoutingText, observeRouting } from '../bin/dispatcher/routing-shadow.mjs';
 import { summarizeRoutingRecords } from '../bin/routing-report.mjs';
+import {
+  classifyOutcome,
+  correlateRoutingOutcomes,
+  normalizeActualBackend,
+  summarizeOutcomes,
+} from '../bin/routing-outcomes.mjs';
 
 const policyUrl = new URL('../config/adaptive-routing-policy.json', import.meta.url);
 const policy = JSON.parse(await readFile(policyUrl, 'utf8'));
@@ -141,4 +147,64 @@ test('routing report summarizes shadow observations without mixing advisory CLI 
   assert.equal(summary.high_risk, 1);
   assert.equal(summary.complex, 1);
   assert.equal(summary.extra_cost_allowed, 1);
+});
+
+test('outcome correlation reuses canonical task state as experience data', () => {
+  assert.equal(normalizeActualBackend('minimax-portal/MiniMax-M2.7'), 'minimax');
+  assert.equal(normalizeActualBackend('kimi-coding/moonshot-k2-6'), 'kimi');
+  assert.equal(normalizeActualBackend('anthropic/claude-sonnet-5'), 'claude');
+  assert.equal(normalizeActualBackend('openai/gpt-5.6'), 'codex');
+  assert.equal(classifyOutcome({ status: 'done' }), 'success');
+  assert.equal(classifyOutcome({ status: 'blocked' }), 'failure');
+
+  const records = [
+    {
+      timestamp: '2026-08-14T12:00:00.000Z',
+      kind: 'dispatch-shadow',
+      task_id: 'ops-1000',
+      recommended_backend: 'codex',
+      reviewer: 'claude',
+      workflow: 'code-standard',
+      assigned_agent: 'engineer',
+      profile: { task_type: 'coding', risk: 'medium', complexity: 'standard' },
+    },
+    {
+      timestamp: '2026-08-14T12:01:00.000Z',
+      kind: 'dispatch-shadow',
+      task_id: 'ops-1001',
+      recommended_backend: 'claude',
+      workflow: 'architecture',
+      assigned_agent: 'consultant',
+      profile: { task_type: 'architecture', risk: 'high', complexity: 'complex' },
+    },
+  ];
+  const tasks = new Map([
+    ['ops-1000', {
+      task_id: 'ops-1000',
+      status: 'done',
+      dispatch: { model: 'openai/gpt-5.6', executor: 'engineer', attempts: 1, last_result: 'completed' },
+      timestamps: { completed_at: '2026-08-14T12:30:00.000Z' },
+    }],
+    ['ops-1001', {
+      task_id: 'ops-1001',
+      status: 'blocked',
+      dispatch: { model: 'minimax/MiniMax-M2.7', executor: 'consultant', attempts: 2, last_result: 'aborted' },
+      failure_reason: 'test failure',
+    }],
+  ]);
+
+  const rows = correlateRoutingOutcomes(records, tasks);
+  assert.equal(rows[0].outcome, 'success');
+  assert.equal(rows[0].recommendation_match, true);
+  assert.equal(rows[1].outcome, 'failure');
+  assert.equal(rows[1].actual_backend, 'minimax');
+  assert.equal(rows[1].recommendation_match, false);
+
+  const summary = summarizeOutcomes(rows);
+  assert.equal(summary.correlated, 2);
+  assert.equal(summary.successes, 1);
+  assert.equal(summary.failures, 1);
+  assert.equal(summary.recommendation_matches, 1);
+  assert.equal(summary.recommendation_mismatches, 1);
+  assert.equal(summary.recommendation_match_rate, 0.5);
 });
