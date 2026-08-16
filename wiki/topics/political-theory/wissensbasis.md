@@ -73,9 +73,37 @@ Drei Grenzüberschreitungen:
 *Recherche-Cluster 11.07.2026 — Synthese aus laufender Beobachtung.*
 
 ### Drei verschachtelte Wendungen
-1. **Tech-PR** (Karp/Palantir) — Souveränität als Verkauf von Enterprise-KI an den US-Staat
-2. **Staats-Kompensation** (Anthropic) — Fable 5 Blackout 12.06.2026 → Ausgleichslogik
-3. **EU-Souveränität** (Mistral) — Antwort auf US-Konzentration
+
+Die folgenden drei Ebenen sind nicht drei parallele Strategien, sondern **drei logisch verschachtelte Argumentationsfiguren** — jede следующая antwortet auf den inneren Widerspruch der vorangehenden.
+
+#### Schicht 1: Tech-PR — Souveränität als Framing-Infrastruktur
+
+**Was passiert:** Palantir (Karp) und Microsoft (Nadella) positionieren KI-Infrastruktur nicht als Produkt, sondern als **staatsanalogess System**: rechtsstaatlich kontrolliert, demokratisch legitimiert, unentbehrlich für nationale Sicherheit.
+
+**Logische Funktion:** Diese Schicht *etabliert den Rahmen*. Sie macht das Technologieunternehmen zum Garanten einer Funktion, die traditionell dem Staat zugeschrieben wird (Souveränität, Sicherheit, Rechtsdurchsetzung). Dadurch wird jede Kritik am Unternehmen zur Kritik am Staat — oder zur Naivität gegenüber der "modernen Bedrohungslage".
+
+**Innerer Widerspruch, der Schicht 2 motiviert:** Die Tech-PR behauptet Neutralität als Infrastruktur-Anbieter, verkauft aber de facto eine *partikulare Interessenlage* (US-Datenhoheit, US-Cloud, US-Firmen) unter dem Deckmantel universeller Staatsräson.
+
+#### Schicht 2: Staats-Kompensation — Wenn der Staat für Tech-Risiken haftet
+
+**Was passiert:** Unternehmen wie Anthropic bauen auf dem PR-Rahmen von Schicht 1 auf und argumentieren: Wenn KI "kritische Infrastruktur" ist, dann muss der **Staat für Ausfallsicherheit bürgen** — nicht der Steuerzahler des Unternehmens, sondern der Staat als ganzer. Das "Fable 5 Blackout"-Ereignis (12.06.2026) ist der erste öffentliche Vorfall, in dem diese Logik sichtbar wird: Eine Frontier-Lab bringt ein System in die Welt, dessen Ausfall gesamtgesellschaftliche Kosten verursacht, für die das Unternehmen selbst nicht haftet.
+
+**Logische Funktion:** Staats-Kompensation *transformiert die Haftungsfrage*. Tech-PR behauptet: "Wir sind so wichtig wie der Staat." Staats-Kompensation schließt implizit: "Also muss der Staat für uns haften wie für sich selbst." Das ist eine Umverteilung von Risiko nach oben — vom Unternehmen zum Steuerzahler — ohne dass dies je so benannt wird.
+
+**Innerer Widerspruch, der Schicht 3 motiviert:** Die Kompensationslogik funktioniert nur, solange der *zuständige Staat* mit dem *Technologie-Staat* identisch ist. Sobald EU-Staaten oder die EU-Kommission als regulatorische Gegenüber auftreten, stellt sich die Frage: Wessen Staat kompensiert hier eigentlich wen?
+
+#### Schicht 3: EU-Souveränität — Die Umkehrung des Rahmens
+
+**Was passiert:** Akteure wie Mistral (Frankreich) und die EU-Kommission drehen die Argumentation um: Wenn Tech-Infrastruktur wirklich *souveränitätsrelevant* ist, dann ist die Abhängigkeit von US-Anbietern kein neutrales Faktum, sondern ein **Souveränitätsverlust**. "EU-Souveränität" wird damit zur logicalchen Konsequenz der ersten beiden Schichten — aber in umgekehrter Richtung: Nicht der Staat soll die Tech-Infrastruktur stützen, sondern die Tech-Infrastruktur soll demokratisch kontrolliert werden.
+
+**Logische Funktion:** EU-Souveränität *rekontextualisiert das Gesamtargument*. Sie akzeptiert den Rahmen von Schicht 1 (KI ist infrastrukturrelavant) und die Gefährdung aus Schicht 2 (Abhängigkeit ist riskant), zieht aber eine andere policy-Schlussfolgerung: **strategische Autonomie** statt Staats-Bürgschaft für US-Konzerne.
+
+**Die Pointe:** Die drei Schichten zusammengenommen ergeben eine **dialektische Trilemma-Situation**:
+- Schicht 1 (Tech-PR) behauptet: Staat = Tech-Infrastruktur
+- Schicht 2 (Staats-Kompensation) schließt: Also haftet der Staat für Tech-Risiken
+- Schicht 3 (EU-Souveränität) fragt: *Welcher* Staat — und zu wessen Gunsten?
+
+Das Trilemma besteht darin, dass keine der drei Positionen ihre eigene Verstrickung in die anderen beiden benennen kann, ohne ihren eigenen Geltungsgrund zu untergraben.
 
 ### Schlüssel-Befunde
 
