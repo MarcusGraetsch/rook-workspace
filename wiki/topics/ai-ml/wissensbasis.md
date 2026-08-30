@@ -147,6 +147,62 @@ Nach 28.10.2025: Es gibt keine AGI-Schutzklausel mehr, also auch keinen Schutzsc
 
 → Siehe [[political-theory]] für die Theorie-Einbettung (Tronti'sche kopernikanische Wendung, „Kapital treibt seinen eigenen Zyklus zu Ende").
 
+## Vibe Coding Review Pipeline
+
+*Ergänzt 2026-08-30 aus Session-Log*
+
+### Konzept
+Marcus' Idee (2026-05-27): Automatisierte Pipeline für KI-generierten Code. Ziel: Qualitätssicherung nach dem Prinzip "KI schreibt, Maschine prüft".
+
+### Tools
+| Tool | Typ | Einsatzzweck |
+|------|-----|--------------|
+| **SS-Fuzz** | Fuzzing | Robustheitstest, Crash-Detection |
+| **Coverity** | Static Analysis | Defect Detection, Security Bugs |
+| **CodeQL** | Semantic Code Analysis | Vulnerability Patterns, Code Quality |
+
+### Status
+**Blocked** — wartet auf Codex Architecture Session (Architektur-Entscheidung ausstehend).
+
+### Wiki-Relevanz
+**Hoch.** Automatisierte CI/CD-Pipeline für AI-generierten Code ist ein aufkommendes Pattern. Nächste Schritte: Codex-Architektur-Session abwarten, dann entscheiden welches Topic die Pipeline-Details trägt.
+
+### Alternativen / Vorläufer
+-覆盖\ DinD (Docker-in-Docker) für GitHub Actions
+-覆写 Copilot CLI + `gh cs` (Code Scanning)
+
+---
+
+## KI-Hardware (Server & Edge)
+
+*Ergänzt 2026-08-30 — Details aus 2026-06-12 Session*
+
+### Aktuelle Optionen (Juni 2026)
+
+| System | Specs | RAM | Einschätzung |
+|--------|-------|-----|--------------|
+| **Minisforum UM890 Pro** | AMD Ryzen AI 9, iGPU mit RNN | — | Kompakte Desktop-KI |
+| **Apple M3 Ultra** | 192GB Unified Memory | 192GB | einzige Single-Device-Lösung für 70B+ |
+| **AI X1 Pro** | 64GB RAM | 64GB | Geplant, lokale Embeddings |
+
+### eGPU via Oculink
+- Oculink als externe GPU-Anbindung für Laptop/Desktop-Setups
+- Vulkan-Backend für GPU-Compute
+- Alternative zu Thunderbolt-eGPU (höhere Bandwidth)
+
+### ROCm
+- AMD's Open-Source GPU-Compute-Stack
+- Alternative zu CUDA (NVIDIA-only)
+- Für lokale KI-Inferenz auf AMD-Hardware
+
+### RAM als Flaschenhals
+- 70B+ Modelle brauchen 192GB+ (Quantisierung ändert nichts am VRAM-Bedarf von 70B+)
+- M3 Ultra (192GB) = einzige einigermaßen erschwingliche Single-Device-Lösung für 70B+
+- Alle anderen aktuellen Optionen erfordern Multi-GPU / Server-Setup
+
+### Cross-Reference
+→ [[rook-hermes-bridge]] — lokale KI als Alternative zu Cloud-Providern
+
 ## Cross-References
 
 - → [[cloud-kubernetes]] — (placeholder)

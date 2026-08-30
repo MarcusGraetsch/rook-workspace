@@ -59,5 +59,32 @@ Bei der Urban Data Platform für den former Tegel Airport:
 
 - Hardware-related conversations in workspace
 
+## KI-Hardware — Server & Edge (2026-06-12)
+
+*Ergänzt 2026-08-30*
+
+### Aktuelle Optionen (Juni 2026)
+
+| System | Specs | RAM | Einschätzung |
+|--------|-------|-----|--------------|
+| **Minisforum UM890 Pro** | AMD Ryzen AI 9, iGPU mit RNN | — | Kompakte Desktop-KI |
+| **Apple M3 Ultra** | 192GB Unified Memory | 192GB | einzige Single-Device-Lösung für 70B+ |
+| **AI X1 Pro** | 64GB RAM | 64GB | Geplant, lokale Embeddings |
+
+### eGPU via Oculink
+- Oculink = externe GPU-Anbindung mit höherer Bandwidth als Thunderbolt
+- Ermöglicht GPU-Compute-Erweiterung an kompakten Systemen
+- Vulkan-Backend für GPU-Compute (Alternative zu CUDA)
+
+### ROCm (AMD)
+- AMDs Open-Source GPU-Compute-Stack
+- Alternative zu NVIDIA CUDA
+- Für lokale KI-Inferenz auf AMD-Hardware
+
+### RAM als Flaschenhals
+- 70B+ Modelle brauchen 192GB+ (selbst mit Quantisierung)
+- M3 Ultra = einzige einigermaßen erschwingliche Single-Device-Lösung
+- Alle anderen aktuellen Optionen = Multi-GPU / Server-Setup
+
 ---
-*Zuletzt aktualisiert: 2026-05-01*
+*Zuletzt aktualisiert: 2026-08-30*
