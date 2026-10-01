@@ -1,6 +1,3 @@
-[submodule "projects/critical-theory-digital"]
-	path = projects/critical-theory-digital
-	url = https://github.com/MarcusGraetsch/critical-theory-digital.git
 [submodule "projects/working-notes"]
 	path = projects/working-notes
 	url = https://github.com/MarcusGraetsch/working-notes.git
@@ -13,9 +10,12 @@
 [submodule "engineering/metrics-collector"]
 	path = engineering/metrics-collector
 	url = https://github.com/MarcusGraetsch/metrics-collector.git
-[submodule "engineering/kubernetes-lab"]
-	path = engineering/kubernetes-lab
-	url = git@github.com:MarcusGraetsch/rook-k8s-lab.git
 [submodule "engineering/idp-customer-onboarding"]
 	path = engineering/idp-customer-onboarding
 	url = https://github.com/MarcusGraetsch/idp-customer-onboarding.git
+[submodule "engineering/rook-k8s-lab"]
+	path = engineering/rook-k8s-lab
+	url = https://github.com/MarcusGraetsch/rook-k8s-lab.git
+[submodule "projects/critical-theory-digital"]
+	path = projects/critical-theory-digital
+	url = https://github.com/MarcusGraetsch/critical-theory-digital.git
